@@ -1,23 +1,22 @@
 import asyncio
 import rnet
-import requests
-import json
 from rnet import Method, Impersonate
 
 async def main():
-    resp = await rnet.get("https://httpbin.org/get")
+    resp = await rnet.get("https://httpbin.org/range/15")
     print("Status Code: ", resp.status_code)
     print("Version: ", resp.version)
     print("Response URL: ", resp.url)
     print("Headers: ", resp.headers.to_dict())
     print("Content-Length: ", resp.content_length)
+    print("Encoding: ", resp.encoding)
     print("Remote Address: ", resp.remote_addr)
 
     # Close the response connection
     # await resp.close()
 
-    # text_content = await resp.text()
-    # print("Text: ", text_content)
+    text_content = await resp.text()
+    print("Text: ", text_content)
 
     # text_with_charset = await resp.text_with_charset(encoding="utf-8")
     # print("Text with charset: ", text_with_charset)

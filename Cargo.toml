@@ -11,11 +11,12 @@ name = "rnet"
 crate-type = ["cdylib"]
 
 [dependencies]
-pyo3 = { version = "0.23.0", features = ["anyhow", "indexmap"] }
+pyo3 = { version = "0.23.0", features = ["anyhow", "indexmap", "multiple-pymethods"] }
 pyo3-async-runtimes = { version = "0.23.0", features = ["tokio-runtime"] }
 anyhow = "1.0"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
+mime = "0.3.17"
 indexmap = { version = "2.7.0", features = ["serde"] }
 arc-swap = "1.7.1"
 rquest = { version = "2.0", features = ["full"] }

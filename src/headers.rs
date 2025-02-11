@@ -1,3 +1,5 @@
+use std::ops::Deref;
+
 use pyo3::{
     prelude::*,
     types::{PyBytes, PyDict},
@@ -7,12 +9,6 @@ use rquest::header;
 #[derive(Clone)]
 #[pyclass]
 pub struct HeaderMap(header::HeaderMap);
-
-impl From<header::HeaderMap> for HeaderMap {
-    fn from(map: header::HeaderMap) -> Self {
-        HeaderMap(map)
-    }
-}
 
 #[pymethods]
 impl HeaderMap {
@@ -26,5 +22,19 @@ impl HeaderMap {
 
     fn __getitem__<'rt>(&'rt self, key: &str) -> PyResult<Option<&'rt [u8]>> {
         Ok(self.0.get(key).and_then(|v| Some(v.as_ref())))
+    }
+}
+
+impl From<header::HeaderMap> for HeaderMap {
+    fn from(map: header::HeaderMap) -> Self {
+        HeaderMap(map)
+    }
+}
+
+impl Deref for HeaderMap {
+    type Target = header::HeaderMap;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
     }
 }

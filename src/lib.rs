@@ -11,6 +11,20 @@ use error::wrap_rquest_error;
 use pyo3::prelude::*;
 use response::Response;
 
+#[macro_export]
+macro_rules! define_constants {
+    ($type:tt, $inner_type:ty, $($name:ident),*) => {
+        #[allow(non_upper_case_globals)]
+        #[pymethods]
+        impl $type {
+            $(
+                #[classattr]
+                pub const $name: $type = $type(<$inner_type>::$name);
+            )*
+        }
+    };
+}
+
 /// Shortcut method to quickly make a `GET` request.
 ///
 /// See also the methods on the [`rquest::Response`](./struct.Response.html)
