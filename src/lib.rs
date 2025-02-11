@@ -4,6 +4,7 @@ mod headers;
 mod impersonate;
 mod json;
 mod method;
+mod request;
 mod response;
 mod version;
 
