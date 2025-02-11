@@ -3,6 +3,7 @@ name = "rnet"
 version = "0.1.0"
 description = "Python HTTP Client with TLS, JA3/JA4, and HTTP2 fingerprints"
 edition = "2021"
+rust-version = "1.83.0"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [lib]
@@ -10,4 +11,12 @@ name = "rnet"
 crate-type = ["cdylib"]
 
 [dependencies]
-pyo3 = "0.23.1"
+pyo3 = { version = "0.23.0", features = ["anyhow", "indexmap"] }
+pyo3-async-runtimes = { version = "0.23.0", features = ["attributes", "tokio-runtime"] }
+tokio = { version = "1", default-features = false }
+anyhow = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+indexmap = { version = "2.7.0", features = ["serde"] }
+arc-swap = "1.7.1"
+rquest = { version = "2.0", features = ["full"] }
