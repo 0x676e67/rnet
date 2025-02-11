@@ -6,7 +6,7 @@ use crate::{
 };
 use arc_swap::ArcSwapOption;
 use mime::Mime;
-use pyo3::{exceptions::PyStopAsyncIteration, prelude::*, IntoPyObjectExt};
+use pyo3::{exceptions::PyStopAsyncIteration, prelude::*, types::PyDict, IntoPyObjectExt};
 use rquest::{header, StatusCode, Url};
 use serde_json::Value;
 use std::{
@@ -19,22 +19,22 @@ use tokio::sync::Mutex;
 pub struct Response {
     url: Url,
     version: Version,
-    headers: HeaderMap,
     status_code: StatusCode,
     remote_addr: Option<SocketAddr>,
     content_length: Option<u64>,
+    encoding: Option<String>,
     response: ArcSwapOption<rquest::Response>,
 }
 
 impl From<rquest::Response> for Response {
-    fn from(mut response: rquest::Response) -> Self {
+    fn from(response: rquest::Response) -> Self {
         Response {
             url: response.url().clone(),
             version: Version::from(response.version()),
             status_code: response.status(),
             remote_addr: response.remote_addr(),
             content_length: response.content_length(),
-            headers: HeaderMap::from(std::mem::take(response.headers_mut())),
+            encoding: None,
             response: ArcSwapOption::from_pointee(response),
         }
     }
@@ -78,8 +78,9 @@ impl Response {
 
     /// Returns the headers of the response.
     #[getter]
-    pub fn headers(&self) -> HeaderMap {
-        self.headers.clone()
+    pub fn headers(&self) -> PyResult<HeaderMap> {
+        self.inner()
+            .map(|resp| HeaderMap::from(resp.headers().clone()))
     }
 
     /// Returns the content length of the response.
@@ -96,17 +97,44 @@ impl Response {
 
     /// Encoding to decode with when accessing text.
     #[getter]
-    pub fn encoding(&self) -> String {
-        let content_type = self
-            .headers
-            .get(header::CONTENT_TYPE)
-            .and_then(|value| value.to_str().ok())
-            .and_then(|value| value.parse::<Mime>().ok());
-        content_type
-            .as_ref()
-            .and_then(|mime| mime.get_param("charset").map(|charset| charset.as_str()))
-            .unwrap_or("utf-8")
-            .to_owned()
+    pub fn encoding(&mut self) -> PyResult<&str> {
+        let resp = self.inner()?;
+        let encoding = self.encoding.get_or_insert_with(|| {
+            let content_type = resp
+                .headers()
+                .get(header::CONTENT_TYPE)
+                .and_then(|value| value.to_str().ok())
+                .and_then(|value| value.parse::<Mime>().ok());
+
+            content_type
+                .as_ref()
+                .and_then(|mime| mime.get_param("charset").map(|charset| charset.as_str()))
+                .unwrap_or("utf-8")
+                .to_owned()
+        });
+
+        Ok(encoding)
+    }
+
+    /// Returns the cookies of the response.
+    ///
+    /// # Arguments
+    ///
+    /// * `py` - The Python interpreter.
+    ///
+    /// # Returns
+    ///
+    /// A Python dictionary representing the cookies of the response.
+    #[getter]
+    pub fn cookies<'rt>(&'rt self, py: Python<'rt>) -> PyResult<Bound<'rt, PyDict>> {
+        let resp = self.inner()?;
+
+        let py_dict = PyDict::new(py);
+        for cookie in resp.cookies() {
+            py_dict.set_item(cookie.name(), cookie.value())?;
+        }
+
+        Ok(py_dict)
     }
 
     /// Returns the text content of the response.
@@ -245,6 +273,19 @@ impl Response {
 }
 
 impl Response {
+    /// Returns the inner `Arc<rquest::Response>`.
+    ///
+    /// # Returns
+    ///
+    /// An `PyResult<Arc<rquest::Response>>` containing the inner `rquest::Response` if it exists.
+    ///
+    /// This method provides access to the inner `rquest::Response` wrapped in an `Arc`. It can be
+    /// useful for cases where you need to access the original response object directly.
+    #[inline(always)]
+    fn inner(&self) -> PyResult<Arc<rquest::Response>> {
+        self.response.load_full().ok_or_else(memory_error)
+    }
+
     /// Consumes the `Response` and returns the inner `rquest::Response`.
     ///
     /// # Returns
@@ -256,7 +297,7 @@ impl Response {
     ///
     /// Returns a memory error if the response has already been taken or if the `Arc` cannot be unwrapped.
     #[inline(always)]
-    pub fn into_inner(&self) -> PyResult<rquest::Response> {
+    fn into_inner(&self) -> PyResult<rquest::Response> {
         self.response
             .swap(None)
             .take()

@@ -3,11 +3,12 @@ import rnet
 from rnet import Method, Impersonate
 
 async def main():
-    resp = await rnet.get("https://httpbin.org/range/15")
+    resp = await rnet.get("https://www.google.com/")
     print("Status Code: ", resp.status_code)
     print("Version: ", resp.version)
     print("Response URL: ", resp.url)
     print("Headers: ", resp.headers.to_dict())
+    print("Cookies: ", resp.cookies)
     print("Content-Length: ", resp.content_length)
     print("Encoding: ", resp.encoding)
     print("Remote Address: ", resp.remote_addr)
@@ -15,8 +16,8 @@ async def main():
     # Close the response connection
     # await resp.close()
 
-    text_content = await resp.text()
-    print("Text: ", text_content)
+    # text_content = await resp.text()
+    # print("Text: ", text_content)
 
     # text_with_charset = await resp.text_with_charset(encoding="utf-8")
     # print("Text with charset: ", text_with_charset)
