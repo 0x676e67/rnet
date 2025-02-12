@@ -15,7 +15,7 @@ async def main():
     print("Remote Address: ", resp.remote_addr)
 
     # Close the response connection
-    # await resp.close()
+    # resp.close()
 
     # text_content = await resp.text()
     # print("Text: ", text_content)

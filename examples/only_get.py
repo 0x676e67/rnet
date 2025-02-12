@@ -6,7 +6,7 @@ from rnet import Method, Impersonate, Version
 async def main():
     resp = await rnet.get(
         "https://tls.peet.ws/api/all",
-        impersonate=Impersonate.Chrome104,
+        impersonate=Impersonate.Chrome100,
         user_agent="Mozilla/5.0",
         version=Version.HTTP_2,
         timeout=10,
@@ -40,7 +40,7 @@ async def main():
     # print("JSON String Pretty: ", json_value)
 
     # Close the response connection
-    # await resp.close()
+    # resp.close()
 
 
 if __name__ == "__main__":

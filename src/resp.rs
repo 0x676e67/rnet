@@ -256,12 +256,8 @@ impl Response {
     /// # Arguments
     ///
     /// * `py` - The Python interpreter.
-    pub fn close<'rt>(&mut self, py: Python<'rt>) -> PyResult<Bound<'rt, PyAny>> {
-        let resp = self.into_inner()?;
-        pyo3_async_runtimes::tokio::future_into_py(py, async move {
-            drop(resp);
-            Ok(())
-        })
+    pub fn close(&mut self) {
+        let _ = self.into_inner().map(drop);
     }
 }
 
