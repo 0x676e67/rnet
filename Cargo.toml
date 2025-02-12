@@ -22,4 +22,5 @@ serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 mime = "0.3.17"
 indexmap = { version = "2.7.0", features = ["serde"] }
+arc-swap = "1.7.1"
 rquest = { version = "2.0", features = ["full"] }
