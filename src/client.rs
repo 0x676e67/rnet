@@ -108,6 +108,14 @@ fn build_client_from_params(params: &mut RequestParams) -> Result<rquest::Client
     );
     apply_option!(apply_if_some, builder, params.user_agent, user_agent);
 
+    // TLS options.
+    apply_option!(
+        apply_if_some,
+        builder,
+        params.danger_accept_invalid_certs,
+        danger_accept_invalid_certs
+    );
+
     // Timeout options.
     apply_option!(
         apply_transformed_option,
@@ -180,6 +188,41 @@ fn apply_params_to_request(
         for (key, value) in headers {
             builder = builder.header(key, value);
         }
+    }
+
+    // Apply the authentication setting to the request.
+    if let Some(auth) = params.auth.take() {
+        builder = builder.auth(auth);
+    }
+
+    // Apply the bearer authentication setting to the request.
+    if let Some(bearer_auth) = params.bearer_auth.take() {
+        builder = builder.bearer_auth(bearer_auth);
+    }
+
+    // Apply the basic authentication setting to the request.
+    if let Some(basic_auth) = params.basic_auth.take() {
+        builder = builder.basic_auth(basic_auth.0, basic_auth.1);
+    }
+
+    // Apply the query setting to the request.
+    if let Some(query) = params.query.take() {
+        builder = builder.query(&query);
+    }
+
+    // Apply the form setting to the request.
+    if let Some(form) = params.form.take() {
+        builder = builder.form(&form);
+    }
+
+    // Apply the JSON setting to the request.
+    if let Some(json) = params.json.take() {
+        builder = builder.json(&json);
+    }
+
+    // Apply the body setting to the request.
+    if let Some(body) = params.body.take() {
+        builder = builder.body(body);
     }
 
     builder
