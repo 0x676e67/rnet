@@ -1,9 +1,9 @@
 import asyncio
 import rnet
-from rnet import Method, Impersonate, Version
+from rnet import Method, Impersonate
 
 async def main():
-    resp = await rnet.get("https://tls.peet.ws/api/all", impersonate=Impersonate.Chrome100)
+    resp = await rnet.request(Method.GET, "https://www.google.com/")
     print("Status Code: ", resp.status_code)
     print("Version: ", resp.version)
     print("Response URL: ", resp.url)
@@ -13,8 +13,11 @@ async def main():
     print("Encoding: ", resp.encoding)
     print("Remote Address: ", resp.remote_addr)
 
-    text_content = await resp.text()
-    print("Text: ", text_content)
+    # Close the response connection
+    # await resp.close()
+
+    # text_content = await resp.text()
+    # print("Text: ", text_content)
 
     # text_with_charset = await resp.text_with_charset(encoding="utf-8")
     # print("Text with charset: ", text_with_charset)
@@ -31,9 +34,6 @@ async def main():
 
     # json_value =  await resp.json_str_pretty()
     # print("JSON String Pretty: ", json_value)
-
-    # Close the response connection
-    # await resp.close()
 
 if __name__ == "__main__":
     asyncio.run(main())

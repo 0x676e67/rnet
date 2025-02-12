@@ -5,6 +5,12 @@ use pyo3::prelude::*;
 #[derive(Clone, PartialEq, Eq, Hash)]
 pub struct Method(rquest::Method);
 
+impl Method {
+    pub fn into_inner(self) -> rquest::Method {
+        self.0
+    }
+}
+
 #[pymethods]
 impl Method {
     fn __str__(&self) -> &str {

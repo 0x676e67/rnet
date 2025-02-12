@@ -5,6 +5,12 @@ use pyo3::prelude::*;
 #[derive(Clone, Copy, PartialEq, Eq, Hash)]
 pub struct Version(rquest::Version);
 
+impl Version {
+    pub fn into_inner(self) -> rquest::Version {
+        self.0
+    }
+}
+
 #[pymethods]
 impl Version {
     fn __str__(&self) -> String {

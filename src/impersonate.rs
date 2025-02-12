@@ -3,8 +3,14 @@ use pyo3::prelude::*;
 
 #[allow(dead_code)]
 #[pyclass]
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Default)]
 pub struct Impersonate(rquest::Impersonate);
+
+impl Impersonate {
+    pub fn into_inner(self) -> rquest::Impersonate {
+        self.0
+    }
+}
 
 define_constants!(
     Impersonate,
