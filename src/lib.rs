@@ -62,11 +62,7 @@ type Result<T> = std::result::Result<T, PyErr>;
 #[pyfunction]
 #[pyo3(signature = (url, **kwds))]
 #[inline(always)]
-fn get(
-    py: Python<'_>,
-    url: String,
-    kwds: Option<RequestParams>,
-) -> PyResult<Bound<'_, PyAny>> {
+fn get(py: Python<'_>, url: String, kwds: Option<RequestParams>) -> PyResult<Bound<'_, PyAny>> {
     Client::default().get(py, url, kwds)
 }
 
@@ -89,11 +85,7 @@ fn get(
 #[pyfunction]
 #[pyo3(signature = (url, **kwds))]
 #[inline(always)]
-fn post(
-    py: Python<'_>,
-    url: String,
-    kwds: Option<RequestParams>,
-) -> PyResult<Bound<'_, PyAny>> {
+fn post(py: Python<'_>, url: String, kwds: Option<RequestParams>) -> PyResult<Bound<'_, PyAny>> {
     Client::default().post(py, url, kwds)
 }
 
@@ -116,11 +108,7 @@ fn post(
 #[pyfunction]
 #[pyo3(signature = (url, **kwds))]
 #[inline(always)]
-fn put(
-    py: Python<'_>,
-    url: String,
-    kwds: Option<RequestParams>,
-) -> PyResult<Bound<'_, PyAny>> {
+fn put(py: Python<'_>, url: String, kwds: Option<RequestParams>) -> PyResult<Bound<'_, PyAny>> {
     Client::default().put(py, url, kwds)
 }
 
@@ -143,11 +131,7 @@ fn put(
 #[pyfunction]
 #[pyo3(signature = (url, **kwds))]
 #[inline(always)]
-fn patch(
-    py: Python<'_>,
-    url: String,
-    kwds: Option<RequestParams>,
-) -> PyResult<Bound<'_, PyAny>> {
+fn patch(py: Python<'_>, url: String, kwds: Option<RequestParams>) -> PyResult<Bound<'_, PyAny>> {
     Client::default().patch(py, url, kwds)
 }
 
@@ -170,11 +154,7 @@ fn patch(
 #[pyfunction]
 #[pyo3(signature = (url, **kwds))]
 #[inline(always)]
-fn delete(
-    py: Python<'_>,
-    url: String,
-    kwds: Option<RequestParams>,
-) -> PyResult<Bound<'_, PyAny>> {
+fn delete(py: Python<'_>, url: String, kwds: Option<RequestParams>) -> PyResult<Bound<'_, PyAny>> {
     Client::default().delete(py, url, kwds)
 }
 
@@ -196,11 +176,7 @@ fn delete(
 #[pyfunction]
 #[pyo3(signature = (url, **kwds))]
 #[inline(always)]
-fn head(
-    py: Python<'_>,
-    url: String,
-    kwds: Option<RequestParams>,
-) -> PyResult<Bound<'_, PyAny>> {
+fn head(py: Python<'_>, url: String, kwds: Option<RequestParams>) -> PyResult<Bound<'_, PyAny>> {
     Client::default().head(py, url, kwds)
 }
 
@@ -222,11 +198,7 @@ fn head(
 #[pyfunction]
 #[pyo3(signature = (url, **kwds))]
 #[inline(always)]
-fn options(
-    py: Python<'_>,
-    url: String,
-    kwds: Option<RequestParams>,
-) -> PyResult<Bound<'_, PyAny>> {
+fn options(py: Python<'_>, url: String, kwds: Option<RequestParams>) -> PyResult<Bound<'_, PyAny>> {
     Client::default().options(py, url, kwds)
 }
 
@@ -248,11 +220,7 @@ fn options(
 #[pyfunction]
 #[pyo3(signature = (url, **kwds))]
 #[inline(always)]
-fn trace(
-    py: Python<'_>,
-    url: String,
-    kwds: Option<RequestParams>,
-) -> PyResult<Bound<'_, PyAny>> {
+fn trace(py: Python<'_>, url: String, kwds: Option<RequestParams>) -> PyResult<Bound<'_, PyAny>> {
     Client::default().trace(py, url, kwds)
 }
 
