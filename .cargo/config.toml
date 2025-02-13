@@ -9,3 +9,6 @@ linker = "armv7-unknown-linux-musleabihf-gcc"
 
 [target.armv7-unknown-linux-musleabi]
 linker = "armv7-unknown-linux-musleabi-gcc"
+
+[target.i686-unknown-linux-musl]
+linker = "i686-unknown-linux-musl-gcc"
