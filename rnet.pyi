@@ -5,8 +5,13 @@ import builtins
 import typing
 
 class Client:
+    r"""
+    A client for making HTTP requests.
+    """
     def __new__(cls,**kwds): ...
-    ...
+    def get(self, url:builtins.str, **kwds) -> typing.Any:
+        ...
+
 
 class ClientParams:
     r"""
@@ -37,7 +42,31 @@ class ClientParams:
     print(body)
     ```
     """
-    ...
+    impersonate: typing.Optional[Impersonate]
+    user_agent: typing.Optional[builtins.str]
+    headers_order: typing.Optional[builtins.list[builtins.str]]
+    referer: typing.Optional[builtins.bool]
+    timeout: typing.Optional[builtins.int]
+    connect_timeout: typing.Optional[builtins.int]
+    read_timeout: typing.Optional[builtins.int]
+    no_keepalive: typing.Optional[builtins.bool]
+    tcp_keepalive: typing.Optional[builtins.int]
+    pool_idle_timeout: typing.Optional[builtins.int]
+    pool_max_idle_per_host: typing.Optional[builtins.int]
+    http1_only: typing.Optional[builtins.bool]
+    http2_only: typing.Optional[builtins.bool]
+    https_only: typing.Optional[builtins.bool]
+    tcp_nodelay: typing.Optional[builtins.bool]
+    danger_accept_invalid_certs: typing.Optional[builtins.bool]
+    http2_max_retry_count: typing.Optional[builtins.int]
+    tls_info: typing.Optional[builtins.bool]
+    no_proxy: typing.Optional[builtins.bool]
+    proxies: typing.Optional[builtins.list[Proxy]]
+    interface: typing.Optional[builtins.str]
+    gzip: typing.Optional[builtins.bool]
+    brotli: typing.Optional[builtins.bool]
+    deflate: typing.Optional[builtins.bool]
+    zstd: typing.Optional[builtins.bool]
 
 class HeaderMap:
     r"""
@@ -216,7 +245,17 @@ class RequestParams:
     print(body)
     ```
     """
-    ...
+    proxy: typing.Optional[builtins.str]
+    interface: typing.Optional[builtins.str]
+    timeout: typing.Optional[builtins.int]
+    read_timeout: typing.Optional[builtins.int]
+    version: typing.Optional[Version]
+    auth: typing.Optional[builtins.str]
+    bearer_auth: typing.Optional[builtins.str]
+    basic_auth: typing.Optional[tuple[builtins.str, typing.Optional[builtins.str]]]
+    query: typing.Optional[builtins.list[tuple[builtins.str, builtins.str]]]
+    form: typing.Optional[builtins.list[tuple[builtins.str, builtins.str]]]
+    body: typing.Optional[builtins.list[builtins.int]]
 
 class Response:
     r"""

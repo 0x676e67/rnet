@@ -37,45 +37,56 @@ use pyo3_stub_gen::derive::gen_stub_pyclass;
 #[derive(Default, Debug)]
 pub struct RequestParams {
     /// The proxy to use for the request.
+    #[pyo3(get)]
     pub proxy: Option<String>,
 
     /// Bind to a local IP Address.
     pub local_address: Option<IpAddr>,
 
     /// Bind to an interface by `SO_BINDTODEVICE`.
+    #[pyo3(get)]
     pub interface: Option<String>,
 
     /// The timeout to use for the request.
+    #[pyo3(get)]
     pub timeout: Option<u64>,
 
     /// The read timeout to use for the request.
+    #[pyo3(get)]
     pub read_timeout: Option<u64>,
 
     /// The HTTP version to use for the request.
+    #[pyo3(get)]
     pub version: Option<Version>,
 
     /// The headers to use for the request.
     pub headers: Option<IndexMap<String, String>>,
 
     /// The authentication to use for the request.
+    #[pyo3(get)]
     pub auth: Option<String>,
 
     /// The bearer authentication to use for the request.
+    #[pyo3(get)]
     pub bearer_auth: Option<String>,
 
     /// The basic authentication to use for the request.
+    #[pyo3(get)]
     pub basic_auth: Option<(String, Option<String>)>,
 
     /// The query parameters to use for the request.
+    #[pyo3(get)]
     pub query: Option<Vec<(String, String)>>,
 
     /// The form parameters to use for the request.
+    #[pyo3(get)]
     pub form: Option<Vec<(String, String)>>,
 
     /// The JSON body to use for the request.
     pub json: Option<Json>,
 
     /// The body to use for the request.
+    #[pyo3(get)]
     pub body: Option<Vec<u8>>,
 }
 
