@@ -61,12 +61,13 @@ type Result<T> = std::result::Result<T, PyErr>;
 #[gen_stub_pyfunction]
 #[pyfunction]
 #[pyo3(signature = (url, **kwds))]
+#[inline(always)]
 fn get<'rt>(
     py: Python<'rt>,
     url: String,
     kwds: Option<RequestParams>,
 ) -> PyResult<Bound<'rt, PyAny>> {
-    pyo3_async_runtimes::tokio::future_into_py(py, async move { client::get(url, kwds).await })
+    Client::default().get(py, url, kwds)
 }
 
 /// Shortcut method to quickly make a `POST` request.
@@ -87,12 +88,13 @@ fn get<'rt>(
 #[gen_stub_pyfunction]
 #[pyfunction]
 #[pyo3(signature = (url, **kwds))]
+#[inline(always)]
 fn post<'rt>(
     py: Python<'rt>,
     url: String,
     kwds: Option<RequestParams>,
 ) -> PyResult<Bound<'rt, PyAny>> {
-    pyo3_async_runtimes::tokio::future_into_py(py, async move { client::post(url, kwds).await })
+    Client::default().post(py, url, kwds)
 }
 
 /// Shortcut method to quickly make a `PUT` request.
@@ -113,12 +115,13 @@ fn post<'rt>(
 #[gen_stub_pyfunction]
 #[pyfunction]
 #[pyo3(signature = (url, **kwds))]
+#[inline(always)]
 fn put<'rt>(
     py: Python<'rt>,
     url: String,
     kwds: Option<RequestParams>,
 ) -> PyResult<Bound<'rt, PyAny>> {
-    pyo3_async_runtimes::tokio::future_into_py(py, async move { client::put(url, kwds).await })
+    Client::default().put(py, url, kwds)
 }
 
 /// Shortcut method to quickly make a `PATCH` request.
@@ -139,12 +142,13 @@ fn put<'rt>(
 #[gen_stub_pyfunction]
 #[pyfunction]
 #[pyo3(signature = (url, **kwds))]
+#[inline(always)]
 fn patch<'rt>(
     py: Python<'rt>,
     url: String,
     kwds: Option<RequestParams>,
 ) -> PyResult<Bound<'rt, PyAny>> {
-    pyo3_async_runtimes::tokio::future_into_py(py, async move { client::patch(url, kwds).await })
+    Client::default().patch(py, url, kwds)
 }
 
 /// Shortcut method to quickly make a `DELETE` request.
@@ -165,12 +169,13 @@ fn patch<'rt>(
 #[gen_stub_pyfunction]
 #[pyfunction]
 #[pyo3(signature = (url, **kwds))]
+#[inline(always)]
 fn delete<'rt>(
     py: Python<'rt>,
     url: String,
     kwds: Option<RequestParams>,
 ) -> PyResult<Bound<'rt, PyAny>> {
-    pyo3_async_runtimes::tokio::future_into_py(py, async move { client::delete(url, kwds).await })
+    Client::default().delete(py, url, kwds)
 }
 
 /// Shortcut method to quickly make a `HEAD` request.
@@ -190,12 +195,13 @@ fn delete<'rt>(
 #[gen_stub_pyfunction]
 #[pyfunction]
 #[pyo3(signature = (url, **kwds))]
+#[inline(always)]
 fn head<'rt>(
     py: Python<'rt>,
     url: String,
     kwds: Option<RequestParams>,
 ) -> PyResult<Bound<'rt, PyAny>> {
-    pyo3_async_runtimes::tokio::future_into_py(py, async move { client::head(url, kwds).await })
+    Client::default().head(py, url, kwds)
 }
 
 /// Shortcut method to quickly make an `OPTIONS` request.
@@ -215,12 +221,13 @@ fn head<'rt>(
 #[gen_stub_pyfunction]
 #[pyfunction]
 #[pyo3(signature = (url, **kwds))]
+#[inline(always)]
 fn options<'rt>(
     py: Python<'rt>,
     url: String,
     kwds: Option<RequestParams>,
 ) -> PyResult<Bound<'rt, PyAny>> {
-    pyo3_async_runtimes::tokio::future_into_py(py, async move { client::options(url, kwds).await })
+    Client::default().options(py, url, kwds)
 }
 
 /// Shortcut method to quickly make a `TRACE` request.
@@ -240,12 +247,13 @@ fn options<'rt>(
 #[gen_stub_pyfunction]
 #[pyfunction]
 #[pyo3(signature = (url, **kwds))]
+#[inline(always)]
 fn trace<'rt>(
     py: Python<'rt>,
     url: String,
     kwds: Option<RequestParams>,
 ) -> PyResult<Bound<'rt, PyAny>> {
-    pyo3_async_runtimes::tokio::future_into_py(py, async move { client::trace(url, kwds).await })
+    Client::default().trace(py, url, kwds)
 }
 
 /// Make a request with the given parameters.
@@ -269,15 +277,14 @@ fn trace<'rt>(
 #[gen_stub_pyfunction]
 #[pyfunction]
 #[pyo3(signature = (method, url, **kwds))]
+#[inline(always)]
 fn request<'rt>(
     py: Python<'rt>,
     method: Method,
     url: String,
     kwds: Option<RequestParams>,
 ) -> PyResult<Bound<'rt, PyAny>> {
-    pyo3_async_runtimes::tokio::future_into_py(py, async move {
-        client::request(method, url, kwds).await
-    })
+    Client::default().request(py, method, url, kwds)
 }
 
 #[pymodule]

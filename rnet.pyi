@@ -10,6 +10,266 @@ class Client:
     """
     def __new__(cls,**kwds): ...
     def get(self, url:builtins.str, **kwds) -> typing.Any:
+        r"""
+        Sends a GET request.
+        
+        # Arguments
+        
+        * `url` - The URL to send the request to.
+        * `**kwds` - Additional request parameters.
+        
+        # Returns
+        
+        A `Response` object.
+        
+        # Examples
+        
+        ```python
+        import rnet
+        import asyncio
+        
+        async def main():
+            client = rnet.Client()
+            response = await client.get("https://httpbin.org/get")
+            print(await response.text())
+        
+        asyncio.run(main())
+        ```
+        """
+        ...
+
+    def post(self, url:builtins.str, **kwds) -> typing.Any:
+        r"""
+        Sends a POST request.
+        
+        # Arguments
+        
+        * `url` - The URL to send the request to.
+        * `**kwds` - Additional request parameters.
+        
+        # Returns
+        
+        A `Response` object.
+        
+        # Examples
+        
+        ```python
+        import rnet
+        import asyncio
+        
+        async def main():
+            client = rnet.Client()
+            response = await client.post("://httpbin.org/post", json={"key": "value"})
+            print(await response.text())
+        
+        asyncio.run(main())
+        ```
+        """
+        ...
+
+    def put(self, url:builtins.str, **kwds) -> typing.Any:
+        r"""
+        Sends a PUT request.
+        
+        # Arguments
+        
+        * `url` - The URL to send the request to.
+        * `**kwds` - Additional request parameters.
+        
+        # Returns
+        
+        A `Response` object.
+        
+        # Examples
+        
+        ```python
+        import rnet
+        import asyncio
+        
+        async def main():
+            client = rnet.Client()
+            response = await client.put("https://httpbin.org/put", json={"key": "value"})
+            print(await response.text())
+        
+        asyncio.run(main())
+        ```
+        """
+        ...
+
+    def patch(self, url:builtins.str, **kwds) -> typing.Any:
+        r"""
+        Sends a PATCH request.
+        
+        # Arguments
+        
+        * `url` - The URL to send the request to.
+        * `**kwds` - Additional request parameters.
+        
+        # Returns
+        
+        A `Response` object.
+        
+        # Examples
+        
+        ```python
+        import rnet
+        import asyncio
+        
+        async def main():
+            client = rnet.Client()
+            response = await client.patch("https://httpbin.org/patch", json={"key": "value"})
+            print(await response.text())
+        
+        asyncio.run(main())
+        ```
+        """
+        ...
+
+    def delete(self, url:builtins.str, **kwds) -> typing.Any:
+        r"""
+        Sends a DELETE request.
+        
+        # Arguments
+        
+        * `url` - The URL to send the request to.
+        * `**kwds` - Additional request parameters.
+        
+        # Returns
+        
+        A `Response` object.
+        
+        # Examples
+        
+        ```python
+        import rnet
+        import asyncio
+        
+        async def main():
+            client = rnet.Client()
+            response = await client.delete("https://httpbin.org/delete")
+            print(await response.text())
+        
+        asyncio.run(main())
+        ```
+        """
+        ...
+
+    def head(self, url:builtins.str, **kwds) -> typing.Any:
+        r"""
+        Sends a HEAD request.
+        
+        # Arguments
+        
+        * `url` - The URL to send the request to.
+        * `**kwds` - Additional request parameters.
+        
+        # Returns
+        
+        A `Response` object.
+        
+        # Examples
+        
+        ```python
+        import rnet
+        import asyncio
+        
+        async def main():
+            client = rnet.Client()
+            response = await client.head("https://httpbin.org/head")
+            print(response.status_code)
+        
+        asyncio.run(main())
+        ```
+        """
+        ...
+
+    def options(self, url:builtins.str, **kwds) -> typing.Any:
+        r"""
+        Sends an OPTIONS request.
+        
+        # Arguments
+        
+        * `url` - The URL to send the request to.
+        * `**kwds` - Additional request parameters.
+        
+        # Returns
+        
+        A `Response` object.
+        
+        # Examples
+        
+        ```python
+        import rnet
+        import asyncio
+        
+        async def main():
+            client = rnet.Client()
+            response = await client.options("https://httpbin.org/options")
+            print(response.headers)
+        
+        asyncio.run(main())
+        ```
+        """
+        ...
+
+    def trace(self, url:builtins.str, **kwds) -> typing.Any:
+        r"""
+        Sends a TRACE request.
+        
+        # Arguments
+        
+        * `url` - The URL to send the request to.
+        * `**kwds` - Additional request parameters.
+        
+        # Returns
+        
+        A `Response` object.
+        
+        # Examples
+        
+        ```python
+        import rnet
+        import asyncio
+        
+        async def main():
+            client = rnet.Client()
+            response = await client.trace("https://httpbin.org/trace")
+            print(response.headers)
+        
+        asyncio.run(main())
+        ```
+        """
+        ...
+
+    def request(self, method:Method, url:builtins.str, **kwds) -> typing.Any:
+        r"""
+        Sends a request with the given method and URL.
+        
+        # Arguments
+        
+        * `method` - The HTTP method to use.
+        * `url` - The URL to send the request to.
+        * `**kwds` - Additional request parameters.
+        
+        # Returns
+        
+        A `Response` object.
+        
+        # Examples
+        
+        ```python
+        import rnet
+        import asyncio
+        from rnet import Method
+        
+        async def main():
+            client = rnet.Client()
+            response = await client.request(Method.GET, "https://httpbin.org/get")
+            print(await response.text())
+        
+        asyncio.run(main())
+        ```
+        """
         ...
 
 

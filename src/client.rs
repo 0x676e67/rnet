@@ -7,11 +7,8 @@ use crate::{
 };
 use pyo3::prelude::*;
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
-use rquest::{
-    header::{HeaderMap, HeaderName},
-    RequestBuilder,
-};
-use std::{ops::Deref, time::Duration};
+use rquest::header::{HeaderMap, HeaderName};
+use std::time::Duration;
 
 macro_rules! apply_option {
     (apply_if_some, $builder:expr, $option:expr, $method:ident) => {
@@ -39,16 +36,8 @@ macro_rules! apply_option {
 /// A client for making HTTP requests.
 #[gen_stub_pyclass]
 #[pyclass]
-#[derive(Clone, Debug)]
+#[derive(Clone, Default)]
 pub struct Client(rquest::Client);
-
-impl Deref for Client {
-    type Target = rquest::Client;
-
-    fn deref(&self) -> &Self::Target {
-        &self.0
-    }
-}
 
 #[gen_stub_pymethods]
 #[pymethods]
@@ -77,7 +66,7 @@ impl Client {
     /// ```
     #[new]
     #[pyo3(signature = (**kwds))]
-    fn new<'rt>(mut kwds: Option<ClientParams>) -> PyResult<Client> {
+    fn new(mut kwds: Option<ClientParams>) -> PyResult<Client> {
         let params = kwds.get_or_insert_default();
         let mut builder = rquest::Client::builder();
 
@@ -225,84 +214,360 @@ impl Client {
 
         builder.build().map(Client).map_err(wrap_rquest_error)
     }
-}
 
-#[gen_stub_pymethods]
-#[pymethods]
-impl Client {
+    /// Sends a GET request.
+    ///
+    /// # Arguments
+    ///
+    /// * `url` - The URL to send the request to.
+    /// * `**kwds` - Additional request parameters.
+    ///
+    /// # Returns
+    ///
+    /// A `Response` object.
+    ///
+    /// # Examples
+    ///
+    /// ```python
+    /// import rnet
+    /// import asyncio
+    ///
+    /// async def main():
+    ///     client = rnet.Client()
+    ///     response = await client.get("https://httpbin.org/get")
+    ///     print(await response.text())
+    ///
+    /// asyncio.run(main())
+    /// ```
     #[pyo3(signature = (url, **kwds))]
-    fn get<'rt>(
+    pub fn get<'rt>(
         &self,
         py: Python<'rt>,
         url: String,
         kwds: Option<RequestParams>,
     ) -> PyResult<Bound<'rt, PyAny>> {
-        pyo3_async_runtimes::tokio::future_into_py(py, async move { get(url, kwds).await })
+        let client = self.0.clone();
+        pyo3_async_runtimes::tokio::future_into_py(
+            py,
+            execute_request(client, Method::GET, url, kwds),
+        )
+    }
+
+    /// Sends a POST request.
+    ///
+    /// # Arguments
+    ///
+    /// * `url` - The URL to send the request to.
+    /// * `**kwds` - Additional request parameters.
+    ///
+    /// # Returns
+    ///
+    /// A `Response` object.
+    ///
+    /// # Examples
+    ///
+    /// ```python
+    /// import rnet
+    /// import asyncio
+    ///
+    /// async def main():
+    ///     client = rnet.Client()
+    ///     response = await client.post("://httpbin.org/post", json={"key": "value"})
+    ///     print(await response.text())
+    ///
+    /// asyncio.run(main())
+    /// ```
+    #[pyo3(signature = (url, **kwds))]
+    pub fn post<'rt>(
+        &self,
+        py: Python<'rt>,
+        url: String,
+        kwds: Option<RequestParams>,
+    ) -> PyResult<Bound<'rt, PyAny>> {
+        let client = self.0.clone();
+        pyo3_async_runtimes::tokio::future_into_py(
+            py,
+            execute_request(client, Method::POST, url, kwds),
+        )
+    }
+
+    /// Sends a PUT request.
+    ///
+    /// # Arguments
+    ///
+    /// * `url` - The URL to send the request to.
+    /// * `**kwds` - Additional request parameters.
+    ///
+    /// # Returns
+    ///
+    /// A `Response` object.
+    ///
+    /// # Examples
+    ///
+    /// ```python
+    /// import rnet
+    /// import asyncio
+    ///
+    /// async def main():
+    ///     client = rnet.Client()
+    ///     response = await client.put("https://httpbin.org/put", json={"key": "value"})
+    ///     print(await response.text())
+    ///
+    /// asyncio.run(main())
+    /// ```
+    #[pyo3(signature = (url, **kwds))]
+    pub fn put<'rt>(
+        &self,
+        py: Python<'rt>,
+        url: String,
+        kwds: Option<RequestParams>,
+    ) -> PyResult<Bound<'rt, PyAny>> {
+        let client = self.0.clone();
+        pyo3_async_runtimes::tokio::future_into_py(
+            py,
+            execute_request(client, Method::PUT, url, kwds),
+        )
+    }
+
+    /// Sends a PATCH request.
+    ///
+    /// # Arguments
+    ///
+    /// * `url` - The URL to send the request to.
+    /// * `**kwds` - Additional request parameters.
+    ///
+    /// # Returns
+    ///
+    /// A `Response` object.
+    ///
+    /// # Examples
+    ///
+    /// ```python
+    /// import rnet
+    /// import asyncio
+    ///
+    /// async def main():
+    ///     client = rnet.Client()
+    ///     response = await client.patch("https://httpbin.org/patch", json={"key": "value"})
+    ///     print(await response.text())
+    ///
+    /// asyncio.run(main())
+    /// ```
+    #[pyo3(signature = (url, **kwds))]
+    pub fn patch<'rt>(
+        &self,
+        py: Python<'rt>,
+        url: String,
+        kwds: Option<RequestParams>,
+    ) -> PyResult<Bound<'rt, PyAny>> {
+        let client = self.0.clone();
+        pyo3_async_runtimes::tokio::future_into_py(
+            py,
+            execute_request(client, Method::PATCH, url, kwds),
+        )
+    }
+
+    /// Sends a DELETE request.
+    ///
+    /// # Arguments
+    ///
+    /// * `url` - The URL to send the request to.
+    /// * `**kwds` - Additional request parameters.
+    ///
+    /// # Returns
+    ///
+    /// A `Response` object.
+    ///
+    /// # Examples
+    ///
+    /// ```python
+    /// import rnet
+    /// import asyncio
+    ///
+    /// async def main():
+    ///     client = rnet.Client()
+    ///     response = await client.delete("https://httpbin.org/delete")
+    ///     print(await response.text())
+    ///
+    /// asyncio.run(main())
+    /// ```
+    #[pyo3(signature = (url, **kwds))]
+    pub fn delete<'rt>(
+        &self,
+        py: Python<'rt>,
+        url: String,
+        kwds: Option<RequestParams>,
+    ) -> PyResult<Bound<'rt, PyAny>> {
+        let client = self.0.clone();
+        pyo3_async_runtimes::tokio::future_into_py(
+            py,
+            execute_request(client, Method::DELETE, url, kwds),
+        )
+    }
+
+    /// Sends a HEAD request.
+    ///
+    /// # Arguments
+    ///
+    /// * `url` - The URL to send the request to.
+    /// * `**kwds` - Additional request parameters.
+    ///
+    /// # Returns
+    ///
+    /// A `Response` object.
+    ///
+    /// # Examples
+    ///
+    /// ```python
+    /// import rnet
+    /// import asyncio
+    ///
+    /// async def main():
+    ///     client = rnet.Client()
+    ///     response = await client.head("https://httpbin.org/head")
+    ///     print(response.status_code)
+    ///
+    /// asyncio.run(main())
+    /// ```
+    #[pyo3(signature = (url, **kwds))]
+    pub fn head<'rt>(
+        &self,
+        py: Python<'rt>,
+        url: String,
+        kwds: Option<RequestParams>,
+    ) -> PyResult<Bound<'rt, PyAny>> {
+        let client = self.0.clone();
+        pyo3_async_runtimes::tokio::future_into_py(
+            py,
+            execute_request(client, Method::HEAD, url, kwds),
+        )
+    }
+
+    /// Sends an OPTIONS request.
+    ///
+    /// # Arguments
+    ///
+    /// * `url` - The URL to send the request to.
+    /// * `**kwds` - Additional request parameters.
+    ///
+    /// # Returns
+    ///
+    /// A `Response` object.
+    ///
+    /// # Examples
+    ///
+    /// ```python
+    /// import rnet
+    /// import asyncio
+    ///
+    /// async def main():
+    ///     client = rnet.Client()
+    ///     response = await client.options("https://httpbin.org/options")
+    ///     print(response.headers)
+    ///
+    /// asyncio.run(main())
+    /// ```
+    #[pyo3(signature = (url, **kwds))]
+    pub fn options<'rt>(
+        &self,
+        py: Python<'rt>,
+        url: String,
+        kwds: Option<RequestParams>,
+    ) -> PyResult<Bound<'rt, PyAny>> {
+        let client = self.0.clone();
+        pyo3_async_runtimes::tokio::future_into_py(
+            py,
+            execute_request(client, Method::OPTIONS, url, kwds),
+        )
+    }
+
+    /// Sends a TRACE request.
+    ///
+    /// # Arguments
+    ///
+    /// * `url` - The URL to send the request to.
+    /// * `**kwds` - Additional request parameters.
+    ///
+    /// # Returns
+    ///
+    /// A `Response` object.
+    ///
+    /// # Examples
+    ///
+    /// ```python
+    /// import rnet
+    /// import asyncio
+    ///
+    /// async def main():
+    ///     client = rnet.Client()
+    ///     response = await client.trace("https://httpbin.org/trace")
+    ///     print(response.headers)
+    ///
+    /// asyncio.run(main())
+    /// ```
+    #[pyo3(signature = (url, **kwds))]
+    pub fn trace<'rt>(
+        &self,
+        py: Python<'rt>,
+        url: String,
+        kwds: Option<RequestParams>,
+    ) -> PyResult<Bound<'rt, PyAny>> {
+        let client = self.0.clone();
+        pyo3_async_runtimes::tokio::future_into_py(
+            py,
+            execute_request(client, Method::TRACE, url, kwds),
+        )
+    }
+
+    /// Sends a request with the given method and URL.
+    ///
+    /// # Arguments
+    ///
+    /// * `method` - The HTTP method to use.
+    /// * `url` - The URL to send the request to.
+    /// * `**kwds` - Additional request parameters.
+    ///
+    /// # Returns
+    ///
+    /// A `Response` object.
+    ///
+    /// # Examples
+    ///
+    /// ```python
+    /// import rnet
+    /// import asyncio
+    /// from rnet import Method
+    ///
+    /// async def main():
+    ///     client = rnet.Client()
+    ///     response = await client.request(Method.GET, "https://httpbin.org/get")
+    ///     print(await response.text())
+    ///
+    /// asyncio.run(main())
+    /// ```
+    #[pyo3(signature = (method, url, **kwds))]
+    pub fn request<'rt>(
+        &self,
+        py: Python<'rt>,
+        method: Method,
+        url: String,
+        kwds: Option<RequestParams>,
+    ) -> PyResult<Bound<'rt, PyAny>> {
+        let client = self.0.clone();
+        pyo3_async_runtimes::tokio::future_into_py(py, execute_request(client, method, url, kwds))
     }
 }
 
-#[inline]
-pub async fn get(url: String, params: Option<RequestParams>) -> Result<Response> {
-    request(Method::GET, url, params).await
-}
-
-#[inline]
-pub async fn post(url: String, params: Option<RequestParams>) -> Result<Response> {
-    request(Method::POST, url, params).await
-}
-
-#[inline]
-pub async fn put(url: String, params: Option<RequestParams>) -> Result<Response> {
-    request(Method::PUT, url, params).await
-}
-
-#[inline]
-pub async fn patch(url: String, params: Option<RequestParams>) -> Result<Response> {
-    request(Method::PATCH, url, params).await
-}
-
-#[inline]
-pub async fn delete(url: String, params: Option<RequestParams>) -> Result<Response> {
-    request(Method::DELETE, url, params).await
-}
-
-#[inline]
-pub async fn head(url: String, params: Option<RequestParams>) -> Result<Response> {
-    request(Method::HEAD, url, params).await
-}
-
-#[inline]
-pub async fn options(url: String, params: Option<RequestParams>) -> Result<Response> {
-    request(Method::OPTIONS, url, params).await
-}
-
-#[inline]
-pub async fn trace(url: String, params: Option<RequestParams>) -> Result<Response> {
-    request(Method::TRACE, url, params).await
-}
-
-pub async fn request(
+/// Executes an HTTP request.
+async fn execute_request(
+    client: rquest::Client,
     method: Method,
     url: String,
     mut params: Option<RequestParams>,
 ) -> Result<Response> {
-    let client = rquest::Client::builder()
-        .build()
-        .map_err(wrap_rquest_error)?;
+    let params = params.get_or_insert_default();
+    let mut builder = client.request(method.into_inner(), url);
 
-    let builder = client.request(method.into_inner(), url);
-    apply_params_to_request(builder, params.get_or_insert_default())
-        .send()
-        .await
-        .map(Response::from)
-        .map_err(wrap_rquest_error)
-}
-
-/// Apply the parameters to the request builder.
-fn apply_params_to_request(
-    mut builder: RequestBuilder,
-    params: &mut RequestParams,
-) -> RequestBuilder {
     // Version options.
     apply_option!(
         apply_transformed_option,
@@ -365,5 +630,10 @@ fn apply_params_to_request(
     // Body options.
     apply_option!(apply_if_some, builder, params.body, body);
 
+    // Send the request.
     builder
+        .send()
+        .await
+        .map(Response::from)
+        .map_err(wrap_rquest_error)
 }
