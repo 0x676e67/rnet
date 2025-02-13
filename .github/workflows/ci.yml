@@ -28,7 +28,8 @@ jobs:
             target: x86_64
             container: ghcr.io/penumbra-x/rust-musl-cross:aarch64-unknown-linux-musl
           - runner: ubuntu-22.04
-            target: ghcr.io/penumbra-x/rust-musl-cross:i686-unknown-linux-musl
+            target: x86
+            container: ghcr.io/penumbra-x/rust-musl-cross:i686-unknown-linux-musl
           - runner: ubuntu-22.04
             target: aarch64
             container: ghcr.io/penumbra-x/rust-musl-cross:aarch64-unknown-linux-musl
@@ -68,6 +69,14 @@ jobs:
         with:
           python-version: 3.x
           architecture: ${{ matrix.platform.target }}
+      - name: Install dependencies on Windows
+        run: |
+          choco install cmake -y
+          choco install strawberryperl -y
+          choco install pkgconfiglite -y
+          choco install llvm -y
+          choco install nasm -y
+        shell: cmd
       - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:
