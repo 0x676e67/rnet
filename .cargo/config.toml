@@ -1,0 +1,11 @@
+[target.x86_64-unknown-linux-musl]
+linker = "x86_64-unknown-linux-musl-gcc"
+
+[target.aarch64-unknown-linux-musl]
+linker = "aarch64-unknown-linux-musl-gcc"
+
+[target.armv7-unknown-linux-musleabihf]
+linker = "armv7-unknown-linux-musleabihf-gcc"
+
+[target.armv7-unknown-linux-musleabi]
+linker = "armv7-unknown-linux-musleabi-gcc"
