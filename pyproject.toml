@@ -4,13 +4,21 @@ build-backend = "maturin"
 
 [project]
 name = "rnet"
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 classifiers = [
     "Programming Language :: Rust",
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: Python :: Implementation :: PyPy",
 ]
+description = "Asynchronous Python HTTP Client with Black Magic"
+readme = "README.md"
 dynamic = ["version"]
 
 [tool.maturin]
 features = ["pyo3/extension-module"]
+strip = true
+
+[project.urls]
+Documentation = "https://github.com/0x676e67/rnet/blob/main/rnet.pyi"
+Homepage = "https://github.com/0x676e67/rnet"
+Repository = "https://github.com/0x676e67/rnet"

@@ -1,11 +1,11 @@
 [package]
 name = "rnet"
 version = "0.1.0"
-description = "Python HTTP Client with TLS, JA3/JA4, and HTTP2 fingerprints"
+description = "Asynchronous Python HTTP Client with Black Magic"
 edition = "2021"
 rust-version = "1.83.0"
 license = "GPL-3.0"
-repository = "https://github.com/0x676e67/rquest"
+repository = "https://github.com/0x676e67/rnet"
 authors = ["0x676e67 <gngppz@gmail.com>"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -16,7 +16,7 @@ doctest = false
 
 [dependencies]
 tokio = { version = "1.0", features = ["sync"] }
-pyo3 = { version = "0.23.0", features = ["anyhow", "indexmap", "multiple-pymethods", "generate-import-lib", "experimental-inspect"] }
+pyo3 = { version = "0.23.0", features = ["anyhow", "indexmap", "multiple-pymethods", "abi3-py39", "generate-import-lib", "experimental-inspect"] }
 pyo3-async-runtimes = { version = "0.23.0", features = ["tokio-runtime"] }
 pyo3-stub-gen = "0.7.0"
 anyhow = "1.0"
