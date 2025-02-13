@@ -19,6 +19,23 @@ permissions:
   contents: read
 
 jobs:
+  linux:
+    runs-on: ${{ matrix.platform.runner }}
+    strategy:
+      matrix:
+        platform:
+          - runner: ubuntu-22.04
+            target: i686-unknown-linux-gnu
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build wheels
+        run: 
+          bash .github/build.sh ${{ matrix.platform.target }}
+      - name: Upload wheels
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheels-linux-${{ matrix.platform.target }}
+
   musllinux:
     runs-on: ${{ matrix.platform.runner }}
     strategy:
