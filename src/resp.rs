@@ -181,7 +181,7 @@ impl Response {
     /// # Returns
     ///
     /// A Python object representing the TLS peer certificate of the response.
-    pub fn peer_certificate<'rt>(&self, py: Python<'rt>) -> PyResult<Option<PyObject>> {
+    pub fn peer_certificate(&self, py: Python<'_>) -> PyResult<Option<PyObject>> {
         if let Some(resp) = self.response.load().as_ref() {
             if let Some(val) = resp.extensions().get::<rquest::TlsInfo>() {
                 if let Some(peer_cert_der) = val.peer_certificate() {
@@ -309,6 +309,7 @@ impl Response {
     ///
     /// Returns a memory error if the response has already been taken or if the `Arc` cannot be unwrapped.
     #[inline(always)]
+    #[allow(clippy::wrong_self_convention)]
     fn into_inner(&self) -> PyResult<rquest::Response> {
         self.response
             .swap(None)
@@ -388,7 +389,7 @@ impl Streamer {
     ///
     /// A `PyResult` containing an `Option<PyObject>`. If there is a next chunk, it returns `Some(PyObject)`.
     /// If the iterator is exhausted, it raises `PyStopAsyncIteration`.
-    fn __anext__<'a>(&self, py: Python<'a>) -> PyResult<Option<PyObject>> {
+    fn __anext__(&self, py: Python<'_>) -> PyResult<Option<PyObject>> {
         // Here we clone the inner field, so we can use it
         // in our future.
         let streamer = self.0.clone();
@@ -420,7 +421,7 @@ impl Streamer {
     /// It is used to get the next chunk from the stream.
     /// This method is used in __anext__ method.
     #[inline(always)]
-    pub fn chunk<'a>(&self, py: Python<'a>) -> PyResult<Option<PyObject>> {
+    pub fn chunk(&self, py: Python<'_>) -> PyResult<Option<PyObject>> {
         self.__anext__(py)
     }
 }

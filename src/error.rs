@@ -1,14 +1,10 @@
-/*
- *   Copyright (c) 2025 
- *   All rights reserved.
- */
 use pyo3::{
     create_exception,
     exceptions::{PyException, PyRuntimeError},
 };
 use rquest::header;
 
-const RACE_CONDITION_ERROR_MSG: &'static str = r#"Due Rust's memory managment approach of borrowing,
+const RACE_CONDITION_ERROR_MSG: &str = r#"Due Rust's memory managment approach of borrowing,
 you cannot use some instances for some kind of
 stuff twice as they are gone.
 
@@ -54,7 +50,7 @@ pub fn wrap_invali_header_name_error(error: header::InvalidHeaderName) -> pyo3::
 
 pub fn wrap_rquest_error(error: rquest::Error) -> pyo3::PyErr {
     if error.is_body() {
-        return BodyError::new_err(format!("Body related error: {:?}", error));
+        BodyError::new_err(format!("Body related error: {:?}", error))
     } else if error.is_connect() {
         return ConnectionError::new_err(format!("Could not connect to host: {:?}", error));
     } else if error.is_decode() {
