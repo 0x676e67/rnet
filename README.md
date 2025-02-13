@@ -7,16 +7,24 @@
 
 Python HTTP Client with Black Magic, powered by FFI from [rquest](https://github.com/0x676e67/rquest).
 
-## Features
+## Wheels
 
-- Plain, JSON, urlencoded, multipart bodies
-- Header Order
-- Redirect Policy
-- Cookie Store
-- HTTP Proxies
-- WebSocket Upgrade
-- HTTPS via BoringSSL
-- Perfectly Chrome, Safari, and Firefox
+- Linux (Musl/GNU)
+
+  - `x86_64`
+  - `aarch64`
+  - `armv7`
+  - `i686`
+
+- macOS
+
+  - `x86_64`
+  - `aarch64`
+
+- Windows
+
+  - `x86_64`
+  - `i686`
 
 ## Example
 

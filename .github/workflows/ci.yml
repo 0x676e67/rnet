@@ -29,6 +29,8 @@ jobs:
           - runner: ubuntu-22.04
             target: aarch64-unknown-linux-gnu
           - runner: ubuntu-22.04
+            target: armv7-unknown-linux-gnueabihf
+          - runner: ubuntu-22.04
             target: i686-unknown-linux-gnu
     steps:
       - uses: actions/checkout@v4
@@ -39,6 +41,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: wheels-linux-${{ matrix.platform.target }}
+          path: dist
 
   musllinux:
     runs-on: ${{ matrix.platform.runner }}
