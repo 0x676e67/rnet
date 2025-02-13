@@ -26,22 +26,18 @@ jobs:
         platform:
           - runner: ubuntu-22.04
             target: x86_64
-            container: ghcr.io/penumbra-x/rust-musl-cross:aarch64-unknown-linux-musl
+            container: ghcr.io/0x676e67/rust-musl-cross:aarch64-unknown-linux-musl
           - runner: ubuntu-22.04
             target: aarch64
-            container: ghcr.io/penumbra-x/rust-musl-cross:aarch64-unknown-linux-musl
+            container: ghcr.io/0x676e67/rust-musl-cross:aarch64-unknown-linux-musl
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: 3.x
       - name: Build wheels
-        uses: PyO3/maturin-action@v1
-        with:
-          target: ${{ matrix.platform.target }}
-          container: ${{ matrix.platform.container }}
-          args: --release --out dist --find-interpreter
-          sccache: 'true'
+        run: 
+          docker run --rm -v ${{ github.workspace }}:/io ${{ matrix.platform.container }} /bin/bash -c "cd /io && maturin build ${{ matrix.platform.target }} --release --out dist --find-interpreter"
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
