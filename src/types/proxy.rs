@@ -35,7 +35,7 @@ impl Proxy {
     /// proxy = rnet.Proxy.http("http://proxy.example.com")
     /// ```
     #[staticmethod]
-    fn http(url: String) -> PyResult<Self> {
+    fn http(url: &str) -> PyResult<Self> {
         rquest::Proxy::http(url)
             .map(Proxy)
             .map_err(wrap_rquest_error)
@@ -59,8 +59,8 @@ impl Proxy {
     /// proxy = rnet.Proxy.https("https://proxy.example.com")
     /// ```
     #[staticmethod]
-    fn https(url: String) -> PyResult<Self> {
-        rquest::Proxy::https(&url)
+    fn https(url: &str) -> PyResult<Self> {
+        rquest::Proxy::https(url)
             .map(Proxy)
             .map_err(wrap_rquest_error)
     }
@@ -83,8 +83,8 @@ impl Proxy {
     /// proxy = rnet.Proxy.all("https://proxy.example.com")
     /// ```
     #[staticmethod]
-    fn all(url: String) -> PyResult<Self> {
-        rquest::Proxy::https(&url)
+    fn all(url: &str) -> PyResult<Self> {
+        rquest::Proxy::https(url)
             .map(Proxy)
             .map_err(wrap_rquest_error)
     }

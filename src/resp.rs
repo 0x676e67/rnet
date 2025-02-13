@@ -176,6 +176,25 @@ impl Response {
         }
     }
 
+    /// Returns the TLS peer certificate of the response.
+    ///
+    /// # Returns
+    ///
+    /// A Python object representing the TLS peer certificate of the response.
+    pub fn peer_certificate<'rt>(&self, py: Python<'rt>) -> PyResult<Option<PyObject>> {
+        if let Some(resp) = self.response.load().as_ref() {
+            if let Some(val) = resp.extensions().get::<rquest::TlsInfo>() {
+                if let Some(peer_cert_der) = val.peer_certificate() {
+                    return Ok(Some(peer_cert_der.into_bound_py_any(py)?.unbind()));
+                }
+            }
+
+            Ok(None)
+        } else {
+            Err(memory_error())
+        }
+    }
+
     /// Returns the text content of the response.
     ///
     /// # Returns

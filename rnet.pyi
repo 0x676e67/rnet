@@ -4,6 +4,41 @@
 import builtins
 import typing
 
+class Client:
+    def __new__(cls,**kwds): ...
+    ...
+
+class ClientParams:
+    r"""
+    The parameters for a request.
+    
+    # Examples
+    
+    ```python
+    import rnet
+    from rnet import Impersonate, Version
+    
+    params = rnet.RequestParams(
+        impersonate=Impersonate.Chrome100,
+        default_headers={"Content-Type": "application/json"},
+        user_agent="Mozilla/5.0",
+        timeout=10,
+        connect_timeout=5,
+        read_timeout=15,
+        no_keepalive=True,
+        no_proxy=False,
+        http1_only=False,
+        http2_only=True,
+        referer=True
+    )
+    
+    response = await rnet.get("https://www.rust-lang.org", **params)
+    body = await response.text()
+    print(body)
+    ```
+    """
+    ...
+
 class HeaderMap:
     r"""
     A HTTP header map.
@@ -219,6 +254,16 @@ class Response:
     remote_addr: typing.Optional[SocketAddr]
     encoding: builtins.str
     cookies: dict
+    def peer_certificate(self) -> typing.Optional[typing.Any]:
+        r"""
+        Returns the TLS peer certificate of the response.
+        
+        # Returns
+        
+        A Python object representing the TLS peer certificate of the response.
+        """
+        ...
+
     def text(self) -> typing.Any:
         r"""
         Returns the text content of the response.

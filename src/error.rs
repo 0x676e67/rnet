@@ -2,6 +2,7 @@ use pyo3::{
     create_exception,
     exceptions::{PyException, PyRuntimeError},
 };
+use rquest::header;
 
 const RACE_CONDITION_ERROR_MSG: &'static str = r#"Due Rust's memory managment approach of borrowing,
 you cannot use some instances for some kind of
@@ -41,6 +42,10 @@ pub fn memory_error() -> pyo3::PyErr {
 
 pub fn wrap_serde_error(error: serde_json::Error) -> pyo3::PyErr {
     PyRuntimeError::new_err(format!("Serde error: {:?}", error))
+}
+
+pub fn wrap_invali_header_name_error(error: header::InvalidHeaderName) -> pyo3::PyErr {
+    PyRuntimeError::new_err(format!("Invalid header name: {:?}", error))
 }
 
 pub fn wrap_rquest_error(error: rquest::Error) -> pyo3::PyErr {

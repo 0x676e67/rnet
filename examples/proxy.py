@@ -10,11 +10,7 @@ async def main():
     resp = await rnet.post(
         "https://httpbin.org/anything",
         impersonate=Impersonate.Firefox133,
-        proxies=[
-            Proxy.all("http://127.0.0.1:6152"),
-            Proxy.http("http://127.0.0.1:6152"),
-            Proxy.https("http://127.0.0.1:6152"),
-        ],
+        proxy="http://127.0.0.1:6152",
     )
     print("Status Code: ", resp.status_code)
     print("Version: ", resp.version)

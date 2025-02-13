@@ -7,7 +7,6 @@ async def main():
     resp = await rnet.get(
         "https://tls.peet.ws/api/all",
         impersonate=Impersonate.Chrome100,
-        user_agent="Mozilla/5.0",
         version=Version.HTTP_11,
         timeout=10,
     )
