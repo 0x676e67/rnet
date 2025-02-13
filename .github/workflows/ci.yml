@@ -28,14 +28,8 @@ jobs:
             target: x86_64
             container: ghcr.io/penumbra-x/rust-musl-cross:aarch64-unknown-linux-musl
           - runner: ubuntu-22.04
-            target: x86
-            container: ghcr.io/penumbra-x/rust-musl-cross:i686-unknown-linux-musl
-          - runner: ubuntu-22.04
             target: aarch64
             container: ghcr.io/penumbra-x/rust-musl-cross:aarch64-unknown-linux-musl
-          - runner: ubuntu-22.04
-            target: armv7
-            container: ghcr.io/penumbra-x/rust-musl-cross:armv7-unknown-linux-musleabihf
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -45,6 +39,7 @@ jobs:
         uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.platform.target }}
+          container: ${{ matrix.platform.container }}
           args: --release --out dist --find-interpreter
           sccache: 'true'
           manylinux: musllinux_1_2
