@@ -30,6 +30,8 @@ jobs:
             target: aarch64-unknown-linux-musl
           - runner: ubuntu-22.04
             target: armv7-unknown-linux-musleabihf
+          - runner: ubuntu-22.04
+            target: i686-unknown-linux-musl
     steps:
       - uses: actions/checkout@v4
       - name: Build wheels
