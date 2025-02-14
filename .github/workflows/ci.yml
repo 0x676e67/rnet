@@ -33,7 +33,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Build wheels
         run: 
-          bash .github/build.sh ${{ matrix.platform.target }}
+          bash .github/build.sh ${{ matrix.platform.target }} manylinux
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:

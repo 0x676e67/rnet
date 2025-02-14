@@ -1,5 +1,4 @@
 import asyncio
-import rnet
 from rnet import Impersonate, Client
 
 

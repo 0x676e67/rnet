@@ -23,7 +23,7 @@ Python HTTP Client with Black Magic, powered by FFI from [rquest](https://github
 
 ## Wheels
 
-* Linux (Musl/GNU): `x86_64`,`aarch64`,`armv7`,`i686`
+* Linux (Musl/GNU-GLIBC-2.34): `x86_64`,`aarch64`,`armv7`,`i686`
 
 * macOS: `x86_64`,`aarch64`
 
