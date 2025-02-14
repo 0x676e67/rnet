@@ -1,12 +1,12 @@
 use crate::{
     error::{memory_error, wrap_rquest_error, wrap_serde_error},
-    types::{HeaderMap, Json, SocketAddr, Version},
+    types::{HeaderMap, Json, SocketAddr, StatusCode, Version},
 };
 use arc_swap::ArcSwapOption;
 use mime::Mime;
 use pyo3::{exceptions::PyStopAsyncIteration, prelude::*, types::PyDict, IntoPyObjectExt};
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
-use rquest::{header, StatusCode, Url};
+use rquest::{header, Url};
 use serde_json::Value;
 use std::sync::Arc;
 use tokio::sync::Mutex;
@@ -52,7 +52,7 @@ impl From<rquest::Response> for Response {
         Response {
             url: response.url().clone(),
             version: Version::from(response.version()),
-            status_code: response.status(),
+            status_code: StatusCode::from(response.status()),
             remote_addr: response.remote_addr(),
             content_length: response.content_length(),
             headers: HeaderMap::from(std::mem::take(response.headers_mut())),
@@ -90,8 +90,8 @@ impl Response {
     ///
     /// A Python object representing the HTTP status code.
     #[getter]
-    pub fn status_code(&self) -> u16 {
-        self.status_code.as_u16()
+    pub fn status_code(&self) -> StatusCode {
+        self.status_code
     }
 
     /// Returns the HTTP version of the response.

@@ -547,7 +547,7 @@ class Response:
     """
     url: builtins.str
     ok: builtins.bool
-    status_code: builtins.int
+    status_code: StatusCode
     version: Version
     headers: HeaderMap
     content_length: builtins.int
@@ -665,6 +665,56 @@ class SocketAddr:
         r"""
         Returns the socket address as a string.
         """
+        ...
+
+
+class StatusCode:
+    r"""
+    HTTP status code.
+    """
+    def as_int(self) -> builtins.int:
+        r"""
+        Return the status code as an integer.
+        """
+        ...
+
+    def is_informational(self) -> builtins.bool:
+        r"""
+        Check if status is within 100-199.
+        """
+        ...
+
+    def is_success(self) -> builtins.bool:
+        r"""
+        Check if status is within 200-299.
+        """
+        ...
+
+    def is_redirection(self) -> builtins.bool:
+        r"""
+        Check if status is within 300-399.
+        """
+        ...
+
+    def is_client_error(self) -> builtins.bool:
+        r"""
+        Check if status is within 400-499.
+        """
+        ...
+
+    def is_server_error(self) -> builtins.bool:
+        r"""
+        Check if status is within 500-599.
+        """
+        ...
+
+    def __str__(self) -> builtins.str:
+        r"""
+        Returns a str representation of the `StatusCode`
+        """
+        ...
+
+    def __repr__(self) -> builtins.str:
         ...
 
 

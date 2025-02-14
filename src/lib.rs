@@ -8,7 +8,8 @@ use client::Client;
 use param::{ClientParams, RequestParams};
 use pyo3::prelude::*;
 use pyo3_stub_gen::{define_stub_info_gatherer, derive::*};
-use types::{HeaderMap, Impersonate, Method, Proxy, SocketAddr, Version};
+use resp::Response;
+use types::{HeaderMap, Impersonate, Method, Proxy, SocketAddr, StatusCode, Version};
 
 #[macro_export]
 macro_rules! define_constants {
@@ -265,7 +266,8 @@ fn rnet(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<Proxy>()?;
     m.add_class::<ClientParams>()?;
     m.add_class::<RequestParams>()?;
-    m.add_class::<resp::Response>()?;
+    m.add_class::<StatusCode>()?;
+    m.add_class::<Response>()?;
     m.add_class::<Client>()?;
     m.add_function(wrap_pyfunction!(request, m)?)?;
     m.add_function(wrap_pyfunction!(get, m)?)?;

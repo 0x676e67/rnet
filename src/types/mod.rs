@@ -4,9 +4,10 @@ mod ipaddr;
 mod json;
 mod method;
 mod proxy;
+mod status_code;
 mod version;
 
 pub use self::{
     headers::HeaderMap, impersonate::Impersonate, ipaddr::SocketAddr, json::Json, method::Method,
-    proxy::Proxy, version::Version,
+    proxy::Proxy, version::Version, status_code::StatusCode,
 };
