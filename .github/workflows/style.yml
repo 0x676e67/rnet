@@ -9,7 +9,7 @@ jobs:
   style:
     name: Style
     runs-on: ubuntu-latest
-    environment: Linux
+    environment: Style
 
     steps:
       - uses: actions/checkout@v3
