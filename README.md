@@ -79,7 +79,7 @@ Additional learning resources include:
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 ```
 
-- Install maturin and uv
+- Initialize environment
 
 ```bash
 pip install maturin
@@ -96,7 +96,7 @@ maturin develop --uv
 python3 examples/client.py
 ```
 
-- Release wheels
+- Release
 
 ```bash
 maturin build --release
