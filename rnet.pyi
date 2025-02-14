@@ -547,7 +547,7 @@ class Response:
     """
     url: builtins.str
     ok: builtins.bool
-    status_code: typing.Any
+    status_code: builtins.int
     version: Version
     headers: HeaderMap
     content_length: builtins.int
