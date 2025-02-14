@@ -90,10 +90,8 @@ impl Response {
     ///
     /// A Python object representing the HTTP status code.
     #[getter]
-    pub fn status_code<'rt>(&'rt self, py: Python<'rt>) -> PyResult<Bound<'rt, PyAny>> {
-        let http_module = py.import("http")?;
-        let http_enum = http_module.getattr("HTTPStatus")?;
-        http_enum.call1((self.status_code.as_u16(),))
+    pub fn status_code(&self) -> u16 {
+        self.status_code.as_u16()
     }
 
     /// Returns the HTTP version of the response.
