@@ -53,6 +53,9 @@ pub struct ClientParams {
     #[pyo3(get)]
     pub referer: Option<bool>,
 
+    /// Whether to allow redirects.
+    pub allow_redirects: Option<bool>,
+
     /// Whether to use cookie store.
     #[pyo3(get)]
     pub cookie_store: Option<bool>,
@@ -168,6 +171,7 @@ impl<'py> FromPyObject<'py> for ClientParams {
         extract_option!(ob, params, default_headers);
         extract_option!(ob, params, headers_order);
         extract_option!(ob, params, referer);
+        extract_option!(ob, params, allow_redirects);
         extract_option!(ob, params, cookie_store);
 
         extract_option!(ob, params, timeout);

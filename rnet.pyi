@@ -306,6 +306,7 @@ class ClientParams:
     user_agent: typing.Optional[builtins.str]
     headers_order: typing.Optional[builtins.list[builtins.str]]
     referer: typing.Optional[builtins.bool]
+    cookie_store: typing.Optional[builtins.bool]
     timeout: typing.Optional[builtins.int]
     connect_timeout: typing.Optional[builtins.int]
     read_timeout: typing.Optional[builtins.int]

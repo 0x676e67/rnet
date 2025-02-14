@@ -11,7 +11,10 @@ use crate::{
 };
 use pyo3::prelude::*;
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
-use rquest::header::{HeaderMap, HeaderName};
+use rquest::{
+    header::{HeaderMap, HeaderName},
+    redirect::Policy,
+};
 use std::time::Duration;
 
 macro_rules! apply_option {
@@ -33,6 +36,11 @@ macro_rules! apply_option {
     (apply_option_or_default, $builder:expr, $option:expr, $method:ident, $default:expr) => {
         if $option.unwrap_or($default) {
             $builder = $builder.$method();
+        }
+    };
+    (apply_option_or_default_with_value, $builder:expr, $option:expr, $method:ident, $default:expr, $value:expr) => {
+        if $option.unwrap_or($default) {
+            $builder = $builder.$method($value);
         }
     };
 }
@@ -110,6 +118,16 @@ impl Client {
 
         // Referer options.
         apply_option!(apply_if_some, builder, params.referer, referer);
+
+        // Allow redirects options.
+        apply_option!(
+            apply_option_or_default_with_value,
+            builder,
+            params.allow_redirects,
+            redirect,
+            false,
+            Policy::default()
+        );
 
         // Cookie store options.
         apply_option!(apply_if_some, builder, params.cookie_store, cookie_store);
