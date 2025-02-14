@@ -111,6 +111,9 @@ impl Client {
         // Referer options.
         apply_option!(apply_if_some, builder, params.referer, referer);
 
+        // Cookie store options.
+        apply_option!(apply_if_some, builder, params.cookie_store, cookie_store);
+
         // Timeout options.
         apply_option!(
             apply_transformed_option,
