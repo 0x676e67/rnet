@@ -80,13 +80,16 @@ impl Client {
         let mut builder = rquest::Client::builder();
 
         // Impersonation options.
-        apply_option!(
-            apply_transformed_option,
-            builder,
-            params.impersonate,
-            impersonate,
-            |v: Impersonate| v.into_inner()
-        );
+        if let Some(impersonate) = params.impersonate.take() {
+            builder = builder.impersonate(
+                rquest::Impersonate::builder()
+                    .impersonate(impersonate.into_inner())
+                    .impersonate_os(params.impersonate_os.unwrap_or_default().into_inner())
+                    .skip_http2(params.impersonate_skip_http2.unwrap_or(false))
+                    .skip_headers(params.impersonate_skip_headers.unwrap_or(false))
+                    .build(),
+            );
+        }
 
         // User agent options.
         apply_option!(apply_if_some, builder, params.user_agent, user_agent);

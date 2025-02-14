@@ -1,4 +1,4 @@
-use crate::types::{Impersonate, Proxy};
+use crate::types::{Impersonate, ImpersonateOS, Proxy};
 use indexmap::IndexMap;
 use pyo3::prelude::*;
 use pyo3_stub_gen::derive::gen_stub_pyclass;
@@ -37,6 +37,18 @@ pub struct ClientParams {
     /// The impersonation settings for the request.
     #[pyo3(get)]
     pub impersonate: Option<Impersonate>,
+
+    /// The impersonation settings for the operating system.
+    #[pyo3(get)]
+    pub impersonate_os: Option<ImpersonateOS>,
+
+    /// Whether to skip impersonate HTTP/2.
+    #[pyo3(get)]
+    pub impersonate_skip_http2: Option<bool>,
+
+    /// Whether to skip impersonate headers.
+    #[pyo3(get)]
+    pub impersonate_skip_headers: Option<bool>,
 
     /// The user agent to use for the request.
     #[pyo3(get)]
@@ -167,6 +179,9 @@ impl<'py> FromPyObject<'py> for ClientParams {
     fn extract_bound(ob: &Bound<'py, PyAny>) -> PyResult<Self> {
         let mut params = Self::default();
         extract_option!(ob, params, impersonate);
+        extract_option!(ob, params, impersonate_os);
+        extract_option!(ob, params, impersonate_skip_http2);
+        extract_option!(ob, params, impersonate_skip_headers);
         extract_option!(ob, params, user_agent);
         extract_option!(ob, params, default_headers);
         extract_option!(ob, params, headers_order);

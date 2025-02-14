@@ -8,8 +8,14 @@ mod status_code;
 mod version;
 
 pub use self::{
-    headers::HeaderMap, impersonate::Impersonate, ipaddr::SocketAddr, json::Json, method::Method,
-    proxy::Proxy, status_code::StatusCode, version::Version,
+    headers::HeaderMap,
+    impersonate::{Impersonate, ImpersonateOS},
+    ipaddr::SocketAddr,
+    json::Json,
+    method::Method,
+    proxy::Proxy,
+    status_code::StatusCode,
+    version::Version,
 };
 
 #[macro_export]
