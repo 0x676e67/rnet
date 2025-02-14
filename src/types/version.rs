@@ -8,9 +8,9 @@ use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub struct Version(rquest::Version);
 
-impl Version {
-    pub fn into_inner(self) -> rquest::Version {
-        self.0
+impl From<Version> for rquest::Version {
+    fn from(version: Version) -> rquest::Version {
+        version.0
     }
 }
 

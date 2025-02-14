@@ -8,9 +8,9 @@ use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 #[derive(Clone, Debug)]
 pub struct Proxy(rquest::Proxy);
 
-impl Proxy {
-    pub fn into_inner(self) -> rquest::Proxy {
-        self.0
+impl From<Proxy> for rquest::Proxy {
+    fn from(proxy: Proxy) -> rquest::Proxy {
+        proxy.0
     }
 }
 

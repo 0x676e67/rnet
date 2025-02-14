@@ -13,15 +13,15 @@ pub struct Impersonate(rquest::Impersonate);
 #[derive(Clone, Copy, Default, Debug)]
 pub struct ImpersonateOS(rquest::ImpersonateOS);
 
-impl Impersonate {
-    pub fn into_inner(self) -> rquest::Impersonate {
-        self.0
+impl From<Impersonate> for rquest::Impersonate {
+    fn from(impersonate: Impersonate) -> rquest::Impersonate {
+        impersonate.0
     }
 }
 
-impl ImpersonateOS {
-    pub fn into_inner(self) -> rquest::ImpersonateOS {
-        self.0
+impl From<ImpersonateOS> for rquest::ImpersonateOS {
+    fn from(impersonate: ImpersonateOS) -> rquest::ImpersonateOS {
+        impersonate.0
     }
 }
 

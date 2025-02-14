@@ -8,9 +8,9 @@ use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 #[derive(Clone, PartialEq, Eq, Hash)]
 pub struct Method(rquest::Method);
 
-impl Method {
-    pub fn into_inner(self) -> rquest::Method {
-        self.0
+impl From<Method> for rquest::Method {
+    fn from(method: Method) -> rquest::Method {
+        method.0
     }
 }
 
