@@ -255,7 +255,7 @@ fn request(
     Client::default().request(py, method, url, kwds)
 }
 
-#[pymodule]
+#[pymodule(gil_used = false)]
 fn rnet(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<Method>()?;
     m.add_class::<Version>()?;
