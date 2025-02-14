@@ -11,21 +11,6 @@ use pyo3_stub_gen::{define_stub_info_gatherer, derive::*};
 use resp::Response;
 use types::{HeaderMap, Impersonate, Method, Proxy, SocketAddr, StatusCode, Version};
 
-#[macro_export]
-macro_rules! define_constants {
-    ($type:tt, $inner_type:ty, $($name:ident),*) => {
-        #[allow(non_upper_case_globals)]
-        #[gen_stub_pymethods]
-        #[pymethods]
-        impl $type {
-            $(
-                #[classattr]
-                pub const $name: $type = $type(<$inner_type>::$name);
-            )*
-        }
-    };
-}
-
 type Result<T> = std::result::Result<T, PyErr>;
 
 /// Shortcut method to quickly make a `GET` request.

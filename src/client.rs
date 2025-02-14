@@ -603,6 +603,16 @@ async fn execute_request(
         |v: Version| v.into_inner()
     );
 
+    // Allow redirects options.
+    apply_option!(
+        apply_option_or_default_with_value,
+        builder,
+        params.allow_redirects,
+        redirect,
+        false,
+        Policy::default()
+    );
+
     // Timeout options.
     apply_option!(
         apply_transformed_option,

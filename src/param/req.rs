@@ -62,6 +62,9 @@ pub struct RequestParams {
     /// The headers to use for the request.
     pub headers: Option<IndexMap<String, String>>,
 
+    /// Whether to allow redirects.
+    pub allow_redirects: Option<bool>,
+
     /// The authentication to use for the request.
     #[pyo3(get)]
     pub auth: Option<String>,
@@ -107,6 +110,7 @@ impl<'py> FromPyObject<'py> for RequestParams {
 
         extract_option!(ob, params, version);
         extract_option!(ob, params, headers);
+        extract_option!(ob, params, allow_redirects);
         extract_option!(ob, params, auth);
         extract_option!(ob, params, bearer_auth);
         extract_option!(ob, params, basic_auth);
