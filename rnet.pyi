@@ -628,7 +628,7 @@ class Response:
         """
         ...
 
-    def stream(self) -> typing.Any:
+    def stream(self) -> Streamer:
         r"""
         Returns the stream content of the response.
         

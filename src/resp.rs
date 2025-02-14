@@ -70,6 +70,7 @@ impl Response {
     ///
     /// A string representing the URL of the response.
     #[getter]
+    #[inline(always)]
     pub fn url(&self) -> &str {
         self.url.as_str()
     }
@@ -80,6 +81,7 @@ impl Response {
     ///
     /// A boolean indicating whether the response is successful.
     #[getter]
+    #[inline(always)]
     pub fn ok(&self) -> bool {
         self.status_code.is_success()
     }
@@ -90,6 +92,7 @@ impl Response {
     ///
     /// A Python object representing the HTTP status code.
     #[getter]
+    #[inline(always)]
     pub fn status_code(&self) -> StatusCode {
         self.status_code
     }
@@ -100,6 +103,7 @@ impl Response {
     ///
     /// A `Version` object representing the HTTP version of the response.
     #[getter]
+    #[inline(always)]
     pub fn version(&self) -> Version {
         self.version
     }
@@ -110,6 +114,7 @@ impl Response {
     ///
     /// A `HeaderMap` object representing the headers of the response.
     #[getter]
+    #[inline(always)]
     pub fn headers(&self) -> HeaderMap {
         self.headers.clone()
     }
@@ -120,6 +125,7 @@ impl Response {
     ///
     /// An integer representing the content length of the response.
     #[getter]
+    #[inline(always)]
     pub fn content_length(&self) -> u64 {
         self.content_length.unwrap_or_default()
     }
@@ -130,6 +136,7 @@ impl Response {
     ///
     /// An `IpAddr` object representing the remote address of the response.
     #[getter]
+    #[inline(always)]
     pub fn remote_addr(&self) -> Option<SocketAddr> {
         self.remote_addr.map(SocketAddr::from)
     }
@@ -284,9 +291,8 @@ impl Response {
     /// # Returns
     ///
     /// A Python object representing the stream content of the response.
-    pub fn stream<'rt>(&self, py: Python<'rt>) -> PyResult<Bound<'rt, PyAny>> {
-        let streamer = self.into_inner().map(Streamer::new)?;
-        streamer.into_bound_py_any(py)
+    pub fn stream(&self) -> PyResult<Streamer> {
+        self.into_inner().map(Streamer::new)
     }
 
     /// Closes the response connection.
@@ -349,7 +355,7 @@ impl Response {
 /// ```
 #[gen_stub_pyclass]
 #[pyclass]
-struct Streamer(Arc<Mutex<rquest::Response>>);
+pub struct Streamer(Arc<Mutex<rquest::Response>>);
 
 impl Streamer {
     /// Creates a new `Streamer` instance.

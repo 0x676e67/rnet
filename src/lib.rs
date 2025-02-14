@@ -8,7 +8,7 @@ use client::Client;
 use param::{ClientParams, RequestParams};
 use pyo3::prelude::*;
 use pyo3_stub_gen::{define_stub_info_gatherer, derive::*};
-use resp::Response;
+use resp::{Response, Streamer};
 use types::{HeaderMap, Impersonate, Method, Proxy, SocketAddr, StatusCode, Version};
 
 type Result<T> = std::result::Result<T, PyErr>;
@@ -253,6 +253,7 @@ fn rnet(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<RequestParams>()?;
     m.add_class::<StatusCode>()?;
     m.add_class::<Response>()?;
+    m.add_class::<Streamer>()?;
     m.add_class::<Client>()?;
     m.add_function(wrap_pyfunction!(request, m)?)?;
     m.add_function(wrap_pyfunction!(get, m)?)?;

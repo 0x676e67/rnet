@@ -1,7 +1,3 @@
-/*
- *   Copyright (c) 2025
- *   All rights reserved.
- */
 use crate::{
     error::{wrap_invali_header_name_error, wrap_rquest_error},
     param::{ClientParams, RequestParams},
