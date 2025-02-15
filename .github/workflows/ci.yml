@@ -24,18 +24,21 @@ jobs:
         with:
           python-version: 3.x
           architecture: ${{ matrix.platform.target }}
-      - name: Build wheels
-        uses: PyO3/maturin-action@v1
-        with:
-          command: develop
-          sccache: 'true'
-
       - name: Install dependencies
         run: |
-          pip install pytest pytest-asyncio
-
+          python -m pip install --upgrade pip
+          pip install maturin pytest pytest-asyncio
+      - name: Set up virtual environment
+        run: |
+          python -m venv .venv
+          source .venv/bin/activate
+      - name: Build wheels
+        run: |
+          source .venv/bin/activate
+          maturin develop
       - name: Run tests
         run: |
+          source .venv/bin/activate
           pytest
 
   linux:
