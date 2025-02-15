@@ -35,9 +35,11 @@ jobs:
           uv pip install maturin pytest pytest-asyncio
       - name: Build wheels
         run: |
+          source .venv/bin/activate
           maturin develop --uv
       - name: Run tests
         run: |
+          source .venv/bin/activate
           pytest
 
   linux:
