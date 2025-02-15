@@ -12,6 +12,8 @@ classifiers = [
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
@@ -34,3 +36,7 @@ strip = true
 Documentation = "https://github.com/0x676e67/rnet/blob/main/rnet.pyi"
 Homepage = "https://github.com/0x676e67/rnet"
 Repository = "https://github.com/0x676e67/rnet"
+
+[tool.poetry.dev-dependencies]
+pytest = "^8.3.4"
+pytest-asyncio = "^0.25.3"

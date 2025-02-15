@@ -40,6 +40,14 @@ jobs:
         with:
           name: wheels-linux-${{ matrix.platform.target }}
           path: dist
+      - name: pytest
+        run: |
+          set -e
+          python3 -m venv .venv
+          source .venv/bin/activate
+          pip install rnet --find-links dist --force-reinstall
+          pip install pytest
+          pytest
 
   musllinux:
     runs-on: ${{ matrix.platform.runner }}
@@ -65,6 +73,14 @@ jobs:
         with:
           name: wheels-musllinux-${{ matrix.platform.target }}
           path: dist
+      - name: pytest
+        run: |
+          set -e
+          python3 -m venv .venv
+          source .venv/bin/activate
+          pip install rnet --find-links dist --force-reinstall
+          pip install pytest
+          pytest
 
   windows:
     runs-on: ${{ matrix.platform.runner }}
@@ -101,6 +117,14 @@ jobs:
         with:
           name: wheels-windows-${{ matrix.platform.target }}
           path: dist
+      - name: pytest
+        run: |
+          set -e
+          python3 -m venv .venv
+          source .venv/bin/activate
+          pip install rnet --find-links dist --force-reinstall
+          pip install pytest
+          pytest
 
   macos:
     runs-on: ${{ matrix.platform.runner }}
@@ -128,6 +152,14 @@ jobs:
         with:
           name: wheels-macos-${{ matrix.platform.target }}
           path: dist
+      - name: pytest
+        run: |
+          set -e
+          python3 -m venv .venv
+          source .venv/bin/activate
+          pip install rnet --find-links dist --force-reinstall
+          pip install pytest
+          pytest
 
   sdist:
     runs-on: ubuntu-latest
