@@ -24,21 +24,19 @@ jobs:
         with:
           python-version: 3.x
           architecture: ${{ matrix.platform.target }}
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install maturin pytest pytest-asyncio
       - name: Set up virtual environment
         run: |
           python -m venv .venv
           source .venv/bin/activate
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install maturin pytest pytest-asyncio
       - name: Build wheels
         run: |
-          source .venv/bin/activate
           maturin develop
       - name: Run tests
         run: |
-          source .venv/bin/activate
           pytest
 
   linux:
