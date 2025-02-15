@@ -16,6 +16,28 @@ permissions:
   contents: read
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: 3.x
+          architecture: ${{ matrix.platform.target }}
+      - name: Build wheels
+        uses: PyO3/maturin-action@v1
+        with:
+          command: develop
+          sccache: 'true'
+
+      - name: Install dependencies
+        run: |
+          pip install pytest pytest-asyncio
+
+      - name: Run tests
+        run: |
+          pytest
+
   linux:
     runs-on: ${{ matrix.platform.runner }}
     environment: ManyLinux
@@ -40,31 +62,6 @@ jobs:
         with:
           name: wheels-linux-${{ matrix.platform.target }}
           path: dist
-      - name: pytest
-        if: ${{ startsWith(matrix.platform.target, 'x86_64') }}
-        shell: bash
-        run: |
-          set -e
-          python3 -m venv .venv
-          source .venv/bin/activate
-          pip install rnet --find-links dist --force-reinstall
-          pip install pytest pytest-asyncio
-          pytest
-      - name: pytest
-        if: ${{ !startsWith(matrix.platform.target, 'x86') && matrix.platform.target != 'ppc64' }}
-        uses: uraimo/run-on-arch-action@v2
-        with:
-          arch: ${{ matrix.platform.target }}
-          distro: ubuntu22.04
-          githubToken: ${{ github.token }}
-          install: |
-            apt-get update
-            apt-get install -y --no-install-recommends python3 python3-pip
-            pip3 install -U pip pytest pytest-asyncio
-          run: |
-            set -e
-            pip3 install rnet --find-links dist --force-reinstall
-            pytest
 
   musllinux:
     runs-on: ${{ matrix.platform.runner }}
@@ -90,36 +87,6 @@ jobs:
         with:
           name: wheels-musllinux-${{ matrix.platform.target }}
           path: dist
-      - name: pytest
-        if: ${{ startsWith(matrix.platform.target, 'x86_64') }}
-        uses: addnab/docker-run-action@v3
-        with:
-          image: alpine:latest
-          options: -v ${{ github.workspace }}:/io -w /io
-          run: |
-            set -e
-            apk add py3-pip py3-virtualenv
-            python3 -m virtualenv .venv
-            source .venv/bin/activate
-            pip install rnet --no-index --find-links dist --force-reinstall
-            pip install pytest pytest-asyncio
-            pytest
-      - name: pytest
-        if: ${{ !startsWith(matrix.platform.target, 'x86') }}
-        uses: uraimo/run-on-arch-action@v2
-        with:
-          arch: ${{ matrix.platform.target }}
-          distro: alpine_latest
-          githubToken: ${{ github.token }}
-          install: |
-            apk add py3-virtualenv
-          run: |
-            set -e
-            python3 -m virtualenv .venv
-            source .venv/bin/activate
-            pip install pytest pytest-asyncio
-            pip install rnet --find-links dist --force-reinstall
-            pytest
 
   windows:
     runs-on: ${{ matrix.platform.runner }}
@@ -156,16 +123,6 @@ jobs:
         with:
           name: wheels-windows-${{ matrix.platform.target }}
           path: dist
-      - name: pytest
-        if: ${{ !startsWith(matrix.platform.target, 'aarch64') }}
-        shell: bash
-        run: |
-          set -e
-          python3 -m venv .venv
-          source .venv/Scripts/activate
-          pip install rnet --find-links dist --force-reinstall
-          pip install pytest pytest-asyncio
-          pytest
 
   macos:
     runs-on: ${{ matrix.platform.runner }}
@@ -193,14 +150,6 @@ jobs:
         with:
           name: wheels-macos-${{ matrix.platform.target }}
           path: dist
-      - name: pytest
-        run: |
-          set -e
-          python3 -m venv .venv
-          source .venv/bin/activate
-          pip install rnet --find-links dist --force-reinstall
-          pip install pytest pytest-asyncio
-          pytest
 
   sdist:
     runs-on: ubuntu-latest
