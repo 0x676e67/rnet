@@ -24,6 +24,8 @@ jobs:
         with:
           python-version: 3.x
           architecture: ${{ matrix.platform.target }}
+      - name: Install the latest version of uv
+        uses: astral-sh/setup-uv@v5
       - name: Set up virtual environment
         run: |
           uv venv
