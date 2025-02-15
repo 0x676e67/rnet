@@ -290,9 +290,8 @@ impl Response {
     ///
     /// A Python dictionary representing the cookies of the response.
     #[getter]
-    pub fn cookies(&self) -> PyResult<IndexMap<String, String>> {
-        let cookies = self
-            .headers
+    pub fn cookies(&self) -> IndexMap<String, String> {
+        self.headers
             .get_all(header::SET_COOKIE)
             .iter()
             .map(|value| {
@@ -300,13 +299,9 @@ impl Response {
                     .map_err(cookie::ParseError::from)
                     .and_then(cookie::Cookie::parse)
             })
-            .filter_map(Result::ok);
-
-        let mut py_dict = IndexMap::new();
-        cookies.for_each(|cookie| {
-            py_dict.insert(cookie.name().to_owned(), cookie.value().to_owned());
-        });
-        Ok(py_dict)
+            .filter_map(Result::ok)
+            .map(|cookie| (cookie.name().to_owned(), cookie.value().to_owned()))
+            .collect()
     }
 }
 
