@@ -182,6 +182,7 @@ impl<'py> FromPyObject<'py> for ClientParams {
         extract_option!(ob, params, impersonate_os);
         extract_option!(ob, params, impersonate_skip_http2);
         extract_option!(ob, params, impersonate_skip_headers);
+
         extract_option!(ob, params, user_agent);
         extract_option!(ob, params, default_headers);
         extract_option!(ob, params, headers_order);

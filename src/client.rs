@@ -1,7 +1,7 @@
 use crate::{
     error::{wrap_invali_header_name_error, wrap_rquest_error},
     param::{ClientParams, RequestParams},
-    resp::Response,
+    response::Response,
     types::Method,
     Result,
 };

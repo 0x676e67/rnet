@@ -1,5 +1,5 @@
 mod client;
-mod req;
+mod request;
 
 pub use self::client::ClientParams;
-pub use self::req::RequestParams;
+pub use self::request::RequestParams;

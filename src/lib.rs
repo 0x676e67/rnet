@@ -1,14 +1,14 @@
 mod client;
 mod error;
 mod param;
-mod resp;
+mod response;
 mod types;
 
 use client::Client;
 use param::{ClientParams, RequestParams};
 use pyo3::prelude::*;
 use pyo3_stub_gen::{define_stub_info_gatherer, derive::*};
-use resp::{Response, Streamer};
+use response::{Response, Streamer};
 use types::{
     HeaderMap, Impersonate, ImpersonateOS, Method, Proxy, SocketAddr, StatusCode, Version,
 };

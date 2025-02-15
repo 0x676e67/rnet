@@ -105,6 +105,8 @@ impl<'py> FromPyObject<'py> for RequestParams {
     fn extract_bound(ob: &Bound<'py, PyAny>) -> PyResult<Self> {
         let mut params = Self::default();
         extract_option!(ob, params, proxy);
+        extract_option!(ob, params, local_address);
+        extract_option!(ob, params, interface);
         extract_option!(ob, params, timeout);
         extract_option!(ob, params, read_timeout);
 
