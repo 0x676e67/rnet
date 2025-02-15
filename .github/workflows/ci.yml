@@ -26,15 +26,14 @@ jobs:
           architecture: ${{ matrix.platform.target }}
       - name: Set up virtual environment
         run: |
-          python -m venv .venv
+          uv venv
           source .venv/bin/activate
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install maturin pytest pytest-asyncio
+          uv pip install maturin pytest pytest-asyncio
       - name: Build wheels
         run: |
-          maturin develop
+          maturin develop --uv
       - name: Run tests
         run: |
           pytest
