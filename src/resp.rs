@@ -42,7 +42,7 @@ pub struct Response {
     url: Url,
     version: Version,
     status_code: StatusCode,
-    remote_addr: Option<std::net::SocketAddr>,
+    remote_addr: Option<SocketAddr>,
     content_length: Option<u64>,
     headers: HeaderMap,
     response: ArcSwapOption<rquest::Response>,
@@ -54,7 +54,7 @@ impl From<rquest::Response> for Response {
             url: response.url().clone(),
             version: Version::from(response.version()),
             status_code: StatusCode::from(response.status()),
-            remote_addr: response.remote_addr(),
+            remote_addr: response.remote_addr().map(SocketAddr::from),
             content_length: response.content_length(),
             headers: HeaderMap::from(std::mem::take(response.headers_mut())),
             response: ArcSwapOption::from_pointee(response),
@@ -139,7 +139,7 @@ impl Response {
     #[getter]
     #[inline(always)]
     pub fn remote_addr(&self) -> Option<SocketAddr> {
-        self.remote_addr.map(SocketAddr::from)
+        self.remote_addr
     }
 
     /// Encoding to decode with when accessing text.
@@ -291,10 +291,19 @@ impl Response {
     /// A Python dictionary representing the cookies of the response.
     #[getter]
     pub fn cookies(&self) -> PyResult<IndexMap<String, String>> {
-        let resp_ref = self.response.load();
-        let resp = resp_ref.as_ref().ok_or_else(memory_error)?;
+        let cookies = self
+            .headers
+            .get_all(header::SET_COOKIE)
+            .iter()
+            .map(|value| {
+                std::str::from_utf8(value.as_bytes())
+                    .map_err(cookie::ParseError::from)
+                    .and_then(cookie::Cookie::parse)
+            })
+            .filter_map(Result::ok);
+
         let mut py_dict = IndexMap::new();
-        resp.cookies().for_each(|cookie| {
+        cookies.for_each(|cookie| {
             py_dict.insert(cookie.name().to_owned(), cookie.value().to_owned());
         });
         Ok(py_dict)

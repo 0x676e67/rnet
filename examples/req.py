@@ -9,7 +9,7 @@ async def main():
     print("Version: ", resp.version)
     print("Response URL: ", resp.url)
     print("Headers: ", resp.headers)
-    print("Cookies: ", resp.cookies)
+    print("Cookies: ", resp.cookies["AEC"])
     print("Content-Length: ", resp.content_length)
     print("Encoding: ", resp.encoding)
     print("Remote Address: ", resp.remote_addr)
