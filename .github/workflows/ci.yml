@@ -106,7 +106,7 @@ jobs:
           sudo apt-get install -y ${{ matrix.platform.apt_packages }}
 
       - name: Add Rust target
-        run: rustup target add ${{ matrix..platform.target }}
+        run: rustup target add ${{ matrix.platform.target }}
 
       - uses: actions/setup-python@v5
         with:
