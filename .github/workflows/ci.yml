@@ -59,16 +59,16 @@ jobs:
           source .venv/bin/activate
           pytest
 
-  linux:
+  manylinux:
     runs-on: ${{ matrix.platform.runner }}
     environment: ManyLinux
     strategy:
       matrix:
         platform:
           - runner:: ubuntu-22.04
-            target: x86_64-unknown-linux-gnu
+            target: x86_64
           - runner:: ubuntu-22.04
-            target: aarch64-unknown-linux-gnu
+            target: aarch64
             apt_packages: crossbuild-essential-arm64
             custom_env:
               CFLAGS_aarch64_unknown_linux_gnu: -D__ARM_ARCH=8
@@ -77,7 +77,7 @@ jobs:
               CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER: aarch64-linux-gnu-g++
               RUSTC_LINKER: aarch64-linux-gnu-g++
           - runner:: ubuntu-22.04
-            target: armv7-unknown-linux-gnueabihf
+            target: armv7
             apt_packages: crossbuild-essential-armhf
             custom_env:
               CC: arm-linux-gnueabihf-gcc
@@ -85,7 +85,7 @@ jobs:
               CARGO_TARGET_ARMV7_UNKNOWN_LINUX_GNUEABIHF_LINKER: arm-linux-gnueabihf-g++
               RUSTC_LINKER: arm-linux-gnueabihf-g++
           - runner:: ubuntu-22.04
-            target: i686-unknown-linux-gnu
+            target: i686
             apt_packages: gcc-multilib
             custom_env:
               CC: i686-linux-gnu-gcc
@@ -94,19 +94,12 @@ jobs:
               RUSTC_LINKER: i686-linux-gnu-g++
     steps:
       - uses: actions/checkout@v4
-      - name: Install base dependencies on Ubuntu
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y build-essential cmake perl pkg-config libclang-dev musl-tools
 
       - name: Install target-specific APT dependencies
         if: ${{ matrix.platform.apt_packages != '' }}
         run: |
           sudo apt-get update
           sudo apt-get install -y ${{ matrix.platform.apt_packages }}
-
-      - name: Add Rust target
-        run: rustup target add ${{ matrix.platform.target }}
 
       - uses: actions/setup-python@v5
         with:
@@ -118,7 +111,7 @@ jobs:
         with:
           target: ${{ matrix.platform.target }}
           args: --release --out dist --find-interpreter
-          sccache: 'true'
+          sccache: ${{ !startsWith(github.ref, 'refs/tags/') }}
 
       - name: Upload wheels
         uses: actions/upload-artifact@v4
@@ -233,7 +226,7 @@ jobs:
     name: Release
     runs-on: ubuntu-latest
     if: ${{ startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch' }}
-    needs: [linux,musllinux, windows, macos, sdist, tests, style]
+    needs: [manylinux, musllinux, windows, macos, sdist, tests, style]
     permissions:
       # Use to sign the release artifacts
       id-token: write
