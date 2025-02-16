@@ -87,6 +87,17 @@ impl Response {
         self.status_code.is_success()
     }
 
+    /// Returns the status code as integer of the response.
+    ///
+    /// # Returns
+    ///
+    /// An integer representing the HTTP status code.
+    #[getter]
+    #[inline(always)]
+    pub fn status(&self) -> u16 {
+        self.status_code.as_int()
+    }
+
     /// Returns the status code of the response.
     ///
     /// # Returns
