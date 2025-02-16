@@ -65,19 +65,61 @@ jobs:
     strategy:
       matrix:
         platform:
-          - runner: ubuntu-22.04
+          - runner:: ubuntu-22.04
             target: x86_64-unknown-linux-gnu
-          - runner: ubuntu-22.04
+          - runner:: ubuntu-22.04
             target: aarch64-unknown-linux-gnu
-          - runner: ubuntu-22.04
+            apt_packages: crossbuild-essential-arm64
+            custom_env:
+              CFLAGS_aarch64_unknown_linux_gnu: -D__ARM_ARCH=8
+              CC: aarch64-linux-gnu-gcc
+              CXX: aarch64-linux-gnu-g++
+              CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER: aarch64-linux-gnu-g++
+              RUSTC_LINKER: aarch64-linux-gnu-g++
+          - runner:: ubuntu-22.04
             target: armv7-unknown-linux-gnueabihf
-          - runner: ubuntu-22.04
+            apt_packages: crossbuild-essential-armhf
+            custom_env:
+              CC: arm-linux-gnueabihf-gcc
+              CXX: arm-linux-gnueabihf-g++
+              CARGO_TARGET_ARMV7_UNKNOWN_LINUX_GNUEABIHF_LINKER: arm-linux-gnueabihf-g++
+              RUSTC_LINKER: arm-linux-gnueabihf-g++
+          - runner:: ubuntu-22.04
             target: i686-unknown-linux-gnu
+            apt_packages: gcc-multilib
+            custom_env:
+              CC: i686-linux-gnu-gcc
+              CXX: i686-linux-gnu-g++
+              CARGO_TARGET_I686_UNKNOWN_LINUX_GNU_LINKER: i686-linux-gnu-g++
+              RUSTC_LINKER: i686-linux-gnu-g++
     steps:
       - uses: actions/checkout@v4
+      - name: Install base dependencies on Ubuntu
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential cmake perl pkg-config libclang-dev musl-tools
+
+      - name: Install target-specific APT dependencies
+        if: ${{ matrix.platform.apt_packages != '' }}
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ${{ matrix.platform.apt_packages }}
+
+      - name: Add Rust target
+        run: rustup target add ${{ matrix..platform.target }}
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: 3.x
+          architecture: ${{ matrix.platform.target }}
+
       - name: Build wheels
-        run: 
-          bash .github/build.sh ${{ matrix.platform.target }} manylinux
+        uses: PyO3/maturin-action@v1
+        with:
+          target: ${{ matrix.platform.target }}
+          args: --release --out dist --find-interpreter
+          sccache: 'true'
+
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
@@ -102,7 +144,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Build wheels
         run: 
-          bash .github/build.sh ${{ matrix.platform.target }}
+          bash .github/musl_build.sh ${{ matrix.platform.target }}
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
