@@ -61,13 +61,22 @@ jobs:
 
   manylinux:
     runs-on: ${{ matrix.platform.runner }}
-    environment: ManyLinux
     strategy:
       matrix:
         platform:
-          - runner:: ubuntu-22.04
+          - runner: ubuntu-22.04
             target: x86_64
-          - runner:: ubuntu-22.04
+            apt_packages: ""
+            custom_env: {}
+          - runner: ubuntu-22.04
+            target: x86
+            apt_packages: crossbuild-essential-i386
+            custom_env:
+              CC: i686-linux-gnu-gcc
+              CXX: i686-linux-gnu-g++
+              CARGO_TARGET_I686_UNKNOWN_LINUX_GNU_LINKER: i686-linux-gnu-g++
+              RUSTC_LINKER: i686-linux-gnu-g++
+          - runner: ubuntu-22.04
             target: aarch64
             apt_packages: crossbuild-essential-arm64
             custom_env:
@@ -76,7 +85,7 @@ jobs:
               CXX: aarch64-linux-gnu-g++
               CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER: aarch64-linux-gnu-g++
               RUSTC_LINKER: aarch64-linux-gnu-g++
-          - runner:: ubuntu-22.04
+          - runner: ubuntu-22.04
             target: armv7
             apt_packages: crossbuild-essential-armhf
             custom_env:
@@ -84,35 +93,25 @@ jobs:
               CXX: arm-linux-gnueabihf-g++
               CARGO_TARGET_ARMV7_UNKNOWN_LINUX_GNUEABIHF_LINKER: arm-linux-gnueabihf-g++
               RUSTC_LINKER: arm-linux-gnueabihf-g++
-          - runner:: ubuntu-22.04
-            target: i686
-            apt_packages: gcc-multilib
-            custom_env:
-              CC: i686-linux-gnu-gcc
-              CXX: i686-linux-gnu-g++
-              CARGO_TARGET_I686_UNKNOWN_LINUX_GNU_LINKER: i686-linux-gnu-g++
-              RUSTC_LINKER: i686-linux-gnu-g++
     steps:
       - uses: actions/checkout@v4
-
-      - name: Install target-specific APT dependencies
-        if: ${{ matrix.platform.apt_packages != '' }}
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y ${{ matrix.platform.apt_packages }}
-
       - uses: actions/setup-python@v5
         with:
           python-version: 3.x
-          architecture: ${{ matrix.platform.target }}
-
       - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.platform.target }}
-          args: --release --out dist --find-interpreter
+          args: --release --out dist
           sccache: ${{ !startsWith(github.ref, 'refs/tags/') }}
-
+          manylinux: auto
+      - name: Build free-threaded wheels
+        uses: PyO3/maturin-action@v1
+        with:
+          target: ${{ matrix.platform.target }}
+          args: --release --out dist -i python3.13t
+          sccache: ${{ !startsWith(github.ref, 'refs/tags/') }}
+          manylinux: auto
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
