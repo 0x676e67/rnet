@@ -6,7 +6,6 @@ from rnet import Impersonate
 async def main():
     resp = await rnet.get(
         "https://httpbin.org/anything",
-        impersonate=Impersonate.Firefox133,
         auth="token",
     )
     print("Status Code: ", resp.status_code)

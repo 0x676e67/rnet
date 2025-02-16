@@ -6,7 +6,6 @@ from rnet import Impersonate
 async def main():
     resp = await rnet.post(
         "https://httpbin.org/anything",
-        impersonate=Impersonate.Firefox133,
         headers={"Content-Type": "application/x-www-form-urlencoded"},
         body=b"key=value",
     )

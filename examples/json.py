@@ -6,7 +6,6 @@ from rnet import Impersonate
 async def main():
     resp = await rnet.post(
         "https://httpbin.org/anything",
-        impersonate=Impersonate.Firefox133,
         json={"key": "value"},
     )
     print("Status Code: ", resp.status_code)

@@ -6,7 +6,6 @@ from rnet import Impersonate
 async def main():
     resp = await rnet.get(
         "https://httpbin.org/anything",
-        impersonate=Impersonate.Firefox133,
         # basic_auth=("username", None),
         basic_auth=("username", "password"),
     )

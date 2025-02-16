@@ -13,11 +13,12 @@ Asynchronous Python HTTP Client with Black Magic, powered by FFI from [rquest](h
 
 ## Features
 
-- Plain, JSON, urlencoded
+- Plain, Form, JSON, urlencoded
 - Header Order
 - Redirect Policy
 - Cookie Store
 - HTTP Proxies
+- WebSocket Upgrade
 - HTTPS via BoringSSL
 - Perfectly Chrome, Safari, and Firefox
 
@@ -41,27 +42,26 @@ And then the code:
 
 ```python
 import asyncio
-import rnet
-from rnet import Impersonate
+from rnet import Impersonate, Client
 
 
 async def main():
-    resp = await rnet.get(
-        "https://tls.peet.ws/api/all",
+    client = Client(
         impersonate=Impersonate.Firefox133,
-        timeout=10,
+        user_agent="rnet",
     )
+    resp = await client.get("https://httpbin.org/stream/20")
     print("Status Code: ", resp.status_code)
     print("Version: ", resp.version)
     print("Response URL: ", resp.url)
     print("Headers: ", resp.headers.to_dict())
-    print("Cookies: ", resp.cookies)
     print("Content-Length: ", resp.content_length)
     print("Encoding: ", resp.encoding)
     print("Remote Address: ", resp.remote_addr)
+    async for chunk in resp.stream():
+        print("Chunk: ", chunk)
+        await asyncio.sleep(0.1)
 
-    text_content = await resp.text()
-    print("Text: ", text_content)
 
 if __name__ == "__main__":
     asyncio.run(main())

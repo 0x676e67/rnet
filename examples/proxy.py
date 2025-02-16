@@ -6,7 +6,6 @@ from rnet import Impersonate, Proxy
 async def main():
     resp = await rnet.post(
         "https://httpbin.org/anything",
-        impersonate=Impersonate.Firefox133,
         proxy="http://127.0.0.1:6152",
     )
     print("Status Code: ", resp.status_code)
