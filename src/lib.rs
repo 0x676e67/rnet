@@ -13,6 +13,10 @@ use types::{
     HeaderMap, Impersonate, ImpersonateOS, Method, Proxy, SocketAddr, StatusCode, Version,
 };
 
+#[cfg(not(target_env = "msvc"))]
+#[global_allocator]
+static ALLOC: jemallocator::Jemalloc = jemallocator::Jemalloc;
+
 type Result<T> = std::result::Result<T, PyErr>;
 
 /// Shortcut method to quickly make a `GET` request.
