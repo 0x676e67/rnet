@@ -29,7 +29,7 @@ arc-swap = "1.7.1"
 rquest = { version = "2.1.0", features = ["full"] }
 
 [target.'cfg(not(target_env = "msvc"))'.dependencies]
-jemallocator = { package = "tikv-jemallocator", version = "0.6", features = ["disable_initial_exec_tls"] }
+jemallocator = { package = "tikv-jemallocator", version = "0.6", features = ["disable_initial_exec_tls", "unprefixed_malloc_on_supported_platforms"] }
 
 [profile.release]
 lto = true
