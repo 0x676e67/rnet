@@ -18,7 +18,6 @@ Asynchronous Python HTTP Client with Black Magic, powered by FFI from [rquest](h
 - Redirect Policy
 - Cookie Store
 - HTTP Proxies
-- WebSocket Upgrade
 - HTTPS via BoringSSL
 - Perfectly Chrome, Safari, and Firefox
 
