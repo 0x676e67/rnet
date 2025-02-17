@@ -5,10 +5,10 @@ mod response;
 mod types;
 
 use client::Client;
-use param::{ClientParams, RequestParams};
+use param::{ClientParams, RequestParams, WebSocketParams};
 use pyo3::prelude::*;
 use pyo3_stub_gen::{define_stub_info_gatherer, derive::*};
-use response::{Response, Streamer};
+use response::{Message, Response, Streamer, WebSocket, WebSocketResponse};
 use types::{
     HeaderMap, Impersonate, ImpersonateOS, Method, Proxy, SocketAddr, StatusCode, Version,
 };
@@ -243,6 +243,36 @@ fn request(
     Client::default().request(py, method, url, kwds)
 }
 
+/// Make a WebSocket connection with the given parameters.
+///
+/// This function allows you to make a WebSocket connection with the specified parameters encapsulated in a `WebSocket` object.
+///
+/// # Examples
+///
+/// ```python
+/// import rnet
+/// import asyncio
+///
+/// async def run():
+///    async with rnet.websocket("wss://echo.websocket.org") as ws:
+///       await ws.send("Hello, World!")
+///      message = await ws.recv()
+///     print(message)
+///
+/// asyncio.run(run())
+/// ```
+#[gen_stub_pyfunction]
+#[pyfunction]
+#[pyo3(signature = (url, **kwds))]
+#[inline(always)]
+fn websocket(
+    py: Python<'_>,
+    url: String,
+    kwds: Option<WebSocketParams>,
+) -> PyResult<Bound<'_, PyAny>> {
+    Client::default().websocket(py, url, kwds)
+}
+
 #[pymodule(gil_used = false)]
 fn rnet(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<Method>()?;
@@ -254,11 +284,15 @@ fn rnet(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<Proxy>()?;
     m.add_class::<ClientParams>()?;
     m.add_class::<RequestParams>()?;
+    m.add_class::<WebSocketParams>()?;
+    m.add_class::<WebSocketResponse>()?;
+    m.add_class::<WebSocket>()?;
+    m.add_class::<Message>()?;
     m.add_class::<StatusCode>()?;
     m.add_class::<Response>()?;
     m.add_class::<Streamer>()?;
     m.add_class::<Client>()?;
-    m.add_function(wrap_pyfunction!(request, m)?)?;
+
     m.add_function(wrap_pyfunction!(get, m)?)?;
     m.add_function(wrap_pyfunction!(post, m)?)?;
     m.add_function(wrap_pyfunction!(put, m)?)?;
@@ -267,6 +301,8 @@ fn rnet(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(head, m)?)?;
     m.add_function(wrap_pyfunction!(options, m)?)?;
     m.add_function(wrap_pyfunction!(trace, m)?)?;
+    m.add_function(wrap_pyfunction!(request, m)?)?;
+    m.add_function(wrap_pyfunction!(websocket, m)?)?;
     Ok(())
 }
 

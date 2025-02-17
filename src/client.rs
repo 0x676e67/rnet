@@ -1,7 +1,7 @@
 use crate::{
     error::{wrap_invali_header_name_error, wrap_rquest_error},
-    param::{ClientParams, RequestParams},
-    response::Response,
+    param::{ClientParams, RequestParams, WebSocketParams},
+    response::{Response, WebSocketResponse},
     types::Method,
     Result,
 };
@@ -581,6 +581,18 @@ impl Client {
         let client = self.0.clone();
         pyo3_async_runtimes::tokio::future_into_py(py, execute_request(client, method, url, kwds))
     }
+
+    /// Sends a WebSocket request.
+    #[pyo3(signature = (url, **kwds))]
+    pub fn websocket<'rt>(
+        &self,
+        py: Python<'rt>,
+        url: String,
+        kwds: Option<WebSocketParams>,
+    ) -> PyResult<Bound<'rt, PyAny>> {
+        let client = self.0.clone();
+        pyo3_async_runtimes::tokio::future_into_py(py, execute_websocket_request(client, url, kwds))
+    }
 }
 
 /// Executes an HTTP request.
@@ -670,5 +682,57 @@ async fn execute_request(
         .send()
         .await
         .map(Response::from)
+        .map_err(wrap_rquest_error)
+}
+
+/// Executes a WebSocket request.
+async fn execute_websocket_request(
+    client: rquest::Client,
+    url: String,
+    mut params: Option<WebSocketParams>,
+) -> Result<WebSocketResponse> {
+    let params = params.get_or_insert_default();
+    let mut builder = client.websocket(url);
+
+    // The protocols to use for the request.
+    apply_option!(apply_if_some, builder, params.protocols, protocols);
+
+    // The origin to use for the request.
+    builder = builder.with_builder(|mut builder| {
+        // Network options.
+        apply_option!(apply_if_some, builder, params.proxy, proxy);
+        apply_option!(apply_if_some, builder, params.local_address, local_address);
+        rquest::cfg_bindable_device!(
+            apply_option!(apply_if_some, builder, params.interface, interface);
+        );
+
+        // Authentication options.
+        apply_option!(apply_if_some, builder, params.auth, auth);
+
+        // Bearer authentication options.
+        apply_option!(apply_if_some, builder, params.bearer_auth, bearer_auth);
+
+        // Basic authentication options.
+        if let Some(basic_auth) = params.basic_auth.take() {
+            builder = builder.basic_auth(basic_auth.0, basic_auth.1);
+        }
+
+        // Headers options.
+        if let Some(headers) = params.headers.take() {
+            for (key, value) in headers {
+                builder = builder.header(key, value);
+            }
+        }
+
+        // Query options.
+        apply_option!(apply_if_some_ref, builder, params.query, query);
+
+        builder
+    });
+
+    builder
+        .send()
+        .await
+        .map(WebSocketResponse::from)
         .map_err(wrap_rquest_error)
 }

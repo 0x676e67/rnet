@@ -1,0 +1,51 @@
+import asyncio
+import signal
+import rnet
+from rnet import Message
+
+
+async def send_message(ws):
+    for i in range(20):
+        print(f"Sending: Message {i + 1}")
+        await ws.send(Message.from_text(f"Message {i + 1}"))
+        await asyncio.sleep(1)
+        
+
+async def receive_message(ws):
+    while True:
+        try:
+            message = await ws.recv()
+            print("Received: ", message)
+            if message.data == b"Message 20":
+                print("Closing connection...")
+                break
+        except asyncio.CancelledError:
+            break
+
+
+async def main():
+    resp = await rnet.websocket("wss://echo.websocket.org")
+    print("Status Code: ", resp.status)
+    print("Version: ", resp.version)
+    print("Headers: ", resp.headers.to_dict())
+    print("Remote Address: ", resp.remote_addr)
+
+    ws = await resp.into_websocket()
+
+    send_task = asyncio.create_task(send_message(ws))
+    receive_task = asyncio.create_task(receive_message(ws))
+
+    async def close_ws():
+        await ws.close()
+        send_task.cancel()
+        receive_task.cancel()
+
+    loop = asyncio.get_running_loop()
+    for sig in (signal.SIGINT, signal.SIGTERM):
+        loop.add_signal_handler(sig, lambda: asyncio.create_task(close_ws()))
+
+    await asyncio.gather(send_task, receive_task)
+
+
+if __name__ == "__main__":
+    asyncio.run(main())

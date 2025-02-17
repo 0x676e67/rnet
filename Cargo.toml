@@ -26,7 +26,8 @@ mime = "0.3.17"
 indexmap = { version = "2.7.0", features = ["serde"] }
 cookie = "0.18.0"
 arc-swap = "1.7.1"
-rquest = { version = "2.1.0", features = ["full"] }
+rquest = { version = "2.1.0", features = ["full", "websocket"] }
+futures-util = { version = "0.3.0", default-features = false }
 
 [profile.release]
 lto = true
