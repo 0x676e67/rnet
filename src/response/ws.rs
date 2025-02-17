@@ -282,22 +282,13 @@ pub struct Message(rquest::Message);
 
 #[pymethods]
 impl Message {
-    /// Returns a string representation of the message.
+    /// Returns the JSON representation of the message.
     ///
     /// # Returns
     ///
-    /// A string representing the message.
-    fn __str__(&self) -> String {
-        format!("{:?}", self.0)
-    }
-
-    /// Returns a string representation of the message.
-    ///
-    /// # Returns
-    ///
-    /// A string representing the message.
-    fn __repr__(&self) -> String {
-        self.__str__()
+    /// A `PyResult` containing the JSON representation of the message.
+    pub fn json(&self) -> PyResult<Json> {
+        self.0.json::<Json>().map_err(wrap_rquest_error)
     }
 
     /// Returns the data of the message as bytes.
@@ -313,28 +304,6 @@ impl Message {
             rquest::Message::Ping(data) => data,
             rquest::Message::Pong(data) => data,
             _ => &[],
-        }
-    }
-
-    /// Returns the JSON representation of the message.
-    ///
-    /// # Returns
-    ///
-    /// A `PyResult` containing the JSON representation of the message.
-    pub fn json(&self) -> PyResult<Json> {
-        self.0.json::<Json>().map_err(wrap_rquest_error)
-    }
-
-    /// Returns the text of the message if it is a text message.
-    ///
-    /// # Returns
-    ///
-    /// An optional string representing the text of the message.
-    #[getter]
-    pub fn text(&self) -> Option<&str> {
-        match &self.0 {
-            rquest::Message::Text(text) => Some(text),
-            _ => None,
         }
     }
 
@@ -373,6 +342,41 @@ impl Message {
     pub fn pong(&self) -> Option<&[u8]> {
         match &self.0 {
             rquest::Message::Pong(data) => Some(data),
+            _ => None,
+        }
+    }
+}
+
+#[gen_stub_pymethods]
+#[pymethods]
+impl Message {
+    /// Returns a string representation of the message.
+    ///
+    /// # Returns
+    ///
+    /// A string representing the message.
+    fn __str__(&self) -> String {
+        format!("{:?}", self.0)
+    }
+
+    /// Returns a string representation of the message.
+    ///
+    /// # Returns
+    ///
+    /// A string representing the message.
+    fn __repr__(&self) -> String {
+        self.__str__()
+    }
+
+    /// Returns the text of the message if it is a text message.
+    ///
+    /// # Returns
+    ///
+    /// An optional string representing the text of the message.
+    #[getter]
+    pub fn text(&self) -> Option<&str> {
+        match &self.0 {
+            rquest::Message::Text(text) => Some(text),
             _ => None,
         }
     }
