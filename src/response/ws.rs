@@ -14,30 +14,7 @@ use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 use rquest::TlsInfo;
 use tokio::sync::Mutex;
 
-/// A response from a request.
-///
-/// # Examples
-///
-/// ```python
-/// import asyncio
-/// import rnet
-///
-/// async def main():
-///     response = await rnet.get("https://www.rust-lang.org")
-///     print("Status Code: ", response.status_code)
-///     print("Version: ", response.version)
-///     print("Response URL: ", response.url)
-///     print("Headers: ", response.headers.to_dict())
-///     print("Content-Length: ", response.content_length)
-///     print("Encoding: ", response.encoding)
-///     print("Remote Address: ", response.remote_addr)
-///
-///     text_content = await response.text()
-///     print("Text: ", text_content)
-///
-/// if __name__ == "__main__":
-///     asyncio.run(main())
-/// ```
+/// A WebSocket response.
 #[gen_stub_pyclass]
 #[pyclass]
 pub struct WebSocketResponse {
@@ -175,6 +152,7 @@ impl WebSocketResponse {
 type Sender = Arc<Mutex<SplitSink<rquest::WebSocket, rquest::Message>>>;
 type Receiver = Arc<Mutex<SplitStream<rquest::WebSocket>>>;
 
+/// A WebSocket connection.
 #[gen_stub_pyclass]
 #[pyclass]
 pub struct WebSocket {
@@ -197,10 +175,24 @@ impl From<rquest::WebSocket> for WebSocket {
 
 #[pymethods]
 impl WebSocket {
+    /// Returns the WebSocket protocol.
+    ///
+    /// # Returns
+    ///
+    /// An optional string representing the WebSocket protocol.
     pub fn protocol(&self) -> Option<&str> {
         self.protocol.as_deref()
     }
 
+    /// Receives a message from the WebSocket.
+    ///
+    /// # Arguments
+    ///
+    /// * `py` - The Python runtime.
+    ///
+    /// # Returns
+    ///
+    /// A `PyResult` containing a `Bound` object with the received message, or `None` if no message is received.
     pub fn recv<'rt>(&self, py: Python<'rt>) -> PyResult<Bound<'rt, PyAny>> {
         let websocket = self.receiver.clone();
         pyo3_async_runtimes::tokio::future_into_py(py, async move {
@@ -212,6 +204,16 @@ impl WebSocket {
         })
     }
 
+    /// Sends a message to the WebSocket.
+    ///
+    /// # Arguments
+    ///
+    /// * `py` - The Python runtime.
+    /// * `message` - The message to send.
+    ///
+    /// # Returns
+    ///
+    /// A `PyResult` containing a `Bound` object.
     #[pyo3(signature = (message))]
     pub fn send<'rt>(&self, py: Python<'rt>, message: Message) -> PyResult<Bound<'rt, PyAny>> {
         let sender = self.sender.clone();
@@ -221,6 +223,17 @@ impl WebSocket {
         })
     }
 
+    /// Closes the WebSocket connection.
+    ///
+    /// # Arguments
+    ///
+    /// * `py` - The Python runtime.
+    /// * `code` - An optional close code.
+    /// * `reason` - An optional reason for closing.
+    ///
+    /// # Returns
+    ///
+    /// A `PyResult` containing a `Bound` object.
     #[pyo3(signature = (code=None, reason=None))]
     pub fn close<'rt>(
         &self,
@@ -261,23 +274,37 @@ impl WebSocket {
     }
 }
 
+/// A WebSocket message.
+#[gen_stub_pyclass]
 #[pyclass]
 #[derive(Clone)]
 pub struct Message(rquest::Message);
 
 #[pymethods]
 impl Message {
+    /// Returns a string representation of the message.
+    ///
+    /// # Returns
+    ///
+    /// A string representing the message.
     fn __str__(&self) -> String {
         format!("{:?}", self.0)
     }
 
+    /// Returns a string representation of the message.
+    ///
+    /// # Returns
+    ///
+    /// A string representing the message.
     fn __repr__(&self) -> String {
         self.__str__()
     }
-}
 
-#[pymethods]
-impl Message {
+    /// Returns the data of the message as bytes.
+    ///
+    /// # Returns
+    ///
+    /// A byte slice representing the data of the message.
     #[getter]
     pub fn data(&self) -> &[u8] {
         match &self.0 {
@@ -289,10 +316,20 @@ impl Message {
         }
     }
 
+    /// Returns the JSON representation of the message.
+    ///
+    /// # Returns
+    ///
+    /// A `PyResult` containing the JSON representation of the message.
     pub fn json(&self) -> PyResult<Json> {
         self.0.json::<Json>().map_err(wrap_rquest_error)
     }
 
+    /// Returns the text of the message if it is a text message.
+    ///
+    /// # Returns
+    ///
+    /// An optional string representing the text of the message.
     #[getter]
     pub fn text(&self) -> Option<&str> {
         match &self.0 {
@@ -301,6 +338,11 @@ impl Message {
         }
     }
 
+    /// Returns the binary data of the message if it is a binary message.
+    ///
+    /// # Returns
+    ///
+    /// An optional byte slice representing the binary data of the message.
     #[getter]
     pub fn binary(&self) -> Option<&[u8]> {
         match &self.0 {
@@ -309,6 +351,11 @@ impl Message {
         }
     }
 
+    /// Returns the ping data of the message if it is a ping message.
+    ///
+    /// # Returns
+    ///
+    /// An optional byte slice representing the ping data of the message.
     #[getter]
     pub fn ping(&self) -> Option<&[u8]> {
         match &self.0 {
@@ -317,6 +364,11 @@ impl Message {
         }
     }
 
+    /// Returns the pong data of the message if it is a pong message.
+    ///
+    /// # Returns
+    ///
+    /// An optional byte slice representing the pong data of the message.
     #[getter]
     pub fn pong(&self) -> Option<&[u8]> {
         match &self.0 {
@@ -325,6 +377,11 @@ impl Message {
         }
     }
 
+    /// Returns the close code and reason of the message if it is a close message.
+    ///
+    /// # Returns
+    ///
+    /// An optional tuple containing the close code and reason.
     #[getter]
     pub fn close(&self) -> Option<(u16, Option<&str>)> {
         match &self.0 {
@@ -356,6 +413,15 @@ impl Message {
         }
     }
 
+    /// Creates a new text message.
+    ///
+    /// # Arguments
+    ///
+    /// * `text` - The text content of the message.
+    ///
+    /// # Returns
+    ///
+    /// A new `Message` instance containing the text message.
     #[staticmethod]
     #[pyo3(signature = (text))]
     #[inline]
@@ -363,6 +429,15 @@ impl Message {
         Message(rquest::Message::Text(text.to_owned()))
     }
 
+    /// Creates a new binary message.
+    ///
+    /// # Arguments
+    ///
+    /// * `data` - The binary data of the message.
+    ///
+    /// # Returns
+    ///
+    /// A new `Message` instance containing the binary message.
     #[staticmethod]
     #[pyo3(signature = (data))]
     #[inline]
@@ -370,6 +445,15 @@ impl Message {
         Message(rquest::Message::Binary(data))
     }
 
+    /// Creates a new ping message.
+    ///
+    /// # Arguments
+    ///
+    /// * `data` - The ping data of the message.
+    ///
+    /// # Returns
+    ///
+    /// A new `Message` instance containing the ping message.
     #[staticmethod]
     #[pyo3(signature = (data))]
     #[inline]
@@ -377,6 +461,15 @@ impl Message {
         Message(rquest::Message::Ping(data))
     }
 
+    /// Creates a new pong message.
+    ///
+    /// # Arguments
+    ///
+    /// * `data` - The pong data of the message.
+    ///
+    /// # Returns
+    ///
+    /// A new `Message` instance containing the pong message.
     #[staticmethod]
     #[pyo3(signature = (data))]
     #[inline]
@@ -384,6 +477,16 @@ impl Message {
         Message(rquest::Message::Pong(data))
     }
 
+    /// Creates a new close message.
+    ///
+    /// # Arguments
+    ///
+    /// * `code` - The close code.
+    /// * `reason` - An optional reason for closing.
+    ///
+    /// # Returns
+    ///
+    /// A new `Message` instance containing the close message.
     #[staticmethod]
     #[pyo3(signature = (code, reason=None))]
     #[inline]
