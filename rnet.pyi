@@ -423,7 +423,104 @@ class Message:
     r"""
     A WebSocket message.
     """
-    ...
+    text: typing.Optional[builtins.str]
+    close: typing.Optional[tuple[builtins.int, typing.Optional[builtins.str]]]
+    def __str__(self) -> builtins.str:
+        r"""
+        Returns a string representation of the message.
+        
+        # Returns
+        
+        A string representing the message.
+        """
+        ...
+
+    def __repr__(self) -> builtins.str:
+        r"""
+        Returns a string representation of the message.
+        
+        # Returns
+        
+        A string representing the message.
+        """
+        ...
+
+    @staticmethod
+    def from_text(text:builtins.str) -> Message:
+        r"""
+        Creates a new text message.
+        
+        # Arguments
+        
+        * `text` - The text content of the message.
+        
+        # Returns
+        
+        A new `Message` instance containing the text message.
+        """
+        ...
+
+    @staticmethod
+    def from_binary(data:typing.Sequence[builtins.int]) -> Message:
+        r"""
+        Creates a new binary message.
+        
+        # Arguments
+        
+        * `data` - The binary data of the message.
+        
+        # Returns
+        
+        A new `Message` instance containing the binary message.
+        """
+        ...
+
+    @staticmethod
+    def from_ping(data:typing.Sequence[builtins.int]) -> Message:
+        r"""
+        Creates a new ping message.
+        
+        # Arguments
+        
+        * `data` - The ping data of the message.
+        
+        # Returns
+        
+        A new `Message` instance containing the ping message.
+        """
+        ...
+
+    @staticmethod
+    def from_pong(data:typing.Sequence[builtins.int]) -> Message:
+        r"""
+        Creates a new pong message.
+        
+        # Arguments
+        
+        * `data` - The pong data of the message.
+        
+        # Returns
+        
+        A new `Message` instance containing the pong message.
+        """
+        ...
+
+    @staticmethod
+    def from_close(code:builtins.int, reason:typing.Optional[builtins.str]=None) -> Message:
+        r"""
+        Creates a new close message.
+        
+        # Arguments
+        
+        * `code` - The close code.
+        * `reason` - An optional reason for closing.
+        
+        # Returns
+        
+        A new `Message` instance containing the close message.
+        """
+        ...
+
 
 class Method:
     r"""
