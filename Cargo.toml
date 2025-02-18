@@ -16,7 +16,14 @@ doctest = false
 
 [dependencies]
 tokio = { version = "1.0", features = ["sync"] }
-pyo3 = { version = "0.23.0", features = ["anyhow", "indexmap", "multiple-pymethods", "abi3-py39", "generate-import-lib", "experimental-inspect"] }
+pyo3 = { version = "0.23.0", features = [
+    "anyhow",
+    "indexmap",
+    "multiple-pymethods",
+    "abi3-py39",
+    "generate-import-lib",
+    "experimental-inspect",
+] }
 pyo3-async-runtimes = { version = "0.23.0", features = ["tokio-runtime"] }
 pyo3-stub-gen = "0.7.0"
 anyhow = "1.0"
@@ -27,11 +34,14 @@ indexmap = { version = "2.7.0", features = ["serde"] }
 cookie = "0.18.0"
 arc-swap = "1.7.1"
 url = "2.5"
-rquest = { version = "2.1.5", features = ["full", "websocket"] }
+rquest = { version = "2.1.5", features = ["full", "websocket", "hickory-dns"] }
 futures-util = { version = "0.3.0", default-features = false }
 
 [target.'cfg(not(target_env = "msvc"))'.dependencies]
-jemallocator = { package = "tikv-jemallocator", version = "0.6", features = ["disable_initial_exec_tls", "unprefixed_malloc_on_supported_platforms"] }
+jemallocator = { package = "tikv-jemallocator", version = "0.6", features = [
+    "disable_initial_exec_tls",
+    "unprefixed_malloc_on_supported_platforms",
+] }
 
 [profile.release]
 lto = true

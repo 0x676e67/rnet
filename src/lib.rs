@@ -1,4 +1,5 @@
 mod client;
+mod dns;
 mod error;
 mod param;
 mod response;

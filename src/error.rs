@@ -19,6 +19,7 @@ Potential solutions:
 "#;
 
 create_exception!(exceptions, BorrowingError, PyRuntimeError);
+create_exception!(exceptions, DNSResolverError, PyRuntimeError);
 
 create_exception!(exceptions, BaseError, PyException);
 create_exception!(exceptions, BodyError, BaseError);

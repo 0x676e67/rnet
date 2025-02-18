@@ -1,4 +1,5 @@
 use crate::{
+    dns,
     error::{
         wrap_invali_header_name_error, wrap_invali_header_value_error, wrap_rquest_error,
         wrap_url_parse_error,
@@ -12,6 +13,7 @@ use arc_swap::{ArcSwap, Guard};
 use pyo3::prelude::*;
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 use rquest::{
+    dns::LookupIpStrategy,
     header::{HeaderMap, HeaderName, HeaderValue},
     redirect::Policy,
     Url,
@@ -466,7 +468,7 @@ impl Client {
     #[pyo3(signature = (**kwds))]
     fn new(mut kwds: Option<ClientParams>) -> PyResult<Client> {
         let params = kwds.get_or_insert_default();
-        let mut builder = rquest::Client::builder();
+        let mut builder = rquest::Client::builder().no_hickory_dns();
 
         // Impersonation options.
         if let Some(impersonate) = params.impersonate.take() {
@@ -533,6 +535,12 @@ impl Client {
 
         // Cookie store options.
         apply_option!(apply_if_some, builder, params.cookie_store, cookie_store);
+
+        // Async resolver options.
+        if params.async_dns.unwrap_or(false) {
+            let hickory_dns_resolver = dns::get_or_try_init(LookupIpStrategy::Ipv4AndIpv6)?;
+            builder = builder.dns_resolver(hickory_dns_resolver);
+        }
 
         // Timeout options.
         apply_option!(
