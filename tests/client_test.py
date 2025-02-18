@@ -22,7 +22,8 @@ async def test_update_cookies():
 
 @pytest.mark.asyncio
 async def test_update_impersonate():
-    client = rnet.Client()
+    client = rnet.Client(impersonate=Impersonate.Firefox133)
+    assert client.user_agent == "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:133.0) Gecko/20100101 Firefox/133.0"
     client.update(
         impersonate=Impersonate.Firefox135,
         impersonate_os=ImpersonateOS.Windows,
