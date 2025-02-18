@@ -1,17 +1,22 @@
 use crate::{
-    error::{wrap_invali_header_name_error, wrap_rquest_error},
-    param::{ClientParams, RequestParams, WebSocketParams},
+    error::{
+        wrap_invali_header_name_error, wrap_invali_header_value_error, wrap_rquest_error,
+        wrap_url_parse_error,
+    },
+    param::{ClientParams, RequestParams, UpdateClientParams, WebSocketParams},
     response::{Response, WebSocket},
     types::Method,
     Result,
 };
+use arc_swap::{ArcSwap, Guard};
 use pyo3::prelude::*;
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 use rquest::{
-    header::{HeaderMap, HeaderName},
+    header::{HeaderMap, HeaderName, HeaderValue},
     redirect::Policy,
+    Url,
 };
-use std::time::Duration;
+use std::{sync::Arc, time::Duration};
 
 macro_rules! apply_option {
     (apply_if_some, $builder:expr, $option:expr, $method:ident) => {
@@ -44,8 +49,8 @@ macro_rules! apply_option {
 /// A client for making HTTP requests.
 #[gen_stub_pyclass]
 #[pyclass]
-#[derive(Clone, Default)]
-pub struct Client(rquest::Client);
+#[derive(Default)]
+pub struct Client(ArcSwap<rquest::Client>);
 
 #[gen_stub_pymethods]
 #[pymethods]
@@ -81,7 +86,7 @@ impl Client {
         url: String,
         kwds: Option<RequestParams>,
     ) -> PyResult<Bound<'rt, PyAny>> {
-        let client = self.0.clone();
+        let client = self.0.load();
         pyo3_async_runtimes::tokio::future_into_py(
             py,
             execute_request(client, Method::GET, url, kwds),
@@ -119,7 +124,7 @@ impl Client {
         url: String,
         kwds: Option<RequestParams>,
     ) -> PyResult<Bound<'rt, PyAny>> {
-        let client = self.0.clone();
+        let client = self.0.load();
         pyo3_async_runtimes::tokio::future_into_py(
             py,
             execute_request(client, Method::POST, url, kwds),
@@ -157,7 +162,7 @@ impl Client {
         url: String,
         kwds: Option<RequestParams>,
     ) -> PyResult<Bound<'rt, PyAny>> {
-        let client = self.0.clone();
+        let client = self.0.load();
         pyo3_async_runtimes::tokio::future_into_py(
             py,
             execute_request(client, Method::PUT, url, kwds),
@@ -195,7 +200,7 @@ impl Client {
         url: String,
         kwds: Option<RequestParams>,
     ) -> PyResult<Bound<'rt, PyAny>> {
-        let client = self.0.clone();
+        let client = self.0.load();
         pyo3_async_runtimes::tokio::future_into_py(
             py,
             execute_request(client, Method::PATCH, url, kwds),
@@ -233,7 +238,7 @@ impl Client {
         url: String,
         kwds: Option<RequestParams>,
     ) -> PyResult<Bound<'rt, PyAny>> {
-        let client = self.0.clone();
+        let client = self.0.load();
         pyo3_async_runtimes::tokio::future_into_py(
             py,
             execute_request(client, Method::DELETE, url, kwds),
@@ -271,7 +276,7 @@ impl Client {
         url: String,
         kwds: Option<RequestParams>,
     ) -> PyResult<Bound<'rt, PyAny>> {
-        let client = self.0.clone();
+        let client = self.0.load();
         pyo3_async_runtimes::tokio::future_into_py(
             py,
             execute_request(client, Method::HEAD, url, kwds),
@@ -309,7 +314,7 @@ impl Client {
         url: String,
         kwds: Option<RequestParams>,
     ) -> PyResult<Bound<'rt, PyAny>> {
-        let client = self.0.clone();
+        let client = self.0.load();
         pyo3_async_runtimes::tokio::future_into_py(
             py,
             execute_request(client, Method::OPTIONS, url, kwds),
@@ -347,7 +352,7 @@ impl Client {
         url: String,
         kwds: Option<RequestParams>,
     ) -> PyResult<Bound<'rt, PyAny>> {
-        let client = self.0.clone();
+        let client = self.0.load();
         pyo3_async_runtimes::tokio::future_into_py(
             py,
             execute_request(client, Method::TRACE, url, kwds),
@@ -388,7 +393,7 @@ impl Client {
         url: String,
         kwds: Option<RequestParams>,
     ) -> PyResult<Bound<'rt, PyAny>> {
-        let client = self.0.clone();
+        let client = self.0.load();
         pyo3_async_runtimes::tokio::future_into_py(py, execute_request(client, method, url, kwds))
     }
 
@@ -426,7 +431,7 @@ impl Client {
         url: String,
         kwds: Option<WebSocketParams>,
     ) -> PyResult<Bound<'rt, PyAny>> {
-        let client = self.0.clone();
+        let client = self.0.load();
         pyo3_async_runtimes::tokio::future_into_py(py, execute_websocket_request(client, url, kwds))
     }
 }
@@ -481,25 +486,36 @@ impl Client {
         // User agent options.
         apply_option!(apply_if_some, builder, params.user_agent, user_agent);
 
-        // Headers options.
+        // Default headers options.
         if let Some(default_headers) = params.default_headers.take() {
-            let mut headers = HeaderMap::with_capacity(default_headers.len());
-            for (key, value) in default_headers.into_iter() {
-                let name = HeaderName::from_bytes(key.as_bytes())
-                    .map_err(wrap_invali_header_name_error)?;
-                headers.insert(name, value);
-            }
+            let len = default_headers.len();
+            let default_headers = default_headers.into_iter().try_fold(
+                HeaderMap::with_capacity(len),
+                |mut headers, (key, value)| {
+                    let name = HeaderName::from_bytes(key.as_bytes())
+                        .map_err(wrap_invali_header_name_error)?;
+                    let value = HeaderValue::from_bytes(value.as_bytes())
+                        .map_err(wrap_invali_header_value_error)?;
+                    headers.insert(name, value);
+                    Ok::<_, PyErr>(headers)
+                },
+            )?;
+
+            builder = builder.default_headers(default_headers);
         }
 
         // Headers order options.
         if let Some(headers_order) = params.headers_order.take() {
-            let mut names = Vec::with_capacity(headers_order.len());
-            for name in headers_order {
-                let name = HeaderName::from_bytes(name.as_bytes())
-                    .map_err(wrap_invali_header_name_error)?;
-                names.push(name);
-            }
-            builder = builder.headers_order(names);
+            builder = builder.headers_order(
+                headers_order
+                    .into_iter()
+                    .map(|name| {
+                        HeaderName::from_bytes(name.as_bytes())
+                            .map_err(wrap_invali_header_name_error)
+                    })
+                    .filter_map(Result::ok)
+                    .collect::<Vec<_>>(),
+            );
         }
 
         // Referer options.
@@ -624,13 +640,218 @@ impl Client {
         apply_option!(apply_if_some, builder, params.deflate, deflate);
         apply_option!(apply_if_some, builder, params.zstd, zstd);
 
-        builder.build().map(Client).map_err(wrap_rquest_error)
+        builder
+            .build()
+            .map(ArcSwap::from_pointee)
+            .map(Client)
+            .map_err(wrap_rquest_error)
+    }
+
+    /// Returns the user agent of the client.
+    ///
+    /// # Returns
+    ///
+    /// An optional string containing the user agent of the client.
+    ///
+    /// # Examples
+    ///
+    /// ```python
+    /// import rnet
+    ///
+    /// client = rnet.Client()
+    /// user_agent = client.user_agent()
+    /// print(user_agent)
+    /// ```
+    #[getter]
+    fn user_agent(&self) -> Option<String> {
+        self.0
+            .load()
+            .user_agent()
+            .and_then(|hv| hv.to_str().ok())
+            .map(ToString::to_string)
+    }
+
+    /// Returns the headers of the client.
+    ///
+    /// # Returns
+    ///
+    /// A `HeaderMap` object containing the headers of the client.
+    ///
+    /// # Examples
+    ///
+    /// ```python
+    /// import rnet
+    ///
+    /// client = rnet.Client()
+    /// headers = client.headers()
+    /// print(headers)
+    /// ```
+    #[getter]
+    fn headers(&self) -> crate::HeaderMap {
+        let binding = self.0.load();
+        let headers = binding.headers();
+        crate::HeaderMap::from(headers.clone())
+    }
+
+    /// Returns the cookies for the given URL.
+    ///
+    /// # Arguments
+    ///
+    /// * `url` - The URL to get the cookies for.
+    ///
+    /// # Returns
+    ///
+    /// A list of cookie strings.
+    ///
+    /// # Examples
+    ///
+    /// ```python
+    /// import rnet
+    ///
+    /// client = rnet.Client()
+    /// cookies = client.get_cookies("https://example.com")
+    /// print(cookies)
+    /// ```
+    #[pyo3(signature = (url))]
+    fn get_cookies(&self, url: &str) -> PyResult<Vec<String>> {
+        let url = Url::parse(url).map_err(wrap_url_parse_error)?;
+        let cookies = self
+            .0
+            .load()
+            .get_cookies(&url)
+            .iter()
+            .filter_map(|hv| hv.to_str().ok())
+            .map(ToString::to_string)
+            .collect::<Vec<String>>();
+
+        Ok(cookies)
+    }
+
+    /// Sets cookies for the given URL.
+    ///
+    /// # Arguments
+    ///
+    /// * `url` - The URL to set the cookies for.
+    /// * `value` - A list of cookie strings to set.
+    ///
+    /// # Returns
+    ///
+    /// A `PyResult` indicating success or failure.
+    ///
+    /// # Examples
+    ///
+    /// ```python
+    /// import rnet
+    ///
+    /// client = rnet.Client()
+    /// client.set_cookies("https://example.com", ["cookie1=value1", "cookie2=value2"])
+    /// ```
+    #[pyo3(signature = (url, value))]
+    fn set_cookies(&self, url: &str, value: Vec<String>) -> PyResult<()> {
+        let url = Url::parse(url).map_err(wrap_url_parse_error)?;
+        let value = value
+            .into_iter()
+            .map(|value| {
+                HeaderValue::from_bytes(value.as_bytes()).map_err(wrap_invali_header_value_error)
+            })
+            .flat_map(Result::ok)
+            .collect::<Vec<HeaderValue>>();
+
+        self.0.load().set_cookies(&url, value);
+        Ok(())
+    }
+
+    /// Updates the client with the given parameters.
+    ///
+    /// # Arguments
+    /// * `params` - The parameters to update the client with.
+    ///
+    /// # Examples
+    ///
+    /// ```python
+    /// import rnet
+    ///
+    /// client = rnet.Client()
+    /// client.update(
+    ///    impersonate=rnet.Impersonate.Firefox135,
+    ///    default_headers={"X-My-Header": "value"},
+    ///    proxies=[rnet.Proxy.all("http://proxy.example.com:8080")],
+    /// )
+    /// ```
+    #[pyo3(signature = (**kwds))]
+    fn update(&self, mut kwds: Option<UpdateClientParams>) {
+        let params = kwds.get_or_insert_default();
+        let mut this = self.0.load_full();
+        let mut client_mut = Arc::make_mut(&mut this).as_mut();
+
+        // Impersonation options.
+        if let Some(impersonate) = params.impersonate.take() {
+            client_mut.impersonate(
+                rquest::Impersonate::builder()
+                    .impersonate(impersonate.into())
+                    .impersonate_os(params.impersonate_os.unwrap_or_default().into())
+                    .skip_http2(params.impersonate_skip_http2.unwrap_or(false))
+                    .skip_headers(params.impersonate_skip_headers.unwrap_or(false))
+                    .build(),
+            );
+        }
+
+        // Default headers options.
+        params.headers.take().map(|default_headers| {
+            let len = default_headers.len();
+            let _ = default_headers
+                .into_iter()
+                .try_fold(
+                    HeaderMap::with_capacity(len),
+                    |mut headers, (key, value)| {
+                        let name = HeaderName::from_bytes(key.as_bytes())
+                            .map_err(wrap_invali_header_name_error)?;
+                        let value = HeaderValue::from_bytes(value.as_bytes())
+                            .map_err(wrap_invali_header_value_error)?;
+                        headers.insert(name, value);
+                        Ok::<_, PyErr>(headers)
+                    },
+                )
+                .map(|mut headers| std::mem::swap(client_mut.headers(), &mut headers));
+        });
+
+        // Headers order options.
+        params.headers_order.take().map(|value| {
+            client_mut.headers_order(
+                value
+                    .into_iter()
+                    .map(|name| {
+                        HeaderName::from_bytes(name.as_bytes())
+                            .map_err(wrap_invali_header_name_error)
+                    })
+                    .filter_map(Result::ok)
+                    .collect::<Vec<_>>(),
+            );
+        });
+
+        // Network options.
+        params.proxies.take().map(|proxies| {
+            client_mut.proxies(proxies.into_iter().map(Into::into).collect::<Vec<_>>());
+        });
+        params
+            .local_address
+            .take()
+            .map(|value| client_mut.local_address(value));
+        rquest::cfg_bindable_device!({
+            params
+                .interface
+                .take()
+                .map(|value| client_mut.interface(value));
+        });
+
+        // Apply the changes.
+        self.0.store(this);
     }
 }
 
 /// Executes an HTTP request.
 async fn execute_request(
-    client: rquest::Client,
+    client: Guard<Arc<rquest::Client>>,
     method: Method,
     url: String,
     mut params: Option<RequestParams>,
@@ -720,7 +941,7 @@ async fn execute_request(
 
 /// Executes a WebSocket request.
 async fn execute_websocket_request(
-    client: rquest::Client,
+    client: Guard<Arc<rquest::Client>>,
     url: String,
     mut params: Option<WebSocketParams>,
 ) -> Result<WebSocket> {

@@ -5,7 +5,7 @@ mod response;
 mod types;
 
 use client::Client;
-use param::{ClientParams, RequestParams, WebSocketParams};
+use param::{ClientParams, RequestParams, UpdateClientParams, WebSocketParams};
 use pyo3::prelude::*;
 use pyo3_stub_gen::{define_stub_info_gatherer, derive::*};
 use response::{Message, Response, Streamer, WebSocket};
@@ -287,6 +287,7 @@ fn rnet(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<SocketAddr>()?;
     m.add_class::<Proxy>()?;
     m.add_class::<ClientParams>()?;
+    m.add_class::<UpdateClientParams>()?;
     m.add_class::<RequestParams>()?;
     m.add_class::<WebSocketParams>()?;
     m.add_class::<WebSocket>()?;

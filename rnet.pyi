@@ -8,7 +8,79 @@ class Client:
     r"""
     A client for making HTTP requests.
     """
+    user_agent: typing.Optional[builtins.str]
+    headers: HeaderMap
     def __new__(cls,**kwds): ...
+    def get_cookies(self, url:builtins.str) -> builtins.list[builtins.str]:
+        r"""
+        Returns the cookies for the given URL.
+        
+        # Arguments
+        
+        * `url` - The URL to get the cookies for.
+        
+        # Returns
+        
+        A list of cookie strings.
+        
+        # Examples
+        
+        ```python
+        import rnet
+        
+        client = rnet.Client()
+        cookies = client.get_cookies("https://example.com")
+        print(cookies)
+        ```
+        """
+        ...
+
+    def set_cookies(self, url:builtins.str, value:typing.Sequence[builtins.str]) -> None:
+        r"""
+        Sets cookies for the given URL.
+        
+        # Arguments
+        
+        * `url` - The URL to set the cookies for.
+        * `value` - A list of cookie strings to set.
+        
+        # Returns
+        
+        A `PyResult` indicating success or failure.
+        
+        # Examples
+        
+        ```python
+        import rnet
+        
+        client = rnet.Client()
+        client.set_cookies("https://example.com", ["cookie1=value1", "cookie2=value2"])
+        ```
+        """
+        ...
+
+    def update(self, **kwds) -> None:
+        r"""
+        Updates the client with the given parameters.
+        
+        # Arguments
+        * `params` - The parameters to update the client with.
+        
+        # Examples
+        
+        ```python
+        import rnet
+        
+        client = rnet.Client()
+        client.update(
+           impersonate=rnet.Impersonate.Firefox135,
+           default_headers={"X-My-Header": "value"},
+           proxies=[rnet.Proxy.all("http://proxy.example.com:8080")],
+        )
+        ```
+        """
+        ...
+
     def get(self, url:builtins.str, **kwds) -> typing.Any:
         r"""
         Sends a GET request.
@@ -932,6 +1004,15 @@ class Streamer:
         """
         ...
 
+
+class UpdateClientParams:
+    impersonate: typing.Optional[Impersonate]
+    impersonate_os: typing.Optional[ImpersonateOS]
+    impersonate_skip_http2: typing.Optional[builtins.bool]
+    impersonate_skip_headers: typing.Optional[builtins.bool]
+    headers_order: typing.Optional[builtins.list[builtins.str]]
+    proxies: typing.Optional[builtins.list[Proxy]]
+    interface: typing.Optional[builtins.str]
 
 class Version:
     r"""

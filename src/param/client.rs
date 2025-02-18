@@ -171,6 +171,46 @@ pub struct ClientParams {
     pub zstd: Option<bool>,
 }
 
+#[gen_stub_pyclass]
+#[pyclass]
+#[derive(Default, Debug)]
+pub struct UpdateClientParams {
+    /// The impersonation settings for the request.
+    #[pyo3(get)]
+    pub impersonate: Option<Impersonate>,
+
+    /// The impersonation settings for the operating system.
+    #[pyo3(get)]
+    pub impersonate_os: Option<ImpersonateOS>,
+
+    /// Whether to skip impersonate HTTP/2.
+    #[pyo3(get)]
+    pub impersonate_skip_http2: Option<bool>,
+
+    /// Whether to skip impersonate headers.
+    #[pyo3(get)]
+    pub impersonate_skip_headers: Option<bool>,
+
+    /// The headers to use for the request.
+    pub headers: Option<IndexMap<String, String>>,
+
+    /// The order of the headers to use for the request.
+    #[pyo3(get)]
+    pub headers_order: Option<Vec<String>>,
+
+    // ========= Network options =========
+    /// The proxy to use for the request.
+    #[pyo3(get)]
+    pub proxies: Option<Vec<Proxy>>,
+
+    /// Bind to a local IP Address.
+    pub local_address: Option<IpAddr>,
+
+    /// Bind to an interface by `SO_BINDTODEVICE`.
+    #[pyo3(get)]
+    pub interface: Option<String>,
+}
+
 macro_rules! extract_option {
     ($ob:expr, $params:expr, $field:ident) => {
         if let Ok(value) = $ob.get_item(stringify!($field)) {
@@ -221,6 +261,22 @@ impl<'py> FromPyObject<'py> for ClientParams {
         extract_option!(ob, params, brotli);
         extract_option!(ob, params, deflate);
         extract_option!(ob, params, zstd);
+        Ok(params)
+    }
+}
+
+impl<'py> FromPyObject<'py> for UpdateClientParams {
+    fn extract_bound(ob: &Bound<'py, PyAny>) -> PyResult<Self> {
+        let mut params = Self::default();
+        extract_option!(ob, params, impersonate);
+        extract_option!(ob, params, impersonate_os);
+        extract_option!(ob, params, impersonate_skip_http2);
+        extract_option!(ob, params, impersonate_skip_headers);
+        extract_option!(ob, params, headers);
+        extract_option!(ob, params, headers_order);
+        extract_option!(ob, params, proxies);
+        extract_option!(ob, params, local_address);
+        extract_option!(ob, params, interface);
         Ok(params)
     }
 }

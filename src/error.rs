@@ -47,6 +47,14 @@ pub fn wrap_invali_header_name_error(error: header::InvalidHeaderName) -> pyo3::
     PyRuntimeError::new_err(format!("Invalid header name: {:?}", error))
 }
 
+pub fn wrap_invali_header_value_error(error: header::InvalidHeaderValue) -> pyo3::PyErr {
+    PyRuntimeError::new_err(format!("Invalid header value: {:?}", error))
+}
+
+pub fn wrap_url_parse_error(error: url::ParseError) -> pyo3::PyErr {
+    URLParseError::new_err(format!("URL parse error: {:?}", error))
+}
+
 pub fn wrap_rquest_error(error: rquest::Error) -> pyo3::PyErr {
     if error.is_body() {
         BodyError::new_err(format!("Body related error: {:?}", error))
