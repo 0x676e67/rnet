@@ -50,196 +50,6 @@ pub struct Client(rquest::Client);
 #[gen_stub_pymethods]
 #[pymethods]
 impl Client {
-    /// Creates a new Client instance.
-    ///
-    /// # Arguments
-    ///
-    /// * `params` - Optional request parameters as a dictionary.
-    ///
-    /// # Returns
-    ///
-    /// A new `Client` instance.
-    ///
-    /// # Examples
-    ///
-    /// ```python
-    /// import asyncio
-    /// import rnet
-    ///
-    /// client = rnet.Client(
-    ///     user_agent="my-app/0.0.1",
-    ///     timeout=10,
-    /// )
-    /// response = await client.get('https://httpbin.org/get')
-    /// print(response.text)
-    /// ```
-    #[new]
-    #[pyo3(signature = (**kwds))]
-    fn new(mut kwds: Option<ClientParams>) -> PyResult<Client> {
-        let params = kwds.get_or_insert_default();
-        let mut builder = rquest::Client::builder();
-
-        // Impersonation options.
-        if let Some(impersonate) = params.impersonate.take() {
-            builder = builder.impersonate(
-                rquest::Impersonate::builder()
-                    .impersonate(impersonate.into())
-                    .impersonate_os(params.impersonate_os.unwrap_or_default().into())
-                    .skip_http2(params.impersonate_skip_http2.unwrap_or(false))
-                    .skip_headers(params.impersonate_skip_headers.unwrap_or(false))
-                    .build(),
-            );
-        }
-
-        // User agent options.
-        apply_option!(apply_if_some, builder, params.user_agent, user_agent);
-
-        // Headers options.
-        if let Some(default_headers) = params.default_headers.take() {
-            let mut headers = HeaderMap::with_capacity(default_headers.len());
-            for (key, value) in default_headers.into_iter() {
-                let name = HeaderName::from_bytes(key.as_bytes())
-                    .map_err(wrap_invali_header_name_error)?;
-                headers.insert(name, value);
-            }
-        }
-
-        // Headers order options.
-        if let Some(headers_order) = params.headers_order.take() {
-            let mut names = Vec::with_capacity(headers_order.len());
-            for name in headers_order {
-                let name = HeaderName::from_bytes(name.as_bytes())
-                    .map_err(wrap_invali_header_name_error)?;
-                names.push(name);
-            }
-            builder = builder.headers_order(names);
-        }
-
-        // Referer options.
-        apply_option!(apply_if_some, builder, params.referer, referer);
-
-        // Allow redirects options.
-        apply_option!(
-            apply_option_or_default_with_value,
-            builder,
-            params.allow_redirects,
-            redirect,
-            false,
-            Policy::default()
-        );
-
-        // Cookie store options.
-        apply_option!(apply_if_some, builder, params.cookie_store, cookie_store);
-
-        // Timeout options.
-        apply_option!(
-            apply_transformed_option,
-            builder,
-            params.timeout,
-            timeout,
-            Duration::from_secs
-        );
-        apply_option!(
-            apply_transformed_option,
-            builder,
-            params.connect_timeout,
-            connect_timeout,
-            Duration::from_secs
-        );
-        apply_option!(
-            apply_transformed_option,
-            builder,
-            params.read_timeout,
-            read_timeout,
-            Duration::from_secs
-        );
-        apply_option!(
-            apply_option_or_default,
-            builder,
-            params.no_keepalive,
-            no_keepalive,
-            false
-        );
-        apply_option!(
-            apply_transformed_option,
-            builder,
-            params.tcp_keepalive,
-            tcp_keepalive,
-            Duration::from_secs
-        );
-        apply_option!(
-            apply_transformed_option,
-            builder,
-            params.pool_idle_timeout,
-            pool_idle_timeout,
-            Duration::from_secs
-        );
-        apply_option!(
-            apply_if_some,
-            builder,
-            params.pool_max_idle_per_host,
-            pool_max_idle_per_host
-        );
-        apply_option!(apply_if_some, builder, params.pool_max_size, pool_max_size);
-
-        // Protocol options.
-        apply_option!(
-            apply_option_or_default,
-            builder,
-            params.http1_only,
-            http1_only,
-            false
-        );
-        apply_option!(
-            apply_option_or_default,
-            builder,
-            params.http2_only,
-            http2_only,
-            false
-        );
-        apply_option!(apply_if_some, builder, params.https_only, https_only);
-        apply_option!(apply_if_some, builder, params.tcp_nodelay, tcp_nodelay);
-        apply_option!(
-            apply_if_some,
-            builder,
-            params.http2_max_retry_count,
-            http2_max_retry_count
-        );
-        apply_option!(apply_if_some, builder, params.tls_info, tls_info);
-        apply_option!(
-            apply_if_some,
-            builder,
-            params.danger_accept_invalid_certs,
-            danger_accept_invalid_certs
-        );
-
-        // Network options.
-        if let Some(proxies) = params.proxies.take() {
-            for proxy in proxies {
-                builder = builder.proxy(proxy.into());
-            }
-        }
-        apply_option!(
-            apply_option_or_default,
-            builder,
-            params.no_proxy,
-            no_proxy,
-            false
-        );
-        apply_option!(apply_if_some, builder, params.local_address, local_address);
-        rquest::cfg_bindable_device!({
-            apply_option!(apply_if_some, builder, params.interface, interface);
-        });
-
-        // Compression options.
-        apply_option!(apply_if_some, builder, params.gzip, gzip);
-        apply_option!(apply_if_some, builder, params.brotli, brotli);
-        apply_option!(apply_if_some, builder, params.deflate, deflate);
-        apply_option!(apply_if_some, builder, params.zstd, zstd);
-
-        builder.build().map(Client).map_err(wrap_rquest_error)
-    }
-
     /// Sends a GET request.
     ///
     /// # Arguments
@@ -583,6 +393,32 @@ impl Client {
     }
 
     /// Sends a WebSocket request.
+    ///
+    /// # Arguments
+    ///
+    /// * `url` - The URL to send the WebSocket request to.
+    /// * `**kwds` - Additional WebSocket request parameters.
+    ///
+    /// # Returns
+    ///
+    /// A `WebSocket` object representing the WebSocket connection.
+    ///
+    /// # Examples
+    ///
+    /// ```python
+    /// import rnet
+    /// import asyncio
+    ///
+    /// async def main():
+    ///     client = rnet.Client()
+    ///     ws = await client.websocket("wss://echo.websocket.org")
+    ///     await ws.send(rnet.Message.from_text("Hello, WebSocket!"))
+    ///     message = await ws.recv()
+    ///     print("Received:", message.data)
+    ///     await ws.close()
+    ///
+    /// asyncio.run(main())
+    /// ```
     #[pyo3(signature = (url, **kwds))]
     pub fn websocket<'rt>(
         &self,
@@ -592,6 +428,203 @@ impl Client {
     ) -> PyResult<Bound<'rt, PyAny>> {
         let client = self.0.clone();
         pyo3_async_runtimes::tokio::future_into_py(py, execute_websocket_request(client, url, kwds))
+    }
+}
+
+#[gen_stub_pymethods]
+#[pymethods]
+impl Client {
+    /// Creates a new Client instance.
+    ///
+    /// # Arguments
+    ///
+    /// * `params` - Optional request parameters as a dictionary.
+    ///
+    /// # Returns
+    ///
+    /// A new `Client` instance.
+    ///
+    /// # Examples
+    ///
+    /// ```python
+    /// import asyncio
+    /// import rnet
+    ///
+    /// client = rnet.Client(
+    ///     user_agent="my-app/0.0.1",
+    ///     timeout=10,
+    /// )
+    /// response = await client.get('https://httpbin.org/get')
+    /// print(response.text)
+    /// ```
+    #[new]
+    #[pyo3(signature = (**kwds))]
+    fn new(mut kwds: Option<ClientParams>) -> PyResult<Client> {
+        let params = kwds.get_or_insert_default();
+        let mut builder = rquest::Client::builder();
+
+        // Impersonation options.
+        if let Some(impersonate) = params.impersonate.take() {
+            builder = builder.impersonate(
+                rquest::Impersonate::builder()
+                    .impersonate(impersonate.into())
+                    .impersonate_os(params.impersonate_os.unwrap_or_default().into())
+                    .skip_http2(params.impersonate_skip_http2.unwrap_or(false))
+                    .skip_headers(params.impersonate_skip_headers.unwrap_or(false))
+                    .build(),
+            );
+        }
+
+        // Base URL options.
+        apply_option!(apply_if_some, builder, params.base_url, base_url);
+
+        // User agent options.
+        apply_option!(apply_if_some, builder, params.user_agent, user_agent);
+
+        // Headers options.
+        if let Some(default_headers) = params.default_headers.take() {
+            let mut headers = HeaderMap::with_capacity(default_headers.len());
+            for (key, value) in default_headers.into_iter() {
+                let name = HeaderName::from_bytes(key.as_bytes())
+                    .map_err(wrap_invali_header_name_error)?;
+                headers.insert(name, value);
+            }
+        }
+
+        // Headers order options.
+        if let Some(headers_order) = params.headers_order.take() {
+            let mut names = Vec::with_capacity(headers_order.len());
+            for name in headers_order {
+                let name = HeaderName::from_bytes(name.as_bytes())
+                    .map_err(wrap_invali_header_name_error)?;
+                names.push(name);
+            }
+            builder = builder.headers_order(names);
+        }
+
+        // Referer options.
+        apply_option!(apply_if_some, builder, params.referer, referer);
+
+        // Allow redirects options.
+        apply_option!(
+            apply_option_or_default_with_value,
+            builder,
+            params.allow_redirects,
+            redirect,
+            false,
+            Policy::default()
+        );
+
+        // Cookie store options.
+        apply_option!(apply_if_some, builder, params.cookie_store, cookie_store);
+
+        // Timeout options.
+        apply_option!(
+            apply_transformed_option,
+            builder,
+            params.timeout,
+            timeout,
+            Duration::from_secs
+        );
+        apply_option!(
+            apply_transformed_option,
+            builder,
+            params.connect_timeout,
+            connect_timeout,
+            Duration::from_secs
+        );
+        apply_option!(
+            apply_transformed_option,
+            builder,
+            params.read_timeout,
+            read_timeout,
+            Duration::from_secs
+        );
+        apply_option!(
+            apply_option_or_default,
+            builder,
+            params.no_keepalive,
+            no_keepalive,
+            false
+        );
+        apply_option!(
+            apply_transformed_option,
+            builder,
+            params.tcp_keepalive,
+            tcp_keepalive,
+            Duration::from_secs
+        );
+        apply_option!(
+            apply_transformed_option,
+            builder,
+            params.pool_idle_timeout,
+            pool_idle_timeout,
+            Duration::from_secs
+        );
+        apply_option!(
+            apply_if_some,
+            builder,
+            params.pool_max_idle_per_host,
+            pool_max_idle_per_host
+        );
+        apply_option!(apply_if_some, builder, params.pool_max_size, pool_max_size);
+
+        // Protocol options.
+        apply_option!(
+            apply_option_or_default,
+            builder,
+            params.http1_only,
+            http1_only,
+            false
+        );
+        apply_option!(
+            apply_option_or_default,
+            builder,
+            params.http2_only,
+            http2_only,
+            false
+        );
+        apply_option!(apply_if_some, builder, params.https_only, https_only);
+        apply_option!(apply_if_some, builder, params.tcp_nodelay, tcp_nodelay);
+        apply_option!(
+            apply_if_some,
+            builder,
+            params.http2_max_retry_count,
+            http2_max_retry_count
+        );
+        apply_option!(apply_if_some, builder, params.tls_info, tls_info);
+        apply_option!(
+            apply_if_some,
+            builder,
+            params.danger_accept_invalid_certs,
+            danger_accept_invalid_certs
+        );
+
+        // Network options.
+        if let Some(proxies) = params.proxies.take() {
+            for proxy in proxies {
+                builder = builder.proxy(proxy.into());
+            }
+        }
+        apply_option!(
+            apply_option_or_default,
+            builder,
+            params.no_proxy,
+            no_proxy,
+            false
+        );
+        apply_option!(apply_if_some, builder, params.local_address, local_address);
+        rquest::cfg_bindable_device!({
+            apply_option!(apply_if_some, builder, params.interface, interface);
+        });
+
+        // Compression options.
+        apply_option!(apply_if_some, builder, params.gzip, gzip);
+        apply_option!(apply_if_some, builder, params.brotli, brotli);
+        apply_option!(apply_if_some, builder, params.deflate, deflate);
+        apply_option!(apply_if_some, builder, params.zstd, zstd);
+
+        builder.build().map(Client).map_err(wrap_rquest_error)
     }
 }
 

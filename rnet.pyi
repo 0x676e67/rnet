@@ -275,6 +275,32 @@ class Client:
     def websocket(self, url:builtins.str, **kwds) -> typing.Any:
         r"""
         Sends a WebSocket request.
+        
+        # Arguments
+        
+        * `url` - The URL to send the WebSocket request to.
+        * `**kwds` - Additional WebSocket request parameters.
+        
+        # Returns
+        
+        A `WebSocket` object representing the WebSocket connection.
+        
+        # Examples
+        
+        ```python
+        import rnet
+        import asyncio
+        
+        async def main():
+            client = rnet.Client()
+            ws = await client.websocket("wss://echo.websocket.org")
+            await ws.send(rnet.Message.from_text("Hello, WebSocket!"))
+            message = await ws.recv()
+            print("Received:", message.data)
+            await ws.close()
+        
+        asyncio.run(main())
+        ```
         """
         ...
 
@@ -312,6 +338,7 @@ class ClientParams:
     impersonate_os: typing.Optional[ImpersonateOS]
     impersonate_skip_http2: typing.Optional[builtins.bool]
     impersonate_skip_headers: typing.Optional[builtins.bool]
+    base_url: typing.Optional[builtins.str]
     user_agent: typing.Optional[builtins.str]
     headers_order: typing.Optional[builtins.list[builtins.str]]
     referer: typing.Optional[builtins.bool]

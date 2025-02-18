@@ -50,6 +50,10 @@ pub struct ClientParams {
     #[pyo3(get)]
     pub impersonate_skip_headers: Option<bool>,
 
+    /// The base URL to use for the request.
+    #[pyo3(get)]
+    pub base_url: Option<String>,
+
     /// The user agent to use for the request.
     #[pyo3(get)]
     pub user_agent: Option<String>,
@@ -183,6 +187,7 @@ impl<'py> FromPyObject<'py> for ClientParams {
         extract_option!(ob, params, impersonate_skip_http2);
         extract_option!(ob, params, impersonate_skip_headers);
 
+        extract_option!(ob, params, base_url);
         extract_option!(ob, params, user_agent);
         extract_option!(ob, params, default_headers);
         extract_option!(ob, params, headers_order);
