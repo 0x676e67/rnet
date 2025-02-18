@@ -856,6 +856,19 @@ impl Client {
     }
 }
 
+/// Creates a new default `Client` instance.
+///
+/// # Panics
+///
+/// This method will panic if the Client cannot be created.
+///
+/// # Examples
+///
+/// ```rust
+/// use rnet::Client;
+///
+/// let client = Client::default();
+/// ```
 impl Default for Client {
     fn default() -> Self {
         rquest::Client::builder()
@@ -863,7 +876,7 @@ impl Default for Client {
             .build()
             .map(ArcSwap::from_pointee)
             .map(Client)
-            .expect("Failed to create a default DNS resolver.")
+            .expect("Failed to build the default client.")
     }
 }
 
