@@ -4,20 +4,19 @@ use pyo3::{
 };
 use rquest::header;
 
-const RACE_CONDITION_ERROR_MSG: &str = r#"Due Rust's memory managment approach of borrowing,
-you cannot use some instances for some kind of
-stuff twice as they are gone.
+const RACE_CONDITION_ERROR_MSG: &str = r#"Due to Rust's memory management with borrowing,
+you cannot use certain instances multiple times as they may be consumed.
 
-There are 3 cases you've got this error:
-1) You passed a non-clonable instance to another that requires owning
-2) You tried using method with owning twice (i.e. reading response's body twice)
-3) You tried using referencing after borrowing
+This error can occur in the following cases:
+1) You passed a non-clonable instance to a function that requires ownership.
+2) You attempted to use a method that consumes ownership more than once (e.g., reading a response body twice).
+3) You tried to reference an instance after it was borrowed.
 
 Potential solutions:
-1) Do not share instances, create new on every time you use it
-2) Do not do this. Try another way to solve your problem
-3) Swap calls order (referencing first)
-inner types "#;
+1) Avoid sharing instances; create a new instance each time you use it.
+2) Refrain from performing actions that consume ownership multiple times.
+3) Change the order of operations to reference the instance before borrowing it.
+"#;
 
 create_exception!(exceptions, BorrowingError, PyRuntimeError);
 
