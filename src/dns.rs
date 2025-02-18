@@ -38,7 +38,7 @@ where
             HickoryDnsResolver::new(strategy.into())
                 .map(Arc::new)
                 .map_err(|err| {
-                    eprintln!("failed to initialize the DNS resolver: {}", err);
+                    log::error!("failed to initialize the DNS resolver: {}", err);
                     "failed to initialize the DNS resolver"
                 })
         })

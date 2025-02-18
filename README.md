@@ -8,7 +8,7 @@
 
 > 🚀 Help me work seamlessly with open source sharing by [sponsoring me on GitHub](https://github.com/0x676e67/0x676e67/blob/main/SPONSOR.md)
 
-Asynchronous Python HTTP client with Black Magic, powered by FFI from [rquest](https://github.com/0x676e67/rquest). This library can mimic the TLS and HTTP2 configurations of popular browsers like Chrome, Safari, Firefox, and OkHttp.
+An asynchronous Python HTTP client with Black Magic, powered by FFI from [rquest](https://github.com/0x676e67/rquest), capable of mimicking `TLS` and `HTTP2` configurations of popular browsers like `Chrome`, `Safari`, `Firefox`, and `OkHttp`.
 
 ## Features
 

@@ -25,7 +25,9 @@ pyo3 = { version = "0.23.0", features = [
     "experimental-inspect",
 ] }
 pyo3-async-runtimes = { version = "0.23.0", features = ["tokio-runtime"] }
+pyo3-log = "0.12.1"
 pyo3-stub-gen = "0.7.0"
+log = "0.4.25"
 anyhow = "1.0"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
