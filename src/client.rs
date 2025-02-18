@@ -51,7 +51,6 @@ macro_rules! apply_option {
 /// A client for making HTTP requests.
 #[gen_stub_pyclass]
 #[pyclass]
-#[derive(Default)]
 pub struct Client(ArcSwap<rquest::Client>);
 
 #[gen_stub_pymethods]
@@ -854,6 +853,17 @@ impl Client {
 
         // Apply the changes.
         self.0.store(this);
+    }
+}
+
+impl Default for Client {
+    fn default() -> Self {
+        rquest::Client::builder()
+            .no_hickory_dns()
+            .build()
+            .map(ArcSwap::from_pointee)
+            .map(Client)
+            .expect("Failed to create a default DNS resolver.")
     }
 }
 
