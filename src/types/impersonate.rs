@@ -88,6 +88,7 @@ define_constants!(
     Firefox128,
     Firefox133,
     Firefox135,
+    FirefoxPrivate135,
     FirefoxAndroid135,
     SafariIos17_2,
     SafariIos17_4_1,
