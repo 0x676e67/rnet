@@ -18,7 +18,10 @@ use rquest::{
     redirect::Policy,
     Url,
 };
-use std::{sync::Arc, time::Duration};
+use std::{
+    sync::{Arc, LazyLock},
+    time::Duration,
+};
 
 macro_rules! apply_option {
     (apply_if_some, $builder:expr, $option:expr, $method:ident) => {
@@ -52,6 +55,43 @@ macro_rules! apply_option {
 #[gen_stub_pyclass]
 #[pyclass]
 pub struct Client(ArcSwap<rquest::Client>);
+
+impl Client {
+    /// Creates a new default `Client` instance.
+    ///
+    /// This method initializes a `Client` with default settings, including disabling
+    /// Hickory DNS and keepalive.
+    ///
+    /// # Panics
+    ///
+    /// This method will panic if the Client cannot be created.
+    ///
+    /// # Note
+    ///
+    /// This client does not maintain a session, meaning it does not share cookies,
+    /// headers, or other parameters between requests.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rnet::Client;
+    ///
+    /// let client = Client::default();
+    /// ```
+    pub fn default() -> &'static Self {
+        static CLIENT: LazyLock<Client> = LazyLock::new(|| {
+            rquest::Client::builder()
+                .no_hickory_dns()
+                .no_keepalive()
+                .build()
+                .map(ArcSwap::from_pointee)
+                .map(Client)
+                .expect("Failed to build the default client.")
+        });
+
+        &*CLIENT
+    }
+}
 
 #[gen_stub_pymethods]
 #[pymethods]
@@ -853,30 +893,6 @@ impl Client {
 
         // Apply the changes.
         self.0.store(this);
-    }
-}
-
-/// Creates a new default `Client` instance.
-///
-/// # Panics
-///
-/// This method will panic if the Client cannot be created.
-///
-/// # Examples
-///
-/// ```rust
-/// use rnet::Client;
-///
-/// let client = Client::default();
-/// ```
-impl Default for Client {
-    fn default() -> Self {
-        rquest::Client::builder()
-            .no_hickory_dns()
-            .build()
-            .map(ArcSwap::from_pointee)
-            .map(Client)
-            .expect("Failed to build the default client.")
     }
 }
 
