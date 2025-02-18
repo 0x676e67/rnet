@@ -774,7 +774,7 @@ impl Client {
     /// client = rnet.Client()
     /// client.update(
     ///    impersonate=rnet.Impersonate.Firefox135,
-    ///    default_headers={"X-My-Header": "value"},
+    ///    headers={"X-My-Header": "value"},
     ///    proxies=[rnet.Proxy.all("http://proxy.example.com:8080")],
     /// )
     /// ```
