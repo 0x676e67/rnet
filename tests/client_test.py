@@ -29,7 +29,7 @@ async def test_update_impersonate():
         impersonate_os=ImpersonateOS.Windows,
         Impersonate_skip_headers=False,
     )
-    assert client.user_agent == "Mozilla/5.0 (Windows NT 10.0; rv:133.0) Gecko/20100101 Firefox/135.0"
+    assert client.user_agent == "Mozilla/5.0 (Windows NT 10.0; rv:135.0) Gecko/20100101 Firefox/135.0"
 
 
 @pytest.mark.asyncio
