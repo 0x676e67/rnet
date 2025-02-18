@@ -6,8 +6,10 @@ mod response;
 mod types;
 
 use client::Client;
+use log::LevelFilter;
 use param::{ClientParams, RequestParams, UpdateClientParams, WebSocketParams};
 use pyo3::prelude::*;
+use pyo3_log::{Caching, Logger};
 use pyo3_stub_gen::{define_stub_info_gatherer, derive::*};
 use response::{Message, Response, Streamer, WebSocket};
 use types::{
@@ -281,7 +283,13 @@ fn websocket(
 #[pymodule(gil_used = false)]
 fn rnet(m: &Bound<'_, PyModule>) -> PyResult<()> {
     // A good place to install the Rust -> Python logger.
-    pyo3_log::init();
+    let handle = Logger::new(m.py(), Caching::LoggersAndLevels)?
+        .filter(LevelFilter::Trace)
+        .install()
+        .expect("Someone installed a logger before rnet.");
+
+    // Some time in the future when logging changes, reset the caches:
+    handle.reset();
 
     m.add_class::<Method>()?;
     m.add_class::<Version>()?;
