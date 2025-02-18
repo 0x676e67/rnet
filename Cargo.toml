@@ -14,6 +14,9 @@ name = "rnet"
 crate-type = ["cdylib", "rlib"]
 doctest = false
 
+[features]
+logging = ["dep:pyo3-log", "dep:log"]
+
 [dependencies]
 tokio = { version = "1.0", features = ["sync"] }
 pyo3 = { version = "0.23.0", features = [
@@ -25,9 +28,9 @@ pyo3 = { version = "0.23.0", features = [
     "experimental-inspect",
 ] }
 pyo3-async-runtimes = { version = "0.23.0", features = ["tokio-runtime"] }
-pyo3-log = "0.12.1"
+pyo3-log = { version = "0.12.1", optional = true }
 pyo3-stub-gen = "0.7.0"
-log = "0.4.25"
+log = { version = "0.4.25", optional = true }
 anyhow = "1.0"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
