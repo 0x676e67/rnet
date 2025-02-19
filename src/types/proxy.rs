@@ -19,6 +19,8 @@ impl From<Proxy> for rquest::Proxy {
 impl Proxy {
     /// Creates a new HTTP proxy.
     ///
+    /// This method sets up a proxy server for HTTP requests.
+    ///
     /// # Arguments
     ///
     /// * `url` - The URL of the proxy server.
@@ -43,6 +45,8 @@ impl Proxy {
 
     /// Creates a new HTTPS proxy.
     ///
+    /// This method sets up a proxy server for HTTPS requests.
+    ///
     /// # Arguments
     ///
     /// * `url` - The URL of the proxy server.
@@ -65,7 +69,9 @@ impl Proxy {
             .map_err(wrap_rquest_error)
     }
 
-    /// Creates a new HTTPS proxy.
+    /// Creates a new proxy for all protocols.
+    ///
+    /// This method sets up a proxy server for all types of requests (HTTP, HTTPS, etc.).
     ///
     /// # Arguments
     ///
@@ -84,7 +90,7 @@ impl Proxy {
     /// ```
     #[staticmethod]
     fn all(url: &str) -> PyResult<Self> {
-        rquest::Proxy::https(url)
+        rquest::Proxy::all(url)
             .map(Proxy)
             .map_err(wrap_rquest_error)
     }
