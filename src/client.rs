@@ -153,7 +153,7 @@ impl Client {
     ///
     /// async def main():
     ///     client = rnet.Client()
-    ///     response = await client.post("://httpbin.org/post", json={"key": "value"})
+    ///     response = await client.post("https://httpbin.org/post", json={"key": "value"})
     ///     print(await response.text())
     ///
     /// asyncio.run(main())
