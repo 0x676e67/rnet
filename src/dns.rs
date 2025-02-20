@@ -27,15 +27,12 @@ use std::sync::{Arc, OnceLock};
 ///
 /// let resolver = get_or_try_init(LookupIpStrategy::default()).unwrap();
 /// ```
-pub fn get_or_try_init<S>(strategy: S) -> crate::Result<Arc<HickoryDnsResolver>>
-where
-    S: Into<Option<LookupIpStrategy>>,
-{
+pub fn get_or_try_init() -> crate::Result<Arc<HickoryDnsResolver>> {
     static DNS_RESOLVER: OnceLock<Result<Arc<HickoryDnsResolver>, &'static str>> = OnceLock::new();
 
     DNS_RESOLVER
         .get_or_init(move || {
-            HickoryDnsResolver::new(strategy.into())
+            HickoryDnsResolver::new(LookupIpStrategy::Ipv4AndIpv6)
                 .map(Arc::new)
                 .map_err(|err| {
                     #[cfg(feature = "logging")]

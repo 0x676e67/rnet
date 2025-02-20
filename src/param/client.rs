@@ -76,10 +76,6 @@ pub struct ClientParams {
     #[pyo3(get)]
     pub cookie_store: Option<bool>,
 
-    /// Whether to use async DNS resolver.
-    #[pyo3(get)]
-    pub async_dns: Option<bool>,
-
     // ========= Timeout options =========
     /// The timeout to use for the request. (in seconds)
     #[pyo3(get)]
@@ -259,7 +255,6 @@ impl<'py> FromPyObject<'py> for ClientParams {
         extract_option!(ob, params, referer);
         extract_option!(ob, params, allow_redirects);
         extract_option!(ob, params, cookie_store);
-        extract_option!(ob, params, async_dns);
 
         extract_option!(ob, params, timeout);
         extract_option!(ob, params, connect_timeout);

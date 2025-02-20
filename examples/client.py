@@ -30,7 +30,6 @@ async def main():
     client = Client(
         impersonate=Impersonate.Firefox133,
         user_agent="rnet",
-        async_dns=True,
         proxies=[
             Proxy.http("socks5h://abc:def@127.0.0.1:1080"),
             Proxy.https(url="socks5h://127.0.0.1:1080", username="abc", password="def"),
