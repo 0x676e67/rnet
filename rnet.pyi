@@ -1168,10 +1168,16 @@ class WebSocketParams:
     """
     proxy: typing.Optional[builtins.str]
     interface: typing.Optional[builtins.str]
+    protocols: typing.Optional[builtins.list[builtins.str]]
     auth: typing.Optional[builtins.str]
     bearer_auth: typing.Optional[builtins.str]
     basic_auth: typing.Optional[tuple[builtins.str, typing.Optional[builtins.str]]]
     query: typing.Optional[builtins.list[tuple[builtins.str, builtins.str]]]
+    write_buffer_size: typing.Optional[builtins.int]
+    max_write_buffer_size: typing.Optional[builtins.int]
+    max_message_size: typing.Optional[builtins.int]
+    max_frame_size: typing.Optional[builtins.int]
+    accept_unmasked_frames: typing.Optional[builtins.bool]
 
 def delete(url:builtins.str, **kwds) -> typing.Any:
     r"""
