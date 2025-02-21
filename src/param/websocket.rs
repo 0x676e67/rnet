@@ -104,7 +104,7 @@ pub struct WebSocketParams {
     /// by a malicious user.
     #[pyo3(get)]
     pub max_frame_size: Option<usize>,
-    
+
     /// When set to `true`, the server will accept and handle unmasked frames
     /// from the client. According to the RFC 6455, the server must close the
     /// connection to the client in such cases, however it seems like there are
