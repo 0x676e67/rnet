@@ -1001,6 +1001,13 @@ async fn execute_websocket_request(
     // The protocols to use for the request.
     apply_option!(apply_if_some, builder, params.protocols, protocols);
 
+    // The WebSocket config
+    apply_option!(apply_if_some, builder, params.write_buffer_size, write_buffer_size);
+    apply_option!(apply_if_some, builder, params.max_write_buffer_size, max_write_buffer_size);
+    apply_option!(apply_if_some, builder, params.max_frame_size, max_frame_size);
+    apply_option!(apply_if_some, builder, params.max_message_size, max_message_size);
+    apply_option!(apply_if_some, builder, params.accept_unmasked_frames, accept_unmasked_frames);
+
     // The origin to use for the request.
     builder = builder.with_builder(|mut builder| {
         // Network options.
