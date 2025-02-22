@@ -1,8 +1,7 @@
-use std::net::IpAddr;
-
 use indexmap::IndexMap;
 use pyo3::prelude::*;
 use pyo3_stub_gen::derive::gen_stub_pyclass;
+use std::net::IpAddr;
 
 /// The parameters for a WebSocket request.
 ///

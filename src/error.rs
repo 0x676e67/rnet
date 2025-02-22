@@ -56,6 +56,10 @@ pub fn wrap_url_parse_error(error: url::ParseError) -> pyo3::PyErr {
     URLParseError::new_err(format!("URL parse error: {:?}", error))
 }
 
+pub fn wrap_io_error(error: std::io::Error) -> pyo3::PyErr {
+    PyRuntimeError::new_err(format!("IO error: {:?}", error))
+}
+
 pub fn wrap_rquest_error(error: rquest::Error) -> pyo3::PyErr {
     if error.is_body() {
         BodyError::new_err(format!("Body related error: {:?}", error))

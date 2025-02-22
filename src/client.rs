@@ -991,6 +991,14 @@ async fn execute_request(
     // Body options.
     apply_option!(apply_if_some, builder, params.body, body);
 
+    // Multipart options.
+    if let Some(multipart) = params.multipart.take() {
+        let multipart = Python::with_gil(|py| multipart.borrow_mut(py).0.take());
+        if let Some(multipart) = multipart {
+            builder = builder.multipart(multipart);
+        }
+    }
+
     // Send the request.
     builder
         .send()

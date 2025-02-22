@@ -591,6 +591,19 @@ class Message:
         ...
 
 
+class Multipart:
+    r"""
+    A multipart form for a request.
+    """
+    def __new__(cls,*parts): ...
+    ...
+
+class Part:
+    r"""
+    A part of a multipart form.
+    """
+    ...
+
 class Proxy:
     r"""
     A proxy server for a request.

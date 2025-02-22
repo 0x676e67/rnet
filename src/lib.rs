@@ -15,7 +15,8 @@ use pyo3_log::{Caching, Logger};
 use pyo3_stub_gen::{define_stub_info_gatherer, derive::*};
 use response::{Message, Response, Streamer, WebSocket};
 use types::{
-    HeaderMap, Impersonate, ImpersonateOS, Method, Proxy, SocketAddr, StatusCode, Version,
+    HeaderMap, Impersonate, ImpersonateOS, Method, Multipart, Part, Proxy, SocketAddr, StatusCode,
+    Version,
 };
 
 #[cfg(not(target_env = "msvc"))]
@@ -312,6 +313,8 @@ fn rnet(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<StatusCode>()?;
     m.add_class::<Response>()?;
     m.add_class::<Streamer>()?;
+    m.add_class::<Part>()?;
+    m.add_class::<Multipart>()?;
     m.add_class::<Client>()?;
 
     m.add_function(wrap_pyfunction!(get, m)?)?;
