@@ -152,18 +152,16 @@ jobs:
             target: x64
           - runner: windows-latest
             target: x86
+          - runner: windows-latest
+            target: arm64
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: 3.x
           architecture: ${{ matrix.platform.target }}
-      - name: Install dependencies on Windows
+      - name: Install NASM
         run: |
-          choco install cmake -y
-          choco install strawberryperl -y
-          choco install pkgconfiglite -y
-          choco install llvm -y
           choco install nasm -y
         shell: cmd
       - name: Build wheels
