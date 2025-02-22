@@ -5,6 +5,7 @@ from rnet import Version, Multipart, Part
 
 client = rnet.Client(tls_info=True)
 
+
 @pytest.mark.asyncio
 async def test_multiple_requests():
     resp = await client.post(
@@ -26,7 +27,7 @@ async def test_multiple_requests():
     assert "111" in text
     assert "000" in text
     assert "Asynchronous Python HTTP Client with Black Magic" in text
-    
+
 
 @pytest.mark.asyncio
 async def test_set_and_get_cookie():
