@@ -75,19 +75,3 @@ macro_rules! define_enum_with_conversion {
         }
     };
 }
-
-#[macro_export]
-macro_rules! define_str_method {
-    ($enum_type:ident) => {
-        #[pymethods]
-        impl $enum_type {
-            fn __str__(&self) -> String {
-                format!("{:?}", self)
-            }
-
-            fn __repr__(&self) -> String {
-                self.__str__()
-            }
-        }
-    };
-}

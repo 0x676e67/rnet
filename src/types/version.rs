@@ -1,4 +1,4 @@
-use crate::{define_enum_with_conversion, define_str_method};
+use crate::define_enum_with_conversion;
 use pyo3::prelude::*;
 use pyo3_stub_gen::derive::gen_stub_pyclass_enum;
 
@@ -12,5 +12,3 @@ define_enum_with_conversion!(
     HTTP_2,
     HTTP_3,
 });
-
-define_str_method!(Version);
