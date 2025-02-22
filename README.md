@@ -64,13 +64,14 @@ Additional learning resources include:
 ## Platforms
 
 1. Linux
+
 - **musl**: `x86_64`, `aarch64`, `armv7`, `i686`
 - **glibc >= 2.17**: `x86_64`
 - **glibc >= 2.31**: `aarch64`, `armv7`, `i686`
 
 2. macOS: `x86_64`,`aarch64`
 
-3. Windows: `x86_64`,`i686`
+3. Windows: `x86_64`,`i686`,`aarch64`
 
 ## Impersonate
 
@@ -95,7 +96,6 @@ In fact, most device models have the same `TLS`/`HTTP2` configuration, except th
 - **Firefox**
 
 `Firefox109`, `Firefox117`, `Firefox128`, `Firefox133`, `Firefox135`, `FirefoxPrivate135`, `FirefoxAndroid135`
-
 
 ## Building
 
