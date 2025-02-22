@@ -73,6 +73,10 @@ pub struct ClientParams {
     #[pyo3(get)]
     pub allow_redirects: Option<bool>,
 
+    /// The maximum number of redirects to follow.
+    #[pyo3(get)]
+    pub max_redirects: Option<usize>,
+
     /// Whether to use cookie store.
     #[pyo3(get)]
     pub cookie_store: Option<bool>,

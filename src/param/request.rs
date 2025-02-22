@@ -65,6 +65,10 @@ pub struct RequestParams {
     #[pyo3(get)]
     pub allow_redirects: Option<bool>,
 
+    /// The maximum number of redirects to follow.
+    #[pyo3(get)]
+    pub max_redirects: Option<usize>,
+
     /// The authentication to use for the request.
     #[pyo3(get)]
     pub auth: Option<String>,
@@ -118,6 +122,7 @@ impl<'py> FromPyObject<'py> for RequestParams {
         extract_option!(ob, params, version);
         extract_option!(ob, params, headers);
         extract_option!(ob, params, allow_redirects);
+        extract_option!(ob, params, max_redirects);
         extract_option!(ob, params, auth);
         extract_option!(ob, params, bearer_auth);
         extract_option!(ob, params, basic_auth);

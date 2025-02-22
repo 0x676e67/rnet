@@ -580,7 +580,11 @@ impl Client {
             params.allow_redirects,
             redirect,
             false,
-            Policy::default()
+            params
+                .max_redirects
+                .take()
+                .map(Policy::limited)
+                .unwrap_or_default()
         );
 
         // Cookie store options.
@@ -935,7 +939,11 @@ async fn execute_request(
         params.allow_redirects,
         redirect,
         false,
-        Policy::default()
+        params
+            .max_redirects
+            .take()
+            .map(Policy::limited)
+            .unwrap_or_default()
     );
 
     // Timeout options.
