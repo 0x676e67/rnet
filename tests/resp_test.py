@@ -1,9 +1,32 @@
 import pytest
 import rnet
-from rnet import Version
+from pathlib import Path
+from rnet import Version, Multipart, Part
 
 client = rnet.Client(tls_info=True)
 
+@pytest.mark.asyncio
+async def test_multiple_requests():
+    resp = await client.post(
+        "https://httpbin.org/anything",
+        multipart=Multipart(
+            Part(name="def", value="111", filename="def.txt", mime="text/plain"),
+            Part(name="abc", value=b"000", filename="abc.txt", mime="text/plain"),
+            Part(
+                name="LICENSE",
+                value=Path("Cargo.toml"),
+                filename="LICENSE",
+                mime="text/plain",
+            ),
+        ),
+    )
+    assert resp.status == 200
+    assert resp.status_code.is_success() is True
+    text = await resp.text()
+    assert "111" in text
+    assert "000" in text
+    assert "Asynchronous Python HTTP Client with Black Magic" in text
+    
 
 @pytest.mark.asyncio
 async def test_set_and_get_cookie():
