@@ -857,7 +857,7 @@ class Response:
 
     def stream(self) -> Streamer:
         r"""
-        Returns the stream content of the response.
+        Convert the response into a `Stream` of `Bytes` from the body.
         
         # Returns
         
@@ -947,7 +947,7 @@ class StatusCode:
 
 class Streamer:
     r"""
-    A streaming response.
+    A bytes streaming response.
     This is an asynchronous iterator that yields chunks of data from the response stream.
     This is used to stream the response content.
     This is used in the `stream` method of the `Response` class.
@@ -1004,6 +1004,12 @@ class Streamer:
         A `PyResult` containing an `Option<PyObject>`. If there is a next chunk, it returns `Some(PyObject)`.
         If the iterator is exhausted, it raises `PyStopAsyncIteration`.
         """
+        ...
+
+    def __aenter__(self) -> typing.Any:
+        ...
+
+    def __aexit__(self, _exc_type:typing.Any, _exc_value:typing.Any, _traceback:typing.Any) -> typing.Any:
         ...
 
 

@@ -11,6 +11,7 @@ use crate::{
 };
 use arc_swap::{ArcSwap, Guard};
 use pyo3::prelude::*;
+use pyo3_async_runtimes::tokio::future_into_py;
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 use rquest::{
     header::{HeaderMap, HeaderName, HeaderValue},
@@ -134,10 +135,7 @@ impl Client {
         kwds: Option<RequestParams>,
     ) -> PyResult<Bound<'rt, PyAny>> {
         let client = self.0.load();
-        pyo3_async_runtimes::tokio::future_into_py(
-            py,
-            execute_request(client, Method::GET, url, kwds),
-        )
+        future_into_py(py, execute_request(client, Method::GET, url, kwds))
     }
 
     /// Sends a POST request.
@@ -172,10 +170,7 @@ impl Client {
         kwds: Option<RequestParams>,
     ) -> PyResult<Bound<'rt, PyAny>> {
         let client = self.0.load();
-        pyo3_async_runtimes::tokio::future_into_py(
-            py,
-            execute_request(client, Method::POST, url, kwds),
-        )
+        future_into_py(py, execute_request(client, Method::POST, url, kwds))
     }
 
     /// Sends a PUT request.
@@ -210,10 +205,7 @@ impl Client {
         kwds: Option<RequestParams>,
     ) -> PyResult<Bound<'rt, PyAny>> {
         let client = self.0.load();
-        pyo3_async_runtimes::tokio::future_into_py(
-            py,
-            execute_request(client, Method::PUT, url, kwds),
-        )
+        future_into_py(py, execute_request(client, Method::PUT, url, kwds))
     }
 
     /// Sends a PATCH request.
@@ -248,10 +240,7 @@ impl Client {
         kwds: Option<RequestParams>,
     ) -> PyResult<Bound<'rt, PyAny>> {
         let client = self.0.load();
-        pyo3_async_runtimes::tokio::future_into_py(
-            py,
-            execute_request(client, Method::PATCH, url, kwds),
-        )
+        future_into_py(py, execute_request(client, Method::PATCH, url, kwds))
     }
 
     /// Sends a DELETE request.
@@ -286,10 +275,7 @@ impl Client {
         kwds: Option<RequestParams>,
     ) -> PyResult<Bound<'rt, PyAny>> {
         let client = self.0.load();
-        pyo3_async_runtimes::tokio::future_into_py(
-            py,
-            execute_request(client, Method::DELETE, url, kwds),
-        )
+        future_into_py(py, execute_request(client, Method::DELETE, url, kwds))
     }
 
     /// Sends a HEAD request.
@@ -324,10 +310,7 @@ impl Client {
         kwds: Option<RequestParams>,
     ) -> PyResult<Bound<'rt, PyAny>> {
         let client = self.0.load();
-        pyo3_async_runtimes::tokio::future_into_py(
-            py,
-            execute_request(client, Method::HEAD, url, kwds),
-        )
+        future_into_py(py, execute_request(client, Method::HEAD, url, kwds))
     }
 
     /// Sends an OPTIONS request.
@@ -362,10 +345,7 @@ impl Client {
         kwds: Option<RequestParams>,
     ) -> PyResult<Bound<'rt, PyAny>> {
         let client = self.0.load();
-        pyo3_async_runtimes::tokio::future_into_py(
-            py,
-            execute_request(client, Method::OPTIONS, url, kwds),
-        )
+        future_into_py(py, execute_request(client, Method::OPTIONS, url, kwds))
     }
 
     /// Sends a TRACE request.
@@ -400,10 +380,7 @@ impl Client {
         kwds: Option<RequestParams>,
     ) -> PyResult<Bound<'rt, PyAny>> {
         let client = self.0.load();
-        pyo3_async_runtimes::tokio::future_into_py(
-            py,
-            execute_request(client, Method::TRACE, url, kwds),
-        )
+        future_into_py(py, execute_request(client, Method::TRACE, url, kwds))
     }
 
     /// Sends a request with the given method and URL.
@@ -441,7 +418,7 @@ impl Client {
         kwds: Option<RequestParams>,
     ) -> PyResult<Bound<'rt, PyAny>> {
         let client = self.0.load();
-        pyo3_async_runtimes::tokio::future_into_py(py, execute_request(client, method, url, kwds))
+        future_into_py(py, execute_request(client, method, url, kwds))
     }
 
     /// Sends a WebSocket request.
@@ -479,7 +456,7 @@ impl Client {
         kwds: Option<WebSocketParams>,
     ) -> PyResult<Bound<'rt, PyAny>> {
         let client = self.0.load();
-        pyo3_async_runtimes::tokio::future_into_py(py, execute_websocket_request(client, url, kwds))
+        future_into_py(py, execute_websocket_request(client, url, kwds))
     }
 }
 

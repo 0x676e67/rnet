@@ -12,10 +12,10 @@ async def main():
     print("Encoding: ", resp.encoding)
     print("Remote Address: ", resp.remote_addr)
 
-    streamer = resp.stream()
-    async for chunk in streamer:
-        print("Chunk: ", chunk)
-        await asyncio.sleep(0.1)
+    async with resp.stream() as streamer:
+        async for chunk in streamer:
+            print("Chunk: ", chunk)
+            await asyncio.sleep(0.1)
 
 
 if __name__ == "__main__":

@@ -1,3 +1,6 @@
+mod stream;
+
+pub use self::stream::Streamer;
 use crate::{
     error::{memory_error, wrap_rquest_error, wrap_serde_error},
     types::{HeaderMap, Json, SocketAddr, StatusCode, Version},
@@ -5,12 +8,12 @@ use crate::{
 use arc_swap::ArcSwapOption;
 use indexmap::IndexMap;
 use mime::Mime;
-use pyo3::{exceptions::PyStopAsyncIteration, prelude::*, IntoPyObjectExt};
+use pyo3::{prelude::*, IntoPyObjectExt};
+use pyo3_async_runtimes::tokio::future_into_py;
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 use rquest::{header, TlsInfo, Url};
 use serde_json::Value;
 use std::sync::Arc;
-use tokio::sync::Mutex;
 
 /// A response from a request.
 ///
@@ -197,9 +200,10 @@ impl Response {
     /// A Python object representing the text content of the response.
     pub fn text<'rt>(&self, py: Python<'rt>) -> PyResult<Bound<'rt, PyAny>> {
         let resp = self.into_inner()?;
-        pyo3_async_runtimes::tokio::future_into_py(py, async move {
-            resp.text().await.map_err(wrap_rquest_error)
-        })
+        future_into_py(
+            py,
+            async move { resp.text().await.map_err(wrap_rquest_error) },
+        )
     }
 
     /// Returns the text content of the response with a specific charset.
@@ -217,7 +221,7 @@ impl Response {
         encoding: String,
     ) -> PyResult<Bound<'rt, PyAny>> {
         let resp = self.into_inner()?;
-        pyo3_async_runtimes::tokio::future_into_py(py, async move {
+        future_into_py(py, async move {
             resp.text_with_charset(&encoding)
                 .await
                 .map_err(wrap_rquest_error)
@@ -231,7 +235,7 @@ impl Response {
     /// A Python object representing the JSON content of the response.
     pub fn json<'rt>(&self, py: Python<'rt>) -> PyResult<Bound<'rt, PyAny>> {
         let resp = self.into_inner()?;
-        pyo3_async_runtimes::tokio::future_into_py(py, async move {
+        future_into_py(py, async move {
             resp.json::<Json>().await.map_err(wrap_rquest_error)
         })
     }
@@ -243,7 +247,7 @@ impl Response {
     /// A Python object representing the JSON content of the response.
     pub fn json_str<'rt>(&self, py: Python<'rt>) -> PyResult<Bound<'rt, PyAny>> {
         let resp = self.into_inner()?;
-        pyo3_async_runtimes::tokio::future_into_py(py, async move {
+        future_into_py(py, async move {
             let json = resp.json::<Value>().await.map_err(wrap_rquest_error)?;
             serde_json::to_string(&json).map_err(wrap_serde_error)
         })
@@ -256,7 +260,7 @@ impl Response {
     /// A Python object representing the JSON content of the response.
     pub fn json_str_pretty<'rt>(&self, py: Python<'rt>) -> PyResult<Bound<'rt, PyAny>> {
         let resp = self.into_inner()?;
-        pyo3_async_runtimes::tokio::future_into_py(py, async move {
+        future_into_py(py, async move {
             let json = resp.json::<Value>().await.map_err(wrap_rquest_error)?;
             serde_json::to_string_pretty(&json).map_err(wrap_serde_error)
         })
@@ -269,22 +273,21 @@ impl Response {
     /// A Python object representing the bytes content of the response.
     pub fn bytes<'rt>(&self, py: Python<'rt>) -> PyResult<Bound<'rt, PyAny>> {
         let resp = self.into_inner()?;
-        pyo3_async_runtimes::tokio::future_into_py(py, async move {
+        future_into_py(py, async move {
             let bytes = resp.bytes().await.map_err(wrap_rquest_error)?;
             Python::with_gil(|py| bytes.into_bound_py_any(py).map(|obj| obj.unbind()))
         })
     }
 
-    /// Returns the stream content of the response.
+    /// Convert the response into a `Stream` of `Bytes` from the body.
     ///
     /// # Returns
     ///
     /// A Python object representing the stream content of the response.
     pub fn stream(&self) -> PyResult<Streamer> {
         self.into_inner()
-            .map(Mutex::new)
-            .map(Arc::new)
-            .map(Streamer)
+            .map(rquest::Response::bytes_stream)
+            .map(Streamer::new)
     }
 
     /// Closes the response connection.
@@ -334,94 +337,5 @@ impl Response {
             .swap(None)
             .and_then(Arc::into_inner)
             .ok_or_else(memory_error)
-    }
-}
-
-/// A streaming response.
-/// This is an asynchronous iterator that yields chunks of data from the response stream.
-/// This is used to stream the response content.
-/// This is used in the `stream` method of the `Response` class.
-/// This is used in an asynchronous for loop in Python.
-///
-/// # Examples
-///
-/// ```python
-/// import asyncio
-/// import rnet
-/// from rnet import Method, Impersonate
-///
-/// async def main():
-///     resp = await rnet.get("https://httpbin.org/stream/20")
-///     print("Status Code: ", resp.status_code)
-///     print("Version: ", resp.version)
-///     print("Response URL: ", resp.url)
-///     print("Headers: ", resp.headers.to_dict())
-///     print("Content-Length: ", resp.content_length)
-///     print("Encoding: ", resp.encoding)
-///     print("Remote Address: ", resp.remote_addr)
-///
-///     streamer = resp.stream()
-///     async for chunk in streamer:
-///         print("Chunk: ", chunk)
-///         await asyncio.sleep(0.1)
-///
-/// if __name__ == "__main__":
-///     asyncio.run(main())
-/// ```
-#[gen_stub_pyclass]
-#[pyclass]
-pub struct Streamer(Arc<Mutex<rquest::Response>>);
-
-#[gen_stub_pymethods]
-#[pymethods]
-impl Streamer {
-    /// Returns the `Streamer` instance itself to be used as an asynchronous iterator.
-    ///
-    /// This method allows the `Streamer` to be used in an asynchronous for loop in Python.
-    ///
-    /// # Returns
-    ///
-    /// The `Streamer` instance itself.
-    #[inline(always)]
-    fn __aiter__(slf: PyRef<'_, Self>) -> PyRef<'_, Self> {
-        slf
-    }
-
-    /// Returns the next chunk of the response as an asynchronous iterator.
-    ///
-    /// This method implements the `__anext__` method for the `Streamer` class, allowing it to be
-    /// used as an asynchronous iterator in Python. It returns the next chunk of the response or
-    /// raises `PyStopAsyncIteration` if the iterator is exhausted.
-    ///
-    /// # Returns
-    ///
-    /// A `PyResult` containing an `Option<PyObject>`. If there is a next chunk, it returns `Some(PyObject)`.
-    /// If the iterator is exhausted, it raises `PyStopAsyncIteration`.
-    fn __anext__(&self, py: Python<'_>) -> PyResult<Option<PyObject>> {
-        // Here we clone the inner field, so we can use it
-        // in our future.
-        let streamer = self.0.clone();
-        let future = pyo3_async_runtimes::tokio::future_into_py(py, async move {
-            // Here we lock the mutex to access the data inside
-            // and call chunk() method to get the next value.
-            let val = streamer
-                .lock()
-                .await
-                .chunk()
-                .await
-                .map_err(wrap_rquest_error)?;
-
-            match val {
-                Some(val) => {
-                    // If we have a value, we return it as a PyObject.
-                    Python::with_gil(|py| Ok(Some(val.into_bound_py_any(py)?.unbind())))
-                }
-                // Here we return PyStopAsyncIteration error,
-                // because python needs exceptions to tell that iterator
-                // has ended.
-                None => Err(PyStopAsyncIteration::new_err("The iterator is exhausted")),
-            }
-        });
-        Ok(Some(future?.into()))
     }
 }

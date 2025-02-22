@@ -79,6 +79,15 @@ async def test_get_bytes():
 
 
 @pytest.mark.asyncio
+async def test_get_stream():
+    url = "https://httpbin.org/stream/1"
+    response = await client.get(url)
+    async with response.stream() as streamer:
+        async for bytes in streamer:
+            assert bytes is not None
+
+
+@pytest.mark.asyncio
 async def test_peer_certificate():
     client = rnet.Client(tls_info=True)
     resp = await client.get("https://httpbin.org/anything")

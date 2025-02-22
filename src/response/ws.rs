@@ -9,6 +9,7 @@ use futures_util::{
     SinkExt, StreamExt, TryStreamExt,
 };
 use pyo3::{prelude::*, IntoPyObjectExt};
+use pyo3_async_runtimes::tokio::future_into_py;
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 use tokio::sync::Mutex;
 
@@ -130,7 +131,7 @@ impl WebSocket {
     /// A `PyResult` containing a `Bound` object with the received message, or `None` if no message is received.
     pub fn recv<'rt>(&self, py: Python<'rt>) -> PyResult<Bound<'rt, PyAny>> {
         let websocket = self.receiver.clone();
-        pyo3_async_runtimes::tokio::future_into_py(py, async move {
+        future_into_py(py, async move {
             let mut ws = websocket.lock().await;
             if let Ok(Some(val)) = ws.try_next().await {
                 return Ok(Some(Message(val)));
@@ -152,7 +153,7 @@ impl WebSocket {
     #[pyo3(signature = (message))]
     pub fn send<'rt>(&self, py: Python<'rt>, message: Message) -> PyResult<Bound<'rt, PyAny>> {
         let sender = self.sender.clone();
-        pyo3_async_runtimes::tokio::future_into_py(py, async move {
+        future_into_py(py, async move {
             let mut ws = sender.lock().await;
             ws.send(message.0).await.map_err(wrap_rquest_error)
         })
@@ -177,7 +178,7 @@ impl WebSocket {
         reason: Option<String>,
     ) -> PyResult<Bound<'rt, PyAny>> {
         let sender = self.sender.clone();
-        pyo3_async_runtimes::tokio::future_into_py(py, async move {
+        future_into_py(py, async move {
             let mut sender = sender.lock().await;
             sender
                 .send(rquest::Message::Close {
@@ -195,7 +196,7 @@ impl WebSocket {
 impl WebSocket {
     fn __aenter__<'a>(slf: PyRef<'a, Self>, py: Python<'a>) -> PyResult<Bound<'a, PyAny>> {
         let slf = slf.into_py_any(py)?;
-        pyo3_async_runtimes::tokio::future_into_py(py, async move { Ok(slf) })
+        future_into_py(py, async move { Ok(slf) })
     }
 
     fn __aexit__<'a>(
