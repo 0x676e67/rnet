@@ -4,7 +4,7 @@ mod ipaddr;
 mod json;
 mod method;
 mod proxy;
-mod status_code;
+mod status;
 mod version;
 
 pub use self::{
@@ -14,21 +14,80 @@ pub use self::{
     json::Json,
     method::Method,
     proxy::Proxy,
-    status_code::StatusCode,
+    status::StatusCode,
     version::Version,
 };
 
 #[macro_export]
-macro_rules! define_constants {
-    ($type:tt, $inner_type:ty, $($name:ident),*) => {
-        #[allow(non_upper_case_globals)]
-        #[gen_stub_pymethods]
+macro_rules! define_enum_with_conversion {
+    ($(#[$meta:meta])* $enum_type:ident, $ffi_type:ty, { $($variant:ident),* $(,)? }) => {
+        $(#[$meta])*
+        #[gen_stub_pyclass_enum]
+        #[pyclass(eq, eq_int)]
+        #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
+        #[allow(non_camel_case_types)]
+        pub enum $enum_type {
+            $($variant),*
+        }
+
+        impl $enum_type {
+            pub const fn into_ffi(self) -> $ffi_type {
+                match self {
+                    $(<$enum_type>::$variant => <$ffi_type>::$variant,)*
+                }
+            }
+
+            pub fn from_ffi(ffi: $ffi_type) -> Self {
+                #[allow(unreachable_patterns)]
+                match ffi {
+                    $(<$ffi_type>::$variant => <$enum_type>::$variant,)*
+                    _ => unreachable!(),
+                }
+            }
+        }
+
+    };
+
+    (const, $(#[$meta:meta])* $enum_type:ident, $ffi_type:ty, { $($variant:ident),* $(,)? }) => {
+        $(#[$meta])*
+        #[gen_stub_pyclass_enum]
+        #[pyclass(eq, eq_int)]
+        #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
+        #[allow(non_camel_case_types)]
+        pub enum $enum_type {
+            $($variant),*
+        }
+
+        impl $enum_type {
+            pub const fn into_ffi(self) -> $ffi_type {
+                match self {
+                    $(<$enum_type>::$variant => <$ffi_type>::$variant,)*
+                }
+            }
+
+            pub const fn from_ffi(ffi: $ffi_type) -> Self {
+                #[allow(unreachable_patterns)]
+                match ffi {
+                    $(<$ffi_type>::$variant => <$enum_type>::$variant,)*
+                    _ => unreachable!(),
+                }
+            }
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! define_str_method {
+    ($enum_type:ident) => {
         #[pymethods]
-        impl $type {
-            $(
-                #[classattr]
-                pub const $name: $type = $type(<$inner_type>::$name);
-            )*
+        impl $enum_type {
+            fn __str__(&self) -> String {
+                format!("{:?}", self)
+            }
+
+            fn __repr__(&self) -> String {
+                self.__str__()
+            }
         }
     };
 }

@@ -52,7 +52,7 @@ impl From<rquest::Response> for Response {
     fn from(mut response: rquest::Response) -> Self {
         Response {
             url: response.url().clone(),
-            version: Version::from(response.version()),
+            version: Version::from_ffi(response.version()),
             status_code: StatusCode::from(response.status()),
             remote_addr: response.remote_addr().map(SocketAddr::from),
             content_length: response.content_length(),

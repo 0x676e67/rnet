@@ -1,35 +1,12 @@
-use crate::define_constants;
+use crate::{define_enum_with_conversion, define_str_method};
 use pyo3::prelude::*;
-use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
+use pyo3_stub_gen::derive::gen_stub_pyclass_enum;
 
-/// A HTTP method.
-#[gen_stub_pyclass]
-#[pyclass(eq)]
-#[derive(Clone, PartialEq, Eq, Hash)]
-pub struct Method(rquest::Method);
-
-impl From<Method> for rquest::Method {
-    fn from(method: Method) -> rquest::Method {
-        method.0
-    }
-}
-
-#[pymethods]
-impl Method {
-    /// Returns a string representation of the method.
-    fn __str__(&self) -> &str {
-        self.0.as_str()
-    }
-
-    /// Returns a string representation of the method.
-    fn __repr__(&self) -> &str {
-        self.__str__()
-    }
-}
-
-define_constants!(
+define_enum_with_conversion!(
+    /// A HTTP method.
     Method,
     rquest::Method,
+    {
     GET,
     HEAD,
     POST,
@@ -38,5 +15,7 @@ define_constants!(
     CONNECT,
     OPTIONS,
     TRACE,
-    PATCH
-);
+    PATCH,
+});
+
+define_str_method!(Method);

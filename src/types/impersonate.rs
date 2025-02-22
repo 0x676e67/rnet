@@ -1,61 +1,12 @@
-use crate::define_constants;
+use crate::{define_enum_with_conversion, define_str_method};
 use pyo3::prelude::*;
-use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
+use pyo3_stub_gen::derive::gen_stub_pyclass_enum;
 
-/// A impersonate.
-#[gen_stub_pyclass]
-#[pyclass]
-#[derive(Clone, Copy, Default, Debug)]
-pub struct Impersonate(rquest::Impersonate);
-
-#[gen_stub_pyclass]
-#[pyclass]
-#[derive(Clone, Copy, Default, Debug)]
-pub struct ImpersonateOS(rquest::ImpersonateOS);
-
-impl From<Impersonate> for rquest::Impersonate {
-    fn from(impersonate: Impersonate) -> rquest::Impersonate {
-        impersonate.0
-    }
-}
-
-impl From<ImpersonateOS> for rquest::ImpersonateOS {
-    fn from(impersonate: ImpersonateOS) -> rquest::ImpersonateOS {
-        impersonate.0
-    }
-}
-
-#[gen_stub_pymethods]
-#[pymethods]
-impl Impersonate {
-    /// Returns a string representation of the impersonate.
-    fn __str__(&self) -> String {
-        format!("{:?}", self.0)
-    }
-
-    /// Returns a string representation of the impersonate.
-    fn __repr__(&self) -> String {
-        self.__str__()
-    }
-}
-
-#[gen_stub_pymethods]
-#[pymethods]
-impl ImpersonateOS {
-    /// Returns a string representation of the impersonate.
-    fn __str__(&self) -> String {
-        format!("{:?}", self.0)
-    }
-
-    /// Returns a string representation of the impersonate.
-    fn __repr__(&self) -> String {
-        self.__str__()
-    }
-}
-
-define_constants!(
+define_enum_with_conversion!(
+    const,
+    /// A impersonate.
     Impersonate,
-    rquest::Impersonate,
+    rquest::Impersonate, {
     Chrome100,
     Chrome101,
     Chrome104,
@@ -113,14 +64,20 @@ define_constants!(
     OkHttp4_9,
     OkHttp4_10,
     OkHttp5
-);
+});
 
-define_constants!(
+define_str_method!(Impersonate);
+
+define_enum_with_conversion!(
+    const,
+    /// A impersonate operating system.
     ImpersonateOS,
-    rquest::ImpersonateOS,
+    rquest::ImpersonateOS, {
     Windows,
     MacOS,
     Linux,
     Android,
-    IOS
-);
+    IOS,
+});
+
+define_str_method!(ImpersonateOS);

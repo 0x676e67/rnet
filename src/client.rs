@@ -6,7 +6,7 @@ use crate::{
     },
     param::{ClientParams, RequestParams, UpdateClientParams, WebSocketParams},
     response::{Response, WebSocket},
-    types::Method,
+    types::{ImpersonateOS, Method, Version},
     Result,
 };
 use arc_swap::{ArcSwap, Guard};
@@ -519,8 +519,13 @@ impl Client {
         if let Some(impersonate) = params.impersonate.take() {
             builder = builder.impersonate(
                 rquest::Impersonate::builder()
-                    .impersonate(impersonate.into())
-                    .impersonate_os(params.impersonate_os.unwrap_or_default().into())
+                    .impersonate(impersonate.into_ffi())
+                    .impersonate_os(
+                        params
+                            .impersonate_os
+                            .map(ImpersonateOS::into_ffi)
+                            .unwrap_or_default(),
+                    )
                     .skip_http2(params.impersonate_skip_http2.unwrap_or(false))
                     .skip_headers(params.impersonate_skip_headers.unwrap_or(false))
                     .build(),
@@ -838,8 +843,13 @@ impl Client {
         if let Some(impersonate) = params.impersonate.take() {
             client_mut.impersonate(
                 rquest::Impersonate::builder()
-                    .impersonate(impersonate.into())
-                    .impersonate_os(params.impersonate_os.unwrap_or_default().into())
+                    .impersonate(impersonate.into_ffi())
+                    .impersonate_os(
+                        params
+                            .impersonate_os
+                            .map(ImpersonateOS::into_ffi)
+                            .unwrap_or_default(),
+                    )
                     .skip_http2(params.impersonate_skip_http2.unwrap_or(false))
                     .skip_headers(params.impersonate_skip_headers.unwrap_or(false))
                     .build(),
@@ -907,7 +917,7 @@ async fn execute_request(
     mut params: Option<RequestParams>,
 ) -> Result<Response> {
     let params = params.get_or_insert_default();
-    let mut builder = client.request(method.into(), url);
+    let mut builder = client.request(method.into_ffi(), url);
 
     // Version options.
     apply_option!(
@@ -915,7 +925,7 @@ async fn execute_request(
         builder,
         params.version,
         version,
-        Into::into
+        Version::into_ffi
     );
 
     // Allow redirects options.

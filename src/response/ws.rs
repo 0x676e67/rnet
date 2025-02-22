@@ -32,7 +32,7 @@ impl WebSocket {
     pub async fn new(builder: rquest::WebSocketRequestBuilder) -> crate::Result<WebSocket> {
         let response = builder.send().await.map_err(wrap_rquest_error)?;
 
-        let version = Version::from(response.version());
+        let version = Version::from_ffi(response.version());
         let status_code = StatusCode::from(response.status());
         let remote_addr = response.remote_addr().map(SocketAddr::from);
         let headers = HeaderMap::from(response.headers().clone());
