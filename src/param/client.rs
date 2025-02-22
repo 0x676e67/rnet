@@ -70,6 +70,7 @@ pub struct ClientParams {
     pub referer: Option<bool>,
 
     /// Whether to allow redirects.
+    #[pyo3(get)]
     pub allow_redirects: Option<bool>,
 
     /// Whether to use cookie store.

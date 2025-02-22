@@ -1,5 +1,6 @@
 use indexmap::IndexMap;
 use pyo3::{prelude::*, types::PyBool};
+use pyo3_stub_gen::{PyStubType, TypeInfo};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, FromPyObject, Serialize, Deserialize)]
@@ -12,6 +13,12 @@ pub enum Json {
     String(String),
     Null(Option<isize>),
     Array(Vec<Json>),
+}
+
+impl PyStubType for Json {
+    fn type_output() -> TypeInfo {
+        TypeInfo::any()
+    }
 }
 
 impl<'py> IntoPyObject<'py> for Json {

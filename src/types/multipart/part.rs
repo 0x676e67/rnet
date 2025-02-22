@@ -1,6 +1,9 @@
 use crate::error::{wrap_io_error, MIMEParseError};
 use pyo3::prelude::*;
-use pyo3_stub_gen::derive::gen_stub_pyclass;
+use pyo3_stub_gen::{
+    derive::{gen_stub_pyclass, gen_stub_pymethods},
+    PyStubType, TypeInfo,
+};
 use std::path::PathBuf;
 
 /// A part of a multipart form.
@@ -19,6 +22,13 @@ pub enum PartData {
     File(PathBuf),
 }
 
+impl PyStubType for PartData {
+    fn type_output() -> TypeInfo {
+        TypeInfo::any()
+    }
+}
+
+#[gen_stub_pymethods]
 #[pymethods]
 impl Part {
     /// Creates a new part.

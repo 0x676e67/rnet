@@ -62,6 +62,7 @@ pub struct RequestParams {
     pub headers: Option<IndexMap<String, String>>,
 
     /// Whether to allow redirects.
+    #[pyo3(get)]
     pub allow_redirects: Option<bool>,
 
     /// The authentication to use for the request.
@@ -85,6 +86,7 @@ pub struct RequestParams {
     pub form: Option<Vec<(String, String)>>,
 
     /// The JSON body to use for the request.
+    #[pyo3(get)]
     pub json: Option<Json>,
 
     /// The body to use for the request.
@@ -92,6 +94,7 @@ pub struct RequestParams {
     pub body: Option<Vec<u8>>,
 
     /// The multipart form to use for the request.
+    #[pyo3(get)]
     pub multipart: Option<Py<Multipart>>,
 }
 

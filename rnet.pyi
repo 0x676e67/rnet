@@ -415,6 +415,7 @@ class ClientParams:
     user_agent: typing.Optional[builtins.str]
     headers_order: typing.Optional[builtins.list[builtins.str]]
     referer: typing.Optional[builtins.bool]
+    allow_redirects: typing.Optional[builtins.bool]
     cookie_store: typing.Optional[builtins.bool]
     timeout: typing.Optional[builtins.int]
     connect_timeout: typing.Optional[builtins.int]
@@ -602,6 +603,7 @@ class Part:
     r"""
     A part of a multipart form.
     """
+    def __new__(cls,name:builtins.str, value:typing.Any, filename:typing.Optional[builtins.str]=None, mime:typing.Optional[builtins.str]=None): ...
     ...
 
 class Proxy:
@@ -731,12 +733,15 @@ class RequestParams:
     timeout: typing.Optional[builtins.int]
     read_timeout: typing.Optional[builtins.int]
     version: typing.Optional[Version]
+    allow_redirects: typing.Optional[builtins.bool]
     auth: typing.Optional[builtins.str]
     bearer_auth: typing.Optional[builtins.str]
     basic_auth: typing.Optional[tuple[builtins.str, typing.Optional[builtins.str]]]
     query: typing.Optional[builtins.list[tuple[builtins.str, builtins.str]]]
     form: typing.Optional[builtins.list[tuple[builtins.str, builtins.str]]]
+    json: typing.Optional[typing.Any]
     body: typing.Optional[builtins.list[builtins.int]]
+    multipart: typing.Optional[Multipart]
 
 class Response:
     r"""
