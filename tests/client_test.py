@@ -45,3 +45,12 @@ async def test_base_url():
     url = "/anything"
     response = await client.get(url)
     assert response.url == base_url + url
+
+
+@pytest.mark.asyncio
+async def test_alps_new_endpoint():
+    url = "https://google.com"
+    client = rnet.Client(impersonate=Impersonate.Chrome133)
+    response = await client.get(url)
+    text = await response.text()
+    assert text is not None
