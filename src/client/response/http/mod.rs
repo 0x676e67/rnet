@@ -163,17 +163,15 @@ impl Response {
     /// A string representing the encoding to decode with when accessing text.
     #[getter]
     pub fn encoding(&self) -> String {
-        let content_type = self
-            .headers
+        self.headers
             .get(header::CONTENT_TYPE)
             .and_then(|value| value.to_str().ok())
-            .and_then(|value| value.parse::<Mime>().ok());
-
-        content_type
-            .as_ref()
-            .and_then(|mime| mime.get_param("charset").map(|charset| charset.as_str()))
-            .unwrap_or("utf-8")
-            .to_owned()
+            .and_then(|value| value.parse::<Mime>().ok())
+            .and_then(|mime| {
+                mime.get_param("charset")
+                    .map(|charset| charset.as_str().to_owned())
+            })
+            .unwrap_or_else(|| "utf-8".to_owned())
     }
 
     /// Returns the TLS peer certificate of the response.
