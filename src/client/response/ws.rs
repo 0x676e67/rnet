@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use crate::{
-    error::wrap_rquest_error,
+    error::{py_stop_async_iteration_error, wrap_rquest_error},
     types::{HeaderMap, Json, SocketAddr, StatusCode, Version},
 };
 use futures_util::{
@@ -13,8 +13,8 @@ use pyo3_async_runtimes::tokio::future_into_py;
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 use tokio::sync::Mutex;
 
-type Sender = Arc<Mutex<SplitSink<rquest::WebSocket, rquest::Message>>>;
-type Receiver = Arc<Mutex<SplitStream<rquest::WebSocket>>>;
+type Sender = Arc<Mutex<Option<SplitSink<rquest::WebSocket, rquest::Message>>>>;
+type Receiver = Arc<Mutex<Option<SplitStream<rquest::WebSocket>>>>;
 
 /// A WebSocket response.
 #[gen_stub_pyclass]
@@ -47,8 +47,8 @@ impl WebSocket {
             remote_addr,
             headers,
             protocol,
-            sender: Arc::new(Mutex::new(sender)),
-            receiver: Arc::new(Mutex::new(receiver)),
+            sender: Arc::new(Mutex::new(Some(sender))),
+            receiver: Arc::new(Mutex::new(Some(receiver))),
         })
     }
 }
@@ -132,9 +132,11 @@ impl WebSocket {
     pub fn recv<'rt>(&self, py: Python<'rt>) -> PyResult<Bound<'rt, PyAny>> {
         let websocket = self.receiver.clone();
         future_into_py(py, async move {
-            let mut ws = websocket.lock().await;
-            if let Ok(Some(val)) = ws.try_next().await {
-                return Ok(Some(Message(val)));
+            let mut lock = websocket.lock().await;
+            if let Some(recv) = lock.as_mut() {
+                if let Ok(Some(val)) = recv.try_next().await {
+                    return Ok(Some(Message(val)));
+                }
             }
             Ok(None)
         })
@@ -154,8 +156,11 @@ impl WebSocket {
     pub fn send<'rt>(&self, py: Python<'rt>, message: Message) -> PyResult<Bound<'rt, PyAny>> {
         let sender = self.sender.clone();
         future_into_py(py, async move {
-            let mut ws = sender.lock().await;
-            ws.send(message.0).await.map_err(wrap_rquest_error)
+            let mut lock = sender.lock().await;
+            if let Some(send) = lock.as_mut() {
+                return send.send(message.0).await.map_err(wrap_rquest_error);
+            }
+            Ok(())
         })
     }
 
@@ -178,15 +183,28 @@ impl WebSocket {
         reason: Option<String>,
     ) -> PyResult<Bound<'rt, PyAny>> {
         let sender = self.sender.clone();
+        let receiver = self.receiver.clone();
         future_into_py(py, async move {
-            let mut sender = sender.lock().await;
-            sender
-                .send(rquest::Message::Close {
-                    code: rquest::CloseCode::from(code.unwrap_or_default()),
-                    reason,
-                })
-                .await
-                .map_err(wrap_rquest_error)?;
+            let mut lock = receiver.lock().await;
+            drop(lock.take());
+            drop(lock);
+
+            let mut lock = sender.lock().await;
+            let send = lock.take();
+            drop(lock);
+
+            if let Some(mut send) = send {
+                if let Some(code) = code {
+                    send.send(rquest::Message::Close {
+                        code: rquest::CloseCode::from(code),
+                        reason,
+                    })
+                    .await
+                    .map_err(wrap_rquest_error)?;
+                }
+                return send.close().await.map_err(wrap_rquest_error);
+            }
+
             Ok(())
         })
     }
@@ -194,6 +212,55 @@ impl WebSocket {
 
 #[pymethods]
 impl WebSocket {
+    /// Returns the WebSocket instance itself as an asynchronous iterator.
+    ///
+    /// This method is used to make the WebSocket instance iterable in an asynchronous context.
+    ///
+    /// # Arguments
+    ///
+    /// * `slf` - A reference to the WebSocket instance.
+    ///
+    /// # Returns
+    ///
+    /// Returns the WebSocket instance itself.
+    #[inline(always)]
+    fn __aiter__(slf: PyRef<'_, Self>) -> PyRef<'_, Self> {
+        slf
+    }
+
+    /// Returns the next message from the WebSocket.
+    ///
+    /// This method is used to retrieve the next message from the WebSocket in an asynchronous iteration.
+    ///
+    /// # Arguments
+    ///
+    /// * `py` - The Python runtime.
+    ///
+    /// # Returns
+    ///
+    /// Returns a `PyResult` containing an `Option` with a `Bound` object representing the received message.
+    /// If no message is received, returns `None`.
+    fn __anext__<'rt>(&self, py: Python<'rt>) -> PyResult<Option<Bound<'rt, PyAny>>> {
+        let recv = self.receiver.clone();
+        future_into_py(py, async move {
+            // Here we lock the mutex to access the data inside
+            // and call try_next() method to get the next value.
+            let mut lock = recv.lock().await;
+            let recv = lock
+                .as_mut()
+                .ok_or_else(py_stop_async_iteration_error)?
+                .try_next()
+                .await;
+
+            drop(lock);
+
+            recv.map(|val| val.map(Message))
+                .map(Some)
+                .map_err(wrap_rquest_error)
+        })
+        .map(Some)
+    }
+
     fn __aenter__<'a>(slf: PyRef<'a, Self>, py: Python<'a>) -> PyResult<Bound<'a, PyAny>> {
         let slf = slf.into_py_any(py)?;
         future_into_py(py, async move { Ok(slf) })

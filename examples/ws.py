@@ -12,14 +12,20 @@ async def send_message(ws):
 
 
 async def receive_message(ws):
-    while True:
-        try:
-            message = await ws.recv()
-            print("Received: ", message)
-            if message.data == b"Message 20":
-                print("Closing connection...")
-                break
-        except asyncio.CancelledError:
+    # while True:
+    #     try:
+    #         message = await ws.recv()
+    #         print("Received: ", message)
+    #         if message.data == b"Message 20":
+    #             print("Closing connection...")
+    #             break
+    #     except asyncio.CancelledError:
+    #         break
+    # or
+    async for message in ws:
+        print("Received: ", message)
+        if message.data == b"Message 20":
+            print("Closing connection...")
             break
 
 
