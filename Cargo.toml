@@ -39,7 +39,12 @@ indexmap = { version = "2.7.0", features = ["serde"] }
 cookie = "0.18.0"
 arc-swap = "1.7.1"
 url = "2.5"
-rquest = { version = "2.1.5", features = ["full", "multipart", "websocket", "hickory-dns"] }
+rquest = { version = "2.1.6", features = [
+    "full",
+    "multipart",
+    "websocket",
+    "hickory-dns",
+] }
 bytes = "1"
 futures-util = { version = "0.3.0", default-features = false }
 
