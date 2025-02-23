@@ -29,7 +29,7 @@ authors = [
 keywords = ["http", "client", "async", "ffi", "rust"]
 
 [tool.maturin]
-features = ["pyo3/extension-module"]
+features = ["pyo3/extension-module", "pyo3/generate-import-lib"]
 strip = true
 
 [project.urls]
