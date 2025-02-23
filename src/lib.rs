@@ -264,12 +264,14 @@ fn request(
 /// ```python
 /// import rnet
 /// import asyncio
+/// from rnet import Message
 ///
 /// async def run():
-///    async with rnet.websocket("wss://echo.websocket.org") as ws:
-///       await ws.send("Hello, World!")
-///      message = await ws.recv()
-///     print(message)
+///     ws = await rnet.websocket("wss://echo.websocket.org")
+///     await ws.send(Message.from_text("Hello, World!"))
+///     message = await ws.recv()
+///     print("Received:", message.data)
+///     await ws.close()
 ///
 /// asyncio.run(run())
 /// ```
