@@ -1,9 +1,19 @@
 import pytest
 import rnet
 from pathlib import Path
-from rnet import Version, Multipart, Part
+from rnet import Version, Multipart, Part, WebSocket, Message
 
 client = rnet.Client(tls_info=True)
+
+
+@pytest.mark.asyncio
+async def test_websocket():
+    ws: WebSocket = await client.websocket("wss://echo.websocket.org")
+    await ws.recv()
+    await ws.send(Message.from_text("Hello, World!"))
+    message: Message = await ws.recv()
+    assert message.data == b"Hello, World!"
+    await ws.close()
 
 
 @pytest.mark.asyncio
