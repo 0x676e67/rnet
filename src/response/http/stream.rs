@@ -1,7 +1,7 @@
-use crate::error::wrap_rquest_error;
+use crate::error::{py_stop_async_iteration_error, wrap_rquest_error};
 use bytes::Bytes;
 use futures_util::{Stream, StreamExt};
-use pyo3::{exceptions::PyStopAsyncIteration, prelude::*, IntoPyObjectExt};
+use pyo3::{prelude::*, IntoPyObjectExt};
 use pyo3_async_runtimes::tokio::future_into_py;
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 use std::{pin::Pin, sync::Arc};
@@ -41,7 +41,7 @@ use tokio::sync::Mutex;
 #[gen_stub_pyclass]
 #[pyclass]
 pub struct Streamer(
-    pub  Arc<
+    Arc<
         Mutex<
             Option<
                 Pin<Box<dyn Stream<Item = Result<bytes::Bytes, rquest::Error>> + Send + 'static>>,
@@ -98,14 +98,15 @@ impl Streamer {
         let streamer = self.0.clone();
         future_into_py(py, async move {
             // Here we lock the mutex to access the data inside
-            // and call chunk() method to get the next value.
-            let val = streamer
-                .lock()
-                .await
+            // and call next() method to get the next value.
+            let mut lock = streamer.lock().await;
+            let val = lock
                 .as_mut()
-                .ok_or_else(|| PyStopAsyncIteration::new_err("The iterator is exhausted"))?
+                .ok_or_else(py_stop_async_iteration_error)?
                 .next()
                 .await;
+
+            drop(lock);
 
             match val {
                 Some(Ok(val)) => {
@@ -116,7 +117,7 @@ impl Streamer {
                 // Here we return PyStopAsyncIteration error,
                 // because python needs exceptions to tell that iterator
                 // has ended.
-                None => Err(PyStopAsyncIteration::new_err("The iterator is exhausted")),
+                None => Err(py_stop_async_iteration_error()),
             }
         })
         .map(Some)
