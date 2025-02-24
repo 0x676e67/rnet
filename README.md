@@ -16,10 +16,10 @@ An asynchronous Python HTTP client with Black Magic, capable of mimicking `TLS` 
 - Redirect Policy
 - Cookie Store
 - HTTP Proxies
-- Thread Safety
-- Async DNS Resolver
 - WebSocket Upgrade
 - HTTPS via BoringSSL
+- Async DNS Resolver
+- Free-Threaded Safety
 
 ## Example
 
