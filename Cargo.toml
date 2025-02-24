@@ -23,7 +23,7 @@ pyo3 = { version = "0.23.0", features = [
     "anyhow",
     "indexmap",
     "multiple-pymethods",
-    "abi3-py39",
+    "abi3-py37",
     "generate-import-lib",
     "experimental-inspect",
 ] }
