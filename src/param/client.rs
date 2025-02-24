@@ -1,4 +1,4 @@
-use crate::types::{Impersonate, ImpersonateOS, Proxy};
+use crate::types::{Impersonate, ImpersonateOS, LookupIpStrategy, Proxy};
 use indexmap::IndexMap;
 use pyo3::prelude::*;
 use pyo3_stub_gen::derive::gen_stub_pyclass;
@@ -80,6 +80,10 @@ pub struct ClientParams {
     /// Whether to use cookie store.
     #[pyo3(get)]
     pub cookie_store: Option<bool>,
+
+    /// The lookup ip strategy
+    #[pyo3(get)]
+    pub lookup_ip_strategy: Option<LookupIpStrategy>,
 
     // ========= Timeout options =========
     /// The timeout to use for the request. (in seconds)
@@ -260,6 +264,7 @@ impl<'py> FromPyObject<'py> for ClientParams {
         extract_option!(ob, params, referer);
         extract_option!(ob, params, allow_redirects);
         extract_option!(ob, params, cookie_store);
+        extract_option!(ob, params, lookup_ip_strategy);
 
         extract_option!(ob, params, timeout);
         extract_option!(ob, params, connect_timeout);

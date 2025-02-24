@@ -418,6 +418,7 @@ class ClientParams:
     allow_redirects: typing.Optional[builtins.bool]
     max_redirects: typing.Optional[builtins.int]
     cookie_store: typing.Optional[builtins.bool]
+    lookup_ip_strategy: typing.Optional[LookupIpStrategy]
     timeout: typing.Optional[builtins.int]
     connect_timeout: typing.Optional[builtins.int]
     read_timeout: typing.Optional[builtins.int]
@@ -970,10 +971,10 @@ class Streamer:
         print("Encoding: ", resp.encoding)
         print("Remote Address: ", resp.remote_addr)
     
-        streamer = resp.stream()
-        async for chunk in streamer:
-            print("Chunk: ", chunk)
-            await asyncio.sleep(0.1)
+        async with resp.stream() as streamer:
+            async for chunk in streamer:
+                print("Chunk: ", chunk)
+                await asyncio.sleep(0.1)
     
     if __name__ == "__main__":
         asyncio.run(main())
@@ -1224,6 +1225,16 @@ class ImpersonateOS(Enum):
     Android = auto()
     IOS = auto()
 
+class LookupIpStrategy(Enum):
+    r"""
+    The lookup ip strategy.
+    """
+    Ipv4Only = auto()
+    Ipv6Only = auto()
+    Ipv4AndIpv6 = auto()
+    Ipv6thenIpv4 = auto()
+    Ipv4thenIpv6 = auto()
+
 class Method(Enum):
     r"""
     A HTTP method.
@@ -1455,12 +1466,14 @@ def websocket(url:builtins.str, **kwds) -> typing.Any:
     ```python
     import rnet
     import asyncio
+    from rnet import Message
     
     async def run():
-       async with rnet.websocket("wss://echo.websocket.org") as ws:
-          await ws.send("Hello, World!")
-         message = await ws.recv()
-        print(message)
+        ws = await rnet.websocket("wss://echo.websocket.org")
+        await ws.send(Message.from_text("Hello, World!"))
+        message = await ws.recv()
+        print("Received:", message.data)
+        await ws.close()
     
     asyncio.run(run())
     ```

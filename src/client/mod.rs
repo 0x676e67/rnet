@@ -10,7 +10,7 @@ use crate::{
         wrap_url_parse_error,
     },
     param::{ClientParams, RequestParams, UpdateClientParams, WebSocketParams},
-    types::{ImpersonateOS, Method},
+    types::{ImpersonateOS, LookupIpStrategy, Method},
     Result,
 };
 use arc_swap::ArcSwap;
@@ -58,7 +58,12 @@ impl Client {
     pub fn default() -> &'static Self {
         static CLIENT: LazyLock<Client> = LazyLock::new(|| {
             let mut builder = rquest::Client::builder();
-            apply_option!(apply_if_ok, builder, dns::get_or_try_init, dns_resolver);
+            apply_option!(
+                apply_if_ok,
+                builder,
+                || dns::get_or_try_init(LookupIpStrategy::Ipv4AndIpv6),
+                dns_resolver
+            );
             builder
                 .no_hickory_dns()
                 .no_keepalive()
@@ -540,7 +545,12 @@ impl Client {
         apply_option!(apply_if_some, builder, params.cookie_store, cookie_store);
 
         // Async resolver options.
-        apply_option!(apply_if_ok, builder, dns::get_or_try_init, dns_resolver);
+        apply_option!(
+            apply_if_ok,
+            builder,
+            || dns::get_or_try_init(params.lookup_ip_strategy),
+            dns_resolver
+        );
 
         // Timeout options.
         apply_option!(

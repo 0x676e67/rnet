@@ -1,6 +1,14 @@
-use crate::error::DNSResolverError;
-use rquest::dns::{HickoryDnsResolver, LookupIpStrategy};
+use crate::{error::DNSResolverError, types::LookupIpStrategy};
+use rquest::dns::HickoryDnsResolver;
 use std::sync::{Arc, OnceLock};
+
+macro_rules! dns_resolver {
+    ($strategy:expr) => {{
+        static DNS_RESOLVER: OnceLock<Result<Arc<HickoryDnsResolver>, &'static str>> =
+            OnceLock::new();
+        init(&DNS_RESOLVER, $strategy)
+    }};
+}
 
 /// Initializes and returns a DNS resolver with the specified strategy.
 ///
@@ -14,12 +22,26 @@ use std::sync::{Arc, OnceLock};
 /// # Errors
 ///
 /// This function returns an error if the DNS resolver fails to initialize.
-pub fn get_or_try_init() -> crate::Result<Arc<HickoryDnsResolver>> {
-    static DNS_RESOLVER: OnceLock<Result<Arc<HickoryDnsResolver>, &'static str>> = OnceLock::new();
+pub fn get_or_try_init<S>(strategy: S) -> crate::Result<Arc<HickoryDnsResolver>>
+where
+    S: Into<Option<LookupIpStrategy>>,
+{
+    match strategy.into().unwrap_or(LookupIpStrategy::Ipv4AndIpv6) {
+        LookupIpStrategy::Ipv4Only => dns_resolver!(LookupIpStrategy::Ipv4Only),
+        LookupIpStrategy::Ipv6Only => dns_resolver!(LookupIpStrategy::Ipv6Only),
+        LookupIpStrategy::Ipv4AndIpv6 => dns_resolver!(LookupIpStrategy::Ipv4AndIpv6),
+        LookupIpStrategy::Ipv6thenIpv4 => dns_resolver!(LookupIpStrategy::Ipv6thenIpv4),
+        LookupIpStrategy::Ipv4thenIpv6 => dns_resolver!(LookupIpStrategy::Ipv4thenIpv6),
+    }
+}
 
-    DNS_RESOLVER
+fn init(
+    dns_resolver: &'static OnceLock<Result<Arc<HickoryDnsResolver>, &'static str>>,
+    strategy: LookupIpStrategy,
+) -> crate::Result<Arc<HickoryDnsResolver>> {
+    dns_resolver
         .get_or_init(move || {
-            HickoryDnsResolver::new(LookupIpStrategy::Ipv4AndIpv6)
+            HickoryDnsResolver::new(strategy.into_ffi())
                 .map(Arc::new)
                 .map_err(|err| {
                     #[cfg(feature = "logging")]

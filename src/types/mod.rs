@@ -1,3 +1,4 @@
+mod dns;
 mod headers;
 mod impersonate;
 mod ipaddr;
@@ -9,6 +10,7 @@ mod status;
 mod version;
 
 pub use self::{
+    dns::LookupIpStrategy,
     headers::HeaderMap,
     impersonate::{Impersonate, ImpersonateOS},
     ipaddr::SocketAddr,
