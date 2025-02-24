@@ -290,7 +290,7 @@ fn websocket(
 #[pymodule(gil_used = false)]
 fn rnet(m: &Bound<'_, PyModule>) -> PyResult<()> {
     pyo3::prepare_freethreaded_python();
-    
+
     // A good place to install the Rust -> Python logger.
     #[cfg(feature = "logging")]
     {
