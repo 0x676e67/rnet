@@ -1,10 +1,10 @@
 # rnet
 
-[![CI](https://github.com/0x676e67/rnet/actions/workflows/ci.yml/badge.svg)](https://github.com/0x676e67/rnet/actions/workflows/style.yml)
+[![CI](https://github.com/0x676e67/rnet/actions/workflows/ci.yml/badge.svg)](https://github.com/0x676e67/rnet/actions/workflows/ci.yml)
 [![PyPI - License](https://img.shields.io/pypi/l/rnet)](https://github.com/0x676e67/rnet/blob/main/LICENSE)
 [![PyPI](https://img.shields.io/pypi/v/rnet)](https://pypi.org/project/rnet/)
 ![Python Version from PEP 621 TOML](https://img.shields.io/python/required-version-toml?tomlFilePath=https%3A%2F%2Fraw.githubusercontent.com%2F0x676e67%2Frnet%2Fmain%2Fpyproject.toml)
-
+[![PyPI Downloads](https://static.pepy.tech/badge/rnet)](https://pepy.tech/projects/rnet)
 > 🚀 Help me work seamlessly with open source sharing by [sponsoring me on GitHub](https://github.com/0x676e67/0x676e67/blob/main/SPONSOR.md)
 
 An asynchronous Python HTTP client with Black Magic, capable of mimicking `TLS` and `HTTP2` fingerprints of popular browsers like `Chrome`, `Safari`, `Firefox`, and `OkHttp`.
@@ -145,4 +145,4 @@ Your question might already be answered on the [issues](https://github.com/0x676
 
 ## License
 
-**rnet** © [0x676e67](https://github.com/0x676e67), Released under the [GPL-3.0](./LICENSE) License.
+**rnet** © [0x676e67](https://github.com/0x676e67), Released under the [GPL-3.0](https://github.com/0x676e67/rnet/blob/main/LICENSE) License.
