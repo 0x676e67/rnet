@@ -5,7 +5,8 @@ use pyo3_stub_gen::derive::gen_stub_pyclass_enum;
 define_enum_with_conversion!(
     const,
     /// The lookup ip strategy.
-    LookupIpStrategy, rquest::dns::LookupIpStrategy,
+    LookupIpStrategy,
+    rquest::dns::LookupIpStrategy,
     Ipv4Only,
     Ipv6Only,
     Ipv4AndIpv6,

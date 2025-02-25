@@ -26,12 +26,13 @@ pub fn get_or_try_init<S>(strategy: S) -> crate::Result<Arc<HickoryDnsResolver>>
 where
     S: Into<Option<LookupIpStrategy>>,
 {
-    match strategy.into().unwrap_or(LookupIpStrategy::Ipv4AndIpv6) {
-        LookupIpStrategy::Ipv4Only => dns_resolver!(LookupIpStrategy::Ipv4Only),
-        LookupIpStrategy::Ipv6Only => dns_resolver!(LookupIpStrategy::Ipv6Only),
-        LookupIpStrategy::Ipv4AndIpv6 => dns_resolver!(LookupIpStrategy::Ipv4AndIpv6),
-        LookupIpStrategy::Ipv6thenIpv4 => dns_resolver!(LookupIpStrategy::Ipv6thenIpv4),
-        LookupIpStrategy::Ipv4thenIpv6 => dns_resolver!(LookupIpStrategy::Ipv4thenIpv6),
+    let strategy = strategy.into().unwrap_or(LookupIpStrategy::Ipv4AndIpv6);
+    match strategy {
+        LookupIpStrategy::Ipv4Only => dns_resolver!(strategy),
+        LookupIpStrategy::Ipv6Only => dns_resolver!(strategy),
+        LookupIpStrategy::Ipv4AndIpv6 => dns_resolver!(strategy),
+        LookupIpStrategy::Ipv6thenIpv4 => dns_resolver!(strategy),
+        LookupIpStrategy::Ipv4thenIpv6 => dns_resolver!(strategy),
     }
 }
 
