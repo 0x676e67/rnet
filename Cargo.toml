@@ -15,8 +15,8 @@ crate-type = ["cdylib", "rlib"]
 doctest = false
 
 [[bin]]
-name = "sub_gen"
-path = "src/sub_gen.rs"
+name = "stub_gen"
+path = "src/stub_gen.rs"
 
 [features]
 logging = ["dep:pyo3-log", "dep:log"]
