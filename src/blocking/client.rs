@@ -29,8 +29,13 @@ impl BlockingClient {
     /// A `Response` object.
     #[pyo3(signature = (url, **kwds))]
     #[inline(always)]
-    pub fn get(&self, url: String, kwds: Option<RequestParams>) -> PyResult<BlockingResponse> {
-        self.request(Method::GET, url, kwds)
+    pub fn get(
+        &self,
+        py: Python,
+        url: String,
+        kwds: Option<RequestParams>,
+    ) -> PyResult<BlockingResponse> {
+        self.request(py, Method::GET, url, kwds)
     }
 
     /// Sends a POST request.
@@ -45,8 +50,13 @@ impl BlockingClient {
     /// A `Response` object.
     #[pyo3(signature = (url, **kwds))]
     #[inline(always)]
-    pub fn post(&self, url: String, kwds: Option<RequestParams>) -> PyResult<BlockingResponse> {
-        self.request(Method::POST, url, kwds)
+    pub fn post(
+        &self,
+        py: Python,
+        url: String,
+        kwds: Option<RequestParams>,
+    ) -> PyResult<BlockingResponse> {
+        self.request(py, Method::POST, url, kwds)
     }
 
     /// Sends a PUT request.
@@ -61,8 +71,13 @@ impl BlockingClient {
     /// A `Response` object.
     #[pyo3(signature = (url, **kwds))]
     #[inline(always)]
-    pub fn put(&self, url: String, kwds: Option<RequestParams>) -> PyResult<BlockingResponse> {
-        self.request(Method::PUT, url, kwds)
+    pub fn put(
+        &self,
+        py: Python,
+        url: String,
+        kwds: Option<RequestParams>,
+    ) -> PyResult<BlockingResponse> {
+        self.request(py, Method::PUT, url, kwds)
     }
 
     /// Sends a PATCH request.
@@ -77,8 +92,13 @@ impl BlockingClient {
     /// A `Response` object.
     #[pyo3(signature = (url, **kwds))]
     #[inline(always)]
-    pub fn patch(&self, url: String, kwds: Option<RequestParams>) -> PyResult<BlockingResponse> {
-        self.request(Method::PATCH, url, kwds)
+    pub fn patch(
+        &self,
+        py: Python,
+        url: String,
+        kwds: Option<RequestParams>,
+    ) -> PyResult<BlockingResponse> {
+        self.request(py, Method::PATCH, url, kwds)
     }
 
     /// Sends a DELETE request.
@@ -93,8 +113,13 @@ impl BlockingClient {
     /// A `Response` object.
     #[pyo3(signature = (url, **kwds))]
     #[inline(always)]
-    pub fn delete(&self, url: String, kwds: Option<RequestParams>) -> PyResult<BlockingResponse> {
-        self.request(Method::DELETE, url, kwds)
+    pub fn delete(
+        &self,
+        py: Python,
+        url: String,
+        kwds: Option<RequestParams>,
+    ) -> PyResult<BlockingResponse> {
+        self.request(py, Method::DELETE, url, kwds)
     }
 
     /// Sends a HEAD request.
@@ -109,8 +134,13 @@ impl BlockingClient {
     /// A `Response` object.
     #[pyo3(signature = (url, **kwds))]
     #[inline(always)]
-    pub fn head(&self, url: String, kwds: Option<RequestParams>) -> PyResult<BlockingResponse> {
-        self.request(Method::HEAD, url, kwds)
+    pub fn head(
+        &self,
+        py: Python,
+        url: String,
+        kwds: Option<RequestParams>,
+    ) -> PyResult<BlockingResponse> {
+        self.request(py, Method::HEAD, url, kwds)
     }
 
     /// Sends an OPTIONS request.
@@ -124,8 +154,13 @@ impl BlockingClient {
     ///
     /// A `Response` object.
     #[pyo3(signature = (url, **kwds))]
-    pub fn options(&self, url: String, kwds: Option<RequestParams>) -> PyResult<BlockingResponse> {
-        self.request(Method::OPTIONS, url, kwds)
+    pub fn options(
+        &self,
+        py: Python,
+        url: String,
+        kwds: Option<RequestParams>,
+    ) -> PyResult<BlockingResponse> {
+        self.request(py, Method::OPTIONS, url, kwds)
     }
 
     /// Sends a TRACE request.
@@ -140,8 +175,13 @@ impl BlockingClient {
     /// A `Response` object.
     #[pyo3(signature = (url, **kwds))]
     #[inline(always)]
-    pub fn trace(&self, url: String, kwds: Option<RequestParams>) -> PyResult<BlockingResponse> {
-        self.request(Method::TRACE, url, kwds)
+    pub fn trace(
+        &self,
+        py: Python,
+        url: String,
+        kwds: Option<RequestParams>,
+    ) -> PyResult<BlockingResponse> {
+        self.request(py, Method::TRACE, url, kwds)
     }
 
     /// Sends a request with the given method and URL.
@@ -159,14 +199,17 @@ impl BlockingClient {
     #[inline(always)]
     pub fn request(
         &self,
+        py: Python,
         method: Method,
         url: String,
         kwds: Option<RequestParams>,
     ) -> PyResult<BlockingResponse> {
-        let client = self.inner.load();
-        pyo3_async_runtimes::tokio::get_runtime()
-            .block_on(execute_request2(client, method, url, kwds))
-            .map(Into::into)
+        py.allow_threads(|| {
+            let client = self.inner.load();
+            pyo3_async_runtimes::tokio::get_runtime()
+                .block_on(execute_request2(client, method, url, kwds))
+                .map(Into::into)
+        })
     }
 
     /// Sends a WebSocket request.
@@ -183,13 +226,16 @@ impl BlockingClient {
     #[inline(always)]
     pub fn websocket(
         &self,
+        py: Python,
         url: String,
         kwds: Option<WebSocketParams>,
     ) -> PyResult<BlockingWebSocket> {
-        let client = self.inner.load();
-        pyo3_async_runtimes::tokio::get_runtime()
-            .block_on(execute_websocket_request2(client, url, kwds))
-            .map(Into::into)
+        py.allow_threads(|| {
+            let client = self.inner.load();
+            pyo3_async_runtimes::tokio::get_runtime()
+                .block_on(execute_websocket_request2(client, url, kwds))
+                .map(Into::into)
+        })
     }
 }
 
