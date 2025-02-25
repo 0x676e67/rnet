@@ -335,11 +335,11 @@ impl Response {
     }
 }
 
-/// A bytes streaming response.
-/// This is an asynchronous iterator that yields chunks of data from the response stream.
-/// This is used to stream the response content.
-/// This is used in the `stream` method of the `Response` class.
-/// This is used in an asynchronous for loop in Python.
+/// A byte stream response.
+/// An asynchronous iterator yielding data chunks from the response stream.
+/// Used to stream response content.
+/// Implemented in the `stream` method of the `Response` class.
+/// Can be used in an asynchronous for loop in Python.
 ///
 /// # Examples
 ///
