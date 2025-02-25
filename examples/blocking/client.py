@@ -1,7 +1,6 @@
 import logging
 import colorlog
-from rnet import Impersonate, Proxy
-from rnet import blocking
+from rnet import Impersonate, Proxy, BlockingClient
 
 formatter = colorlog.ColoredFormatter(
     "%(log_color)s%(levelname)s %(name)s %(asctime)-15s %(filename)s:%(lineno)d %(message)s",
@@ -26,7 +25,7 @@ logger.setLevel(logging.DEBUG)
 
 
 def main():
-    client = blocking.Client(
+    client = BlockingClient(
         impersonate=Impersonate.Firefox133,
         user_agent="rnet",
         proxies=[

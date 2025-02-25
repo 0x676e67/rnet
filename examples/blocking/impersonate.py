@@ -1,9 +1,9 @@
 from rnet import Impersonate
-from rnet import blocking
+from rnet import BlockingClient
 
 
-async def main():
-    client = blocking.Client(
+def main():
+    client = BlockingClient(
         impersonate=Impersonate.Firefox135,
         user_agent="rnet",
     )

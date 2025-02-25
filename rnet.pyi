@@ -5,6 +5,393 @@ import builtins
 import typing
 from enum import Enum, auto
 
+class BlockingClient:
+    r"""
+    A blocking client for making HTTP requests.
+    """
+    user_agent: typing.Optional[builtins.str]
+    headers: HeaderMap
+    def __new__(cls,**kwds): ...
+    def get_cookies(self, url:builtins.str) -> builtins.list[builtins.str]:
+        r"""
+        Returns the cookies for the given URL.
+        
+        # Arguments
+        
+        * `url` - The URL to get the cookies for.
+        
+        # Returns
+        
+        A list of cookie strings.
+        """
+        ...
+
+    def set_cookies(self, url:builtins.str, value:typing.Sequence[builtins.str]) -> None:
+        r"""
+        Sets cookies for the given URL.
+        
+        # Arguments
+        
+        * `url` - The URL to set the cookies for.
+        * `value` - A list of cookie strings to set.
+        
+        # Returns
+        
+        A `PyResult` indicating success or failure.
+        """
+        ...
+
+    def update(self, **kwds) -> None:
+        r"""
+        Updates the client with the given parameters.
+        
+        # Arguments
+        * `params` - The parameters to update the client with.
+        """
+        ...
+
+    def get(self, url:builtins.str, **kwds) -> BlockingResponse:
+        r"""
+        Sends a GET request.
+        
+        # Arguments
+        
+        * `url` - The URL to send the request to.
+        * `**kwds` - Additional request parameters.
+        
+        # Returns
+        
+        A `Response` object.
+        """
+        ...
+
+    def post(self, url:builtins.str, **kwds) -> BlockingResponse:
+        r"""
+        Sends a POST request.
+        
+        # Arguments
+        
+        * `url` - The URL to send the request to.
+        * `**kwds` - Additional request parameters.
+        
+        # Returns
+        
+        A `Response` object.
+        """
+        ...
+
+    def put(self, url:builtins.str, **kwds) -> BlockingResponse:
+        r"""
+        Sends a PUT request.
+        
+        # Arguments
+        
+        * `url` - The URL to send the request to.
+        * `**kwds` - Additional request parameters.
+        
+        # Returns
+        
+        A `Response` object.
+        """
+        ...
+
+    def patch(self, url:builtins.str, **kwds) -> BlockingResponse:
+        r"""
+        Sends a PATCH request.
+        
+        # Arguments
+        
+        * `url` - The URL to send the request to.
+        * `**kwds` - Additional request parameters.
+        
+        # Returns
+        
+        A `Response` object.
+        """
+        ...
+
+    def delete(self, url:builtins.str, **kwds) -> BlockingResponse:
+        r"""
+        Sends a DELETE request.
+        
+        # Arguments
+        
+        * `url` - The URL to send the request to.
+        * `**kwds` - Additional request parameters.
+        
+        # Returns
+        
+        A `Response` object.
+        """
+        ...
+
+    def head(self, url:builtins.str, **kwds) -> BlockingResponse:
+        r"""
+        Sends a HEAD request.
+        
+        # Arguments
+        
+        * `url` - The URL to send the request to.
+        * `**kwds` - Additional request parameters.
+        
+        # Returns
+        
+        A `Response` object.
+        """
+        ...
+
+    def options(self, url:builtins.str, **kwds) -> BlockingResponse:
+        r"""
+        Sends an OPTIONS request.
+        
+        # Arguments
+        
+        * `url` - The URL to send the request to.
+        * `**kwds` - Additional request parameters.
+        
+        # Returns
+        
+        A `Response` object.
+        """
+        ...
+
+    def trace(self, url:builtins.str, **kwds) -> BlockingResponse:
+        r"""
+        Sends a TRACE request.
+        
+        # Arguments
+        
+        * `url` - The URL to send the request to.
+        * `**kwds` - Additional request parameters.
+        
+        # Returns
+        
+        A `Response` object.
+        """
+        ...
+
+    def request(self, method:Method, url:builtins.str, **kwds) -> BlockingResponse:
+        r"""
+        Sends a request with the given method and URL.
+        
+        # Arguments
+        
+        * `method` - The HTTP method to use.
+        * `url` - The URL to send the request to.
+        * `**kwds` - Additional request parameters.
+        
+        # Returns
+        
+        A `Response` object.
+        """
+        ...
+
+    def websocket(self, url:builtins.str, **kwds) -> BlockingWebSocket:
+        r"""
+        Sends a WebSocket request.
+        
+        # Arguments
+        
+        * `url` - The URL to send the WebSocket request to.
+        * `**kwds` - Additional WebSocket request parameters.
+        
+        # Returns
+        
+        A `WebSocket` object representing the WebSocket connection.
+        """
+        ...
+
+
+class BlockingResponse:
+    r"""
+    A bloking response from a request.
+    """
+    url: builtins.str
+    ok: builtins.bool
+    status: builtins.int
+    status_code: StatusCode
+    version: Version
+    headers: HeaderMap
+    content_length: builtins.int
+    remote_addr: typing.Optional[SocketAddr]
+    encoding: builtins.str
+    def peer_certificate(self) -> typing.Optional[builtins.list[builtins.int]]:
+        r"""
+        Returns the TLS peer certificate of the response.
+        
+        # Returns
+        
+        A Python object representing the TLS peer certificate of the response.
+        """
+        ...
+
+    def text(self) -> builtins.str:
+        r"""
+        Returns the text content of the response.
+        
+        # Returns
+        
+        A Python object representing the text content of the response.
+        """
+        ...
+
+    def text_with_charset(self, encoding:builtins.str) -> builtins.str:
+        r"""
+        Returns the text content of the response with a specific charset.
+        
+        # Arguments
+        
+        * `default_encoding` - The default encoding to use if the charset is not specified.
+        
+        # Returns
+        
+        A Python object representing the text content of the response.
+        """
+        ...
+
+    def json(self) -> typing.Any:
+        r"""
+        Returns the JSON content of the response.
+        
+        # Returns
+        
+        A Python object representing the JSON content of the response.
+        """
+        ...
+
+    def json_str(self) -> builtins.str:
+        r"""
+        Returns the JSON string content of the response.
+        
+        # Returns
+        
+        A Python object representing the JSON content of the response.
+        """
+        ...
+
+    def json_str_pretty(self) -> builtins.str:
+        r"""
+        Returns the JSON pretty string content of the response.
+        
+        # Returns
+        
+        A Python object representing the JSON content of the response.
+        """
+        ...
+
+    def bytes(self) -> typing.Any:
+        r"""
+        Returns the bytes content of the response.
+        
+        # Returns
+        
+        A Python object representing the bytes content of the response.
+        """
+        ...
+
+    def stream(self) -> BlockingStreamer:
+        r"""
+        Convert the response into a `Stream` of `Bytes` from the body.
+        
+        # Returns
+        
+        A Python object representing the stream content of the response.
+        """
+        ...
+
+    def close(self) -> None:
+        r"""
+        Closes the response connection.
+        """
+        ...
+
+
+class BlockingStreamer:
+    r"""
+    A bloking bytes streaming response.
+    This is an asynchronous iterator that yields chunks of data from the response stream.
+    This is used to stream the response content.
+    This is used in the `stream` method of the `Response` class.
+    This is used in an asynchronous for loop in Python.
+    """
+    def __iter__(self) -> BlockingStreamer:
+        ...
+
+    def __next__(self) -> typing.Optional[typing.Any]:
+        ...
+
+    def __enter__(self) -> typing.Any:
+        ...
+
+    def __exit__(self, _exc_type:typing.Any, _exc_value:typing.Any, _traceback:typing.Any) -> None:
+        ...
+
+
+class BlockingWebSocket:
+    r"""
+    A blocking WebSocket response.
+    """
+    ok: builtins.bool
+    status: builtins.int
+    version: Version
+    headers: HeaderMap
+    remote_addr: typing.Optional[SocketAddr]
+    def __iter__(self) -> BlockingWebSocket:
+        ...
+
+    def __next__(self) -> typing.Optional[Message]:
+        ...
+
+    def protocol(self) -> typing.Optional[builtins.str]:
+        r"""
+        Returns the WebSocket protocol.
+        
+        # Returns
+        
+        An optional string representing the WebSocket protocol.
+        """
+        ...
+
+    def recv(self) -> typing.Optional[Message]:
+        r"""
+        Receives a message from the WebSocket.
+        
+        # Returns
+        
+        A `PyResult` containing a `Bound` object with the received message, or `None` if no message is received.
+        """
+        ...
+
+    def send(self, message:Message) -> None:
+        r"""
+        Sends a message to the WebSocket.
+        
+        # Arguments
+        
+        * `message` - The message to send.
+        
+        # Returns
+        
+        A `PyResult` containing a `Bound` object.
+        """
+        ...
+
+    def close(self, code:typing.Optional[builtins.int]=None, reason:typing.Optional[builtins.str]=None) -> None:
+        r"""
+        Closes the WebSocket connection.
+        
+        # Arguments
+        
+        * `code` - An optional close code.
+        * `reason` - An optional reason for closing.
+        
+        # Returns
+        
+        A `PyResult` containing a `Bound` object.
+        """
+        ...
+
+
 class Client:
     r"""
     A client for making HTTP requests.

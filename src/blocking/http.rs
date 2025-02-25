@@ -6,15 +6,17 @@ use crate::{
 use futures_util::{Stream, StreamExt};
 use indexmap::IndexMap;
 use pyo3::{prelude::*, IntoPyObjectExt};
+use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 use serde_json::Value;
 
-/// A response from a request.
+/// A bloking response from a request.
+#[gen_stub_pyclass]
 #[pyclass]
-pub struct Response {
+pub struct BlockingResponse {
     inner: async_impl::Response,
 }
 
-impl From<async_impl::Response> for Response {
+impl From<async_impl::Response> for BlockingResponse {
     fn from(response: async_impl::Response) -> Self {
         Self {
             inner: async_impl::Response::from(response),
@@ -22,8 +24,9 @@ impl From<async_impl::Response> for Response {
     }
 }
 
+#[gen_stub_pymethods]
 #[pymethods]
-impl Response {
+impl BlockingResponse {
     /// Returns the URL of the response.
     ///
     /// # Returns
@@ -227,10 +230,10 @@ impl Response {
     /// # Returns
     ///
     /// A Python object representing the stream content of the response.
-    pub fn stream(&self) -> PyResult<Streamer> {
+    pub fn stream(&self) -> PyResult<BlockingStreamer> {
         self.into_inner()
             .map(rquest::Response::bytes_stream)
-            .map(Streamer::new)
+            .map(BlockingStreamer::new)
     }
 
     /// Closes the response connection.
@@ -240,7 +243,7 @@ impl Response {
 }
 
 #[pymethods]
-impl Response {
+impl BlockingResponse {
     /// Returns the cookies of the response.
     ///
     /// # Returns
@@ -252,7 +255,7 @@ impl Response {
     }
 }
 
-impl Response {
+impl BlockingResponse {
     /// Consumes the `Response` and returns the inner `rquest::Response`.
     ///
     /// # Returns
@@ -270,15 +273,16 @@ impl Response {
     }
 }
 
-/// A bytes streaming response.
+/// A bloking bytes streaming response.
 /// This is an asynchronous iterator that yields chunks of data from the response stream.
 /// This is used to stream the response content.
 /// This is used in the `stream` method of the `Response` class.
 /// This is used in an asynchronous for loop in Python.
+#[gen_stub_pyclass]
 #[pyclass]
-pub struct Streamer(async_impl::Streamer);
+pub struct BlockingStreamer(async_impl::Streamer);
 
-impl Streamer {
+impl BlockingStreamer {
     /// Create a new `Streamer` instance.
     ///
     /// # Arguments
@@ -288,15 +292,16 @@ impl Streamer {
     /// # Returns
     ///
     /// A new `Streamer` instance.
-    pub fn new(
+    fn new(
         stream: impl Stream<Item = Result<bytes::Bytes, rquest::Error>> + Send + 'static,
-    ) -> Streamer {
-        Streamer(async_impl::Streamer::new(stream))
+    ) -> BlockingStreamer {
+        BlockingStreamer(async_impl::Streamer::new(stream))
     }
 }
 
+#[gen_stub_pymethods]
 #[pymethods]
-impl Streamer {
+impl BlockingStreamer {
     #[inline(always)]
     fn __iter__(slf: PyRef<'_, Self>) -> PyRef<'_, Self> {
         slf

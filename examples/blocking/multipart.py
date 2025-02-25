@@ -1,6 +1,6 @@
 from pathlib import Path
 from rnet import blocking
-from rnet import Multipart, Part, Impersonate
+from rnet import Multipart, Part
 
 
 def main():

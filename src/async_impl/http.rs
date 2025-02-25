@@ -389,7 +389,7 @@ impl Streamer {
     /// # Returns
     ///
     /// A new `Streamer` instance.
-    pub fn new(
+    pub(crate) fn new(
         stream: impl Stream<Item = Result<bytes::Bytes, rquest::Error>> + Send + 'static,
     ) -> Streamer {
         Streamer(Arc::new(Mutex::new(Some(Box::pin(stream)))))

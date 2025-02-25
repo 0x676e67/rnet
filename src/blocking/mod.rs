@@ -1,79 +1,92 @@
 mod http;
 mod ws;
 
-pub use self::{http::Response, ws::WebSocket};
+pub use self::{
+    http::{BlockingResponse, BlockingStreamer},
+    ws::BlockingWebSocket,
+};
 use crate::{
     async_impl::{self, execute_request2, execute_websocket_request2, shortcut_websocket_request},
     param::{ClientParams, RequestParams, UpdateClientParams, WebSocketParams},
     types::Method,
 };
 use pyo3::prelude::*;
+use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pyfunction, gen_stub_pymethods};
 
 /// Shortcut method to quickly make a `GET` request.
+#[gen_stub_pyfunction]
 #[pyfunction]
 #[pyo3(signature = (url, **kwds))]
 #[inline(always)]
-pub fn get(py: Python, url: String, kwds: Option<RequestParams>) -> PyResult<Response> {
+pub fn get(py: Python, url: String, kwds: Option<RequestParams>) -> PyResult<BlockingResponse> {
     request(py, Method::GET, url, kwds)
 }
 
 /// Shortcut method to quickly make a `POST` request.
+#[gen_stub_pyfunction]
 #[pyfunction]
 #[pyo3(signature = (url, **kwds))]
 #[inline(always)]
-pub fn post(py: Python, url: String, kwds: Option<RequestParams>) -> PyResult<Response> {
+pub fn post(py: Python, url: String, kwds: Option<RequestParams>) -> PyResult<BlockingResponse> {
     request(py, Method::POST, url, kwds)
 }
 
 /// Shortcut method to quickly make a `PUT` request.
+#[gen_stub_pyfunction]
 #[pyfunction]
 #[pyo3(signature = (url, **kwds))]
 #[inline(always)]
-pub fn put(py: Python, url: String, kwds: Option<RequestParams>) -> PyResult<Response> {
+pub fn put(py: Python, url: String, kwds: Option<RequestParams>) -> PyResult<BlockingResponse> {
     request(py, Method::PUT, url, kwds)
 }
 
 /// Shortcut method to quickly make a `PATCH` request.
+#[gen_stub_pyfunction]
 #[pyfunction]
 #[pyo3(signature = (url, **kwds))]
 #[inline(always)]
-pub fn patch(py: Python, url: String, kwds: Option<RequestParams>) -> PyResult<Response> {
+pub fn patch(py: Python, url: String, kwds: Option<RequestParams>) -> PyResult<BlockingResponse> {
     request(py, Method::PATCH, url, kwds)
 }
 
 /// Shortcut method to quickly make a `DELETE` request.
+#[gen_stub_pyfunction]
 #[pyfunction]
 #[pyo3(signature = (url, **kwds))]
 #[inline(always)]
-pub fn delete(py: Python, url: String, kwds: Option<RequestParams>) -> PyResult<Response> {
+pub fn delete(py: Python, url: String, kwds: Option<RequestParams>) -> PyResult<BlockingResponse> {
     request(py, Method::DELETE, url, kwds)
 }
 
 /// Shortcut method to quickly make a `HEAD` request.
+#[gen_stub_pyfunction]
 #[pyfunction]
 #[pyo3(signature = (url, **kwds))]
 #[inline(always)]
-pub fn head(py: Python, url: String, kwds: Option<RequestParams>) -> PyResult<Response> {
+pub fn head(py: Python, url: String, kwds: Option<RequestParams>) -> PyResult<BlockingResponse> {
     request(py, Method::HEAD, url, kwds)
 }
 
 /// Shortcut method to quickly make an `OPTIONS` request.
+#[gen_stub_pyfunction]
 #[pyfunction]
 #[pyo3(signature = (url, **kwds))]
 #[inline(always)]
-pub fn options(py: Python, url: String, kwds: Option<RequestParams>) -> PyResult<Response> {
+pub fn options(py: Python, url: String, kwds: Option<RequestParams>) -> PyResult<BlockingResponse> {
     request(py, Method::OPTIONS, url, kwds)
 }
 
 /// Shortcut method to quickly make a `TRACE` request.
+#[gen_stub_pyfunction]
 #[pyfunction]
 #[pyo3(signature = (url, **kwds))]
 #[inline(always)]
-pub fn trace(py: Python, url: String, kwds: Option<RequestParams>) -> PyResult<Response> {
+pub fn trace(py: Python, url: String, kwds: Option<RequestParams>) -> PyResult<BlockingResponse> {
     request(py, Method::TRACE, url, kwds)
 }
 
 /// Make a request with the given parameters.
+#[gen_stub_pyfunction]
 #[pyfunction]
 #[pyo3(signature = (method, url, **kwds))]
 #[inline(always)]
@@ -82,7 +95,7 @@ pub fn request(
     method: Method,
     url: String,
     kwds: Option<RequestParams>,
-) -> PyResult<Response> {
+) -> PyResult<BlockingResponse> {
     py.allow_threads(|| {
         pyo3_async_runtimes::tokio::get_runtime()
             .block_on(async_impl::shortcut_request(url, method, kwds))
@@ -93,10 +106,15 @@ pub fn request(
 /// Make a WebSocket connection with the given parameters.
 ///
 /// This function allows you to make a WebSocket connection with the specified parameters encapsulated in a `WebSocket` object.
+#[gen_stub_pyfunction]
 #[pyfunction]
 #[pyo3(signature = (url, **kwds))]
 #[inline(always)]
-pub fn websocket(py: Python, url: String, kwds: Option<WebSocketParams>) -> PyResult<WebSocket> {
+pub fn websocket(
+    py: Python,
+    url: String,
+    kwds: Option<WebSocketParams>,
+) -> PyResult<BlockingWebSocket> {
     py.allow_threads(|| {
         pyo3_async_runtimes::tokio::get_runtime()
             .block_on(shortcut_websocket_request(url, kwds))
@@ -105,13 +123,15 @@ pub fn websocket(py: Python, url: String, kwds: Option<WebSocketParams>) -> PyRe
 }
 
 /// A blocking client for making HTTP requests.
+#[gen_stub_pyclass]
 #[pyclass]
-pub struct Client {
+pub struct BlockingClient {
     inner: async_impl::Client,
 }
 
+#[gen_stub_pymethods]
 #[pymethods]
-impl Client {
+impl BlockingClient {
     /// Sends a GET request.
     ///
     /// # Arguments
@@ -123,7 +143,7 @@ impl Client {
     ///
     /// A `Response` object.
     #[pyo3(signature = (url, **kwds))]
-    pub fn get(&self, url: String, kwds: Option<RequestParams>) -> PyResult<Response> {
+    pub fn get(&self, url: String, kwds: Option<RequestParams>) -> PyResult<BlockingResponse> {
         self.request(Method::GET, url, kwds)
     }
 
@@ -138,7 +158,7 @@ impl Client {
     ///
     /// A `Response` object.
     #[pyo3(signature = (url, **kwds))]
-    pub fn post(&self, url: String, kwds: Option<RequestParams>) -> PyResult<Response> {
+    pub fn post(&self, url: String, kwds: Option<RequestParams>) -> PyResult<BlockingResponse> {
         self.request(Method::POST, url, kwds)
     }
 
@@ -153,7 +173,7 @@ impl Client {
     ///
     /// A `Response` object.
     #[pyo3(signature = (url, **kwds))]
-    pub fn put(&self, url: String, kwds: Option<RequestParams>) -> PyResult<Response> {
+    pub fn put(&self, url: String, kwds: Option<RequestParams>) -> PyResult<BlockingResponse> {
         self.request(Method::PUT, url, kwds)
     }
 
@@ -168,7 +188,7 @@ impl Client {
     ///
     /// A `Response` object.
     #[pyo3(signature = (url, **kwds))]
-    pub fn patch(&self, url: String, kwds: Option<RequestParams>) -> PyResult<Response> {
+    pub fn patch(&self, url: String, kwds: Option<RequestParams>) -> PyResult<BlockingResponse> {
         self.request(Method::PATCH, url, kwds)
     }
 
@@ -183,7 +203,7 @@ impl Client {
     ///
     /// A `Response` object.
     #[pyo3(signature = (url, **kwds))]
-    pub fn delete(&self, url: String, kwds: Option<RequestParams>) -> PyResult<Response> {
+    pub fn delete(&self, url: String, kwds: Option<RequestParams>) -> PyResult<BlockingResponse> {
         self.request(Method::DELETE, url, kwds)
     }
 
@@ -198,7 +218,7 @@ impl Client {
     ///
     /// A `Response` object.
     #[pyo3(signature = (url, **kwds))]
-    pub fn head(&self, url: String, kwds: Option<RequestParams>) -> PyResult<Response> {
+    pub fn head(&self, url: String, kwds: Option<RequestParams>) -> PyResult<BlockingResponse> {
         self.request(Method::HEAD, url, kwds)
     }
 
@@ -213,7 +233,7 @@ impl Client {
     ///
     /// A `Response` object.
     #[pyo3(signature = (url, **kwds))]
-    pub fn options(&self, url: String, kwds: Option<RequestParams>) -> PyResult<Response> {
+    pub fn options(&self, url: String, kwds: Option<RequestParams>) -> PyResult<BlockingResponse> {
         self.request(Method::OPTIONS, url, kwds)
     }
 
@@ -228,7 +248,7 @@ impl Client {
     ///
     /// A `Response` object.
     #[pyo3(signature = (url, **kwds))]
-    pub fn trace(&self, url: String, kwds: Option<RequestParams>) -> PyResult<Response> {
+    pub fn trace(&self, url: String, kwds: Option<RequestParams>) -> PyResult<BlockingResponse> {
         self.request(Method::TRACE, url, kwds)
     }
 
@@ -250,7 +270,7 @@ impl Client {
         method: Method,
         url: String,
         kwds: Option<RequestParams>,
-    ) -> PyResult<Response> {
+    ) -> PyResult<BlockingResponse> {
         let client = self.inner.0.load();
         pyo3_async_runtimes::tokio::get_runtime()
             .block_on(execute_request2(client, method, url, kwds))
@@ -268,7 +288,11 @@ impl Client {
     ///
     /// A `WebSocket` object representing the WebSocket connection.
     #[pyo3(signature = (url, **kwds))]
-    pub fn websocket(&self, url: String, kwds: Option<WebSocketParams>) -> PyResult<WebSocket> {
+    pub fn websocket(
+        &self,
+        url: String,
+        kwds: Option<WebSocketParams>,
+    ) -> PyResult<BlockingWebSocket> {
         let client = self.inner.0.load();
         pyo3_async_runtimes::tokio::get_runtime()
             .block_on(execute_websocket_request2(client, url, kwds))
@@ -276,8 +300,9 @@ impl Client {
     }
 }
 
+#[gen_stub_pymethods]
 #[pymethods]
-impl Client {
+impl BlockingClient {
     /// Creates a new Client instance.
     ///
     /// # Arguments
@@ -289,8 +314,8 @@ impl Client {
     /// A new `Client` instance.
     #[new]
     #[pyo3(signature = (**kwds))]
-    fn new(py: Python, kwds: Option<ClientParams>) -> PyResult<Client> {
-        async_impl::Client::new(py, kwds).map(|inner| Client { inner })
+    fn new(py: Python, kwds: Option<ClientParams>) -> PyResult<BlockingClient> {
+        async_impl::Client::new(py, kwds).map(|inner| BlockingClient { inner })
     }
 
     /// Returns the user agent of the client.

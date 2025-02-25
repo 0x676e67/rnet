@@ -8,6 +8,7 @@ mod blocking;
 mod types;
 
 use async_impl::{Client, Message, Response, Streamer, WebSocket};
+use blocking::{BlockingClient, BlockingResponse, BlockingStreamer, BlockingWebSocket};
 #[cfg(feature = "logging")]
 use log::LevelFilter;
 use param::{ClientParams, RequestParams, UpdateClientParams, WebSocketParams};
@@ -315,14 +316,20 @@ fn rnet(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<UpdateClientParams>()?;
     m.add_class::<RequestParams>()?;
     m.add_class::<WebSocketParams>()?;
-    m.add_class::<WebSocket>()?;
     m.add_class::<Message>()?;
     m.add_class::<StatusCode>()?;
-    m.add_class::<Response>()?;
-    m.add_class::<Streamer>()?;
+
     m.add_class::<Part>()?;
     m.add_class::<Multipart>()?;
+
     m.add_class::<Client>()?;
+    m.add_class::<Response>()?;
+    m.add_class::<WebSocket>()?;
+    m.add_class::<Streamer>()?;
+    m.add_class::<BlockingClient>()?;
+    m.add_class::<BlockingResponse>()?;
+    m.add_class::<BlockingWebSocket>()?;
+    m.add_class::<BlockingStreamer>()?;
 
     m.add_function(wrap_pyfunction!(get, m)?)?;
     m.add_function(wrap_pyfunction!(post, m)?)?;
@@ -336,9 +343,6 @@ fn rnet(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(websocket, m)?)?;
 
     let blocking = PyModule::new(py, "blocking")?;
-    blocking.add_class::<blocking::Client>()?;
-    blocking.add_class::<blocking::Response>()?;
-    blocking.add_class::<blocking::WebSocket>()?;
 
     blocking.add_function(wrap_pyfunction!(blocking::get, &blocking)?)?;
     blocking.add_function(wrap_pyfunction!(blocking::post, &blocking)?)?;

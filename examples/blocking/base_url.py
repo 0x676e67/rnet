@@ -1,8 +1,8 @@
-from rnet import blocking, Impersonate
+from rnet import Impersonate, BlockingClient
 
 
 def main():
-    client = blocking.Client(
+    client = BlockingClient(
         base_url="https://httpbin.org",
         impersonate=Impersonate.Firefox135,
         user_agent="rnet",

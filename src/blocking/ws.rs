@@ -5,21 +5,24 @@ use crate::{
 };
 use futures_util::{SinkExt, TryStreamExt};
 use pyo3::prelude::*;
+use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 
-/// A WebSocket response.
+/// A blocking WebSocket response.
+#[gen_stub_pyclass]
 #[pyclass]
-pub struct WebSocket {
+pub struct BlockingWebSocket {
     inner: async_impl::WebSocket,
 }
 
-impl From<async_impl::WebSocket> for WebSocket {
+impl From<async_impl::WebSocket> for BlockingWebSocket {
     fn from(inner: async_impl::WebSocket) -> Self {
         Self { inner }
     }
 }
 
+#[gen_stub_pymethods]
 #[pymethods]
-impl WebSocket {
+impl BlockingWebSocket {
     /// Returns whether the response is successful.
     ///
     /// # Returns
@@ -169,8 +172,9 @@ impl WebSocket {
     }
 }
 
+#[gen_stub_pymethods]
 #[pymethods]
-impl WebSocket {
+impl BlockingWebSocket {
     #[inline(always)]
     fn __iter__(slf: PyRef<'_, Self>) -> PyRef<'_, Self> {
         slf
