@@ -1,10 +1,9 @@
-from rnet import Impersonate, BlockingClient
+from rnet import BlockingClient
 
 
 def main():
     client = BlockingClient(
         base_url="https://httpbin.org",
-        impersonate=Impersonate.Firefox135,
         user_agent="rnet",
     )
     resp = client.get("/stream/20")

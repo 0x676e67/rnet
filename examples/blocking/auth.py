@@ -1,8 +1,9 @@
-from rnet import blocking
+from rnet import BlockingClient
 
 
 def main():
-    resp = blocking.get(
+    client = BlockingClient()
+    resp = client.get(
         "https://httpbin.org/anything",
         auth="token",
     )

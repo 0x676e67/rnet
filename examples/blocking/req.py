@@ -1,9 +1,9 @@
-from rnet import blocking
-from rnet import Method
+from rnet import BlockingClient, Method
 
 
 def main():
-    resp = blocking.request(Method.GET, "https://www.google.com/")
+    client = BlockingClient()
+    resp = client.request(Method.GET, "https://www.google.com/")
     print("Status Code: ", resp.status_code)
     print("Version: ", resp.version)
     print("Response URL: ", resp.url)

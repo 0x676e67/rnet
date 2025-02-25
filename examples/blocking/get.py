@@ -1,8 +1,9 @@
-from rnet import blocking
+from rnet import BlockingClient
 
 
-async def main():
-    resp = blocking.get(
+def main():
+    client = BlockingClient()
+    resp = client.get(
         "https://tls.peet.ws/api/all",
         timeout=10,
     )

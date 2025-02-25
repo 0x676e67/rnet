@@ -1368,30 +1368,9 @@ class Streamer:
     ```
     """
     def __aiter__(self) -> Streamer:
-        r"""
-        Returns the `Streamer` instance itself to be used as an asynchronous iterator.
-        
-        This method allows the `Streamer` to be used in an asynchronous for loop in Python.
-        
-        # Returns
-        
-        The `Streamer` instance itself.
-        """
         ...
 
     def __anext__(self) -> typing.Optional[typing.Any]:
-        r"""
-        Returns the next chunk of the response as an asynchronous iterator.
-        
-        This method implements the `__anext__` method for the `Streamer` class, allowing it to be
-        used as an asynchronous iterator in Python. It returns the next chunk of the response or
-        raises `PyStopAsyncIteration` if the iterator is exhausted.
-        
-        # Returns
-        
-        A `PyResult` containing an `Option<PyObject>`. If there is a next chunk, it returns `Some(PyObject)`.
-        If the iterator is exhausted, it raises `PyStopAsyncIteration`.
-        """
         ...
 
     def __aenter__(self) -> typing.Any:

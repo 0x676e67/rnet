@@ -1,8 +1,9 @@
-from rnet import blocking
+from rnet import BlockingClient
 
 
 def main():
-    resp = blocking.post(
+    client = BlockingClient()
+    resp = client.post(
         "https://httpbin.org/anything",
         headers={"Content-Type": "application/x-www-form-urlencoded"},
         body=b"key=value",

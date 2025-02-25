@@ -289,7 +289,7 @@ fn websocket(
 }
 
 #[pymodule(gil_used = false)]
-fn rnet(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
+fn rnet(m: &Bound<'_, PyModule>) -> PyResult<()> {
     pyo3::prepare_freethreaded_python();
 
     // A good place to install the Rust -> Python logger.
@@ -342,19 +342,7 @@ fn rnet(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(request, m)?)?;
     m.add_function(wrap_pyfunction!(websocket, m)?)?;
 
-    let blocking = PyModule::new(py, "blocking")?;
-
-    blocking.add_function(wrap_pyfunction!(blocking::get, &blocking)?)?;
-    blocking.add_function(wrap_pyfunction!(blocking::post, &blocking)?)?;
-    blocking.add_function(wrap_pyfunction!(blocking::put, &blocking)?)?;
-    blocking.add_function(wrap_pyfunction!(blocking::patch, &blocking)?)?;
-    blocking.add_function(wrap_pyfunction!(blocking::delete, &blocking)?)?;
-    blocking.add_function(wrap_pyfunction!(blocking::head, &blocking)?)?;
-    blocking.add_function(wrap_pyfunction!(blocking::options, &blocking)?)?;
-    blocking.add_function(wrap_pyfunction!(blocking::trace, &blocking)?)?;
-    blocking.add_function(wrap_pyfunction!(blocking::request, &blocking)?)?;
-    blocking.add_function(wrap_pyfunction!(blocking::websocket, &blocking)?)?;
-    m.add_submodule(&blocking)
+    Ok(())
 }
 
 define_stub_info_gatherer!(stub_info);

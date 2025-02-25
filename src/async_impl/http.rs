@@ -399,28 +399,11 @@ impl Streamer {
 #[gen_stub_pymethods]
 #[pymethods]
 impl Streamer {
-    /// Returns the `Streamer` instance itself to be used as an asynchronous iterator.
-    ///
-    /// This method allows the `Streamer` to be used in an asynchronous for loop in Python.
-    ///
-    /// # Returns
-    ///
-    /// The `Streamer` instance itself.
     #[inline(always)]
     fn __aiter__(slf: PyRef<'_, Self>) -> PyRef<'_, Self> {
         slf
     }
 
-    /// Returns the next chunk of the response as an asynchronous iterator.
-    ///
-    /// This method implements the `__anext__` method for the `Streamer` class, allowing it to be
-    /// used as an asynchronous iterator in Python. It returns the next chunk of the response or
-    /// raises `PyStopAsyncIteration` if the iterator is exhausted.
-    ///
-    /// # Returns
-    ///
-    /// A `PyResult` containing an `Option<PyObject>`. If there is a next chunk, it returns `Some(PyObject)`.
-    /// If the iterator is exhausted, it raises `PyStopAsyncIteration`.
     fn __anext__<'rt>(&self, py: Python<'rt>) -> PyResult<Option<Bound<'rt, PyAny>>> {
         // Here we clone the inner field, so we can use it
         // in our future.

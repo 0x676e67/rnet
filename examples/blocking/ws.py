@@ -1,8 +1,7 @@
 import signal
 import time
 import threading
-from rnet import blocking
-from rnet import Message
+from rnet import Message, BlockingClient
 
 
 def send_message(ws, stop_event):
@@ -26,7 +25,8 @@ def receive_message(ws, stop_event):
 
 
 def main():
-    ws = blocking.websocket("wss://echo.websocket.org")
+    client = BlockingClient()
+    ws = client.websocket("wss://echo.websocket.org")
     print("Status Code: ", ws.status)
     print("Version: ", ws.version)
     print("Headers: ", ws.headers.to_dict())

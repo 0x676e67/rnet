@@ -1,10 +1,10 @@
 from pathlib import Path
-from rnet import blocking
-from rnet import Multipart, Part
+from rnet import BlockingClient, Multipart, Part
 
 
 def main():
-    resp = blocking.post(
+    client = BlockingClient()
+    resp = client.post(
         "https://httpbin.org/anything",
         multipart=Multipart(
             # Upload text data

@@ -49,6 +49,7 @@ static DEFAULT_CLIENT: LazyLock<rquest::Client> = LazyLock::new(|| {
 });
 
 /// Send a shortcut HTTP request.
+#[inline(always)]
 pub async fn shortcut_request<U>(
     url: U,
     method: Method,
@@ -61,6 +62,7 @@ where
 }
 
 /// Send a shortcut WebSocket request.
+#[inline(always)]
 pub async fn shortcut_websocket_request<U>(
     url: U,
     params: Option<WebSocketParams>,
@@ -104,6 +106,7 @@ impl Client {
     /// asyncio.run(main())
     /// ```
     #[pyo3(signature = (url, **kwds))]
+    #[inline(always)]
     pub fn get<'rt>(
         &self,
         py: Python<'rt>,
@@ -138,6 +141,7 @@ impl Client {
     /// asyncio.run(main())
     /// ```
     #[pyo3(signature = (url, **kwds))]
+    #[inline(always)]
     pub fn post<'rt>(
         &self,
         py: Python<'rt>,
@@ -172,6 +176,7 @@ impl Client {
     /// asyncio.run(main())
     /// ```
     #[pyo3(signature = (url, **kwds))]
+    #[inline(always)]
     pub fn put<'rt>(
         &self,
         py: Python<'rt>,
@@ -206,6 +211,7 @@ impl Client {
     /// asyncio.run(main())
     /// ```
     #[pyo3(signature = (url, **kwds))]
+    #[inline(always)]
     pub fn patch<'rt>(
         &self,
         py: Python<'rt>,
@@ -240,6 +246,7 @@ impl Client {
     /// asyncio.run(main())
     /// ```
     #[pyo3(signature = (url, **kwds))]
+    #[inline(always)]
     pub fn delete<'rt>(
         &self,
         py: Python<'rt>,
@@ -274,6 +281,7 @@ impl Client {
     /// asyncio.run(main())
     /// ```
     #[pyo3(signature = (url, **kwds))]
+    #[inline(always)]
     pub fn head<'rt>(
         &self,
         py: Python<'rt>,
@@ -308,6 +316,7 @@ impl Client {
     /// asyncio.run(main())
     /// ```
     #[pyo3(signature = (url, **kwds))]
+    #[inline(always)]
     pub fn options<'rt>(
         &self,
         py: Python<'rt>,
@@ -342,6 +351,7 @@ impl Client {
     /// asyncio.run(main())
     /// ```
     #[pyo3(signature = (url, **kwds))]
+    #[inline(always)]
     pub fn trace<'rt>(
         &self,
         py: Python<'rt>,
@@ -418,6 +428,7 @@ impl Client {
     /// asyncio.run(main())
     /// ```
     #[pyo3(signature = (url, **kwds))]
+    #[inline(always)]
     pub fn websocket<'rt>(
         &self,
         py: Python<'rt>,
