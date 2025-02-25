@@ -13,74 +13,81 @@ use pyo3::prelude::*;
 #[pyfunction]
 #[pyo3(signature = (url, **kwds))]
 #[inline(always)]
-pub fn get(url: String, kwds: Option<RequestParams>) -> PyResult<Response> {
-    request(Method::GET, url, kwds)
+pub fn get(py: Python, url: String, kwds: Option<RequestParams>) -> PyResult<Response> {
+    request(py, Method::GET, url, kwds)
 }
 
 /// Shortcut method to quickly make a `POST` request.
 #[pyfunction]
 #[pyo3(signature = (url, **kwds))]
 #[inline(always)]
-pub fn post(url: String, kwds: Option<RequestParams>) -> PyResult<Response> {
-    request(Method::POST, url, kwds)
+pub fn post(py: Python, url: String, kwds: Option<RequestParams>) -> PyResult<Response> {
+    request(py, Method::POST, url, kwds)
 }
 
 /// Shortcut method to quickly make a `PUT` request.
 #[pyfunction]
 #[pyo3(signature = (url, **kwds))]
 #[inline(always)]
-pub fn put(url: String, kwds: Option<RequestParams>) -> PyResult<Response> {
-    request(Method::PUT, url, kwds)
+pub fn put(py: Python, url: String, kwds: Option<RequestParams>) -> PyResult<Response> {
+    request(py, Method::PUT, url, kwds)
 }
 
 /// Shortcut method to quickly make a `PATCH` request.
 #[pyfunction]
 #[pyo3(signature = (url, **kwds))]
 #[inline(always)]
-pub fn patch(url: String, kwds: Option<RequestParams>) -> PyResult<Response> {
-    request(Method::PATCH, url, kwds)
+pub fn patch(py: Python, url: String, kwds: Option<RequestParams>) -> PyResult<Response> {
+    request(py, Method::PATCH, url, kwds)
 }
 
 /// Shortcut method to quickly make a `DELETE` request.
 #[pyfunction]
 #[pyo3(signature = (url, **kwds))]
 #[inline(always)]
-pub fn delete(url: String, kwds: Option<RequestParams>) -> PyResult<Response> {
-    request(Method::DELETE, url, kwds)
+pub fn delete(py: Python, url: String, kwds: Option<RequestParams>) -> PyResult<Response> {
+    request(py, Method::DELETE, url, kwds)
 }
 
 /// Shortcut method to quickly make a `HEAD` request.
 #[pyfunction]
 #[pyo3(signature = (url, **kwds))]
 #[inline(always)]
-pub fn head(url: String, kwds: Option<RequestParams>) -> PyResult<Response> {
-    request(Method::HEAD, url, kwds)
+pub fn head(py: Python, url: String, kwds: Option<RequestParams>) -> PyResult<Response> {
+    request(py, Method::HEAD, url, kwds)
 }
 
 /// Shortcut method to quickly make an `OPTIONS` request.
 #[pyfunction]
 #[pyo3(signature = (url, **kwds))]
 #[inline(always)]
-pub fn options(url: String, kwds: Option<RequestParams>) -> PyResult<Response> {
-    request(Method::OPTIONS, url, kwds)
+pub fn options(py: Python, url: String, kwds: Option<RequestParams>) -> PyResult<Response> {
+    request(py, Method::OPTIONS, url, kwds)
 }
 
 /// Shortcut method to quickly make a `TRACE` request.
 #[pyfunction]
 #[pyo3(signature = (url, **kwds))]
 #[inline(always)]
-pub fn trace(url: String, kwds: Option<RequestParams>) -> PyResult<Response> {
-    request(Method::TRACE, url, kwds)
+pub fn trace(py: Python, url: String, kwds: Option<RequestParams>) -> PyResult<Response> {
+    request(py, Method::TRACE, url, kwds)
 }
 
 /// Make a request with the given parameters.
 #[pyfunction]
 #[pyo3(signature = (method, url, **kwds))]
 #[inline(always)]
-pub fn request(method: Method, url: String, kwds: Option<RequestParams>) -> PyResult<Response> {
-    pyo3_async_runtimes::tokio::get_runtime()
-        .block_on(async_impl::shortcut_request(url, method, kwds))
-        .map(Into::into)
+pub fn request(
+    py: Python,
+    method: Method,
+    url: String,
+    kwds: Option<RequestParams>,
+) -> PyResult<Response> {
+    py.allow_threads(|| {
+        pyo3_async_runtimes::tokio::get_runtime()
+            .block_on(async_impl::shortcut_request(url, method, kwds))
+            .map(Into::into)
+    })
 }
 
 /// Make a WebSocket connection with the given parameters.
@@ -89,10 +96,12 @@ pub fn request(method: Method, url: String, kwds: Option<RequestParams>) -> PyRe
 #[pyfunction]
 #[pyo3(signature = (url, **kwds))]
 #[inline(always)]
-pub fn websocket(url: String, kwds: Option<WebSocketParams>) -> PyResult<WebSocket> {
-    pyo3_async_runtimes::tokio::get_runtime()
-        .block_on(shortcut_websocket_request(url, kwds))
-        .map(Into::into)
+pub fn websocket(py: Python, url: String, kwds: Option<WebSocketParams>) -> PyResult<WebSocket> {
+    py.allow_threads(|| {
+        pyo3_async_runtimes::tokio::get_runtime()
+            .block_on(shortcut_websocket_request(url, kwds))
+            .map(Into::into)
+    })
 }
 
 /// A blocking client for making HTTP requests.
@@ -280,8 +289,8 @@ impl Client {
     /// A new `Client` instance.
     #[new]
     #[pyo3(signature = (**kwds))]
-    fn new(kwds: Option<ClientParams>) -> PyResult<Client> {
-        async_impl::Client::new(kwds).map(|inner| Client { inner })
+    fn new(py: Python, kwds: Option<ClientParams>) -> PyResult<Client> {
+        async_impl::Client::new(py, kwds).map(|inner| Client { inner })
     }
 
     /// Returns the user agent of the client.
@@ -290,8 +299,8 @@ impl Client {
     ///
     /// An optional string containing the user agent of the client.
     #[getter]
-    fn user_agent(&self) -> Option<String> {
-        self.inner.user_agent()
+    fn user_agent(&self, py: Python) -> Option<String> {
+        self.inner.user_agent(py)
     }
 
     /// Returns the headers of the client.
@@ -300,8 +309,8 @@ impl Client {
     ///
     /// A `HeaderMap` object containing the headers of the client.
     #[getter]
-    fn headers(&self) -> crate::HeaderMap {
-        self.inner.headers()
+    fn headers(&self, py: Python) -> crate::HeaderMap {
+        self.inner.headers(py)
     }
 
     /// Returns the cookies for the given URL.
@@ -314,8 +323,8 @@ impl Client {
     ///
     /// A list of cookie strings.
     #[pyo3(signature = (url))]
-    fn get_cookies(&self, url: &str) -> PyResult<Vec<String>> {
-        self.inner.get_cookies(url)
+    fn get_cookies(&self, py: Python, url: &str) -> PyResult<Vec<String>> {
+        self.inner.get_cookies(py, url)
     }
 
     /// Sets cookies for the given URL.
@@ -329,8 +338,8 @@ impl Client {
     ///
     /// A `PyResult` indicating success or failure.
     #[pyo3(signature = (url, value))]
-    fn set_cookies(&self, url: &str, value: Vec<String>) -> PyResult<()> {
-        self.inner.set_cookies(url, value)
+    fn set_cookies(&self, py: Python, url: &str, value: Vec<String>) -> PyResult<()> {
+        self.inner.set_cookies(py, url, value)
     }
 
     /// Updates the client with the given parameters.
@@ -338,7 +347,7 @@ impl Client {
     /// # Arguments
     /// * `params` - The parameters to update the client with.
     #[pyo3(signature = (**kwds))]
-    fn update(&self, kwds: Option<UpdateClientParams>) {
-        self.inner.update(kwds);
+    fn update(&self, py: Python, kwds: Option<UpdateClientParams>) {
+        self.inner.update(py, kwds);
     }
 }

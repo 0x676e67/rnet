@@ -35,35 +35,38 @@ impl Part {
     #[new]
     #[pyo3(signature = (name, value, filename = None, mime = None))]
     pub fn new(
+        py: Python,
         name: String,
         value: PartData,
         filename: Option<String>,
         mime: Option<&str>,
     ) -> PyResult<Part> {
-        // Create the inner part
-        let mut inner = match value {
-            PartData::Text(text) => rquest::multipart::Part::text(text),
-            PartData::Bytes(bytes) => rquest::multipart::Part::bytes(bytes),
-            PartData::File(path) => pyo3_async_runtimes::tokio::get_runtime()
-                .block_on(rquest::multipart::Part::file(path))
-                .map_err(wrap_io_error)?,
-        };
+        py.allow_threads(|| {
+            // Create the inner part
+            let mut inner = match value {
+                PartData::Text(text) => rquest::multipart::Part::text(text),
+                PartData::Bytes(bytes) => rquest::multipart::Part::bytes(bytes),
+                PartData::File(path) => pyo3_async_runtimes::tokio::get_runtime()
+                    .block_on(rquest::multipart::Part::file(path))
+                    .map_err(wrap_io_error)?,
+            };
 
-        // Set the filename and MIME type if provided
-        if let Some(filename) = filename {
-            inner = inner.file_name(filename);
-        }
+            // Set the filename and MIME type if provided
+            if let Some(filename) = filename {
+                inner = inner.file_name(filename);
+            }
 
-        // Set the MIME type if provided
-        if let Some(mime) = mime {
-            inner = inner
-                .mime_str(mime)
-                .map_err(|e| MIMEParseError::new_err(format!("Cannot parse MIME type: {:?}", e)))?;
-        }
+            // Set the MIME type if provided
+            if let Some(mime) = mime {
+                inner = inner.mime_str(mime).map_err(|e| {
+                    MIMEParseError::new_err(format!("Cannot parse MIME type: {:?}", e))
+                })?;
+            }
 
-        Ok(Part {
-            name: Some(name),
-            inner: Some(inner),
+            Ok(Part {
+                name: Some(name),
+                inner: Some(inner),
+            })
         })
     }
 }

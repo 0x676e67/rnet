@@ -14,6 +14,10 @@ name = "rnet"
 crate-type = ["cdylib", "rlib"]
 doctest = false
 
+[[bin]]
+name = "sub_gen"
+path = "src/sub_gen.rs"
+
 [features]
 logging = ["dep:pyo3-log", "dep:log"]
 

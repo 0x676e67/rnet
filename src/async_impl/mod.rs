@@ -457,204 +457,206 @@ impl Client {
     /// ```
     #[new]
     #[pyo3(signature = (**kwds))]
-    pub fn new(mut kwds: Option<ClientParams>) -> PyResult<Client> {
-        let params = kwds.get_or_insert_default();
-        let mut builder = rquest::Client::builder().no_hickory_dns();
+    pub fn new(py: Python, mut kwds: Option<ClientParams>) -> PyResult<Client> {
+        py.allow_threads(|| {
+            let params = kwds.get_or_insert_default();
+            let mut builder = rquest::Client::builder().no_hickory_dns();
 
-        // Impersonation options.
-        if let Some(impersonate) = params.impersonate.take() {
-            builder = builder.impersonate(
-                rquest::Impersonate::builder()
-                    .impersonate(impersonate.into_ffi())
-                    .impersonate_os(
-                        params
-                            .impersonate_os
-                            .map(ImpersonateOS::into_ffi)
-                            .unwrap_or_default(),
-                    )
-                    .skip_http2(params.impersonate_skip_http2.unwrap_or(false))
-                    .skip_headers(params.impersonate_skip_headers.unwrap_or(false))
-                    .build(),
-            );
-        }
-
-        // Base URL options.
-        apply_option!(apply_if_some, builder, params.base_url, base_url);
-
-        // User agent options.
-        apply_option!(apply_if_some, builder, params.user_agent, user_agent);
-
-        // Default headers options.
-        if let Some(default_headers) = params.default_headers.take() {
-            let len = default_headers.len();
-            let default_headers = default_headers.into_iter().try_fold(
-                HeaderMap::with_capacity(len),
-                |mut headers, (key, value)| {
-                    let name = HeaderName::from_bytes(key.as_bytes())
-                        .map_err(wrap_invali_header_name_error)?;
-                    let value = HeaderValue::from_bytes(value.as_bytes())
-                        .map_err(wrap_invali_header_value_error)?;
-                    headers.insert(name, value);
-                    Ok::<_, PyErr>(headers)
-                },
-            )?;
-
-            builder = builder.default_headers(default_headers);
-        }
-
-        // Headers order options.
-        if let Some(headers_order) = params.headers_order.take() {
-            builder = builder.headers_order(
-                headers_order
-                    .into_iter()
-                    .map(|name| {
-                        HeaderName::from_bytes(name.as_bytes())
-                            .map_err(wrap_invali_header_name_error)
-                    })
-                    .filter_map(Result::ok)
-                    .collect::<Vec<_>>(),
-            );
-        }
-
-        // Referer options.
-        apply_option!(apply_if_some, builder, params.referer, referer);
-
-        // Allow redirects options.
-        apply_option!(
-            apply_option_or_default_with_value,
-            builder,
-            params.allow_redirects,
-            redirect,
-            false,
-            params
-                .max_redirects
-                .take()
-                .map(Policy::limited)
-                .unwrap_or_default()
-        );
-
-        // Cookie store options.
-        apply_option!(apply_if_some, builder, params.cookie_store, cookie_store);
-
-        // Async resolver options.
-        apply_option!(
-            apply_if_ok,
-            builder,
-            || dns::get_or_try_init(params.lookup_ip_strategy),
-            dns_resolver
-        );
-
-        // Timeout options.
-        apply_option!(
-            apply_transformed_option,
-            builder,
-            params.timeout,
-            timeout,
-            Duration::from_secs
-        );
-        apply_option!(
-            apply_transformed_option,
-            builder,
-            params.connect_timeout,
-            connect_timeout,
-            Duration::from_secs
-        );
-        apply_option!(
-            apply_transformed_option,
-            builder,
-            params.read_timeout,
-            read_timeout,
-            Duration::from_secs
-        );
-        apply_option!(
-            apply_option_or_default,
-            builder,
-            params.no_keepalive,
-            no_keepalive,
-            false
-        );
-        apply_option!(
-            apply_transformed_option,
-            builder,
-            params.tcp_keepalive,
-            tcp_keepalive,
-            Duration::from_secs
-        );
-        apply_option!(
-            apply_transformed_option,
-            builder,
-            params.pool_idle_timeout,
-            pool_idle_timeout,
-            Duration::from_secs
-        );
-        apply_option!(
-            apply_if_some,
-            builder,
-            params.pool_max_idle_per_host,
-            pool_max_idle_per_host
-        );
-        apply_option!(apply_if_some, builder, params.pool_max_size, pool_max_size);
-
-        // Protocol options.
-        apply_option!(
-            apply_option_or_default,
-            builder,
-            params.http1_only,
-            http1_only,
-            false
-        );
-        apply_option!(
-            apply_option_or_default,
-            builder,
-            params.http2_only,
-            http2_only,
-            false
-        );
-        apply_option!(apply_if_some, builder, params.https_only, https_only);
-        apply_option!(apply_if_some, builder, params.tcp_nodelay, tcp_nodelay);
-        apply_option!(
-            apply_if_some,
-            builder,
-            params.http2_max_retry_count,
-            http2_max_retry_count
-        );
-        apply_option!(apply_if_some, builder, params.tls_info, tls_info);
-        apply_option!(
-            apply_if_some,
-            builder,
-            params.danger_accept_invalid_certs,
-            danger_accept_invalid_certs
-        );
-
-        // Network options.
-        if let Some(proxies) = params.proxies.take() {
-            for proxy in proxies {
-                builder = builder.proxy(proxy.into());
+            // Impersonation options.
+            if let Some(impersonate) = params.impersonate.take() {
+                builder = builder.impersonate(
+                    rquest::Impersonate::builder()
+                        .impersonate(impersonate.into_ffi())
+                        .impersonate_os(
+                            params
+                                .impersonate_os
+                                .map(ImpersonateOS::into_ffi)
+                                .unwrap_or_default(),
+                        )
+                        .skip_http2(params.impersonate_skip_http2.unwrap_or(false))
+                        .skip_headers(params.impersonate_skip_headers.unwrap_or(false))
+                        .build(),
+                );
             }
-        }
-        apply_option!(
-            apply_option_or_default,
-            builder,
-            params.no_proxy,
-            no_proxy,
-            false
-        );
-        apply_option!(apply_if_some, builder, params.local_address, local_address);
-        rquest::cfg_bindable_device!({
-            apply_option!(apply_if_some, builder, params.interface, interface);
-        });
 
-        // Compression options.
-        apply_option!(apply_if_some, builder, params.gzip, gzip);
-        apply_option!(apply_if_some, builder, params.brotli, brotli);
-        apply_option!(apply_if_some, builder, params.deflate, deflate);
-        apply_option!(apply_if_some, builder, params.zstd, zstd);
+            // Base URL options.
+            apply_option!(apply_if_some, builder, params.base_url, base_url);
 
-        builder
-            .build()
-            .map(ArcSwap::from_pointee)
-            .map(Client)
-            .map_err(wrap_rquest_error)
+            // User agent options.
+            apply_option!(apply_if_some, builder, params.user_agent, user_agent);
+
+            // Default headers options.
+            if let Some(default_headers) = params.default_headers.take() {
+                let len = default_headers.len();
+                let default_headers = default_headers.into_iter().try_fold(
+                    HeaderMap::with_capacity(len),
+                    |mut headers, (key, value)| {
+                        let name = HeaderName::from_bytes(key.as_bytes())
+                            .map_err(wrap_invali_header_name_error)?;
+                        let value = HeaderValue::from_bytes(value.as_bytes())
+                            .map_err(wrap_invali_header_value_error)?;
+                        headers.insert(name, value);
+                        Ok::<_, PyErr>(headers)
+                    },
+                )?;
+
+                builder = builder.default_headers(default_headers);
+            }
+
+            // Headers order options.
+            if let Some(headers_order) = params.headers_order.take() {
+                builder = builder.headers_order(
+                    headers_order
+                        .into_iter()
+                        .map(|name| {
+                            HeaderName::from_bytes(name.as_bytes())
+                                .map_err(wrap_invali_header_name_error)
+                        })
+                        .filter_map(Result::ok)
+                        .collect::<Vec<_>>(),
+                );
+            }
+
+            // Referer options.
+            apply_option!(apply_if_some, builder, params.referer, referer);
+
+            // Allow redirects options.
+            apply_option!(
+                apply_option_or_default_with_value,
+                builder,
+                params.allow_redirects,
+                redirect,
+                false,
+                params
+                    .max_redirects
+                    .take()
+                    .map(Policy::limited)
+                    .unwrap_or_default()
+            );
+
+            // Cookie store options.
+            apply_option!(apply_if_some, builder, params.cookie_store, cookie_store);
+
+            // Async resolver options.
+            apply_option!(
+                apply_if_ok,
+                builder,
+                || dns::get_or_try_init(params.lookup_ip_strategy),
+                dns_resolver
+            );
+
+            // Timeout options.
+            apply_option!(
+                apply_transformed_option,
+                builder,
+                params.timeout,
+                timeout,
+                Duration::from_secs
+            );
+            apply_option!(
+                apply_transformed_option,
+                builder,
+                params.connect_timeout,
+                connect_timeout,
+                Duration::from_secs
+            );
+            apply_option!(
+                apply_transformed_option,
+                builder,
+                params.read_timeout,
+                read_timeout,
+                Duration::from_secs
+            );
+            apply_option!(
+                apply_option_or_default,
+                builder,
+                params.no_keepalive,
+                no_keepalive,
+                false
+            );
+            apply_option!(
+                apply_transformed_option,
+                builder,
+                params.tcp_keepalive,
+                tcp_keepalive,
+                Duration::from_secs
+            );
+            apply_option!(
+                apply_transformed_option,
+                builder,
+                params.pool_idle_timeout,
+                pool_idle_timeout,
+                Duration::from_secs
+            );
+            apply_option!(
+                apply_if_some,
+                builder,
+                params.pool_max_idle_per_host,
+                pool_max_idle_per_host
+            );
+            apply_option!(apply_if_some, builder, params.pool_max_size, pool_max_size);
+
+            // Protocol options.
+            apply_option!(
+                apply_option_or_default,
+                builder,
+                params.http1_only,
+                http1_only,
+                false
+            );
+            apply_option!(
+                apply_option_or_default,
+                builder,
+                params.http2_only,
+                http2_only,
+                false
+            );
+            apply_option!(apply_if_some, builder, params.https_only, https_only);
+            apply_option!(apply_if_some, builder, params.tcp_nodelay, tcp_nodelay);
+            apply_option!(
+                apply_if_some,
+                builder,
+                params.http2_max_retry_count,
+                http2_max_retry_count
+            );
+            apply_option!(apply_if_some, builder, params.tls_info, tls_info);
+            apply_option!(
+                apply_if_some,
+                builder,
+                params.danger_accept_invalid_certs,
+                danger_accept_invalid_certs
+            );
+
+            // Network options.
+            if let Some(proxies) = params.proxies.take() {
+                for proxy in proxies {
+                    builder = builder.proxy(proxy.into());
+                }
+            }
+            apply_option!(
+                apply_option_or_default,
+                builder,
+                params.no_proxy,
+                no_proxy,
+                false
+            );
+            apply_option!(apply_if_some, builder, params.local_address, local_address);
+            rquest::cfg_bindable_device!({
+                apply_option!(apply_if_some, builder, params.interface, interface);
+            });
+
+            // Compression options.
+            apply_option!(apply_if_some, builder, params.gzip, gzip);
+            apply_option!(apply_if_some, builder, params.brotli, brotli);
+            apply_option!(apply_if_some, builder, params.deflate, deflate);
+            apply_option!(apply_if_some, builder, params.zstd, zstd);
+
+            builder
+                .build()
+                .map(ArcSwap::from_pointee)
+                .map(Client)
+                .map_err(wrap_rquest_error)
+        })
     }
 
     /// Returns the user agent of the client.
@@ -673,12 +675,14 @@ impl Client {
     /// print(user_agent)
     /// ```
     #[getter]
-    pub fn user_agent(&self) -> Option<String> {
-        self.0
-            .load()
-            .user_agent()
-            .and_then(|hv| hv.to_str().ok())
-            .map(ToString::to_string)
+    pub fn user_agent(&self, py: Python) -> Option<String> {
+        py.allow_threads(|| {
+            self.0
+                .load()
+                .user_agent()
+                .and_then(|hv| hv.to_str().ok())
+                .map(ToString::to_string)
+        })
     }
 
     /// Returns the headers of the client.
@@ -697,10 +701,12 @@ impl Client {
     /// print(headers)
     /// ```
     #[getter]
-    pub fn headers(&self) -> crate::HeaderMap {
-        let binding = self.0.load();
-        let headers = binding.headers();
-        crate::HeaderMap::from(headers.clone())
+    pub fn headers(&self, py: Python) -> crate::HeaderMap {
+        py.allow_threads(|| {
+            let binding = self.0.load();
+            let headers = binding.headers();
+            crate::HeaderMap::from(headers.clone())
+        })
     }
 
     /// Returns the cookies for the given URL.
@@ -723,18 +729,20 @@ impl Client {
     /// print(cookies)
     /// ```
     #[pyo3(signature = (url))]
-    pub fn get_cookies(&self, url: &str) -> PyResult<Vec<String>> {
-        let url = Url::parse(url).map_err(wrap_url_parse_error)?;
-        let cookies = self
-            .0
-            .load()
-            .get_cookies(&url)
-            .iter()
-            .filter_map(|hv| hv.to_str().ok())
-            .map(ToString::to_string)
-            .collect::<Vec<String>>();
+    pub fn get_cookies(&self, py: Python, url: &str) -> PyResult<Vec<String>> {
+        py.allow_threads(|| {
+            let url = Url::parse(url).map_err(wrap_url_parse_error)?;
+            let cookies = self
+                .0
+                .load()
+                .get_cookies(&url)
+                .iter()
+                .filter_map(|hv| hv.to_str().ok())
+                .map(ToString::to_string)
+                .collect::<Vec<String>>();
 
-        Ok(cookies)
+            Ok(cookies)
+        })
     }
 
     /// Sets cookies for the given URL.
@@ -757,18 +765,21 @@ impl Client {
     /// client.set_cookies("https://example.com", ["cookie1=value1", "cookie2=value2"])
     /// ```
     #[pyo3(signature = (url, value))]
-    pub fn set_cookies(&self, url: &str, value: Vec<String>) -> PyResult<()> {
-        let url = Url::parse(url).map_err(wrap_url_parse_error)?;
-        let value = value
-            .into_iter()
-            .map(|value| {
-                HeaderValue::from_bytes(value.as_bytes()).map_err(wrap_invali_header_value_error)
-            })
-            .flat_map(Result::ok)
-            .collect::<Vec<HeaderValue>>();
+    pub fn set_cookies(&self, py: Python, url: &str, value: Vec<String>) -> PyResult<()> {
+        py.allow_threads(|| {
+            let url = Url::parse(url).map_err(wrap_url_parse_error)?;
+            let value = value
+                .into_iter()
+                .map(|value| {
+                    HeaderValue::from_bytes(value.as_bytes())
+                        .map_err(wrap_invali_header_value_error)
+                })
+                .flat_map(Result::ok)
+                .collect::<Vec<HeaderValue>>();
 
-        self.0.load().set_cookies(&url, value);
-        Ok(())
+            self.0.load().set_cookies(&url, value);
+            Ok(())
+        })
     }
 
     /// Updates the client with the given parameters.
@@ -789,77 +800,79 @@ impl Client {
     /// )
     /// ```
     #[pyo3(signature = (**kwds))]
-    pub fn update(&self, mut kwds: Option<UpdateClientParams>) {
-        let params = kwds.get_or_insert_default();
-        let mut this = self.0.load_full();
-        let mut client_mut = Arc::make_mut(&mut this).as_mut();
+    pub fn update(&self, py: Python, mut kwds: Option<UpdateClientParams>) {
+        py.allow_threads(|| {
+            let params = kwds.get_or_insert_default();
+            let mut this = self.0.load_full();
+            let mut client_mut = Arc::make_mut(&mut this).as_mut();
 
-        // Impersonation options.
-        if let Some(impersonate) = params.impersonate.take() {
-            client_mut.impersonate(
-                rquest::Impersonate::builder()
-                    .impersonate(impersonate.into_ffi())
-                    .impersonate_os(
-                        params
-                            .impersonate_os
-                            .map(ImpersonateOS::into_ffi)
-                            .unwrap_or_default(),
-                    )
-                    .skip_http2(params.impersonate_skip_http2.unwrap_or(false))
-                    .skip_headers(params.impersonate_skip_headers.unwrap_or(false))
-                    .build(),
-            );
-        }
+            // Impersonation options.
+            if let Some(impersonate) = params.impersonate.take() {
+                client_mut.impersonate(
+                    rquest::Impersonate::builder()
+                        .impersonate(impersonate.into_ffi())
+                        .impersonate_os(
+                            params
+                                .impersonate_os
+                                .map(ImpersonateOS::into_ffi)
+                                .unwrap_or_default(),
+                        )
+                        .skip_http2(params.impersonate_skip_http2.unwrap_or(false))
+                        .skip_headers(params.impersonate_skip_headers.unwrap_or(false))
+                        .build(),
+                );
+            }
 
-        // Default headers options.
-        params.headers.take().map(|default_headers| {
-            let len = default_headers.len();
-            let _ = default_headers
-                .into_iter()
-                .try_fold(
-                    HeaderMap::with_capacity(len),
-                    |mut headers, (key, value)| {
-                        let name = HeaderName::from_bytes(key.as_bytes())
-                            .map_err(wrap_invali_header_name_error)?;
-                        let value = HeaderValue::from_bytes(value.as_bytes())
-                            .map_err(wrap_invali_header_value_error)?;
-                        headers.insert(name, value);
-                        Ok::<_, PyErr>(headers)
-                    },
-                )
-                .map(|mut headers| std::mem::swap(client_mut.headers(), &mut headers));
-        });
-
-        // Headers order options.
-        params.headers_order.take().map(|value| {
-            client_mut.headers_order(
-                value
+            // Default headers options.
+            params.headers.take().map(|default_headers| {
+                let len = default_headers.len();
+                let _ = default_headers
                     .into_iter()
-                    .map(|name| {
-                        HeaderName::from_bytes(name.as_bytes())
-                            .map_err(wrap_invali_header_name_error)
-                    })
-                    .filter_map(Result::ok)
-                    .collect::<Vec<_>>(),
-            );
-        });
+                    .try_fold(
+                        HeaderMap::with_capacity(len),
+                        |mut headers, (key, value)| {
+                            let name = HeaderName::from_bytes(key.as_bytes())
+                                .map_err(wrap_invali_header_name_error)?;
+                            let value = HeaderValue::from_bytes(value.as_bytes())
+                                .map_err(wrap_invali_header_value_error)?;
+                            headers.insert(name, value);
+                            Ok::<_, PyErr>(headers)
+                        },
+                    )
+                    .map(|mut headers| std::mem::swap(client_mut.headers(), &mut headers));
+            });
 
-        // Network options.
-        params.proxies.take().map(|proxies| {
-            client_mut.proxies(proxies.into_iter().map(Into::into).collect::<Vec<_>>());
-        });
-        params
-            .local_address
-            .take()
-            .map(|value| client_mut.local_address(value));
-        rquest::cfg_bindable_device!({
+            // Headers order options.
+            params.headers_order.take().map(|value| {
+                client_mut.headers_order(
+                    value
+                        .into_iter()
+                        .map(|name| {
+                            HeaderName::from_bytes(name.as_bytes())
+                                .map_err(wrap_invali_header_name_error)
+                        })
+                        .filter_map(Result::ok)
+                        .collect::<Vec<_>>(),
+                );
+            });
+
+            // Network options.
+            params.proxies.take().map(|proxies| {
+                client_mut.proxies(proxies.into_iter().map(Into::into).collect::<Vec<_>>());
+            });
             params
-                .interface
+                .local_address
                 .take()
-                .map(|value| client_mut.interface(value));
-        });
+                .map(|value| client_mut.local_address(value));
+            rquest::cfg_bindable_device!({
+                params
+                    .interface
+                    .take()
+                    .map(|value| client_mut.interface(value));
+            });
 
-        // Apply the changes.
-        self.0.store(this);
+            // Apply the changes.
+            self.0.store(this);
+        })
     }
 }
