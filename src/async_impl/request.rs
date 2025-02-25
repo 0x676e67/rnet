@@ -113,23 +113,8 @@ where
     builder
         .send()
         .await
-        .map(Response::from)
+        .map(Response::new)
         .map_err(wrap_rquest_error)
-}
-
-/// Executes an HTTP request.
-pub async fn execute_request2<C, U>(
-    client: C,
-    method: Method,
-    url: U,
-    params: Option<RequestParams>,
-) -> Result<Response>
-where
-    C: Deref<Target = Arc<rquest::Client>>,
-    U: AsRef<str>,
-{
-    let client = client.deref().deref();
-    execute_request(client, method, url, params).await
 }
 
 /// Executes a WebSocket request.
@@ -216,7 +201,24 @@ where
     WebSocket::new(builder).await
 }
 
+/// Executes an HTTP request.
+#[inline(always)]
+pub async fn execute_request2<C, U>(
+    client: C,
+    method: Method,
+    url: U,
+    params: Option<RequestParams>,
+) -> Result<Response>
+where
+    C: Deref<Target = Arc<rquest::Client>>,
+    U: AsRef<str>,
+{
+    let client = client.deref().deref();
+    execute_request(client, method, url, params).await
+}
+
 /// Executes a WebSocket request.
+#[inline(always)]
 pub async fn execute_websocket_request2<C, U>(
     client: C,
     url: U,

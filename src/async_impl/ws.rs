@@ -25,8 +25,8 @@ pub struct WebSocket {
     remote_addr: Option<SocketAddr>,
     headers: HeaderMap,
     protocol: Option<String>,
-    pub(crate) sender: Sender,
-    pub(crate) receiver: Receiver,
+    sender: Sender,
+    receiver: Receiver,
 }
 
 impl WebSocket {
@@ -50,6 +50,20 @@ impl WebSocket {
             sender: Arc::new(Mutex::new(Some(sender))),
             receiver: Arc::new(Mutex::new(Some(receiver))),
         })
+    }
+}
+
+impl WebSocket {
+    /// Returns the sender of the WebSocket.
+    #[inline(always)]
+    pub fn sender(&self) -> Sender {
+        self.sender.clone()
+    }
+
+    /// Returns the receiver of the WebSocket.
+    #[inline(always)]
+    pub fn receiver(&self) -> Receiver {
+        self.receiver.clone()
     }
 }
 

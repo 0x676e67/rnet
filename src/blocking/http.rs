@@ -3,7 +3,7 @@ use crate::{
     error::{py_stop_iteration_error, wrap_rquest_error, wrap_serde_error},
     types::{HeaderMap, Json, SocketAddr, StatusCode, Version},
 };
-use futures_util::{Stream, StreamExt};
+use futures_util::StreamExt;
 use indexmap::IndexMap;
 use pyo3::{prelude::*, IntoPyObjectExt};
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
@@ -121,8 +121,9 @@ impl BlockingResponse {
     ///
     /// A string representing the encoding to decode with when accessing text.
     #[getter]
-    pub fn encoding(&self) -> String {
-        self.inner.encoding()
+    #[inline(always)]
+    pub fn encoding(&self, py: Python) -> String {
+        self.inner.encoding(py)
     }
 
     /// Returns the TLS peer certificate of the response.
@@ -130,8 +131,9 @@ impl BlockingResponse {
     /// # Returns
     ///
     /// A Python object representing the TLS peer certificate of the response.
-    pub fn peer_certificate(&self) -> PyResult<Option<Vec<u8>>> {
-        self.inner.peer_certificate()
+    #[inline(always)]
+    pub fn peer_certificate(&self, py: Python) -> PyResult<Option<Vec<u8>>> {
+        self.inner.peer_certificate(py)
     }
 
     /// Returns the text content of the response.
@@ -141,7 +143,7 @@ impl BlockingResponse {
     /// A Python object representing the text content of the response.
     pub fn text(&self, py: Python) -> PyResult<String> {
         py.allow_threads(|| {
-            let resp = self.into_inner()?;
+            let resp = self.inner.inner()?;
             pyo3_async_runtimes::tokio::get_runtime()
                 .block_on(resp.text())
                 .map_err(wrap_rquest_error)
@@ -159,7 +161,7 @@ impl BlockingResponse {
     /// A Python object representing the text content of the response.
     pub fn text_with_charset(&self, py: Python, encoding: String) -> PyResult<String> {
         py.allow_threads(|| {
-            let resp = self.into_inner()?;
+            let resp = self.inner.inner()?;
             pyo3_async_runtimes::tokio::get_runtime()
                 .block_on(resp.text_with_charset(&encoding))
                 .map_err(wrap_rquest_error)
@@ -173,7 +175,7 @@ impl BlockingResponse {
     /// A Python object representing the JSON content of the response.
     pub fn json(&self, py: Python) -> PyResult<Json> {
         py.allow_threads(|| {
-            let resp = self.into_inner()?;
+            let resp = self.inner.inner()?;
             pyo3_async_runtimes::tokio::get_runtime()
                 .block_on(resp.json::<Json>())
                 .map_err(wrap_rquest_error)
@@ -187,7 +189,7 @@ impl BlockingResponse {
     /// A Python object representing the JSON content of the response.
     pub fn json_str(&self, py: Python) -> PyResult<String> {
         py.allow_threads(|| {
-            let resp = self.into_inner()?;
+            let resp = self.inner.inner()?;
             let vlaue = pyo3_async_runtimes::tokio::get_runtime()
                 .block_on(resp.json::<Value>())
                 .map_err(wrap_rquest_error)?;
@@ -202,7 +204,7 @@ impl BlockingResponse {
     /// A Python object representing the JSON content of the response.
     pub fn json_str_pretty(&self, py: Python) -> PyResult<String> {
         py.allow_threads(|| {
-            let resp = self.into_inner()?;
+            let resp = self.inner.inner()?;
             pyo3_async_runtimes::tokio::get_runtime().block_on(async move {
                 let json = resp.json::<Value>().await.map_err(wrap_rquest_error)?;
                 serde_json::to_string_pretty(&json).map_err(wrap_serde_error)
@@ -217,7 +219,7 @@ impl BlockingResponse {
     /// A Python object representing the bytes content of the response.
     pub fn bytes(&self, py: Python) -> PyResult<PyObject> {
         py.allow_threads(|| {
-            let resp = self.into_inner()?;
+            let resp = self.inner.inner()?;
             let bytes = pyo3_async_runtimes::tokio::get_runtime()
                 .block_on(resp.bytes())
                 .map_err(wrap_rquest_error)?;
@@ -230,15 +232,15 @@ impl BlockingResponse {
     /// # Returns
     ///
     /// A Python object representing the stream content of the response.
-    pub fn stream(&self) -> PyResult<BlockingStreamer> {
-        self.into_inner()
-            .map(rquest::Response::bytes_stream)
-            .map(BlockingStreamer::new)
+    #[inline(always)]
+    pub fn stream(&self, py: Python) -> PyResult<BlockingStreamer> {
+        self.inner.stream(py).map(BlockingStreamer)
     }
 
     /// Closes the response connection.
-    pub fn close(&self) {
-        let _ = self.into_inner().map(drop);
+    #[inline(always)]
+    pub fn close(&self, py: Python) {
+        self.inner.close(py);
     }
 }
 
@@ -250,26 +252,8 @@ impl BlockingResponse {
     ///
     /// A Python dictionary representing the cookies of the response.
     #[getter]
-    pub fn cookies(&self) -> IndexMap<String, String> {
-        self.inner.cookies()
-    }
-}
-
-impl BlockingResponse {
-    /// Consumes the `Response` and returns the inner `rquest::Response`.
-    ///
-    /// # Returns
-    ///
-    /// A `PyResult` containing the inner `rquest::Response` if successful, or an error if the
-    /// response has already been taken or cannot be unwrapped.
-    ///
-    /// # Errors
-    ///
-    /// Returns a memory error if the response has already been taken or if the `Arc` cannot be unwrapped.
-    #[inline(always)]
-    #[allow(clippy::wrong_self_convention)]
-    fn into_inner(&self) -> PyResult<rquest::Response> {
-        self.inner.into_inner()
+    pub fn cookies(&self, py: Python) -> IndexMap<String, String> {
+        self.inner.cookies(py)
     }
 }
 
@@ -282,23 +266,6 @@ impl BlockingResponse {
 #[pyclass]
 pub struct BlockingStreamer(async_impl::Streamer);
 
-impl BlockingStreamer {
-    /// Create a new `Streamer` instance.
-    ///
-    /// # Arguments
-    ///
-    /// * `stream` - A stream of bytes.
-    ///
-    /// # Returns
-    ///
-    /// A new `Streamer` instance.
-    fn new(
-        stream: impl Stream<Item = Result<bytes::Bytes, rquest::Error>> + Send + 'static,
-    ) -> BlockingStreamer {
-        BlockingStreamer(async_impl::Streamer::new(stream))
-    }
-}
-
 #[gen_stub_pymethods]
 #[pymethods]
 impl BlockingStreamer {
@@ -310,11 +277,11 @@ impl BlockingStreamer {
     fn __next__(&self) -> PyResult<Option<PyObject>> {
         // Here we clone the inner field, so we can use it
         // in our future.
-        let streamer = self.0.clone();
+        let streamer = self.0.inner();
         pyo3_async_runtimes::tokio::get_runtime().block_on(async move {
             // Here we lock the mutex to access the data inside
             // and call next() method to get the next value.
-            let mut lock = streamer.0.lock().await;
+            let mut lock = streamer.lock().await;
             let val = lock
                 .as_mut()
                 .ok_or_else(py_stop_iteration_error)?
@@ -348,9 +315,9 @@ impl BlockingStreamer {
         _exc_value: &Bound<'a, PyAny>,
         _traceback: &Bound<'a, PyAny>,
     ) -> PyResult<()> {
-        let streamer = self.0.clone();
+        let streamer = self.0.inner();
         pyo3_async_runtimes::tokio::get_runtime().block_on(async move {
-            let mut lock = streamer.0.lock().await;
+            let mut lock = streamer.lock().await;
             Ok(drop(lock.take()))
         })
     }

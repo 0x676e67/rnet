@@ -308,11 +308,11 @@ class BlockingResponse:
 
 class BlockingStreamer:
     r"""
-    A bloking bytes streaming response.
-    This is an asynchronous iterator that yields chunks of data from the response stream.
-    This is used to stream the response content.
-    This is used in the `stream` method of the `Response` class.
-    This is used in an asynchronous for loop in Python.
+    A blocking byte stream response.
+    An asynchronous iterator yielding data chunks from the response stream.
+    Used for streaming response content.
+    Employed in the `stream` method of the `Response` class.
+    Utilized in an asynchronous for loop in Python.
     """
     def __iter__(self) -> BlockingStreamer:
         ...
@@ -1335,11 +1335,11 @@ class StatusCode:
 
 class Streamer:
     r"""
-    A bytes streaming response.
-    This is an asynchronous iterator that yields chunks of data from the response stream.
-    This is used to stream the response content.
-    This is used in the `stream` method of the `Response` class.
-    This is used in an asynchronous for loop in Python.
+    A byte stream response.
+    An asynchronous iterator yielding data chunks from the response stream.
+    Used to stream response content.
+    Implemented in the `stream` method of the `Response` class.
+    Can be used in an asynchronous for loop in Python.
     
     # Examples
     

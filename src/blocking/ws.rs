@@ -94,7 +94,7 @@ impl BlockingWebSocket {
     /// A `PyResult` containing a `Bound` object with the received message, or `None` if no message is received.
     pub fn recv(&self, py: Python) -> PyResult<Option<Message>> {
         py.allow_threads(|| {
-            let websocket = self.inner.receiver.clone();
+            let websocket = self.inner.receiver();
             pyo3_async_runtimes::tokio::get_runtime().block_on(async move {
                 let mut lock = websocket.lock().await;
                 if let Some(recv) = lock.as_mut() {
@@ -119,7 +119,7 @@ impl BlockingWebSocket {
     #[pyo3(signature = (message))]
     pub fn send(&self, py: Python, message: Message) -> PyResult<()> {
         py.allow_threads(|| {
-            let sender = self.inner.sender.clone();
+            let sender = self.inner.sender();
             pyo3_async_runtimes::tokio::get_runtime().block_on(async move {
                 let mut lock = sender.lock().await;
                 if let Some(send) = lock.as_mut() {
@@ -143,8 +143,8 @@ impl BlockingWebSocket {
     #[pyo3(signature = (code=None, reason=None))]
     pub fn close(&self, py: Python, code: Option<u16>, reason: Option<String>) -> PyResult<()> {
         py.allow_threads(|| {
-            let sender = self.inner.sender.clone();
-            let receiver = self.inner.receiver.clone();
+            let sender = self.inner.sender();
+            let receiver = self.inner.receiver();
             pyo3_async_runtimes::tokio::get_runtime().block_on(async move {
                 let mut lock = receiver.lock().await;
                 drop(lock.take());
@@ -182,7 +182,7 @@ impl BlockingWebSocket {
 
     fn __next__(&self, py: Python) -> PyResult<Option<Message>> {
         py.allow_threads(|| {
-            let recv = self.inner.receiver.clone();
+            let recv = self.inner.receiver();
             pyo3_async_runtimes::tokio::get_runtime().block_on(async move {
                 let mut lock = recv.lock().await;
                 let recv = lock

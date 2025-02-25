@@ -50,8 +50,9 @@ pub struct Response {
     response: ArcSwapOption<rquest::Response>,
 }
 
-impl From<rquest::Response> for Response {
-    fn from(mut response: rquest::Response) -> Self {
+impl Response {
+    /// Create a new `Response` instance.
+    pub fn new(mut response: rquest::Response) -> Self {
         Response {
             url: response.url().clone(),
             version: Version::from_ffi(response.version()),
@@ -61,6 +62,15 @@ impl From<rquest::Response> for Response {
             headers: HeaderMap::from(std::mem::take(response.headers_mut())),
             response: ArcSwapOption::from_pointee(response),
         }
+    }
+
+    /// Consumes the `Response` and returns the inner `rquest::Response`.
+    #[inline(always)]
+    pub fn inner(&self) -> PyResult<rquest::Response> {
+        self.response
+            .swap(None)
+            .and_then(Arc::into_inner)
+            .ok_or_else(memory_error)
     }
 }
 
@@ -161,16 +171,18 @@ impl Response {
     ///
     /// A string representing the encoding to decode with when accessing text.
     #[getter]
-    pub fn encoding(&self) -> String {
-        self.headers
-            .get(header::CONTENT_TYPE)
-            .and_then(|value| value.to_str().ok())
-            .and_then(|value| value.parse::<Mime>().ok())
-            .and_then(|mime| {
-                mime.get_param("charset")
-                    .map(|charset| charset.as_str().to_owned())
-            })
-            .unwrap_or_else(|| "utf-8".to_owned())
+    pub fn encoding(&self, py: Python) -> String {
+        py.allow_threads(|| {
+            self.headers
+                .get(header::CONTENT_TYPE)
+                .and_then(|value| value.to_str().ok())
+                .and_then(|value| value.parse::<Mime>().ok())
+                .and_then(|mime| {
+                    mime.get_param("charset")
+                        .map(|charset| charset.as_str().to_owned())
+                })
+                .unwrap_or_else(|| "utf-8".to_owned())
+        })
     }
 
     /// Returns the TLS peer certificate of the response.
@@ -178,14 +190,16 @@ impl Response {
     /// # Returns
     ///
     /// A Python object representing the TLS peer certificate of the response.
-    pub fn peer_certificate(&self) -> PyResult<Option<Vec<u8>>> {
-        let resp_ref = self.response.load();
-        let resp = resp_ref.as_ref().ok_or_else(memory_error)?;
-        if let Some(val) = resp.extensions().get::<TlsInfo>() {
-            return Ok(val.peer_certificate().map(ToOwned::to_owned));
-        }
+    pub fn peer_certificate(&self, py: Python) -> PyResult<Option<Vec<u8>>> {
+        py.allow_threads(|| {
+            let resp_ref = self.response.load();
+            let resp = resp_ref.as_ref().ok_or_else(memory_error)?;
+            if let Some(val) = resp.extensions().get::<TlsInfo>() {
+                return Ok(val.peer_certificate().map(ToOwned::to_owned));
+            }
 
-        Ok(None)
+            Ok(None)
+        })
     }
 
     /// Returns the text content of the response.
@@ -194,7 +208,7 @@ impl Response {
     ///
     /// A Python object representing the text content of the response.
     pub fn text<'rt>(&self, py: Python<'rt>) -> PyResult<Bound<'rt, PyAny>> {
-        let resp = self.into_inner()?;
+        let resp = self.inner()?;
         future_into_py(
             py,
             async move { resp.text().await.map_err(wrap_rquest_error) },
@@ -215,7 +229,7 @@ impl Response {
         py: Python<'rt>,
         encoding: String,
     ) -> PyResult<Bound<'rt, PyAny>> {
-        let resp = self.into_inner()?;
+        let resp = self.inner()?;
         future_into_py(py, async move {
             resp.text_with_charset(&encoding)
                 .await
@@ -229,7 +243,7 @@ impl Response {
     ///
     /// A Python object representing the JSON content of the response.
     pub fn json<'rt>(&self, py: Python<'rt>) -> PyResult<Bound<'rt, PyAny>> {
-        let resp = self.into_inner()?;
+        let resp = self.inner()?;
         future_into_py(py, async move {
             resp.json::<Json>().await.map_err(wrap_rquest_error)
         })
@@ -241,7 +255,7 @@ impl Response {
     ///
     /// A Python object representing the JSON content of the response.
     pub fn json_str<'rt>(&self, py: Python<'rt>) -> PyResult<Bound<'rt, PyAny>> {
-        let resp = self.into_inner()?;
+        let resp = self.inner()?;
         future_into_py(py, async move {
             let json = resp.json::<Value>().await.map_err(wrap_rquest_error)?;
             serde_json::to_string(&json).map_err(wrap_serde_error)
@@ -254,7 +268,7 @@ impl Response {
     ///
     /// A Python object representing the JSON content of the response.
     pub fn json_str_pretty<'rt>(&self, py: Python<'rt>) -> PyResult<Bound<'rt, PyAny>> {
-        let resp = self.into_inner()?;
+        let resp = self.inner()?;
         future_into_py(py, async move {
             let json = resp.json::<Value>().await.map_err(wrap_rquest_error)?;
             serde_json::to_string_pretty(&json).map_err(wrap_serde_error)
@@ -267,7 +281,7 @@ impl Response {
     ///
     /// A Python object representing the bytes content of the response.
     pub fn bytes<'rt>(&self, py: Python<'rt>) -> PyResult<Bound<'rt, PyAny>> {
-        let resp = self.into_inner()?;
+        let resp = self.inner()?;
         future_into_py(py, async move {
             let bytes = resp.bytes().await.map_err(wrap_rquest_error)?;
             Python::with_gil(|py| bytes.into_bound_py_any(py).map(|obj| obj.unbind()))
@@ -279,15 +293,19 @@ impl Response {
     /// # Returns
     ///
     /// A Python object representing the stream content of the response.
-    pub fn stream(&self) -> PyResult<Streamer> {
-        self.into_inner()
-            .map(rquest::Response::bytes_stream)
-            .map(Streamer::new)
+    pub fn stream(&self, py: Python) -> PyResult<Streamer> {
+        py.allow_threads(|| {
+            self.inner()
+                .map(rquest::Response::bytes_stream)
+                .map(Streamer::new)
+        })
     }
 
     /// Closes the response connection.
-    pub fn close(&self) {
-        let _ = self.into_inner().map(drop);
+    pub fn close(&self, py: Python) {
+        py.allow_threads(|| {
+            let _ = self.inner().map(drop);
+        })
     }
 }
 
@@ -299,39 +317,20 @@ impl Response {
     ///
     /// A Python dictionary representing the cookies of the response.
     #[getter]
-    pub fn cookies(&self) -> IndexMap<String, String> {
-        self.headers
-            .get_all(header::SET_COOKIE)
-            .iter()
-            .map(|value| {
-                std::str::from_utf8(value.as_bytes())
-                    .map_err(cookie::ParseError::from)
-                    .and_then(cookie::Cookie::parse)
-            })
-            .filter_map(Result::ok)
-            .map(|cookie| (cookie.name().to_owned(), cookie.value().to_owned()))
-            .collect()
-    }
-}
-
-impl Response {
-    /// Consumes the `Response` and returns the inner `rquest::Response`.
-    ///
-    /// # Returns
-    ///
-    /// A `PyResult` containing the inner `rquest::Response` if successful, or an error if the
-    /// response has already been taken or cannot be unwrapped.
-    ///
-    /// # Errors
-    ///
-    /// Returns a memory error if the response has already been taken or if the `Arc` cannot be unwrapped.
-    #[inline(always)]
-    #[allow(clippy::wrong_self_convention)]
-    pub(crate) fn into_inner(&self) -> PyResult<rquest::Response> {
-        self.response
-            .swap(None)
-            .and_then(Arc::into_inner)
-            .ok_or_else(memory_error)
+    pub fn cookies(&self, py: Python) -> IndexMap<String, String> {
+        py.allow_threads(|| {
+            self.headers
+                .get_all(header::SET_COOKIE)
+                .iter()
+                .map(|value| {
+                    std::str::from_utf8(value.as_bytes())
+                        .map_err(cookie::ParseError::from)
+                        .and_then(cookie::Cookie::parse)
+                })
+                .filter_map(Result::ok)
+                .map(|cookie| (cookie.name().to_owned(), cookie.value().to_owned()))
+                .collect()
+        })
     }
 }
 
@@ -370,7 +369,7 @@ impl Response {
 #[pyclass]
 #[derive(Clone)]
 pub struct Streamer(
-    pub(crate)  Arc<
+    Arc<
         Mutex<
             Option<
                 Pin<Box<dyn Stream<Item = Result<bytes::Bytes, rquest::Error>> + Send + 'static>>,
@@ -381,18 +380,25 @@ pub struct Streamer(
 
 impl Streamer {
     /// Create a new `Streamer` instance.
-    ///
-    /// # Arguments
-    ///
-    /// * `stream` - A stream of bytes.
-    ///
-    /// # Returns
-    ///
-    /// A new `Streamer` instance.
-    pub(crate) fn new(
+    #[inline(always)]
+    pub fn new(
         stream: impl Stream<Item = Result<bytes::Bytes, rquest::Error>> + Send + 'static,
     ) -> Streamer {
         Streamer(Arc::new(Mutex::new(Some(Box::pin(stream)))))
+    }
+
+    /// Returns the inner field of the `Streamer`.
+    #[inline(always)]
+    pub fn inner(
+        &self,
+    ) -> Arc<
+        Mutex<
+            Option<
+                Pin<Box<dyn Stream<Item = Result<bytes::Bytes, rquest::Error>> + Send + 'static>>,
+            >,
+        >,
+    > {
+        self.0.clone()
     }
 }
 
