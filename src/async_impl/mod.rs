@@ -1,7 +1,11 @@
+mod http;
 mod request;
-mod response;
+mod ws;
 
-pub use self::response::{
+pub use self::request::{
+    execute_request, execute_request2, execute_websocket_request, execute_websocket_request2,
+};
+pub use self::{
     http::{Response, Streamer},
     ws::{Message, WebSocket},
 };
@@ -19,7 +23,6 @@ use arc_swap::ArcSwap;
 use pyo3::prelude::*;
 use pyo3_async_runtimes::tokio::future_into_py;
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
-use request::{execute_request, execute_websocket_request};
 use rquest::{
     header::{HeaderMap, HeaderName, HeaderValue},
     redirect::Policy,
@@ -30,54 +33,48 @@ use std::{
     time::Duration,
 };
 
+static DEFAULT_CLIENT: LazyLock<rquest::Client> = LazyLock::new(|| {
+    let mut builder = rquest::Client::builder();
+    apply_option!(
+        apply_if_ok,
+        builder,
+        || dns::get_or_try_init(LookupIpStrategy::Ipv4AndIpv6),
+        dns_resolver
+    );
+    builder
+        .no_hickory_dns()
+        .no_keepalive()
+        .build()
+        .expect("Failed to build the default client.")
+});
+
+/// Send a shortcut HTTP request.
+pub async fn shortcut_request<U>(
+    url: U,
+    method: Method,
+    params: Option<RequestParams>,
+) -> Result<Response>
+where
+    U: AsRef<str>,
+{
+    execute_request(&*DEFAULT_CLIENT, method, url.as_ref().to_string(), params).await
+}
+
+/// Send a shortcut WebSocket request.
+pub async fn shortcut_websocket_request<U>(
+    url: U,
+    params: Option<WebSocketParams>,
+) -> Result<WebSocket>
+where
+    U: AsRef<str>,
+{
+    execute_websocket_request(&*DEFAULT_CLIENT, url.as_ref().to_string(), params).await
+}
+
 /// A client for making HTTP requests.
 #[gen_stub_pyclass]
 #[pyclass]
-pub struct Client(ArcSwap<rquest::Client>);
-
-impl Client {
-    /// Creates a new default `Client` instance.
-    ///
-    /// This method initializes a `Client` with default settings, including disabling
-    /// Hickory DNS and keepalive.
-    ///
-    /// # Panics
-    ///
-    /// This method will panic if the Client cannot be created.
-    ///
-    /// # Note
-    ///
-    /// This client does not maintain a session, meaning it does not share cookies,
-    /// headers, or other parameters between requests.
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// use rnet::Client;
-    ///
-    /// let client = Client::default();
-    /// ```
-    pub fn default() -> &'static Self {
-        static CLIENT: LazyLock<Client> = LazyLock::new(|| {
-            let mut builder = rquest::Client::builder();
-            apply_option!(
-                apply_if_ok,
-                builder,
-                || dns::get_or_try_init(LookupIpStrategy::Ipv4AndIpv6),
-                dns_resolver
-            );
-            builder
-                .no_hickory_dns()
-                .no_keepalive()
-                .build()
-                .map(ArcSwap::from_pointee)
-                .map(Client)
-                .expect("Failed to build the default client.")
-        });
-
-        &*CLIENT
-    }
-}
+pub struct Client(pub(crate) ArcSwap<rquest::Client>);
 
 #[gen_stub_pymethods]
 #[pymethods]
@@ -113,8 +110,7 @@ impl Client {
         url: String,
         kwds: Option<RequestParams>,
     ) -> PyResult<Bound<'rt, PyAny>> {
-        let client = self.0.load();
-        future_into_py(py, execute_request(client, Method::GET, url, kwds))
+        self.request(py, Method::GET, url, kwds)
     }
 
     /// Sends a POST request.
@@ -148,8 +144,7 @@ impl Client {
         url: String,
         kwds: Option<RequestParams>,
     ) -> PyResult<Bound<'rt, PyAny>> {
-        let client = self.0.load();
-        future_into_py(py, execute_request(client, Method::POST, url, kwds))
+        self.request(py, Method::POST, url, kwds)
     }
 
     /// Sends a PUT request.
@@ -183,8 +178,7 @@ impl Client {
         url: String,
         kwds: Option<RequestParams>,
     ) -> PyResult<Bound<'rt, PyAny>> {
-        let client = self.0.load();
-        future_into_py(py, execute_request(client, Method::PUT, url, kwds))
+        self.request(py, Method::PUT, url, kwds)
     }
 
     /// Sends a PATCH request.
@@ -218,8 +212,7 @@ impl Client {
         url: String,
         kwds: Option<RequestParams>,
     ) -> PyResult<Bound<'rt, PyAny>> {
-        let client = self.0.load();
-        future_into_py(py, execute_request(client, Method::PATCH, url, kwds))
+        self.request(py, Method::PATCH, url, kwds)
     }
 
     /// Sends a DELETE request.
@@ -253,8 +246,7 @@ impl Client {
         url: String,
         kwds: Option<RequestParams>,
     ) -> PyResult<Bound<'rt, PyAny>> {
-        let client = self.0.load();
-        future_into_py(py, execute_request(client, Method::DELETE, url, kwds))
+        self.request(py, Method::DELETE, url, kwds)
     }
 
     /// Sends a HEAD request.
@@ -288,8 +280,7 @@ impl Client {
         url: String,
         kwds: Option<RequestParams>,
     ) -> PyResult<Bound<'rt, PyAny>> {
-        let client = self.0.load();
-        future_into_py(py, execute_request(client, Method::HEAD, url, kwds))
+        self.request(py, Method::HEAD, url, kwds)
     }
 
     /// Sends an OPTIONS request.
@@ -323,8 +314,7 @@ impl Client {
         url: String,
         kwds: Option<RequestParams>,
     ) -> PyResult<Bound<'rt, PyAny>> {
-        let client = self.0.load();
-        future_into_py(py, execute_request(client, Method::OPTIONS, url, kwds))
+        self.request(py, Method::OPTIONS, url, kwds)
     }
 
     /// Sends a TRACE request.
@@ -358,8 +348,7 @@ impl Client {
         url: String,
         kwds: Option<RequestParams>,
     ) -> PyResult<Bound<'rt, PyAny>> {
-        let client = self.0.load();
-        future_into_py(py, execute_request(client, Method::TRACE, url, kwds))
+        self.request(py, Method::TRACE, url, kwds)
     }
 
     /// Sends a request with the given method and URL.
@@ -389,6 +378,7 @@ impl Client {
     /// asyncio.run(main())
     /// ```
     #[pyo3(signature = (method, url, **kwds))]
+    #[inline(always)]
     pub fn request<'rt>(
         &self,
         py: Python<'rt>,
@@ -397,7 +387,7 @@ impl Client {
         kwds: Option<RequestParams>,
     ) -> PyResult<Bound<'rt, PyAny>> {
         let client = self.0.load();
-        future_into_py(py, execute_request(client, method, url, kwds))
+        future_into_py(py, execute_request2(client, method, url, kwds))
     }
 
     /// Sends a WebSocket request.
@@ -435,7 +425,7 @@ impl Client {
         kwds: Option<WebSocketParams>,
     ) -> PyResult<Bound<'rt, PyAny>> {
         let client = self.0.load();
-        future_into_py(py, execute_websocket_request(client, url, kwds))
+        future_into_py(py, execute_websocket_request2(client, url, kwds))
     }
 }
 
@@ -467,7 +457,7 @@ impl Client {
     /// ```
     #[new]
     #[pyo3(signature = (**kwds))]
-    fn new(mut kwds: Option<ClientParams>) -> PyResult<Client> {
+    pub fn new(mut kwds: Option<ClientParams>) -> PyResult<Client> {
         let params = kwds.get_or_insert_default();
         let mut builder = rquest::Client::builder().no_hickory_dns();
 
@@ -683,7 +673,7 @@ impl Client {
     /// print(user_agent)
     /// ```
     #[getter]
-    fn user_agent(&self) -> Option<String> {
+    pub fn user_agent(&self) -> Option<String> {
         self.0
             .load()
             .user_agent()
@@ -707,7 +697,7 @@ impl Client {
     /// print(headers)
     /// ```
     #[getter]
-    fn headers(&self) -> crate::HeaderMap {
+    pub fn headers(&self) -> crate::HeaderMap {
         let binding = self.0.load();
         let headers = binding.headers();
         crate::HeaderMap::from(headers.clone())
@@ -733,7 +723,7 @@ impl Client {
     /// print(cookies)
     /// ```
     #[pyo3(signature = (url))]
-    fn get_cookies(&self, url: &str) -> PyResult<Vec<String>> {
+    pub fn get_cookies(&self, url: &str) -> PyResult<Vec<String>> {
         let url = Url::parse(url).map_err(wrap_url_parse_error)?;
         let cookies = self
             .0
@@ -767,7 +757,7 @@ impl Client {
     /// client.set_cookies("https://example.com", ["cookie1=value1", "cookie2=value2"])
     /// ```
     #[pyo3(signature = (url, value))]
-    fn set_cookies(&self, url: &str, value: Vec<String>) -> PyResult<()> {
+    pub fn set_cookies(&self, url: &str, value: Vec<String>) -> PyResult<()> {
         let url = Url::parse(url).map_err(wrap_url_parse_error)?;
         let value = value
             .into_iter()
@@ -799,7 +789,7 @@ impl Client {
     /// )
     /// ```
     #[pyo3(signature = (**kwds))]
-    fn update(&self, mut kwds: Option<UpdateClientParams>) {
+    pub fn update(&self, mut kwds: Option<UpdateClientParams>) {
         let params = kwds.get_or_insert_default();
         let mut this = self.0.load_full();
         let mut client_mut = Arc::make_mut(&mut this).as_mut();

@@ -1,17 +1,18 @@
-mod client;
+mod async_impl;
 mod dns;
 mod error;
 mod param;
 #[macro_use]
 mod macros;
-
+mod blocking;
 mod types;
 
-use client::{Client, Message, Response, Streamer, WebSocket};
+use async_impl::{Client, Message, Response, Streamer, WebSocket};
 #[cfg(feature = "logging")]
 use log::LevelFilter;
 use param::{ClientParams, RequestParams, UpdateClientParams, WebSocketParams};
 use pyo3::prelude::*;
+use pyo3_async_runtimes::tokio::future_into_py;
 #[cfg(feature = "logging")]
 use pyo3_log::{Caching, Logger};
 use pyo3_stub_gen::{define_stub_info_gatherer, derive::*};
@@ -62,7 +63,7 @@ type Result<T> = std::result::Result<T, PyErr>;
 #[pyo3(signature = (url, **kwds))]
 #[inline(always)]
 fn get(py: Python<'_>, url: String, kwds: Option<RequestParams>) -> PyResult<Bound<'_, PyAny>> {
-    Client::default().get(py, url, kwds)
+    future_into_py(py, async_impl::shortcut_request(url, Method::GET, kwds))
 }
 
 /// Shortcut method to quickly make a `POST` request.
@@ -84,8 +85,8 @@ fn get(py: Python<'_>, url: String, kwds: Option<RequestParams>) -> PyResult<Bou
 #[pyfunction]
 #[pyo3(signature = (url, **kwds))]
 #[inline(always)]
-fn post(py: Python<'_>, url: String, kwds: Option<RequestParams>) -> PyResult<Bound<'_, PyAny>> {
-    Client::default().post(py, url, kwds)
+fn post(py: Python, url: String, kwds: Option<RequestParams>) -> PyResult<Bound<'_, PyAny>> {
+    future_into_py(py, async_impl::shortcut_request(url, Method::POST, kwds))
 }
 
 /// Shortcut method to quickly make a `PUT` request.
@@ -108,7 +109,7 @@ fn post(py: Python<'_>, url: String, kwds: Option<RequestParams>) -> PyResult<Bo
 #[pyo3(signature = (url, **kwds))]
 #[inline(always)]
 fn put(py: Python<'_>, url: String, kwds: Option<RequestParams>) -> PyResult<Bound<'_, PyAny>> {
-    Client::default().put(py, url, kwds)
+    future_into_py(py, async_impl::shortcut_request(url, Method::PUT, kwds))
 }
 
 /// Shortcut method to quickly make a `PATCH` request.
@@ -131,7 +132,7 @@ fn put(py: Python<'_>, url: String, kwds: Option<RequestParams>) -> PyResult<Bou
 #[pyo3(signature = (url, **kwds))]
 #[inline(always)]
 fn patch(py: Python<'_>, url: String, kwds: Option<RequestParams>) -> PyResult<Bound<'_, PyAny>> {
-    Client::default().patch(py, url, kwds)
+    future_into_py(py, async_impl::shortcut_request(url, Method::PATCH, kwds))
 }
 
 /// Shortcut method to quickly make a `DELETE` request.
@@ -154,7 +155,7 @@ fn patch(py: Python<'_>, url: String, kwds: Option<RequestParams>) -> PyResult<B
 #[pyo3(signature = (url, **kwds))]
 #[inline(always)]
 fn delete(py: Python<'_>, url: String, kwds: Option<RequestParams>) -> PyResult<Bound<'_, PyAny>> {
-    Client::default().delete(py, url, kwds)
+    future_into_py(py, async_impl::shortcut_request(url, Method::DELETE, kwds))
 }
 
 /// Shortcut method to quickly make a `HEAD` request.
@@ -176,7 +177,7 @@ fn delete(py: Python<'_>, url: String, kwds: Option<RequestParams>) -> PyResult<
 #[pyo3(signature = (url, **kwds))]
 #[inline(always)]
 fn head(py: Python<'_>, url: String, kwds: Option<RequestParams>) -> PyResult<Bound<'_, PyAny>> {
-    Client::default().head(py, url, kwds)
+    future_into_py(py, async_impl::shortcut_request(url, Method::HEAD, kwds))
 }
 
 /// Shortcut method to quickly make an `OPTIONS` request.
@@ -198,7 +199,7 @@ fn head(py: Python<'_>, url: String, kwds: Option<RequestParams>) -> PyResult<Bo
 #[pyo3(signature = (url, **kwds))]
 #[inline(always)]
 fn options(py: Python<'_>, url: String, kwds: Option<RequestParams>) -> PyResult<Bound<'_, PyAny>> {
-    Client::default().options(py, url, kwds)
+    future_into_py(py, async_impl::shortcut_request(url, Method::OPTIONS, kwds))
 }
 
 /// Shortcut method to quickly make a `TRACE` request.
@@ -220,7 +221,7 @@ fn options(py: Python<'_>, url: String, kwds: Option<RequestParams>) -> PyResult
 #[pyo3(signature = (url, **kwds))]
 #[inline(always)]
 fn trace(py: Python<'_>, url: String, kwds: Option<RequestParams>) -> PyResult<Bound<'_, PyAny>> {
-    Client::default().trace(py, url, kwds)
+    future_into_py(py, async_impl::shortcut_request(url, Method::TRACE, kwds))
 }
 
 /// Make a request with the given parameters.
@@ -251,7 +252,7 @@ fn request(
     url: String,
     kwds: Option<RequestParams>,
 ) -> PyResult<Bound<'_, PyAny>> {
-    Client::default().request(py, method, url, kwds)
+    future_into_py(py, async_impl::shortcut_request(url, method, kwds))
 }
 
 /// Make a WebSocket connection with the given parameters.
@@ -283,11 +284,11 @@ fn websocket(
     url: String,
     kwds: Option<WebSocketParams>,
 ) -> PyResult<Bound<'_, PyAny>> {
-    Client::default().websocket(py, url, kwds)
+    future_into_py(py, async_impl::shortcut_websocket_request(url, kwds))
 }
 
 #[pymodule(gil_used = false)]
-fn rnet(m: &Bound<'_, PyModule>) -> PyResult<()> {
+fn rnet(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     pyo3::prepare_freethreaded_python();
 
     // A good place to install the Rust -> Python logger.
@@ -333,7 +334,23 @@ fn rnet(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(trace, m)?)?;
     m.add_function(wrap_pyfunction!(request, m)?)?;
     m.add_function(wrap_pyfunction!(websocket, m)?)?;
-    Ok(())
+
+    let blocking = PyModule::new(py, "blocking")?;
+    blocking.add_class::<blocking::Client>()?;
+    blocking.add_class::<blocking::Response>()?;
+    blocking.add_class::<blocking::WebSocket>()?;
+
+    blocking.add_function(wrap_pyfunction!(blocking::get, &blocking)?)?;
+    blocking.add_function(wrap_pyfunction!(blocking::post, &blocking)?)?;
+    blocking.add_function(wrap_pyfunction!(blocking::put, &blocking)?)?;
+    blocking.add_function(wrap_pyfunction!(blocking::patch, &blocking)?)?;
+    blocking.add_function(wrap_pyfunction!(blocking::delete, &blocking)?)?;
+    blocking.add_function(wrap_pyfunction!(blocking::head, &blocking)?)?;
+    blocking.add_function(wrap_pyfunction!(blocking::options, &blocking)?)?;
+    blocking.add_function(wrap_pyfunction!(blocking::trace, &blocking)?)?;
+    blocking.add_function(wrap_pyfunction!(blocking::request, &blocking)?)?;
+    blocking.add_function(wrap_pyfunction!(blocking::websocket, &blocking)?)?;
+    m.add_submodule(&blocking)
 }
 
 define_stub_info_gatherer!(stub_info);

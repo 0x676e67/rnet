@@ -1,25 +1,29 @@
 use crate::apply_option;
 use crate::{
-    client::{Response, WebSocket},
+    async_impl::{Response, WebSocket},
     error::wrap_rquest_error,
     param::{RequestParams, WebSocketParams},
     types::{Method, Version},
     Result,
 };
-use arc_swap::Guard;
 use pyo3::prelude::*;
 use rquest::redirect::Policy;
+use std::ops::Deref;
 use std::{sync::Arc, time::Duration};
 
 /// Executes an HTTP request.
-pub(super) async fn execute_request(
-    client: Guard<Arc<rquest::Client>>,
+pub async fn execute_request<C, U>(
+    client: C,
     method: Method,
-    url: String,
+    url: U,
     mut params: Option<RequestParams>,
-) -> Result<Response> {
+) -> Result<Response>
+where
+    C: Deref<Target = rquest::Client>,
+    U: AsRef<str>,
+{
     let params = params.get_or_insert_default();
-    let mut builder = client.request(method.into_ffi(), url);
+    let mut builder = client.request(method.into_ffi(), url.as_ref());
 
     // Version options.
     apply_option!(
@@ -113,14 +117,33 @@ pub(super) async fn execute_request(
         .map_err(wrap_rquest_error)
 }
 
+/// Executes an HTTP request.
+pub async fn execute_request2<C, U>(
+    client: C,
+    method: Method,
+    url: U,
+    params: Option<RequestParams>,
+) -> Result<Response>
+where
+    C: Deref<Target = Arc<rquest::Client>>,
+    U: AsRef<str>,
+{
+    let client = client.deref().deref();
+    execute_request(client, method, url, params).await
+}
+
 /// Executes a WebSocket request.
-pub(super) async fn execute_websocket_request(
-    client: Guard<Arc<rquest::Client>>,
-    url: String,
+pub async fn execute_websocket_request<C, U>(
+    client: C,
+    url: U,
     mut params: Option<WebSocketParams>,
-) -> Result<WebSocket> {
+) -> Result<WebSocket>
+where
+    C: Deref<Target = rquest::Client>,
+    U: AsRef<str>,
+{
     let params = params.get_or_insert_default();
-    let mut builder = client.websocket(url);
+    let mut builder = client.websocket(url.as_ref());
 
     // The protocols to use for the request.
     apply_option!(apply_if_some, builder, params.protocols, protocols);
@@ -191,4 +214,18 @@ pub(super) async fn execute_websocket_request(
     });
 
     WebSocket::new(builder).await
+}
+
+/// Executes a WebSocket request.
+pub async fn execute_websocket_request2<C, U>(
+    client: C,
+    url: U,
+    params: Option<WebSocketParams>,
+) -> Result<WebSocket>
+where
+    C: Deref<Target = Arc<rquest::Client>>,
+    U: AsRef<str>,
+{
+    let client = client.deref().deref();
+    execute_websocket_request(client, url, params).await
 }

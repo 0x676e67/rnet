@@ -25,8 +25,8 @@ pub struct WebSocket {
     remote_addr: Option<SocketAddr>,
     headers: HeaderMap,
     protocol: Option<String>,
-    sender: Sender,
-    receiver: Receiver,
+    pub(crate) sender: Sender,
+    pub(crate) receiver: Receiver,
 }
 
 impl WebSocket {
@@ -210,6 +210,7 @@ impl WebSocket {
     }
 }
 
+#[gen_stub_pymethods]
 #[pymethods]
 impl WebSocket {
     /// Returns the WebSocket instance itself as an asynchronous iterator.
@@ -240,7 +241,7 @@ impl WebSocket {
     ///
     /// Returns a `PyResult` containing an `Option` with a `Bound` object representing the received message.
     /// If no message is received, returns `None`.
-    fn __anext__<'rt>(&self, py: Python<'rt>) -> PyResult<Option<Bound<'rt, PyAny>>> {
+    fn __anext__<'rt>(&self, py: Python<'rt>) -> PyResult<Bound<'rt, PyAny>> {
         let recv = self.receiver.clone();
         future_into_py(py, async move {
             // Here we lock the mutex to access the data inside
@@ -258,7 +259,6 @@ impl WebSocket {
                 .map(Some)
                 .map_err(wrap_rquest_error)
         })
-        .map(Some)
     }
 }
 
@@ -266,7 +266,7 @@ impl WebSocket {
 #[gen_stub_pyclass]
 #[pyclass]
 #[derive(Clone)]
-pub struct Message(rquest::Message);
+pub struct Message(pub(crate) rquest::Message);
 
 #[pymethods]
 impl Message {
