@@ -1,10 +1,12 @@
 mod request;
-#[macro_use]
-mod macros;
-pub mod response;
+mod response;
 
+pub use self::response::{
+    http::{Response, Streamer},
+    ws::{Message, WebSocket},
+};
 use crate::{
-    dns,
+    apply_option, dns,
     error::{
         wrap_invali_header_name_error, wrap_invali_header_value_error, wrap_rquest_error,
         wrap_url_parse_error,

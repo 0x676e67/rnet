@@ -36,7 +36,7 @@ async def test_multiple_requests():
     text = await resp.text()
     assert "111" in text
     assert "000" in text
-    assert "Asynchronous Python HTTP Client with Black Magic" in text
+    assert "rnet" in text
 
 
 @pytest.mark.asyncio

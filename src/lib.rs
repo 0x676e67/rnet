@@ -2,13 +2,12 @@ mod client;
 mod dns;
 mod error;
 mod param;
+#[macro_use]
+mod macros;
 
 mod types;
 
-use client::{
-    response::{Message, Response, Streamer, WebSocket},
-    Client,
-};
+use client::{Client, Message, Response, Streamer, WebSocket};
 #[cfg(feature = "logging")]
 use log::LevelFilter;
 use param::{ClientParams, RequestParams, UpdateClientParams, WebSocketParams};

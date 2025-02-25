@@ -1,6 +1,6 @@
 use crate::apply_option;
 use crate::{
-    client::response::{Response, WebSocket},
+    client::{Response, WebSocket},
     error::wrap_rquest_error,
     param::{RequestParams, WebSocketParams},
     types::{Method, Version},
