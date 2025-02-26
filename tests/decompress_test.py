@@ -5,6 +5,7 @@ client = rnet.Client(tls_info=True)
 
 
 @pytest.mark.asyncio
+@pytest.mark.flaky(reruns=3, reruns_delay=2)
 async def test_gzip():
     url = "https://httpbin.org/gzip"
     response = await client.get(url)
@@ -14,6 +15,7 @@ async def test_gzip():
 
 
 @pytest.mark.asyncio
+@pytest.mark.flaky(reruns=3, reruns_delay=2)
 async def test_deflate():
     url = "https://httpbin.org/deflate"
     response = await client.get(url)
@@ -23,6 +25,7 @@ async def test_deflate():
 
 
 @pytest.mark.asyncio
+@pytest.mark.flaky(reruns=3, reruns_delay=2)
 async def test_brotli():
     url = "https://httpbin.org/brotli"
     response = await client.get(url)

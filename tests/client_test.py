@@ -4,6 +4,7 @@ from rnet import Impersonate, ImpersonateOS
 
 
 @pytest.mark.asyncio
+@pytest.mark.flaky(reruns=3, reruns_delay=2)
 async def test_update_headers():
     client = rnet.Client()
     headers = {"user-agent": "rnet"}
@@ -12,6 +13,7 @@ async def test_update_headers():
 
 
 @pytest.mark.asyncio
+@pytest.mark.flaky(reruns=3, reruns_delay=2)
 async def test_update_cookies():
     url = "https://tls.peet.ws"
     client = rnet.Client(cookie_store=True)
@@ -21,6 +23,7 @@ async def test_update_cookies():
 
 
 @pytest.mark.asyncio
+@pytest.mark.flaky(reruns=3, reruns_delay=2)
 async def test_update_impersonate():
     client = rnet.Client(impersonate=Impersonate.Firefox133)
     assert (
@@ -39,6 +42,7 @@ async def test_update_impersonate():
 
 
 @pytest.mark.asyncio
+@pytest.mark.flaky(reruns=3, reruns_delay=2)
 async def test_base_url():
     base_url = "https://httpbin.org"
     client = rnet.Client(tls_info=True, base_url=base_url)
@@ -48,6 +52,7 @@ async def test_base_url():
 
 
 @pytest.mark.asyncio
+@pytest.mark.flaky(reruns=3, reruns_delay=2)
 async def test_alps_new_endpoint():
     url = "https://google.com"
     client = rnet.Client(impersonate=Impersonate.Chrome133)

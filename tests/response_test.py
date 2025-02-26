@@ -7,6 +7,7 @@ client = rnet.Client(tls_info=True)
 
 
 @pytest.mark.asyncio
+@pytest.mark.flaky(reruns=3, reruns_delay=2)
 async def test_websocket():
     ws: WebSocket = await client.websocket("wss://echo.websocket.org")
     await ws.recv()
@@ -17,6 +18,7 @@ async def test_websocket():
 
 
 @pytest.mark.asyncio
+@pytest.mark.flaky(reruns=3, reruns_delay=2)
 async def test_multiple_requests():
     async def file_to_bytes_stream(file_path):
         with open(file_path, "rb") as f:
@@ -51,6 +53,7 @@ async def test_multiple_requests():
 
 
 @pytest.mark.asyncio
+@pytest.mark.flaky(reruns=3, reruns_delay=2)
 async def test_set_and_get_cookie():
     url = "https://httpbin.org/cookies/set?mycookie=testvalue"
     response = await client.get(url)
@@ -58,6 +61,7 @@ async def test_set_and_get_cookie():
 
 
 @pytest.mark.asyncio
+@pytest.mark.flaky(reruns=3, reruns_delay=2)
 async def test_get_headers():
     url = "https://httpbin.org/headers"
     response = await client.get(url)
@@ -66,6 +70,7 @@ async def test_get_headers():
 
 
 @pytest.mark.asyncio
+@pytest.mark.flaky(reruns=3, reruns_delay=2)
 async def test_getters():
     url = "https://httpbin.org/anything"
     response = await client.get(url, version=Version.HTTP_11)
@@ -76,6 +81,7 @@ async def test_getters():
 
 
 @pytest.mark.asyncio
+@pytest.mark.flaky(reruns=3, reruns_delay=2)
 async def test_get_json():
     url = "https://httpbin.org/json"
     response = await client.get(url)
@@ -84,6 +90,7 @@ async def test_get_json():
 
 
 @pytest.mark.asyncio
+@pytest.mark.flaky(reruns=3, reruns_delay=2)
 async def test_get_text():
     url = "https://httpbin.org/html"
     response = await client.get(url)
@@ -92,6 +99,7 @@ async def test_get_text():
 
 
 @pytest.mark.asyncio
+@pytest.mark.flaky(reruns=3, reruns_delay=2)
 async def test_get_bytes():
     url = "https://httpbin.org/image/png"
     response = await client.get(url)
@@ -100,6 +108,7 @@ async def test_get_bytes():
 
 
 @pytest.mark.asyncio
+@pytest.mark.flaky(reruns=3, reruns_delay=2)
 async def test_get_stream():
     url = "https://httpbin.org/stream/1"
     response = await client.get(url)
@@ -109,6 +118,7 @@ async def test_get_stream():
 
 
 @pytest.mark.asyncio
+@pytest.mark.flaky(reruns=3, reruns_delay=2)
 async def test_peer_certificate():
     resp = await client.get("https://httpbin.org/anything")
     assert resp.peer_certificate() is not None

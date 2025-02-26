@@ -5,6 +5,7 @@ client = rnet.Client(tls_info=True)
 
 
 @pytest.mark.asyncio
+@pytest.mark.flaky(reruns=3, reruns_delay=2)
 async def test_auth():
     resp = await client.get(
         "https://httpbin.org/anything",
@@ -16,6 +17,7 @@ async def test_auth():
 
 
 @pytest.mark.asyncio
+@pytest.mark.flaky(reruns=3, reruns_delay=2)
 async def test_bearer_auth():
     resp = await client.get(
         "https://httpbin.org/anything",
@@ -27,6 +29,7 @@ async def test_bearer_auth():
 
 
 @pytest.mark.asyncio
+@pytest.mark.flaky(reruns=3, reruns_delay=2)
 async def test_basic_auth():
     resp = await client.get(
         "https://httpbin.org/anything",
