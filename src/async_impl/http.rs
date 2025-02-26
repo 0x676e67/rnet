@@ -334,6 +334,26 @@ impl Response {
     }
 }
 
+#[gen_stub_pymethods]
+#[pymethods]
+impl Response {
+    fn __aenter__<'a>(slf: PyRef<'a, Self>, py: Python<'a>) -> PyResult<Bound<'a, PyAny>> {
+        let slf = slf.into_py_any(py)?;
+        future_into_py(py, async move { Ok(slf) })
+    }
+
+    fn __aexit__<'a>(
+        &self,
+        py: Python<'a>,
+        _exc_type: &Bound<'a, PyAny>,
+        _exc_value: &Bound<'a, PyAny>,
+        _traceback: &Bound<'a, PyAny>,
+    ) -> PyResult<Bound<'a, PyAny>> {
+        self.close(py);
+        future_into_py(py, async move { Ok(()) })
+    }
+}
+
 /// A byte stream response.
 /// An asynchronous iterator yielding data chunks from the response stream.
 /// Used to stream response content.
@@ -407,7 +427,7 @@ impl Streamer {
 #[pymethods]
 impl Streamer {
     #[inline(always)]
-    fn __aiter__(slf: PyRef<'_, Self>) -> PyRef<'_, Self> {
+    fn __aiter__(slf: PyRef<Self>) -> PyRef<Self> {
         slf
     }
 
@@ -448,7 +468,7 @@ impl Streamer {
     }
 
     fn __aexit__<'a>(
-        &self,
+        &'a mut self,
         py: Python<'a>,
         _exc_type: &Bound<'a, PyAny>,
         _exc_value: &Bound<'a, PyAny>,

@@ -8,14 +8,15 @@ async def main():
         user_agent="rnet",
     )
     resp = await client.get("https://tls.peet.ws/api/all")
-    print("Status Code: ", resp.status_code)
-    print("Version: ", resp.version)
-    print("Response URL: ", resp.url)
-    print("Headers: ", resp.headers)
-    print("Encoding: ", resp.encoding)
-    print("Content-Length: ", resp.content_length)
-    print("Remote Address: ", resp.remote_addr)
-    print(await resp.text())
+    async with resp:
+        print("Status Code: ", resp.status_code)
+        print("Version: ", resp.version)
+        print("Response URL: ", resp.url)
+        print("Headers: ", resp.headers)
+        print("Encoding: ", resp.encoding)
+        print("Content-Length: ", resp.content_length)
+        print("Remote Address: ", resp.remote_addr)
+        print("Content: ", await resp.text())
 
 
 if __name__ == "__main__":

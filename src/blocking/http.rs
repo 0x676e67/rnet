@@ -263,6 +263,26 @@ impl BlockingResponse {
     }
 }
 
+#[gen_stub_pymethods]
+#[pymethods]
+impl BlockingResponse {
+    #[inline(always)]
+    fn __enter__(slf: PyRef<Self>) -> PyRef<Self> {
+        slf
+    }
+
+    fn __exit__<'a>(
+        &self,
+        py: Python<'a>,
+        _exc_type: &Bound<'a, PyAny>,
+        _exc_value: &Bound<'a, PyAny>,
+        _traceback: &Bound<'a, PyAny>,
+    ) -> PyResult<()> {
+        self.close(py);
+        Ok(())
+    }
+}
+
 /// A blocking byte stream response.
 /// An asynchronous iterator yielding data chunks from the response stream.
 /// Used for streaming response content.
@@ -276,7 +296,7 @@ pub struct BlockingStreamer(async_impl::Streamer);
 #[pymethods]
 impl BlockingStreamer {
     #[inline(always)]
-    fn __iter__(slf: PyRef<'_, Self>) -> PyRef<'_, Self> {
+    fn __iter__(slf: PyRef<Self>) -> PyRef<Self> {
         slf
     }
 
@@ -311,8 +331,8 @@ impl BlockingStreamer {
     }
 
     #[inline(always)]
-    fn __enter__<'a>(slf: PyRef<'a, Self>, py: Python<'a>) -> PyResult<Bound<'a, PyAny>> {
-        slf.into_bound_py_any(py)
+    fn __enter__(slf: PyRef<Self>) -> PyRef<Self> {
+        slf
     }
 
     fn __exit__<'a>(

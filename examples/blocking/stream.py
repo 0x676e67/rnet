@@ -1,20 +1,21 @@
+import time
 from rnet import BlockingClient
 
 
 def main():
     client = BlockingClient()
-    resp = client.get("https://httpbin.org/stream/20")
-    print("Status Code: ", resp.status_code)
-    print("Version: ", resp.version)
-    print("Response URL: ", resp.url)
-    print("Headers: ", resp.headers.to_dict())
-    print("Content-Length: ", resp.content_length)
-    print("Encoding: ", resp.encoding)
-    print("Remote Address: ", resp.remote_addr)
-
-    with resp.stream() as streamer:
-        for chunk in streamer:
-            print("Chunk: ", chunk)
+    with client.get("https://httpbin.org/stream/20") as resp:
+        print("Status Code: ", resp.status_code)
+        print("Version: ", resp.version)
+        print("Response URL: ", resp.url)
+        print("Headers: ", resp.headers.to_dict())
+        print("Content-Length: ", resp.content_length)
+        print("Encoding: ", resp.encoding)
+        print("Remote Address: ", resp.remote_addr)
+        with resp.stream() as streamer:
+            for chunk in streamer:
+                print("Chunk: ", chunk)
+                time.sleep(0.1)
 
 
 if __name__ == "__main__":
