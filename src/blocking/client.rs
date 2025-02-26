@@ -10,9 +10,7 @@ use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 /// A blocking client for making HTTP requests.
 #[gen_stub_pyclass]
 #[pyclass]
-pub struct BlockingClient {
-    inner: async_impl::Client,
-}
+pub struct BlockingClient(async_impl::Client);
 
 #[gen_stub_pymethods]
 #[pymethods]
@@ -205,7 +203,7 @@ impl BlockingClient {
         kwds: Option<RequestParams>,
     ) -> PyResult<BlockingResponse> {
         py.allow_threads(|| {
-            let client = self.inner.load();
+            let client = self.0.load();
             pyo3_async_runtimes::tokio::get_runtime()
                 .block_on(execute_request2(client, method, url, kwds))
                 .map(Into::into)
@@ -231,7 +229,7 @@ impl BlockingClient {
         kwds: Option<WebSocketParams>,
     ) -> PyResult<BlockingWebSocket> {
         py.allow_threads(|| {
-            let client = self.inner.load();
+            let client = self.0.load();
             pyo3_async_runtimes::tokio::get_runtime()
                 .block_on(execute_websocket_request2(client, url, kwds))
                 .map(Into::into)
@@ -255,7 +253,7 @@ impl BlockingClient {
     #[pyo3(signature = (**kwds))]
     #[inline(always)]
     fn new(py: Python, kwds: Option<ClientParams>) -> PyResult<BlockingClient> {
-        async_impl::Client::new(py, kwds).map(|inner| BlockingClient { inner })
+        async_impl::Client::new(py, kwds).map(BlockingClient)
     }
 
     /// Returns the user agent of the client.
@@ -266,7 +264,7 @@ impl BlockingClient {
     #[getter]
     #[inline(always)]
     fn user_agent(&self, py: Python) -> Option<String> {
-        self.inner.user_agent(py)
+        self.0.user_agent(py)
     }
 
     /// Returns the headers of the client.
@@ -277,7 +275,7 @@ impl BlockingClient {
     #[getter]
     #[inline(always)]
     fn headers(&self, py: Python) -> crate::HeaderMap {
-        self.inner.headers(py)
+        self.0.headers(py)
     }
 
     /// Returns the cookies for the given URL.
@@ -292,7 +290,7 @@ impl BlockingClient {
     #[pyo3(signature = (url))]
     #[inline(always)]
     fn get_cookies(&self, py: Python, url: &str) -> PyResult<Vec<String>> {
-        self.inner.get_cookies(py, url)
+        self.0.get_cookies(py, url)
     }
 
     /// Sets cookies for the given URL.
@@ -308,7 +306,7 @@ impl BlockingClient {
     #[pyo3(signature = (url, value))]
     #[inline(always)]
     fn set_cookies(&self, py: Python, url: &str, value: Vec<String>) -> PyResult<()> {
-        self.inner.set_cookies(py, url, value)
+        self.0.set_cookies(py, url, value)
     }
 
     /// Updates the client with the given parameters.
@@ -318,6 +316,6 @@ impl BlockingClient {
     #[pyo3(signature = (**kwds))]
     #[inline(always)]
     fn update(&self, py: Python, kwds: Option<UpdateClientParams>) {
-        self.inner.update(py, kwds);
+        self.0.update(py, kwds);
     }
 }

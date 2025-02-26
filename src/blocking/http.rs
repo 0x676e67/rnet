@@ -1,3 +1,5 @@
+use std::ops::Deref;
+
 use crate::{
     async_impl,
     error::{py_stop_iteration_error, wrap_rquest_error, wrap_serde_error},
@@ -12,15 +14,19 @@ use serde_json::Value;
 /// A bloking response from a request.
 #[gen_stub_pyclass]
 #[pyclass]
-pub struct BlockingResponse {
-    inner: async_impl::Response,
-}
+pub struct BlockingResponse(async_impl::Response);
 
 impl From<async_impl::Response> for BlockingResponse {
     fn from(response: async_impl::Response) -> Self {
-        Self {
-            inner: async_impl::Response::from(response),
-        }
+        Self(response)
+    }
+}
+
+impl Deref for BlockingResponse {
+    type Target = async_impl::Response;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
     }
 }
 
@@ -35,7 +41,7 @@ impl BlockingResponse {
     #[getter]
     #[inline(always)]
     pub fn url(&self) -> &str {
-        self.inner.url()
+        self.0.url()
     }
 
     /// Returns whether the response is successful.
@@ -46,7 +52,7 @@ impl BlockingResponse {
     #[getter]
     #[inline(always)]
     pub fn ok(&self) -> bool {
-        self.inner.ok()
+        self.0.ok()
     }
 
     /// Returns the status code as integer of the response.
@@ -57,7 +63,7 @@ impl BlockingResponse {
     #[getter]
     #[inline(always)]
     pub fn status(&self) -> u16 {
-        self.inner.status()
+        self.0.status()
     }
 
     /// Returns the status code of the response.
@@ -68,7 +74,7 @@ impl BlockingResponse {
     #[getter]
     #[inline(always)]
     pub fn status_code(&self) -> StatusCode {
-        self.inner.status_code()
+        self.0.status_code()
     }
 
     /// Returns the HTTP version of the response.
@@ -79,7 +85,7 @@ impl BlockingResponse {
     #[getter]
     #[inline(always)]
     pub fn version(&self) -> Version {
-        self.inner.version()
+        self.0.version()
     }
 
     /// Returns the headers of the response.
@@ -90,7 +96,7 @@ impl BlockingResponse {
     #[getter]
     #[inline(always)]
     pub fn headers(&self) -> HeaderMap {
-        self.inner.headers()
+        self.0.headers()
     }
 
     /// Returns the content length of the response.
@@ -101,7 +107,7 @@ impl BlockingResponse {
     #[getter]
     #[inline(always)]
     pub fn content_length(&self) -> u64 {
-        self.inner.content_length()
+        self.0.content_length()
     }
 
     /// Returns the remote address of the response.
@@ -112,7 +118,7 @@ impl BlockingResponse {
     #[getter]
     #[inline(always)]
     pub fn remote_addr(&self) -> Option<SocketAddr> {
-        self.inner.remote_addr()
+        self.0.remote_addr()
     }
 
     /// Encoding to decode with when accessing text.
@@ -123,7 +129,7 @@ impl BlockingResponse {
     #[getter]
     #[inline(always)]
     pub fn encoding(&self, py: Python) -> String {
-        self.inner.encoding(py)
+        self.0.encoding(py)
     }
 
     /// Returns the TLS peer certificate of the response.
@@ -133,7 +139,7 @@ impl BlockingResponse {
     /// A Python object representing the TLS peer certificate of the response.
     #[inline(always)]
     pub fn peer_certificate(&self, py: Python) -> PyResult<Option<Vec<u8>>> {
-        self.inner.peer_certificate(py)
+        self.0.peer_certificate(py)
     }
 
     /// Returns the text content of the response.
@@ -143,7 +149,7 @@ impl BlockingResponse {
     /// A Python object representing the text content of the response.
     pub fn text(&self, py: Python) -> PyResult<String> {
         py.allow_threads(|| {
-            let resp = self.inner.inner()?;
+            let resp = self.inner()?;
             pyo3_async_runtimes::tokio::get_runtime()
                 .block_on(resp.text())
                 .map_err(wrap_rquest_error)
@@ -161,7 +167,7 @@ impl BlockingResponse {
     /// A Python object representing the text content of the response.
     pub fn text_with_charset(&self, py: Python, encoding: String) -> PyResult<String> {
         py.allow_threads(|| {
-            let resp = self.inner.inner()?;
+            let resp = self.inner()?;
             pyo3_async_runtimes::tokio::get_runtime()
                 .block_on(resp.text_with_charset(&encoding))
                 .map_err(wrap_rquest_error)
@@ -175,7 +181,7 @@ impl BlockingResponse {
     /// A Python object representing the JSON content of the response.
     pub fn json(&self, py: Python) -> PyResult<Json> {
         py.allow_threads(|| {
-            let resp = self.inner.inner()?;
+            let resp = self.inner()?;
             pyo3_async_runtimes::tokio::get_runtime()
                 .block_on(resp.json::<Json>())
                 .map_err(wrap_rquest_error)
@@ -189,7 +195,7 @@ impl BlockingResponse {
     /// A Python object representing the JSON content of the response.
     pub fn json_str(&self, py: Python) -> PyResult<String> {
         py.allow_threads(|| {
-            let resp = self.inner.inner()?;
+            let resp = self.inner()?;
             let vlaue = pyo3_async_runtimes::tokio::get_runtime()
                 .block_on(resp.json::<Value>())
                 .map_err(wrap_rquest_error)?;
@@ -204,7 +210,7 @@ impl BlockingResponse {
     /// A Python object representing the JSON content of the response.
     pub fn json_str_pretty(&self, py: Python) -> PyResult<String> {
         py.allow_threads(|| {
-            let resp = self.inner.inner()?;
+            let resp = self.inner()?;
             pyo3_async_runtimes::tokio::get_runtime().block_on(async move {
                 let json = resp.json::<Value>().await.map_err(wrap_rquest_error)?;
                 serde_json::to_string_pretty(&json).map_err(wrap_serde_error)
@@ -219,7 +225,7 @@ impl BlockingResponse {
     /// A Python object representing the bytes content of the response.
     pub fn bytes(&self, py: Python) -> PyResult<PyObject> {
         py.allow_threads(|| {
-            let resp = self.inner.inner()?;
+            let resp = self.inner()?;
             let bytes = pyo3_async_runtimes::tokio::get_runtime()
                 .block_on(resp.bytes())
                 .map_err(wrap_rquest_error)?;
@@ -234,13 +240,13 @@ impl BlockingResponse {
     /// A Python object representing the stream content of the response.
     #[inline(always)]
     pub fn stream(&self, py: Python) -> PyResult<BlockingStreamer> {
-        self.inner.stream(py).map(BlockingStreamer)
+        self.0.stream(py).map(BlockingStreamer)
     }
 
     /// Closes the response connection.
     #[inline(always)]
     pub fn close(&self, py: Python) {
-        self.inner.close(py);
+        self.0.close(py);
     }
 }
 
@@ -253,7 +259,7 @@ impl BlockingResponse {
     /// A Python dictionary representing the cookies of the response.
     #[getter]
     pub fn cookies(&self, py: Python) -> IndexMap<String, String> {
-        self.inner.cookies(py)
+        self.0.cookies(py)
     }
 }
 

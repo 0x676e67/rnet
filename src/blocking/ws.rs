@@ -1,3 +1,5 @@
+use std::ops::Deref;
+
 use crate::{
     async_impl::{self, Message},
     error::{py_stop_iteration_error, wrap_rquest_error},
@@ -10,13 +12,19 @@ use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 /// A blocking WebSocket response.
 #[gen_stub_pyclass]
 #[pyclass]
-pub struct BlockingWebSocket {
-    inner: async_impl::WebSocket,
-}
+pub struct BlockingWebSocket(async_impl::WebSocket);
 
 impl From<async_impl::WebSocket> for BlockingWebSocket {
     fn from(inner: async_impl::WebSocket) -> Self {
-        Self { inner }
+        Self(inner)
+    }
+}
+
+impl Deref for BlockingWebSocket {
+    type Target = async_impl::WebSocket;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
     }
 }
 
@@ -31,7 +39,7 @@ impl BlockingWebSocket {
     #[getter]
     #[inline(always)]
     pub fn ok(&self) -> bool {
-        self.inner.ok()
+        self.0.ok()
     }
 
     /// Returns the status code as integer of the response.
@@ -42,7 +50,7 @@ impl BlockingWebSocket {
     #[getter]
     #[inline(always)]
     pub fn status(&self) -> u16 {
-        self.inner.status()
+        self.0.status()
     }
 
     /// Returns the HTTP version of the response.
@@ -53,7 +61,7 @@ impl BlockingWebSocket {
     #[getter]
     #[inline(always)]
     pub fn version(&self) -> Version {
-        self.inner.version()
+        self.0.version()
     }
 
     /// Returns the headers of the response.
@@ -64,7 +72,7 @@ impl BlockingWebSocket {
     #[getter]
     #[inline(always)]
     pub fn headers(&self) -> HeaderMap {
-        self.inner.headers()
+        self.0.headers()
     }
 
     /// Returns the remote address of the response.
@@ -75,7 +83,7 @@ impl BlockingWebSocket {
     #[getter]
     #[inline(always)]
     pub fn remote_addr(&self) -> Option<SocketAddr> {
-        self.inner.remote_addr()
+        self.0.remote_addr()
     }
 
     /// Returns the WebSocket protocol.
@@ -84,7 +92,7 @@ impl BlockingWebSocket {
     ///
     /// An optional string representing the WebSocket protocol.
     pub fn protocol(&self) -> Option<&str> {
-        self.inner.protocol()
+        self.0.protocol()
     }
 
     /// Receives a message from the WebSocket.
@@ -94,7 +102,7 @@ impl BlockingWebSocket {
     /// A `PyResult` containing a `Bound` object with the received message, or `None` if no message is received.
     pub fn recv(&self, py: Python) -> PyResult<Option<Message>> {
         py.allow_threads(|| {
-            let websocket = self.inner.receiver();
+            let websocket = self.receiver();
             pyo3_async_runtimes::tokio::get_runtime().block_on(async move {
                 let mut lock = websocket.lock().await;
                 if let Some(recv) = lock.as_mut() {
@@ -119,7 +127,7 @@ impl BlockingWebSocket {
     #[pyo3(signature = (message))]
     pub fn send(&self, py: Python, message: Message) -> PyResult<()> {
         py.allow_threads(|| {
-            let sender = self.inner.sender();
+            let sender = self.sender();
             pyo3_async_runtimes::tokio::get_runtime().block_on(async move {
                 let mut lock = sender.lock().await;
                 if let Some(send) = lock.as_mut() {
@@ -143,8 +151,8 @@ impl BlockingWebSocket {
     #[pyo3(signature = (code=None, reason=None))]
     pub fn close(&self, py: Python, code: Option<u16>, reason: Option<String>) -> PyResult<()> {
         py.allow_threads(|| {
-            let sender = self.inner.sender();
-            let receiver = self.inner.receiver();
+            let sender = self.sender();
+            let receiver = self.receiver();
             pyo3_async_runtimes::tokio::get_runtime().block_on(async move {
                 let mut lock = receiver.lock().await;
                 drop(lock.take());
@@ -182,7 +190,7 @@ impl BlockingWebSocket {
 
     fn __next__(&self, py: Python) -> PyResult<Option<Message>> {
         py.allow_threads(|| {
-            let recv = self.inner.receiver();
+            let recv = self.receiver();
             pyo3_async_runtimes::tokio::get_runtime().block_on(async move {
                 let mut lock = recv.lock().await;
                 let recv = lock
