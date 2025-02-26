@@ -3,7 +3,7 @@ use std::ops::Deref;
 use crate::{
     async_impl::{self, Message},
     error::{py_stop_iteration_error, wrap_rquest_error},
-    types::{HeaderMap, SocketAddr, Version},
+    types::{HeaderMap, SocketAddr, StatusCode, Version},
 };
 use futures_util::{SinkExt, TryStreamExt};
 use pyo3::prelude::*;
@@ -51,6 +51,17 @@ impl BlockingWebSocket {
     #[inline(always)]
     pub fn status(&self) -> u16 {
         self.0.status()
+    }
+
+    /// Returns the status code of the response.
+    ///
+    /// # Returns
+    ///
+    /// A Python object representing the HTTP status code.
+    #[getter]
+    #[inline(always)]
+    pub fn status_code(&self) -> StatusCode {
+        self.0.status_code()
     }
 
     /// Returns the HTTP version of the response.

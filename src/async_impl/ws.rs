@@ -92,6 +92,17 @@ impl WebSocket {
         self.status_code.as_int()
     }
 
+    /// Returns the status code of the response.
+    ///
+    /// # Returns
+    ///
+    /// A Python object representing the HTTP status code.
+    #[getter]
+    #[inline(always)]
+    pub fn status_code(&self) -> StatusCode {
+        self.status_code
+    }
+
     /// Returns the HTTP version of the response.
     ///
     /// # Returns
