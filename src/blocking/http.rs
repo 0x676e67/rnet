@@ -274,33 +274,33 @@ impl BlockingStreamer {
         slf
     }
 
-    fn __next__(&self) -> PyResult<Option<PyObject>> {
-        // Here we clone the inner field, so we can use it
-        // in our future.
-        let streamer = self.0.clone();
-        pyo3_async_runtimes::tokio::get_runtime().block_on(async move {
-            // Here we lock the mutex to access the data inside
-            // and call next() method to get the next value.
-            let mut lock = streamer.lock().await;
-            let val = lock
-                .as_mut()
-                .ok_or_else(py_stop_iteration_error)?
-                .next()
-                .await;
+    fn __next__(&self, py: Python) -> PyResult<Option<PyObject>> {
+        py.allow_threads(|| {
+            let streamer = self.0.clone();
+            pyo3_async_runtimes::tokio::get_runtime().block_on(async move {
+                // Here we lock the mutex to access the data inside
+                // and call next() method to get the next value.
+                let mut lock = streamer.lock().await;
+                let val = lock
+                    .as_mut()
+                    .ok_or_else(py_stop_iteration_error)?
+                    .next()
+                    .await;
 
-            drop(lock);
+                drop(lock);
 
-            match val {
-                Some(Ok(val)) => {
-                    // If we have a value, we return it as a PyObject.
-                    Python::with_gil(|py| Ok(Some(val.into_bound_py_any(py)?.unbind())))
+                match val {
+                    Some(Ok(val)) => {
+                        // If we have a value, we return it as a PyObject.
+                        Python::with_gil(|py| Ok(Some(val.into_bound_py_any(py)?.unbind())))
+                    }
+                    Some(Err(err)) => Err(wrap_rquest_error(err)),
+                    // Here we return PyStopAsyncIteration error,
+                    // because python needs exceptions to tell that iterator
+                    // has ended.
+                    None => Err(py_stop_iteration_error()),
                 }
-                Some(Err(err)) => Err(wrap_rquest_error(err)),
-                // Here we return PyStopAsyncIteration error,
-                // because python needs exceptions to tell that iterator
-                // has ended.
-                None => Err(py_stop_iteration_error()),
-            }
+            })
         })
     }
 
@@ -311,14 +311,17 @@ impl BlockingStreamer {
 
     fn __exit__<'a>(
         &'a mut self,
+        py: Python<'a>,
         _exc_type: &Bound<'a, PyAny>,
         _exc_value: &Bound<'a, PyAny>,
         _traceback: &Bound<'a, PyAny>,
     ) -> PyResult<()> {
-        let streamer = self.0.clone();
-        pyo3_async_runtimes::tokio::get_runtime().block_on(async move {
-            let mut lock = streamer.lock().await;
-            Ok(drop(lock.take()))
+        py.allow_threads(|| {
+            let streamer = self.0.clone();
+            pyo3_async_runtimes::tokio::get_runtime().block_on(async move {
+                let mut lock = streamer.lock().await;
+                Ok(drop(lock.take()))
+            })
         })
     }
 }
