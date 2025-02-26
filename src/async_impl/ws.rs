@@ -8,7 +8,7 @@ use futures_util::{
     stream::{SplitSink, SplitStream},
     SinkExt, StreamExt, TryStreamExt,
 };
-use pyo3::prelude::*;
+use pyo3::{prelude::*, IntoPyObjectExt};
 use pyo3_async_runtimes::tokio::future_into_py;
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 use tokio::sync::Mutex;
@@ -273,6 +273,21 @@ impl WebSocket {
                 .map(Some)
                 .map_err(wrap_rquest_error)
         })
+    }
+
+    fn __aenter__<'a>(slf: PyRef<'a, Self>, py: Python<'a>) -> PyResult<Bound<'a, PyAny>> {
+        let slf = slf.into_py_any(py)?;
+        future_into_py(py, async move { Ok(slf) })
+    }
+
+    fn __aexit__<'a>(
+        &self,
+        py: Python<'a>,
+        _exc_type: &Bound<'a, PyAny>,
+        _exc_value: &Bound<'a, PyAny>,
+        _traceback: &Bound<'a, PyAny>,
+    ) -> PyResult<Bound<'a, PyAny>> {
+        self.close(py, None, None)
     }
 }
 

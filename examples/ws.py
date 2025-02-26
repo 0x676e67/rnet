@@ -30,26 +30,26 @@ async def receive_message(ws):
 
 
 async def main():
-    ws = await rnet.websocket("wss://echo.websocket.org")
-    print("Status Code: ", ws.status)
-    print("Version: ", ws.version)
-    print("Headers: ", ws.headers.to_dict())
-    print("Remote Address: ", ws.remote_addr)
+    async with await rnet.websocket("wss://echo.websocket.org") as ws:
+        print("Status Code: ", ws.status)
+        print("Version: ", ws.version)
+        print("Headers: ", ws.headers.to_dict())
+        print("Remote Address: ", ws.remote_addr)
 
-    if ws.ok:
-        send_task = asyncio.create_task(send_message(ws))
-        receive_task = asyncio.create_task(receive_message(ws))
+        if ws.ok:
+            send_task = asyncio.create_task(send_message(ws))
+            receive_task = asyncio.create_task(receive_message(ws))
 
-        async def close_ws():
-            await ws.close()
-            send_task.cancel()
-            receive_task.cancel()
+            async def close_ws():
+                await ws.close()
+                send_task.cancel()
+                receive_task.cancel()
 
-        loop = asyncio.get_running_loop()
-        for sig in (signal.SIGINT, signal.SIGTERM):
-            loop.add_signal_handler(sig, lambda: asyncio.create_task(close_ws()))
+            loop = asyncio.get_running_loop()
+            for sig in (signal.SIGINT, signal.SIGTERM):
+                loop.add_signal_handler(sig, lambda: asyncio.create_task(close_ws()))
 
-        await asyncio.gather(send_task, receive_task)
+            await asyncio.gather(send_task, receive_task)
 
 
 if __name__ == "__main__":

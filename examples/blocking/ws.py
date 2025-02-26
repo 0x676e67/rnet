@@ -11,7 +11,6 @@ def send_message(ws, stop_event):
         print(f"Sending: Message {i + 1}")
         ws.send(Message.from_text(f"Message {i + 1}"))
         time.sleep(1)
-    # 发送一个特殊的关闭消息
     ws.send(Message.from_text("CLOSE"))
 
 
@@ -26,35 +25,37 @@ def receive_message(ws, stop_event):
 
 def main():
     client = BlockingClient()
-    ws = client.websocket("wss://echo.websocket.org")
-    print("Status Code: ", ws.status)
-    print("Version: ", ws.version)
-    print("Headers: ", ws.headers.to_dict())
-    print("Remote Address: ", ws.remote_addr)
+    with client.websocket("wss://echo.websocket.org") as ws:
+        print("Status Code: ", ws.status)
+        print("Version: ", ws.version)
+        print("Headers: ", ws.headers.to_dict())
+        print("Remote Address: ", ws.remote_addr)
 
-    if ws.ok:
-        stop_event = threading.Event()
-        send_task = threading.Thread(target=send_message, args=(ws, stop_event))
-        receive_task = threading.Thread(target=receive_message, args=(ws, stop_event))
+        if ws.ok:
+            stop_event = threading.Event()
+            send_task = threading.Thread(target=send_message, args=(ws, stop_event))
+            receive_task = threading.Thread(
+                target=receive_message, args=(ws, stop_event)
+            )
 
-        send_task.start()
-        receive_task.start()
+            send_task.start()
+            receive_task.start()
 
-        def close_ws():
-            stop_event.set()
-            ws.close()
+            def close_ws():
+                stop_event.set()
+                ws.close()
+                send_task.join()
+                receive_task.join()
+
+            def signal_handler(sig, frame):
+                close_ws()
+                exit(0)
+
+            signal.signal(signal.SIGINT, signal_handler)
+            signal.signal(signal.SIGTERM, signal_handler)
+
             send_task.join()
             receive_task.join()
-
-        def signal_handler(sig, frame):
-            close_ws()
-            exit(0)
-
-        signal.signal(signal.SIGINT, signal_handler)
-        signal.signal(signal.SIGTERM, signal_handler)
-
-        send_task.join()
-        receive_task.join()
 
 
 if __name__ == "__main__":

@@ -3,7 +3,7 @@ import rnet
 
 
 async def main():
-    async with await rnet.get("https://httpbin.org/stream/20") as resp: 
+    async with await rnet.get("https://httpbin.org/stream/20") as resp:
         print("Status Code: ", resp.status_code)
         print("Version: ", resp.version)
         print("Response URL: ", resp.url)

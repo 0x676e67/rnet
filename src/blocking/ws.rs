@@ -205,4 +205,19 @@ impl BlockingWebSocket {
             })
         })
     }
+
+    #[inline(always)]
+    fn __enter__(slf: PyRef<Self>) -> PyRef<Self> {
+        slf
+    }
+
+    fn __exit__<'a>(
+        &self,
+        py: Python<'a>,
+        _exc_type: &Bound<'a, PyAny>,
+        _exc_value: &Bound<'a, PyAny>,
+        _traceback: &Bound<'a, PyAny>,
+    ) -> PyResult<()> {
+        self.close(py, None, None)
+    }
 }
