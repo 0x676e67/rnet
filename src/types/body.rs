@@ -4,7 +4,6 @@ use std::sync::Arc;
 
 use crate::error::stream_consumed_error;
 use arc_swap::ArcSwapOption;
-use bytes::Bytes;
 use futures_util::StreamExt;
 use pyo3::prelude::*;
 use pyo3::{FromPyObject, IntoPyObject, PyAny};
@@ -44,11 +43,7 @@ impl TryFrom<Body> for rquest::Body {
             Body::Stream(stream) => stream
                 .swap(None)
                 .and_then(Arc::into_inner)
-                .map(|stream| {
-                    stream.map(|item| {
-                        Python::with_gil(|py| item.extract::<Vec<u8>>(py).map(Bytes::from))
-                    })
-                })
+                .map(|stream| stream.map(|item| Python::with_gil(|py| item.extract::<Vec<u8>>(py))))
                 .map(rquest::Body::wrap_stream)
                 .ok_or_else(stream_consumed_error),
         }

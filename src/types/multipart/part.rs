@@ -86,9 +86,7 @@ impl Part {
                     .swap(None)
                     .and_then(Arc::into_inner)
                     .map(|stream| {
-                        stream.map(|item| {
-                            Python::with_gil(|py| item.extract::<Vec<u8>>(py).map(Bytes::from))
-                        })
+                        stream.map(|item| Python::with_gil(|py| item.extract::<Vec<u8>>(py)))
                     })
                     .map(rquest::Body::wrap_stream)
                     .map(rquest::multipart::Part::stream)
