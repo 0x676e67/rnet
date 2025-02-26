@@ -339,6 +339,7 @@ class BlockingWebSocket:
     """
     ok: builtins.bool
     status: builtins.int
+    status_code: StatusCode
     version: Version
     headers: HeaderMap
     remote_addr: typing.Optional[SocketAddr]
@@ -1436,6 +1437,7 @@ class WebSocket:
     """
     ok: builtins.bool
     status: builtins.int
+    status_code: StatusCode
     version: Version
     headers: HeaderMap
     remote_addr: typing.Optional[SocketAddr]
