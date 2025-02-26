@@ -10,11 +10,14 @@ use pyo3::prelude::*;
 use pyo3::{FromPyObject, IntoPyObject, PyAny};
 use pyo3_stub_gen::{PyStubType, TypeInfo};
 
+use super::PyIterator;
+
 /// The body to use for the request.
 #[derive(Clone)]
 pub enum Body {
     Text(String),
     Bytes(Vec<u8>),
+    Iterator(Arc<ArcSwapOption<Box<dyn Iterator<Item = Vec<u8>> + Send + Sync + 'static>>>),
     Stream(
         Arc<
             ArcSwapOption<
@@ -31,6 +34,13 @@ impl TryFrom<Body> for rquest::Body {
         match value {
             Body::Text(text) => Ok(rquest::Body::from(text)),
             Body::Bytes(bytes) => Ok(rquest::Body::from(bytes)),
+            Body::Iterator(iterator) => iterator
+                .swap(None)
+                .and_then(Arc::into_inner)
+                .map(|iter| iter.map(|item| Ok::<_, PyErr>(item)))
+                .map(futures_util::stream::iter)
+                .map(rquest::Body::wrap_stream)
+                .ok_or_else(stream_consumed_error),
             Body::Stream(stream) => stream
                 .swap(None)
                 .and_then(Arc::into_inner)
@@ -50,6 +60,7 @@ impl Debug for Body {
         match self {
             Self::Text(inner) => write!(f, "Body::Text({:?})", inner),
             Self::Bytes(inner) => write!(f, "Body::Bytes({:?})", inner),
+            Self::Iterator(_) => write!(f, "Body::Iterator(...)"),
             Self::Stream(_) => write!(f, "Body::Stream(...)"),
         }
     }
@@ -67,6 +78,11 @@ impl FromPyObject<'_> for Body {
             Ok(Self::Text(text))
         } else if let Ok(bytes) = ob.extract::<Vec<u8>>() {
             Ok(Self::Bytes(bytes))
+        } else if let Ok(iter) = ob.extract::<PyObject>() {
+            Ok(Self::Iterator(Arc::new(ArcSwapOption::from_pointee(
+                Box::new(PyIterator::new(iter))
+                    as Box<dyn Iterator<Item = Vec<u8>> + Send + Sync + 'static>,
+            ))))
         } else {
             pyo3_async_runtimes::tokio::into_stream_v2(ob.to_owned())
                 .map(|s| {

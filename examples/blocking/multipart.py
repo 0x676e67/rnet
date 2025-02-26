@@ -2,6 +2,12 @@ from pathlib import Path
 from rnet import BlockingClient, Multipart, Part
 
 
+def file_to_bytes_stream(file_path):
+    with open(file_path, "rb") as f:
+        while chunk := f.read(1024):
+            yield chunk
+
+
 def main():
     client = BlockingClient()
     resp = client.post(
@@ -16,6 +22,13 @@ def main():
                 name="LICENSE",
                 value=Path("./LICENSE"),
                 filename="LICENSE",
+                mime="text/plain",
+            ),
+            # Upload bytes stream file data
+            Part(
+                name="README",
+                value=file_to_bytes_stream("./README.md"),
+                filename="README.md",
                 mime="text/plain",
             ),
         ),

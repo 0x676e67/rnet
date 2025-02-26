@@ -1,4 +1,7 @@
-use crate::error::{stream_consumed_error, wrap_io_error, MIMEParseError};
+use crate::{
+    error::{stream_consumed_error, wrap_io_error, MIMEParseError},
+    types::PyIterator,
+};
 use arc_swap::ArcSwapOption;
 use bytes::Bytes;
 use futures_util::StreamExt;
@@ -22,6 +25,7 @@ pub enum PartData {
     Text(String),
     Bytes(Vec<u8>),
     File(PathBuf),
+    Iterator(Arc<ArcSwapOption<Box<dyn Iterator<Item = Vec<u8>> + Send + Sync + 'static>>>),
     Stream(
         Arc<
             ArcSwapOption<
@@ -37,6 +41,7 @@ impl Debug for PartData {
             Self::Text(inner) => write!(f, "PartData::Text({:?})", inner),
             Self::Bytes(inner) => write!(f, "PartData::Bytes({:?})", inner),
             Self::File(inner) => write!(f, "PartData::File({:?})", inner),
+            Self::Iterator(_) => write!(f, "PartData::Iterator(...)"),
             Self::Stream(_) => write!(f, "PartData::Stream(...)"),
         }
     }
@@ -69,6 +74,14 @@ impl Part {
                 PartData::File(path) => pyo3_async_runtimes::tokio::get_runtime()
                     .block_on(rquest::multipart::Part::file(path))
                     .map_err(wrap_io_error)?,
+                PartData::Iterator(iterator) => iterator
+                    .swap(None)
+                    .and_then(Arc::into_inner)
+                    .map(|iter| iter.map(|item| Ok::<_, PyErr>(Bytes::from(item))))
+                    .map(futures_util::stream::iter)
+                    .map(rquest::Body::wrap_stream)
+                    .map(rquest::multipart::Part::stream)
+                    .ok_or_else(stream_consumed_error)?,
                 PartData::Stream(stream) => stream
                     .swap(None)
                     .and_then(Arc::into_inner)
@@ -110,6 +123,11 @@ impl FromPyObject<'_> for PartData {
             Ok(Self::Bytes(bytes))
         } else if let Ok(path) = ob.extract::<PathBuf>() {
             Ok(Self::File(path))
+        } else if let Ok(iter) = ob.extract::<PyObject>() {
+            Ok(Self::Iterator(Arc::new(ArcSwapOption::from_pointee(
+                Box::new(PyIterator::new(iter))
+                    as Box<dyn Iterator<Item = Vec<u8>> + Send + Sync + 'static>,
+            ))))
         } else {
             pyo3_async_runtimes::tokio::into_stream_v2(ob.to_owned())
                 .map(|s| {
