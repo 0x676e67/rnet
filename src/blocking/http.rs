@@ -316,7 +316,7 @@ impl BlockingStreamer {
     }
 
     fn __exit__<'a>(
-        &'a mut self,
+        &self,
         py: Python<'a>,
         _exc_type: &Bound<'a, PyAny>,
         _exc_value: &Bound<'a, PyAny>,
