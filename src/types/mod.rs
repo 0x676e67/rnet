@@ -1,3 +1,4 @@
+mod body;
 mod dns;
 mod headers;
 mod impersonate;
@@ -10,6 +11,7 @@ mod status;
 mod version;
 
 pub use self::{
+    body::Body,
     dns::LookupIpStrategy,
     headers::HeaderMap,
     impersonate::{Impersonate, ImpersonateOS},

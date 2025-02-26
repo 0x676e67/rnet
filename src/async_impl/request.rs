@@ -99,7 +99,9 @@ where
     apply_option!(apply_if_some_ref, builder, params.json, json);
 
     // Body options.
-    apply_option!(apply_if_some, builder, params.body, body);
+    if let Some(body) = params.body.take() {
+        builder = builder.body(rquest::Body::try_from(body)?);
+    }
 
     // Multipart options.
     if let Some(multipart) = params.multipart.take() {

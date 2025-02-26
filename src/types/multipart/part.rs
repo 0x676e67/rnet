@@ -1,10 +1,13 @@
-use crate::error::{wrap_io_error, MIMEParseError};
+use crate::error::{stream_consumed_error, wrap_io_error, MIMEParseError};
+use arc_swap::ArcSwapOption;
+use bytes::Bytes;
+use futures_util::StreamExt;
 use pyo3::prelude::*;
 use pyo3_stub_gen::{
     derive::{gen_stub_pyclass, gen_stub_pymethods},
     PyStubType, TypeInfo,
 };
-use std::path::PathBuf;
+use std::{fmt::Debug, path::PathBuf, pin::Pin, sync::Arc};
 
 /// A part of a multipart form.
 #[gen_stub_pyclass]
@@ -15,11 +18,28 @@ pub struct Part {
 }
 
 /// The data for a part of a multipart form.
-#[derive(Debug, FromPyObject)]
 pub enum PartData {
     Text(String),
     Bytes(Vec<u8>),
     File(PathBuf),
+    Stream(
+        Arc<
+            ArcSwapOption<
+                Pin<Box<dyn futures_util::Stream<Item = PyObject> + Send + Sync + 'static>>,
+            >,
+        >,
+    ),
+}
+
+impl Debug for PartData {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Text(inner) => write!(f, "PartData::Text({:?})", inner),
+            Self::Bytes(inner) => write!(f, "PartData::Bytes({:?})", inner),
+            Self::File(inner) => write!(f, "PartData::File({:?})", inner),
+            Self::Stream(_) => write!(f, "PartData::Stream(...)"),
+        }
+    }
 }
 
 impl PyStubType for PartData {
@@ -49,6 +69,17 @@ impl Part {
                 PartData::File(path) => pyo3_async_runtimes::tokio::get_runtime()
                     .block_on(rquest::multipart::Part::file(path))
                     .map_err(wrap_io_error)?,
+                PartData::Stream(stream) => stream
+                    .swap(None)
+                    .and_then(Arc::into_inner)
+                    .map(|stream| {
+                        stream.map(|item| {
+                            Python::with_gil(|py| item.extract::<Vec<u8>>(py).map(Bytes::from))
+                        })
+                    })
+                    .map(rquest::Body::wrap_stream)
+                    .map(rquest::multipart::Part::stream)
+                    .ok_or_else(stream_consumed_error)?,
             };
 
             // Set the filename and MIME type if provided
@@ -68,5 +99,30 @@ impl Part {
                 inner: Some(inner),
             })
         })
+    }
+}
+
+impl FromPyObject<'_> for PartData {
+    fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
+        if let Ok(text) = ob.extract::<String>() {
+            Ok(Self::Text(text))
+        } else if let Ok(bytes) = ob.extract::<Vec<u8>>() {
+            Ok(Self::Bytes(bytes))
+        } else if let Ok(path) = ob.extract::<PathBuf>() {
+            Ok(Self::File(path))
+        } else {
+            match pyo3_async_runtimes::tokio::into_stream_v2(ob.to_owned()) {
+                Ok(stream) => {
+                    let stream = ArcSwapOption::from_pointee(Box::pin(stream)
+                        as Pin<
+                            Box<dyn futures_util::Stream<Item = PyObject> + Send + Sync + 'static>,
+                        >);
+                    Ok(Self::Stream(Arc::new(stream)))
+                }
+                Err(_) => Err(pyo3::exceptions::PyTypeError::new_err(
+                    "Expected str or bytes or file path or bytes stream",
+                )),
+            }
+        }
     }
 }

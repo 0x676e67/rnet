@@ -1,4 +1,4 @@
-use crate::types::{Json, Multipart, Version};
+use crate::types::{Body, Json, Multipart, Version};
 use indexmap::IndexMap;
 use pyo3::prelude::*;
 use pyo3_stub_gen::derive::gen_stub_pyclass;
@@ -95,7 +95,7 @@ pub struct RequestParams {
 
     /// The body to use for the request.
     #[pyo3(get)]
-    pub body: Option<Vec<u8>>,
+    pub body: Option<Body>,
 
     /// The multipart form to use for the request.
     #[pyo3(get)]

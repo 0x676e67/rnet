@@ -1,7 +1,14 @@
 from pathlib import Path
 import asyncio
+import aiofiles
 import rnet
 from rnet import Multipart, Part, Impersonate
+
+
+async def file_to_bytes_stream(file_path):
+    async with aiofiles.open(file_path, "rb") as f:
+        while chunk := await f.read(1024):
+            yield chunk
 
 
 async def main():
@@ -18,6 +25,13 @@ async def main():
                 name="LICENSE",
                 value=Path("./LICENSE"),
                 filename="LICENSE",
+                mime="text/plain",
+            ),
+            # Upload bytes stream file data
+            Part(
+                name="README",
+                value=file_to_bytes_stream("./README.md"),
+                filename="README.md",
                 mime="text/plain",
             ),
         ),

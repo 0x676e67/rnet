@@ -215,6 +215,12 @@ class BlockingResponse:
     content_length: builtins.int
     remote_addr: typing.Optional[SocketAddr]
     encoding: builtins.str
+    def __enter__(self) -> BlockingResponse:
+        ...
+
+    def __exit__(self, _exc_type:typing.Any, _exc_value:typing.Any, _traceback:typing.Any) -> None:
+        ...
+
     def peer_certificate(self) -> typing.Optional[builtins.list[builtins.int]]:
         r"""
         Returns the TLS peer certificate of the response.
@@ -320,7 +326,7 @@ class BlockingStreamer:
     def __next__(self) -> typing.Optional[typing.Any]:
         ...
 
-    def __enter__(self) -> typing.Any:
+    def __enter__(self) -> BlockingStreamer:
         ...
 
     def __exit__(self, _exc_type:typing.Any, _exc_value:typing.Any, _traceback:typing.Any) -> None:
@@ -340,6 +346,12 @@ class BlockingWebSocket:
         ...
 
     def __next__(self) -> typing.Optional[Message]:
+        ...
+
+    def __enter__(self) -> BlockingWebSocket:
+        ...
+
+    def __exit__(self, _exc_type:typing.Any, _exc_value:typing.Any, _traceback:typing.Any) -> None:
         ...
 
     def protocol(self) -> typing.Optional[builtins.str]:
@@ -1130,7 +1142,7 @@ class RequestParams:
     query: typing.Optional[builtins.list[tuple[builtins.str, builtins.str]]]
     form: typing.Optional[builtins.list[tuple[builtins.str, builtins.str]]]
     json: typing.Optional[typing.Any]
-    body: typing.Optional[builtins.list[builtins.int]]
+    body: typing.Optional[typing.Any]
     multipart: typing.Optional[Multipart]
 
 class Response:
@@ -1169,6 +1181,12 @@ class Response:
     content_length: builtins.int
     remote_addr: typing.Optional[SocketAddr]
     encoding: builtins.str
+    def __aenter__(self) -> typing.Any:
+        ...
+
+    def __aexit__(self, _exc_type:typing.Any, _exc_value:typing.Any, _traceback:typing.Any) -> typing.Any:
+        ...
+
     def peer_certificate(self) -> typing.Optional[builtins.list[builtins.int]]:
         r"""
         Returns the TLS peer certificate of the response.
@@ -1370,7 +1388,7 @@ class Streamer:
     def __aiter__(self) -> Streamer:
         ...
 
-    def __anext__(self) -> typing.Optional[typing.Any]:
+    def __anext__(self) -> typing.Any:
         ...
 
     def __aenter__(self) -> typing.Any:
@@ -1452,6 +1470,12 @@ class WebSocket:
         Returns a `PyResult` containing an `Option` with a `Bound` object representing the received message.
         If no message is received, returns `None`.
         """
+        ...
+
+    def __aenter__(self) -> typing.Any:
+        ...
+
+    def __aexit__(self, _exc_type:typing.Any, _exc_value:typing.Any, _traceback:typing.Any) -> typing.Any:
         ...
 
     def protocol(self) -> typing.Optional[builtins.str]:

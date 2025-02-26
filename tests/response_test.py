@@ -18,6 +18,11 @@ async def test_websocket():
 
 @pytest.mark.asyncio
 async def test_multiple_requests():
+    async def file_to_bytes_stream(file_path):
+        with open(file_path, "rb") as f:
+            while chunk := f.read(1024):
+                yield chunk
+
     resp = await client.post(
         "https://httpbin.org/anything",
         multipart=Multipart(
@@ -27,6 +32,12 @@ async def test_multiple_requests():
                 name="LICENSE",
                 value=Path("Cargo.toml"),
                 filename="LICENSE",
+                mime="text/plain",
+            ),
+            Part(
+                name="README",
+                value=file_to_bytes_stream("./README.md"),
+                filename="README.md",
                 mime="text/plain",
             ),
         ),
