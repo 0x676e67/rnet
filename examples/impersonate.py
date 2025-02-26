@@ -7,8 +7,7 @@ async def main():
         impersonate=Impersonate.Firefox135,
         user_agent="rnet",
     )
-    resp = await client.get("https://tls.peet.ws/api/all")
-    async with resp:
+    async with await client.get("https://tls.peet.ws/api/all") as resp:
         print("Status Code: ", resp.status_code)
         print("Version: ", resp.version)
         print("Response URL: ", resp.url)
