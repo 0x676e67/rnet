@@ -431,9 +431,7 @@ impl Streamer {
         slf
     }
 
-    fn __anext__<'rt>(&self, py: Python<'rt>) -> PyResult<Option<Bound<'rt, PyAny>>> {
-        // Here we clone the inner field, so we can use it
-        // in our future.
+    fn __anext__<'rt>(&self, py: Python<'rt>) -> PyResult<Bound<'rt, PyAny>> {
         let streamer = self.0.clone();
         future_into_py(py, async move {
             // Here we lock the mutex to access the data inside
@@ -459,7 +457,6 @@ impl Streamer {
                 None => Err(py_stop_async_iteration_error()),
             }
         })
-        .map(Some)
     }
 
     fn __aenter__<'a>(slf: PyRef<'a, Self>, py: Python<'a>) -> PyResult<Bound<'a, PyAny>> {
