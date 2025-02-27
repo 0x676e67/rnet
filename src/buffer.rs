@@ -17,9 +17,15 @@
 
 use std::os::raw::c_int;
 
+use bytes::Bytes;
 use pyo3::ffi;
 use pyo3::prelude::*;
 use pyo3::IntoPyObjectExt;
+
+/// A trait to define common buffer behavior
+trait BufferTrait {
+    fn as_slice(&self) -> &[u8];
+}
 
 /// A bytes-like object that implements buffer protocol.
 #[pyclass]
@@ -27,20 +33,20 @@ pub struct Buffer {
     inner: Vec<u8>,
 }
 
+impl BufferTrait for Buffer {
+    fn as_slice(&self) -> &[u8] {
+        &self.inner
+    }
+}
+
 impl Buffer {
-    pub fn new<B>(inner: B) -> Self
-    where
-        B: Into<Vec<u8>>,
-    {
-        Buffer {
-            inner: inner.into(),
-        }
+    pub fn new(inner: Vec<u8>) -> Self {
+        Buffer { inner }
     }
 
     /// Consume self to build a bytes
     pub fn into_bytes(self, py: Python) -> PyResult<Py<PyAny>> {
         let buffer = self.into_py_any(py)?;
-
         unsafe { PyObject::from_owned_ptr_or_err(py, ffi::PyBytes_FromObject(buffer.as_ptr())) }
     }
 
@@ -49,7 +55,6 @@ impl Buffer {
         let buffer = self.into_py_any(py)?;
         let view =
             unsafe { Bound::from_owned_ptr_or_err(py, ffi::PyBytes_FromObject(buffer.as_ptr()))? };
-
         Ok(view)
     }
 }
@@ -61,18 +66,71 @@ impl Buffer {
         view: *mut ffi::Py_buffer,
         flags: c_int,
     ) -> PyResult<()> {
-        let bytes = slf.inner.as_slice();
-        let ret = ffi::PyBuffer_FillInfo(
-            view,
-            slf.as_ptr() as *mut _,
-            bytes.as_ptr() as *mut _,
-            bytes.len().try_into().map_err(|_| PyErr::fetch(slf.py()))?,
-            1, // read only
-            flags,
-        );
-        if ret == -1 {
-            return Err(PyErr::fetch(slf.py()));
-        }
-        Ok(())
+        fill_buffer_info(slf.as_slice(), slf.as_ptr(), view, flags, slf.py())
     }
+}
+
+/// A bytes-like object that implements buffer protocol.
+#[pyclass]
+pub struct BytesBuffer {
+    inner: Bytes,
+}
+
+impl BufferTrait for BytesBuffer {
+    fn as_slice(&self) -> &[u8] {
+        &self.inner
+    }
+}
+
+impl BytesBuffer {
+    pub fn new(inner: Bytes) -> Self {
+        BytesBuffer { inner }
+    }
+
+    /// Consume self to build a bytes
+    pub fn into_bytes(self, py: Python) -> PyResult<Py<PyAny>> {
+        let buffer = self.into_py_any(py)?;
+        unsafe { PyObject::from_owned_ptr_or_err(py, ffi::PyBytes_FromObject(buffer.as_ptr())) }
+    }
+
+    /// Consume self to build a bytes
+    pub fn into_bytes_ref(self, py: Python) -> PyResult<Bound<PyAny>> {
+        let buffer = self.into_py_any(py)?;
+        let view =
+            unsafe { Bound::from_owned_ptr_or_err(py, ffi::PyBytes_FromObject(buffer.as_ptr()))? };
+        Ok(view)
+    }
+}
+
+#[pymethods]
+impl BytesBuffer {
+    unsafe fn __getbuffer__(
+        slf: PyRefMut<Self>,
+        view: *mut ffi::Py_buffer,
+        flags: c_int,
+    ) -> PyResult<()> {
+        fill_buffer_info(slf.as_slice(), slf.as_ptr(), view, flags, slf.py())
+    }
+}
+
+/// A helper function to fill buffer info
+unsafe fn fill_buffer_info(
+    bytes: &[u8],
+    obj_ptr: *mut pyo3::ffi::PyObject,
+    view: *mut ffi::Py_buffer,
+    flags: c_int,
+    py: Python,
+) -> PyResult<()> {
+    let ret = ffi::PyBuffer_FillInfo(
+        view,
+        obj_ptr as *mut _,
+        bytes.as_ptr() as *mut _,
+        bytes.len().try_into().map_err(|_| PyErr::fetch(py))?,
+        1, // read only
+        flags,
+    );
+    if ret == -1 {
+        return Err(PyErr::fetch(py));
+    }
+    Ok(())
 }

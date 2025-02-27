@@ -1,5 +1,5 @@
 use crate::{
-    buffer::Buffer,
+    buffer::{Buffer, BytesBuffer},
     error::{memory_error, py_stop_async_iteration_error, wrap_rquest_error, wrap_serde_error},
     types::{HeaderMap, Json, SocketAddr, StatusCode, Version},
 };
@@ -286,7 +286,7 @@ impl Response {
         let resp = self.inner()?;
         future_into_py(py, async move {
             let bytes = resp.bytes().await.map_err(wrap_rquest_error)?;
-            let buffer = Buffer::new(bytes);
+            let buffer = BytesBuffer::new(bytes);
             Python::with_gil(|py| buffer.into_bytes(py))
         })
     }
@@ -453,7 +453,7 @@ impl Streamer {
                 .map_err(wrap_rquest_error)?;
 
             // If we have a value, we return it as a PyObject.
-            let buffer = Buffer::new(val);
+            let buffer = BytesBuffer::new(val);
             Python::with_gil(|py| buffer.into_bytes(py))
         })
     }

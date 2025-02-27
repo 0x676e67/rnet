@@ -2,13 +2,13 @@ use std::ops::Deref;
 
 use crate::{
     async_impl,
-    buffer::Buffer,
+    buffer::BytesBuffer,
     error::{py_stop_iteration_error, wrap_rquest_error, wrap_serde_error},
     types::{HeaderMap, Json, SocketAddr, StatusCode, Version},
 };
 use futures_util::StreamExt;
 use indexmap::IndexMap;
-use pyo3::{prelude::*, IntoPyObjectExt};
+use pyo3::prelude::*;
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 use serde_json::Value;
 
@@ -230,7 +230,8 @@ impl BlockingResponse {
             let bytes = pyo3_async_runtimes::tokio::get_runtime()
                 .block_on(resp.bytes())
                 .map_err(wrap_rquest_error)?;
-            Python::with_gil(|py| bytes.into_bound_py_any(py).map(|obj| obj.unbind()))
+            let buffer = BytesBuffer::new(bytes);
+            Python::with_gil(|py| buffer.into_bytes(py))
         })
     }
 
@@ -321,7 +322,7 @@ impl BlockingStreamer {
                     .map_err(wrap_rquest_error)?;
 
                 // If we have a value, we return it as a PyObject.
-                let buffer = Buffer::new(val);
+                let buffer = BytesBuffer::new(val);
                 Python::with_gil(|py| buffer.into_bytes(py))
             })
         })
