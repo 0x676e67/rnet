@@ -307,7 +307,6 @@ fn rnet(m: &Bound<'_, PyModule>) -> PyResult<()> {
 
     m.add_class::<Method>()?;
     m.add_class::<Version>()?;
-    m.add_class::<HeaderMap>()?;
     m.add_class::<Impersonate>()?;
     m.add_class::<ImpersonateOS>()?;
     m.add_class::<SocketAddr>()?;

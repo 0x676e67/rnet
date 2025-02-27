@@ -65,7 +65,7 @@ async def test_set_and_get_cookie():
 async def test_get_headers():
     url = "https://httpbin.org/headers"
     response = await client.get(url)
-    headers = response.headers.to_dict()
+    headers = response.headers
     assert headers is not None
 
 

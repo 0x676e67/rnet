@@ -9,7 +9,7 @@ async def test_update_headers():
     client = rnet.Client()
     headers = {"user-agent": "rnet"}
     client.update(headers=headers)
-    assert client.headers.to_dict() == {"user-agent": b"rnet"}
+    assert client.headers == {"user-agent": b"rnet"}
 
 
 @pytest.mark.asyncio

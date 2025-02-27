@@ -2,6 +2,7 @@
 # ruff: noqa: E501, F401
 
 import builtins
+import ipaddress
 import typing
 from enum import Enum, auto
 
@@ -10,7 +11,7 @@ class BlockingClient:
     A blocking client for making HTTP requests.
     """
     user_agent: typing.Optional[builtins.str]
-    headers: HeaderMap
+    headers: typing.Dict[str, bytes]
     def __new__(cls,**kwds): ...
     def get_cookies(self, url:builtins.str) -> builtins.list[builtins.str]:
         r"""
@@ -211,7 +212,7 @@ class BlockingResponse:
     status: builtins.int
     status_code: StatusCode
     version: Version
-    headers: HeaderMap
+    headers: typing.Dict[str, bytes]
     content_length: builtins.int
     remote_addr: typing.Optional[SocketAddr]
     encoding: builtins.str
@@ -321,7 +322,7 @@ class BlockingWebSocket:
     status: builtins.int
     status_code: StatusCode
     version: Version
-    headers: HeaderMap
+    headers: typing.Dict[str, bytes]
     remote_addr: typing.Optional[SocketAddr]
     def __iter__(self) -> BlockingWebSocket:
         ...
@@ -390,7 +391,7 @@ class Client:
     A client for making HTTP requests.
     """
     user_agent: typing.Optional[builtins.str]
-    headers: HeaderMap
+    headers: typing.Dict[str, bytes]
     def __new__(cls,**kwds): ...
     def get_cookies(self, url:builtins.str) -> builtins.list[builtins.str]:
         r"""
@@ -793,6 +794,7 @@ class ClientParams:
     impersonate_skip_headers: typing.Optional[builtins.bool]
     base_url: typing.Optional[builtins.str]
     user_agent: typing.Optional[builtins.str]
+    default_headers: typing.Optional[typing.Dict[str, bytes]]
     headers_order: typing.Optional[builtins.list[builtins.str]]
     referer: typing.Optional[builtins.bool]
     allow_redirects: typing.Optional[builtins.bool]
@@ -806,6 +808,7 @@ class ClientParams:
     tcp_keepalive: typing.Optional[builtins.int]
     pool_idle_timeout: typing.Optional[builtins.int]
     pool_max_idle_per_host: typing.Optional[builtins.int]
+    pool_max_size: typing.Optional[builtins.int]
     http1_only: typing.Optional[builtins.bool]
     http2_only: typing.Optional[builtins.bool]
     https_only: typing.Optional[builtins.bool]
@@ -820,56 +823,6 @@ class ClientParams:
     brotli: typing.Optional[builtins.bool]
     deflate: typing.Optional[builtins.bool]
     zstd: typing.Optional[builtins.bool]
-
-class HeaderMap:
-    r"""
-    A HTTP header map.
-    
-    # Examples
-    
-    ```python
-    import rnet
-    from rnet import Method
-    
-    async def main():
-        resp = await rnet.request(Method.GET, "https://www.google.com/")
-        print("Headers: ", resp.headers.to_dict())
-    
-    if __name__ == "__main__":
-        import asyncio
-        asyncio.run(main())
-    ```
-    """
-    def to_dict(self) -> dict:
-        r"""
-        Converts the header map to a Python dictionary.
-        
-        # Returns
-        
-        A Python dictionary representing the headers.
-        """
-        ...
-
-    def __getitem__(self, key:builtins.str) -> typing.Optional[typing.Any]:
-        r"""
-        Gets the value of the specified header.
-        
-        # Arguments
-        
-        * `key` - The name of the header.
-        
-        # Returns
-        
-        An optional byte slice representing the value of the header.
-        """
-        ...
-
-    def __str__(self) -> builtins.str:
-        r"""
-        Returns a string representation of the header map.
-        """
-        ...
-
 
 class Message:
     r"""
@@ -1098,6 +1051,7 @@ class RequestParams:
         timeout=10,
         connect_timeout=5,
         read_timeout=15,
+        local_address="192.168.1.188",
         no_keepalive=True,
         no_proxy=False,
         http1_only=False,
@@ -1111,10 +1065,12 @@ class RequestParams:
     ```
     """
     proxy: typing.Optional[builtins.str]
+    local_address: typing.Optional[typing.Optional[typing.Union[str, ipaddress.IPv4Address, ipaddress.IPv6Address]]]
     interface: typing.Optional[builtins.str]
     timeout: typing.Optional[builtins.int]
     read_timeout: typing.Optional[builtins.int]
     version: typing.Optional[Version]
+    headers: typing.Optional[typing.Dict[str, bytes]]
     allow_redirects: typing.Optional[builtins.bool]
     max_redirects: typing.Optional[builtins.int]
     auth: typing.Optional[builtins.str]
@@ -1141,7 +1097,7 @@ class Response:
         print("Status Code: ", response.status_code)
         print("Version: ", response.version)
         print("Response URL: ", response.url)
-        print("Headers: ", response.headers.to_dict())
+        print("Headers: ", response.headers)
         print("Content-Length: ", response.content_length)
         print("Encoding: ", response.encoding)
         print("Remote Address: ", response.remote_addr)
@@ -1158,7 +1114,7 @@ class Response:
     status: builtins.int
     status_code: StatusCode
     version: Version
-    headers: HeaderMap
+    headers: typing.Dict[str, bytes]
     content_length: builtins.int
     remote_addr: typing.Optional[SocketAddr]
     encoding: builtins.str
@@ -1332,7 +1288,7 @@ class Streamer:
         print("Status Code: ", resp.status_code)
         print("Version: ", resp.version)
         print("Response URL: ", resp.url)
-        print("Headers: ", resp.headers.to_dict())
+        print("Headers: ", resp.headers)
         print("Content-Length: ", resp.content_length)
         print("Encoding: ", resp.encoding)
         print("Remote Address: ", resp.remote_addr)
@@ -1387,8 +1343,10 @@ class UpdateClientParams:
     impersonate_os: typing.Optional[ImpersonateOS]
     impersonate_skip_http2: typing.Optional[builtins.bool]
     impersonate_skip_headers: typing.Optional[builtins.bool]
+    headers: typing.Optional[typing.Dict[str, bytes]]
     headers_order: typing.Optional[builtins.list[builtins.str]]
     proxies: typing.Optional[builtins.list[Proxy]]
+    local_address: typing.Optional[typing.Optional[typing.Union[str, ipaddress.IPv4Address, ipaddress.IPv6Address]]]
     interface: typing.Optional[builtins.str]
 
 class WebSocket:
@@ -1399,7 +1357,7 @@ class WebSocket:
     status: builtins.int
     status_code: StatusCode
     version: Version
-    headers: HeaderMap
+    headers: typing.Dict[str, bytes]
     remote_addr: typing.Optional[SocketAddr]
     def __aiter__(self) -> WebSocket:
         r"""

@@ -11,7 +11,7 @@ async def main():
     print("Status Code: ", resp.status_code)
     print("Version: ", resp.version)
     print("Response URL: ", resp.url)
-    print("Headers: ", resp.headers.to_dict())
+    print("Headers: ", resp.headers)
     print("Cookies: ", resp.cookies)
     print("Content-Length: ", resp.content_length)
     print("Encoding: ", resp.encoding)

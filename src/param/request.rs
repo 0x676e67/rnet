@@ -1,8 +1,6 @@
-use crate::types::{Body, Json, Multipart, Version};
-use indexmap::IndexMap;
+use crate::types::{Body, HeaderMap, IpAddr, Json, Multipart, Version};
 use pyo3::prelude::*;
 use pyo3_stub_gen::derive::gen_stub_pyclass;
-use std::net::IpAddr;
 
 /// The parameters for a request.
 ///
@@ -20,6 +18,7 @@ use std::net::IpAddr;
 ///     timeout=10,
 ///     connect_timeout=5,
 ///     read_timeout=15,
+///     local_address="192.168.1.188",
 ///     no_keepalive=True,
 ///     no_proxy=False,
 ///     http1_only=False,
@@ -40,6 +39,7 @@ pub struct RequestParams {
     pub proxy: Option<String>,
 
     /// Bind to a local IP Address.
+    #[pyo3(get)]
     pub local_address: Option<IpAddr>,
 
     /// Bind to an interface by `SO_BINDTODEVICE`.
@@ -59,7 +59,8 @@ pub struct RequestParams {
     pub version: Option<Version>,
 
     /// The headers to use for the request.
-    pub headers: Option<IndexMap<String, String>>,
+    #[pyo3(get)]
+    pub headers: Option<HeaderMap>,
 
     /// Whether to allow redirects.
     #[pyo3(get)]

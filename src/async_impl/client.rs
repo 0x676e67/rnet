@@ -14,11 +14,11 @@ use pyo3::prelude::*;
 use pyo3_async_runtimes::tokio::future_into_py;
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 use rquest::{
-    header::{HeaderMap, HeaderName, HeaderValue},
+    header::{self, HeaderMap, HeaderName, HeaderValue},
     redirect::Policy,
     Url,
 };
-use std::ops::Deref;
+use std::{net::IpAddr, num::NonZeroUsize, ops::Deref};
 use std::{sync::Arc, time::Duration};
 
 /// A client for making HTTP requests.
@@ -455,15 +455,14 @@ impl Client {
 
             // Default headers options.
             if let Some(default_headers) = params.default_headers.take() {
+                let default_headers: header::HeaderMap = default_headers.into();
                 let len = default_headers.len();
                 let default_headers = default_headers.into_iter().try_fold(
                     HeaderMap::with_capacity(len),
-                    |mut headers, (key, value)| {
-                        let name = HeaderName::from_bytes(key.as_bytes())
-                            .map_err(wrap_invali_header_name_error)?;
-                        let value = HeaderValue::from_bytes(value.as_bytes())
-                            .map_err(wrap_invali_header_value_error)?;
-                        headers.insert(name, value);
+                    |mut headers, (name, value)| {
+                        if let Some(name) = name {
+                            headers.insert(name, value);
+                        }
                         Ok::<_, PyErr>(headers)
                     },
                 )?;
@@ -562,7 +561,13 @@ impl Client {
                 params.pool_max_idle_per_host,
                 pool_max_idle_per_host
             );
-            apply_option!(apply_if_some, builder, params.pool_max_size, pool_max_size);
+            apply_option!(
+                apply_transformed_option,
+                builder,
+                params.pool_max_size,
+                pool_max_size,
+                NonZeroUsize::new
+            );
 
             // Protocol options.
             apply_option!(
@@ -608,7 +613,13 @@ impl Client {
                 no_proxy,
                 false
             );
-            apply_option!(apply_if_some, builder, params.local_address, local_address);
+            apply_option!(
+                apply_transformed_option,
+                builder,
+                params.local_address,
+                local_address,
+                IpAddr::from
+            );
             rquest::cfg_bindable_device!({
                 apply_option!(apply_if_some, builder, params.interface, interface);
             });
@@ -793,17 +804,16 @@ impl Client {
 
             // Default headers options.
             params.headers.take().map(|default_headers| {
+                let default_headers: header::HeaderMap = default_headers.into();
                 let len = default_headers.len();
                 let _ = default_headers
                     .into_iter()
                     .try_fold(
                         HeaderMap::with_capacity(len),
-                        |mut headers, (key, value)| {
-                            let name = HeaderName::from_bytes(key.as_bytes())
-                                .map_err(wrap_invali_header_name_error)?;
-                            let value = HeaderValue::from_bytes(value.as_bytes())
-                                .map_err(wrap_invali_header_value_error)?;
-                            headers.insert(name, value);
+                        |mut headers, (name, value)| {
+                            if let Some(name) = name {
+                                headers.insert(name, value);
+                            }
                             Ok::<_, PyErr>(headers)
                         },
                     )
@@ -831,7 +841,7 @@ impl Client {
             params
                 .local_address
                 .take()
-                .map(|value| client_mut.local_address(value));
+                .map(|value| client_mut.local_address::<std::net::IpAddr>(value.into()));
             rquest::cfg_bindable_device!({
                 params
                     .interface

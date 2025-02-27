@@ -11,7 +11,7 @@ pub use self::{
     body::Body,
     enums::{Impersonate, ImpersonateOS, LookupIpStrategy, Method, Version},
     headers::HeaderMap,
-    ipaddr::SocketAddr,
+    ipaddr::{IpAddr, SocketAddr},
     json::Json,
     multipart::{Multipart, Part},
     proxy::Proxy,

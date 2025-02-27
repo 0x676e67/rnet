@@ -7,7 +7,9 @@ use crate::{
     Result,
 };
 use pyo3::prelude::*;
+use rquest::header;
 use rquest::redirect::Policy;
+use std::net::IpAddr;
 use std::ops::Deref;
 use std::{sync::Arc, time::Duration};
 
@@ -66,15 +68,24 @@ where
 
     // Network options.
     apply_option!(apply_if_some, builder, params.proxy, proxy);
-    apply_option!(apply_if_some, builder, params.local_address, local_address);
+    apply_option!(
+        apply_transformed_option,
+        builder,
+        params.local_address,
+        local_address,
+        IpAddr::from
+    );
     rquest::cfg_bindable_device!(
         apply_option!(apply_if_some, builder, params.interface, interface);
     );
 
     // Headers options.
     if let Some(headers) = params.headers.take() {
+        let headers: header::HeaderMap = headers.into();
         for (key, value) in headers {
-            builder = builder.header(key, value);
+            if let Some(key) = key {
+                builder = builder.header(key, value);
+            }
         }
     }
 

@@ -33,7 +33,7 @@ async def main():
     async with await rnet.websocket("wss://echo.websocket.org") as ws:
         print("Status Code: ", ws.status)
         print("Version: ", ws.version)
-        print("Headers: ", ws.headers.to_dict())
+        print("Headers: ", ws.headers)
         print("Remote Address: ", ws.remote_addr)
 
         if ws.ok:

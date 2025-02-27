@@ -1,8 +1,6 @@
-use crate::types::{Impersonate, ImpersonateOS, LookupIpStrategy, Proxy};
-use indexmap::IndexMap;
+use crate::types::{HeaderMap, Impersonate, ImpersonateOS, IpAddr, LookupIpStrategy, Proxy};
 use pyo3::prelude::*;
 use pyo3_stub_gen::derive::gen_stub_pyclass;
-use std::{net::IpAddr, num::NonZeroUsize};
 
 /// The parameters for a request.
 ///
@@ -59,7 +57,8 @@ pub struct ClientParams {
     pub user_agent: Option<String>,
 
     /// The headers to use for the request.
-    pub default_headers: Option<IndexMap<String, String>>,
+    #[pyo3(get)]
+    pub default_headers: Option<HeaderMap>,
 
     /// The order of the headers to use for the request.
     #[pyo3(get)]
@@ -115,7 +114,8 @@ pub struct ClientParams {
     pub pool_max_idle_per_host: Option<usize>,
 
     /// Sets the maximum number of connections in the pool.
-    pub pool_max_size: Option<NonZeroUsize>,
+    #[pyo3(get)]
+    pub pool_max_size: Option<usize>,
 
     // ========= Protocol options =========
     /// Whether to use the HTTP/1 protocol only.
@@ -222,7 +222,8 @@ pub struct UpdateClientParams {
     pub impersonate_skip_headers: Option<bool>,
 
     /// The headers to use for the request.
-    pub headers: Option<IndexMap<String, String>>,
+    #[pyo3(get)]
+    pub headers: Option<HeaderMap>,
 
     /// The order of the headers to use for the request.
     #[pyo3(get)]
@@ -234,6 +235,7 @@ pub struct UpdateClientParams {
     pub proxies: Option<Vec<Proxy>>,
 
     /// Bind to a local IP Address.
+    #[pyo3(get)]
     pub local_address: Option<IpAddr>,
 
     /// Bind to an interface by `SO_BINDTODEVICE`.

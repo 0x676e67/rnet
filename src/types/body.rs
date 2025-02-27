@@ -100,8 +100,4 @@ impl<'rt> IntoPyObject<'rt> for Body {
     fn into_pyobject(self, _: Python<'rt>) -> Result<Self::Output, Self::Error> {
         unimplemented!()
     }
-
-    fn type_output() -> pyo3::inspect::types::TypeInfo {
-        pyo3::inspect::types::TypeInfo::Any
-    }
 }
