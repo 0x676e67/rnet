@@ -52,10 +52,6 @@ pub fn stream_consumed_error() -> pyo3::PyErr {
     BodyError::new_err("Stream is already consumed")
 }
 
-pub fn wrap_serde_error(error: serde_json::Error) -> pyo3::PyErr {
-    PyRuntimeError::new_err(format!("Serde error: {:?}", error))
-}
-
 pub fn wrap_invali_header_name_error(error: header::InvalidHeaderName) -> pyo3::PyErr {
     PyRuntimeError::new_err(format!("Invalid header name: {:?}", error))
 }

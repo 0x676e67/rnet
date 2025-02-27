@@ -1,6 +1,6 @@
 use crate::{
     buffer::{Buffer, BytesBuffer, PyBufferProtocol},
-    error::{memory_error, py_stop_async_iteration_error, wrap_rquest_error, wrap_serde_error},
+    error::{memory_error, py_stop_async_iteration_error, wrap_rquest_error},
     types::{HeaderMap, Json, SocketAddr, StatusCode, Version},
 };
 use arc_swap::ArcSwapOption;
@@ -11,7 +11,6 @@ use pyo3::{prelude::*, IntoPyObjectExt};
 use pyo3_async_runtimes::tokio::future_into_py;
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 use rquest::{header, TlsInfo, Url};
-use serde_json::Value;
 use std::{ops::Deref, pin::Pin, sync::Arc};
 use tokio::sync::Mutex;
 
@@ -251,32 +250,6 @@ impl Response {
         let resp = self.inner()?;
         future_into_py(py, async move {
             resp.json::<Json>().await.map_err(wrap_rquest_error)
-        })
-    }
-
-    /// Returns the JSON string content of the response.
-    ///
-    /// # Returns
-    ///
-    /// A Python object representing the JSON content of the response.
-    pub fn json_str<'rt>(&self, py: Python<'rt>) -> PyResult<Bound<'rt, PyAny>> {
-        let resp = self.inner()?;
-        future_into_py(py, async move {
-            let json = resp.json::<Value>().await.map_err(wrap_rquest_error)?;
-            serde_json::to_string(&json).map_err(wrap_serde_error)
-        })
-    }
-
-    /// Returns the JSON pretty string content of the response.
-    ///
-    /// # Returns
-    ///
-    /// A Python object representing the JSON content of the response.
-    pub fn json_str_pretty<'rt>(&self, py: Python<'rt>) -> PyResult<Bound<'rt, PyAny>> {
-        let resp = self.inner()?;
-        future_into_py(py, async move {
-            let json = resp.json::<Value>().await.map_err(wrap_rquest_error)?;
-            serde_json::to_string_pretty(&json).map_err(wrap_serde_error)
         })
     }
 

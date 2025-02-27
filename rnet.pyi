@@ -265,26 +265,6 @@ class BlockingResponse:
         """
         ...
 
-    def json_str(self) -> builtins.str:
-        r"""
-        Returns the JSON string content of the response.
-        
-        # Returns
-        
-        A Python object representing the JSON content of the response.
-        """
-        ...
-
-    def json_str_pretty(self) -> builtins.str:
-        r"""
-        Returns the JSON pretty string content of the response.
-        
-        # Returns
-        
-        A Python object representing the JSON content of the response.
-        """
-        ...
-
     def bytes(self) -> typing.Any:
         r"""
         Returns the bytes content of the response.
@@ -1225,26 +1205,6 @@ class Response:
     def json(self) -> typing.Any:
         r"""
         Returns the JSON content of the response.
-        
-        # Returns
-        
-        A Python object representing the JSON content of the response.
-        """
-        ...
-
-    def json_str(self) -> typing.Any:
-        r"""
-        Returns the JSON string content of the response.
-        
-        # Returns
-        
-        A Python object representing the JSON content of the response.
-        """
-        ...
-
-    def json_str_pretty(self) -> typing.Any:
-        r"""
-        Returns the JSON pretty string content of the response.
         
         # Returns
         
