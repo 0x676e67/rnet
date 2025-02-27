@@ -23,8 +23,22 @@ use pyo3::prelude::*;
 use pyo3::IntoPyObjectExt;
 
 /// A trait to define common buffer behavior
-trait BufferTrait {
+pub trait PyBufferProtocol<'py>: IntoPyObject<'py> {
     fn as_slice(&self) -> &[u8];
+
+    /// Consume self to build a bytes
+    fn into_bytes(self, py: Python<'py>) -> PyResult<Py<PyAny>> {
+        let buffer = self.into_py_any(py)?;
+        unsafe { PyObject::from_owned_ptr_or_err(py, ffi::PyBytes_FromObject(buffer.as_ptr())) }
+    }
+
+    /// Consume self to build a bytes
+    fn into_bytes_ref(self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
+        let buffer = self.into_py_any(py)?;
+        let view =
+            unsafe { Bound::from_owned_ptr_or_err(py, ffi::PyBytes_FromObject(buffer.as_ptr()))? };
+        Ok(view)
+    }
 }
 
 /// A bytes-like object that implements buffer protocol.
@@ -33,7 +47,7 @@ pub struct Buffer {
     inner: Vec<u8>,
 }
 
-impl BufferTrait for Buffer {
+impl PyBufferProtocol<'_> for Buffer {
     fn as_slice(&self) -> &[u8] {
         &self.inner
     }
@@ -42,20 +56,6 @@ impl BufferTrait for Buffer {
 impl Buffer {
     pub fn new(inner: Vec<u8>) -> Self {
         Buffer { inner }
-    }
-
-    /// Consume self to build a bytes
-    pub fn into_bytes(self, py: Python) -> PyResult<Py<PyAny>> {
-        let buffer = self.into_py_any(py)?;
-        unsafe { PyObject::from_owned_ptr_or_err(py, ffi::PyBytes_FromObject(buffer.as_ptr())) }
-    }
-
-    /// Consume self to build a bytes
-    pub fn into_bytes_ref(self, py: Python) -> PyResult<Bound<PyAny>> {
-        let buffer = self.into_py_any(py)?;
-        let view =
-            unsafe { Bound::from_owned_ptr_or_err(py, ffi::PyBytes_FromObject(buffer.as_ptr()))? };
-        Ok(view)
     }
 }
 
@@ -76,7 +76,7 @@ pub struct BytesBuffer {
     inner: Bytes,
 }
 
-impl BufferTrait for BytesBuffer {
+impl PyBufferProtocol<'_> for BytesBuffer {
     fn as_slice(&self) -> &[u8] {
         &self.inner
     }
@@ -85,20 +85,6 @@ impl BufferTrait for BytesBuffer {
 impl BytesBuffer {
     pub fn new(inner: Bytes) -> Self {
         BytesBuffer { inner }
-    }
-
-    /// Consume self to build a bytes
-    pub fn into_bytes(self, py: Python) -> PyResult<Py<PyAny>> {
-        let buffer = self.into_py_any(py)?;
-        unsafe { PyObject::from_owned_ptr_or_err(py, ffi::PyBytes_FromObject(buffer.as_ptr())) }
-    }
-
-    /// Consume self to build a bytes
-    pub fn into_bytes_ref(self, py: Python) -> PyResult<Bound<PyAny>> {
-        let buffer = self.into_py_any(py)?;
-        let view =
-            unsafe { Bound::from_owned_ptr_or_err(py, ffi::PyBytes_FromObject(buffer.as_ptr()))? };
-        Ok(view)
     }
 }
 

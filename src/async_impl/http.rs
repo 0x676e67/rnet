@@ -1,5 +1,5 @@
 use crate::{
-    buffer::{Buffer, BytesBuffer},
+    buffer::{Buffer, BytesBuffer, PyBufferProtocol},
     error::{memory_error, py_stop_async_iteration_error, wrap_rquest_error, wrap_serde_error},
     types::{HeaderMap, Json, SocketAddr, StatusCode, Version},
 };
@@ -191,7 +191,10 @@ impl Response {
     /// # Returns
     ///
     /// A Python object representing the TLS peer certificate of the response.
-    pub fn peer_certificate(&self, py: Python) -> PyResult<Option<Py<PyAny>>> {
+    pub fn peer_certificate<'rt>(
+        &'rt self,
+        py: Python<'rt>,
+    ) -> PyResult<Option<Bound<'rt, PyAny>>> {
         let s = py.allow_threads(|| {
             let resp_ref = self.response.load();
             let resp = resp_ref.as_ref()?;
@@ -201,7 +204,7 @@ impl Response {
                 .map(Buffer::new)
         });
 
-        s.map(|buffer| buffer.into_bytes(py)).transpose()
+        s.map(|buffer| buffer.into_bytes_ref(py)).transpose()
     }
 
     /// Returns the text content of the response.

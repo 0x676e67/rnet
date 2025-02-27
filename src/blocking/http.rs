@@ -2,7 +2,7 @@ use std::ops::Deref;
 
 use crate::{
     async_impl,
-    buffer::BytesBuffer,
+    buffer::{BytesBuffer, PyBufferProtocol},
     error::{py_stop_iteration_error, wrap_rquest_error, wrap_serde_error},
     types::{HeaderMap, Json, SocketAddr, StatusCode, Version},
 };
@@ -139,7 +139,10 @@ impl BlockingResponse {
     ///
     /// A Python object representing the TLS peer certificate of the response.
     #[inline(always)]
-    pub fn peer_certificate(&self, py: Python) -> PyResult<Option<Py<PyAny>>> {
+    pub fn peer_certificate<'rt>(
+        &'rt self,
+        py: Python<'rt>,
+    ) -> PyResult<Option<Bound<'rt, PyAny>>> {
         self.0.peer_certificate(py)
     }
 
@@ -224,7 +227,7 @@ impl BlockingResponse {
     /// # Returns
     ///
     /// A Python object representing the bytes content of the response.
-    pub fn bytes(&self, py: Python) -> PyResult<PyObject> {
+    pub fn bytes(&self, py: Python) -> PyResult<Py<PyAny>> {
         py.allow_threads(|| {
             let resp = self.inner()?;
             let bytes = pyo3_async_runtimes::tokio::get_runtime()
@@ -302,7 +305,7 @@ impl BlockingStreamer {
         slf
     }
 
-    fn __next__(&self, py: Python) -> PyResult<PyObject> {
+    fn __next__(&self, py: Python) -> PyResult<Py<PyAny>> {
         py.allow_threads(|| {
             let streamer = self.0.clone();
             pyo3_async_runtimes::tokio::get_runtime().block_on(async move {
