@@ -2,6 +2,7 @@ use std::ops::Deref;
 
 use crate::{
     async_impl,
+    buffer::Buffer,
     error::{py_stop_iteration_error, wrap_rquest_error, wrap_serde_error},
     types::{HeaderMap, Json, SocketAddr, StatusCode, Version},
 };
@@ -138,7 +139,7 @@ impl BlockingResponse {
     ///
     /// A Python object representing the TLS peer certificate of the response.
     #[inline(always)]
-    pub fn peer_certificate(&self, py: Python) -> PyResult<Option<Vec<u8>>> {
+    pub fn peer_certificate(&self, py: Python) -> PyResult<Option<Py<PyAny>>> {
         self.0.peer_certificate(py)
     }
 
@@ -300,7 +301,7 @@ impl BlockingStreamer {
         slf
     }
 
-    fn __next__(&self, py: Python) -> PyResult<Option<PyObject>> {
+    fn __next__(&self, py: Python) -> PyResult<PyObject> {
         py.allow_threads(|| {
             let streamer = self.0.clone();
             pyo3_async_runtimes::tokio::get_runtime().block_on(async move {
@@ -315,17 +316,13 @@ impl BlockingStreamer {
 
                 drop(lock);
 
-                match val {
-                    Some(Ok(val)) => {
-                        // If we have a value, we return it as a PyObject.
-                        Python::with_gil(|py| Ok(Some(val.into_bound_py_any(py)?.unbind())))
-                    }
-                    Some(Err(err)) => Err(wrap_rquest_error(err)),
-                    // Here we return PyStopAsyncIteration error,
-                    // because python needs exceptions to tell that iterator
-                    // has ended.
-                    None => Err(py_stop_iteration_error()),
-                }
+                let val = val
+                    .ok_or_else(py_stop_iteration_error)?
+                    .map_err(wrap_rquest_error)?;
+
+                // If we have a value, we return it as a PyObject.
+                let buffer = Buffer::new(val);
+                Python::with_gil(|py| buffer.into_bytes(py))
             })
         })
     }

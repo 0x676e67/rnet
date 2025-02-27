@@ -1,4 +1,5 @@
 use crate::{
+    buffer::Buffer,
     error::{memory_error, py_stop_async_iteration_error, wrap_rquest_error, wrap_serde_error},
     types::{HeaderMap, Json, SocketAddr, StatusCode, Version},
 };
@@ -190,16 +191,17 @@ impl Response {
     /// # Returns
     ///
     /// A Python object representing the TLS peer certificate of the response.
-    pub fn peer_certificate(&self, py: Python) -> PyResult<Option<Vec<u8>>> {
-        py.allow_threads(|| {
+    pub fn peer_certificate(&self, py: Python) -> PyResult<Option<Py<PyAny>>> {
+        let s = py.allow_threads(|| {
             let resp_ref = self.response.load();
-            let resp = resp_ref.as_ref().ok_or_else(memory_error)?;
-            if let Some(val) = resp.extensions().get::<TlsInfo>() {
-                return Ok(val.peer_certificate().map(ToOwned::to_owned));
-            }
+            let resp = resp_ref.as_ref()?;
+            let val = resp.extensions().get::<TlsInfo>()?;
+            val.peer_certificate()
+                .map(ToOwned::to_owned)
+                .map(Buffer::new)
+        });
 
-            Ok(None)
-        })
+        s.map(|buffer| buffer.into_bytes(py)).transpose()
     }
 
     /// Returns the text content of the response.
@@ -284,7 +286,8 @@ impl Response {
         let resp = self.inner()?;
         future_into_py(py, async move {
             let bytes = resp.bytes().await.map_err(wrap_rquest_error)?;
-            Python::with_gil(|py| bytes.into_bound_py_any(py).map(|obj| obj.unbind()))
+            let buffer = Buffer::new(bytes);
+            Python::with_gil(|py| buffer.into_bytes(py))
         })
     }
 
@@ -445,17 +448,13 @@ impl Streamer {
 
             drop(lock);
 
-            match val {
-                Some(Ok(val)) => {
-                    // If we have a value, we return it as a PyObject.
-                    Python::with_gil(|py| Ok(Some(val.into_bound_py_any(py)?.unbind())))
-                }
-                Some(Err(err)) => Err(wrap_rquest_error(err)),
-                // Here we return PyStopAsyncIteration error,
-                // because python needs exceptions to tell that iterator
-                // has ended.
-                None => Err(py_stop_async_iteration_error()),
-            }
+            let val = val
+                .ok_or_else(py_stop_async_iteration_error)?
+                .map_err(wrap_rquest_error)?;
+
+            // If we have a value, we return it as a PyObject.
+            let buffer = Buffer::new(val);
+            Python::with_gil(|py| buffer.into_bytes(py))
         })
     }
 

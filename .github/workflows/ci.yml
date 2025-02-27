@@ -15,6 +15,9 @@ on:
 permissions:
   contents: read
 
+env:
+  MATURIIN_ARGS: '--interpreter python3.7 python3.8 python3.9 python3.10 python3.11 python3.12 python3.13'
+
 jobs:
   style:
     name: style
@@ -106,7 +109,7 @@ jobs:
         with:
           rust-toolchain: stable
           target: ${{ matrix.platform.target }}
-          args: ${{ matrix.platform.target == 'x86_64' && '--release --out dist --zig' || '--release --out dist' }}
+          args: ${{ matrix.platform.target == 'x86_64' && '--release --out dist --zig' || '--release --out dist' }} ${{ env.MATURIIN_ARGS }}
           sccache: 'false'
           manylinux: auto
           container: 'off'
@@ -135,7 +138,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Build wheels
         run: 
-          bash .github/musl_build.sh ${{ matrix.platform.target }}
+          bash .github/musl_build.sh ${{ matrix.platform.target }} $MATURIIN_ARGS
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
@@ -170,7 +173,7 @@ jobs:
         uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.platform.target }}
-          args: --release --out dist --find-interpreter
+          args: --release --out dist ${{ env.MATURIIN_ARGS }}
           sccache: 'true'
       - name: Upload wheels
         uses: actions/upload-artifact@v4
@@ -197,7 +200,7 @@ jobs:
         uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.platform.target }}
-          args: --release --out dist --find-interpreter
+          args: --release --out dist ${{ env.MATURIIN_ARGS }}
           sccache: 'true'
       - name: Upload wheels
         uses: actions/upload-artifact@v4

@@ -7,6 +7,7 @@ rust-version = "1.83.0"
 license = "GPL-3.0"
 repository = "https://github.com/0x676e67/rnet"
 authors = ["0x676e67 <gngppz@gmail.com>"]
+build = "src/build.rs"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [lib]
@@ -26,7 +27,6 @@ tokio = { version = "1.0", features = ["sync"] }
 pyo3 = { version = "0.23.5", features = [
     "indexmap",
     "multiple-pymethods",
-    "abi3-py37",
     "generate-import-lib",
     "experimental-inspect",
 ] }
@@ -55,6 +55,9 @@ jemallocator = { package = "tikv-jemallocator", version = "0.6", features = [
     "disable_initial_exec_tls",
     "unprefixed_malloc_on_supported_platforms",
 ] }
+
+[build-dependencies]
+pyo3-build-config = { version = "0.23.5", features = ["resolve-config"] }
 
 [profile.release]
 lto = true

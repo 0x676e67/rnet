@@ -5,6 +5,7 @@ mod param;
 #[macro_use]
 mod macros;
 mod blocking;
+mod buffer;
 mod types;
 
 use async_impl::{Client, Message, Response, Streamer, WebSocket};
