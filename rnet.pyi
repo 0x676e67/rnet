@@ -1484,7 +1484,9 @@ class WebSocketParams:
     ```
     """
     proxy: typing.Optional[builtins.str]
+    local_address: typing.Optional[typing.Optional[typing.Union[str, ipaddress.IPv4Address, ipaddress.IPv6Address]]]
     interface: typing.Optional[builtins.str]
+    headers: typing.Optional[typing.Dict[str, bytes]]
     protocols: typing.Optional[builtins.list[builtins.str]]
     auth: typing.Optional[builtins.str]
     bearer_auth: typing.Optional[builtins.str]

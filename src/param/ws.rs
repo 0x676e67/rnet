@@ -1,7 +1,6 @@
-use indexmap::IndexMap;
+use crate::types::{HeaderMap, IpAddr};
 use pyo3::prelude::*;
 use pyo3_stub_gen::derive::gen_stub_pyclass;
-use std::net::IpAddr;
 
 /// The parameters for a WebSocket request.
 ///
@@ -38,6 +37,7 @@ pub struct WebSocketParams {
     pub proxy: Option<String>,
 
     /// Bind to a local IP Address.
+    #[pyo3(get)]
     pub local_address: Option<IpAddr>,
 
     /// Bind to an interface by `SO_BINDTODEVICE`.
@@ -45,7 +45,8 @@ pub struct WebSocketParams {
     pub interface: Option<String>,
 
     /// The headers to use for the request.
-    pub headers: Option<IndexMap<String, String>>,
+    #[pyo3(get)]
+    pub headers: Option<HeaderMap>,
 
     /// The protocols to use for the request.
     #[pyo3(get)]
