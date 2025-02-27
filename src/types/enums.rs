@@ -4,6 +4,33 @@ use pyo3_stub_gen::derive::gen_stub_pyclass_enum;
 
 define_enum_with_conversion!(
     const,
+    /// A HTTP version.
+    Version,
+    rquest::Version,
+    HTTP_09,
+    HTTP_10,
+    HTTP_11,
+    HTTP_2,
+    HTTP_3,
+);
+
+define_enum_with_conversion!(
+    /// A HTTP method.
+    Method,
+    rquest::Method,
+    GET,
+    HEAD,
+    POST,
+    PUT,
+    DELETE,
+    CONNECT,
+    OPTIONS,
+    TRACE,
+    PATCH,
+);
+
+define_enum_with_conversion!(
+    const,
     /// A impersonate.
     Impersonate,
     rquest::Impersonate,
@@ -76,4 +103,16 @@ define_enum_with_conversion!(
     Linux,
     Android,
     IOS,
+);
+
+define_enum_with_conversion!(
+    const,
+    /// The lookup ip strategy.
+    LookupIpStrategy,
+    rquest::dns::LookupIpStrategy,
+    Ipv4Only,
+    Ipv6Only,
+    Ipv4AndIpv6,
+    Ipv6thenIpv4,
+    Ipv4thenIpv6,
 );

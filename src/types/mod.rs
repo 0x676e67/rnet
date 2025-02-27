@@ -1,27 +1,21 @@
 mod body;
-mod dns;
+mod enums;
 mod headers;
-mod impersonate;
 mod ipaddr;
 mod json;
-mod method;
 mod multipart;
 mod proxy;
 mod status;
-mod version;
 
 pub use self::{
     body::Body,
-    dns::LookupIpStrategy,
+    enums::{Impersonate, ImpersonateOS, LookupIpStrategy, Method, Version},
     headers::HeaderMap,
-    impersonate::{Impersonate, ImpersonateOS},
     ipaddr::SocketAddr,
     json::Json,
-    method::Method,
     multipart::{Multipart, Part},
     proxy::Proxy,
     status::StatusCode,
-    version::Version,
 };
 use pyo3::{PyObject, Python};
 

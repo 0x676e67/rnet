@@ -2,14 +2,13 @@ use std::fmt::Debug;
 use std::pin::Pin;
 use std::sync::Arc;
 
+use super::PyIterator;
 use crate::error::stream_consumed_error;
 use arc_swap::ArcSwapOption;
 use futures_util::StreamExt;
 use pyo3::prelude::*;
 use pyo3::{FromPyObject, IntoPyObject, PyAny};
 use pyo3_stub_gen::{PyStubType, TypeInfo};
-
-use super::PyIterator;
 
 /// The body to use for the request.
 #[derive(Clone)]
