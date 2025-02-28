@@ -4,7 +4,7 @@ use pyo3::{
     types::{PyBytes, PyBytesMethods},
     PyObject, PyResult, Python,
 };
-use std::pin::Pin;
+use std::{pin::Pin, task::Context};
 
 pub struct SyncStream {
     iter: PyObject,
@@ -54,10 +54,15 @@ impl Stream for AsyncStream {
         mut self: Pin<&mut Self>,
         cx: &mut std::task::Context<'_>,
     ) -> std::task::Poll<Option<Self::Item>> {
-        self.stream
-            .as_mut()
-            .poll_next(cx)
+        let waker = cx.waker();
+        Python::with_gil(|gil| {
+            gil.allow_threads(|| {
+                self.stream
+                    .as_mut()
+                    .poll_next(&mut Context::from_waker(waker))
+            })
             .map(|item| item.map(|item| Python::with_gil(|py| downcast_bound_bytes(py, item))))
+        })
     }
 }
 
