@@ -3,6 +3,7 @@ use crate::{
     stream::{AsyncStream, SyncStream},
 };
 use arc_swap::ArcSwapOption;
+use bytes::Bytes;
 use pyo3::{prelude::*, types::PyBytes};
 use pyo3_stub_gen::{
     derive::{gen_stub_pyclass, gen_stub_pymethods},
@@ -21,7 +22,7 @@ pub struct Part {
 /// The data for a part of a multipart form.
 pub enum PartData {
     Text(String),
-    Bytes(Vec<u8>),
+    Bytes(Bytes),
     File(PathBuf),
     Iterator(Arc<ArcSwapOption<SyncStream>>),
     Stream(Arc<ArcSwapOption<AsyncStream>>),
@@ -62,7 +63,9 @@ impl Part {
             // Create the inner part
             let mut inner = match value {
                 PartData::Text(text) => rquest::multipart::Part::text(text),
-                PartData::Bytes(bytes) => rquest::multipart::Part::bytes(bytes),
+                PartData::Bytes(bytes) => {
+                    rquest::multipart::Part::stream(rquest::Body::from(bytes))
+                }
                 PartData::File(path) => pyo3_async_runtimes::tokio::get_runtime()
                     .block_on(rquest::multipart::Part::file(path))
                     .map_err(wrap_io_error)?,
@@ -103,7 +106,7 @@ impl FromPyObject<'_> for PartData {
         if let Ok(text) = ob.extract::<String>() {
             Ok(Self::Text(text))
         } else if let Ok(bytes) = ob.downcast::<PyBytes>() {
-            Ok(Self::Bytes(bytes.as_bytes().to_vec()))
+            Ok(Self::Bytes(Bytes::from(bytes.as_bytes().to_vec())))
         } else if let Ok(path) = ob.extract::<PathBuf>() {
             Ok(Self::File(path))
         } else if let Ok(iter) = ob.extract::<PyObject>() {
