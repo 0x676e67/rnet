@@ -4,6 +4,7 @@ use std::sync::Arc;
 use crate::error::stream_consumed_error;
 use crate::stream::{AsyncStream, SyncStream};
 use arc_swap::ArcSwapOption;
+use bytes::Bytes;
 use pyo3::prelude::*;
 use pyo3::types::PyBytes;
 use pyo3::{FromPyObject, IntoPyObject, PyAny};
@@ -13,7 +14,7 @@ use pyo3_stub_gen::{PyStubType, TypeInfo};
 #[derive(Clone)]
 pub enum Body {
     Text(String),
-    Bytes(Vec<u8>),
+    Bytes(Bytes),
     Iterator(Arc<ArcSwapOption<SyncStream>>),
     Stream(Arc<ArcSwapOption<AsyncStream>>),
 }
@@ -61,7 +62,7 @@ impl FromPyObject<'_> for Body {
         if let Ok(text) = ob.extract::<String>() {
             Ok(Self::Text(text))
         } else if let Ok(bytes) = ob.downcast::<PyBytes>() {
-            Ok(Self::Bytes(bytes.as_bytes().to_vec()))
+            Ok(Self::Bytes(Bytes::from(bytes.as_bytes().to_vec())))
         } else if let Ok(iter) = ob.extract::<PyObject>() {
             Ok(Self::Iterator(Arc::new(ArcSwapOption::from_pointee(
                 SyncStream::new(iter),
