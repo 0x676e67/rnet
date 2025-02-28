@@ -18,9 +18,9 @@ An easy and powerful Python HTTP Client with Black Magic, capable of mimicking `
 - Cookie Store
 - HTTP Proxies
 - WebSocket Upgrade
-- HTTPS via BoringSSL
 - Async DNS Resolver
 - Free-Threaded Safety
+- HTTPS via BoringSSL
 
 ## Example
 

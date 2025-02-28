@@ -110,8 +110,7 @@ unsafe fn fill_buffer_info(
         view,
         obj_ptr as *mut _,
         bytes.as_ptr() as *mut _,
-        bytes.len().try_into().map_err(|_| PyErr::fetch(py))?,
-        // read only
+        bytes.len() as _,
         1,
         flags,
     );

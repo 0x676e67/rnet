@@ -91,7 +91,7 @@ where
 
     // Cookies options.
     if let Some(cookies) = params.cookies.take() {
-        let cookies: HeaderValue = cookies.try_into()?;
+        let cookies = HeaderValue::try_from(cookies)?;
         builder = builder.header(header::COOKIE, cookies);
     }
 
@@ -186,7 +186,7 @@ where
 
     // Cookies options.
     if let Some(cookies) = params.cookies.take() {
-        let cookies: HeaderValue = cookies.try_into()?;
+        let cookies = HeaderValue::try_from(cookies)?;
         builder = builder.with_builder(|builder| builder.header(header::COOKIE, cookies));
     }
 

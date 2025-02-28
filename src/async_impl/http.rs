@@ -284,8 +284,11 @@ impl Response {
     pub fn bytes<'rt>(&self, py: Python<'rt>) -> PyResult<Bound<'rt, PyAny>> {
         let resp = self.inner()?;
         future_into_py(py, async move {
-            let bytes = resp.bytes().await.map_err(wrap_rquest_error)?;
-            let buffer = BytesBuffer::new(bytes);
+            let buffer = resp
+                .bytes()
+                .await
+                .map(BytesBuffer::new)
+                .map_err(wrap_rquest_error)?;
             Python::with_gil(|py| buffer.into_bytes(py))
         })
     }
@@ -422,12 +425,11 @@ impl Streamer {
 
             drop(lock);
 
-            let val = val
+            let buffer = val
                 .ok_or_else(py_stop_async_iteration_error)?
+                .map(BytesBuffer::new)
                 .map_err(wrap_rquest_error)?;
 
-            // If we have a value, we return it as a PyObject.
-            let buffer = BytesBuffer::new(val);
             Python::with_gil(|py| buffer.into_bytes(py))
         })
     }

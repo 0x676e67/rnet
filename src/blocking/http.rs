@@ -208,10 +208,11 @@ impl BlockingResponse {
     pub fn bytes(&self, py: Python) -> PyResult<Py<PyAny>> {
         py.allow_threads(|| {
             let resp = self.inner()?;
-            let bytes = pyo3_async_runtimes::tokio::get_runtime()
+            let buffer = pyo3_async_runtimes::tokio::get_runtime()
                 .block_on(resp.bytes())
+                .map(BytesBuffer::new)
                 .map_err(wrap_rquest_error)?;
-            let buffer = BytesBuffer::new(bytes);
+
             Python::with_gil(|py| buffer.into_bytes(py))
         })
     }
@@ -248,8 +249,7 @@ impl BlockingResponse {
         _exc_value: &Bound<'a, PyAny>,
         _traceback: &Bound<'a, PyAny>,
     ) -> PyResult<()> {
-        self.close(py);
-        Ok(())
+        Ok(self.close(py))
     }
 }
 
@@ -285,12 +285,11 @@ impl BlockingStreamer {
 
                 drop(lock);
 
-                let val = val
+                let buffer = val
                     .ok_or_else(py_stop_iteration_error)?
+                    .map(BytesBuffer::new)
                     .map_err(wrap_rquest_error)?;
 
-                // If we have a value, we return it as a PyObject.
-                let buffer = BytesBuffer::new(val);
                 Python::with_gil(|py| buffer.into_bytes(py))
             })
         })

@@ -1,13 +1,9 @@
 use super::{execute_request2, execute_websocket_request2};
 use crate::{
     apply_option, dns,
-    error::{
-        wrap_invali_header_name_error, wrap_invali_header_value_error, wrap_rquest_error,
-        wrap_url_parse_error,
-    },
+    error::{wrap_rquest_error, wrap_url_parse_error},
     param::{ClientParams, RequestParams, UpdateClientParams, WebSocketParams},
     types::{ImpersonateOS, Method},
-    Result,
 };
 use arc_swap::ArcSwap;
 use pyo3::prelude::*;
@@ -475,11 +471,8 @@ impl Client {
                 builder = builder.headers_order(
                     headers_order
                         .into_iter()
-                        .map(|name| {
-                            HeaderName::from_bytes(name.as_bytes())
-                                .map_err(wrap_invali_header_name_error)
-                        })
-                        .filter_map(Result::ok)
+                        .map(|name| HeaderName::from_bytes(name.as_bytes()))
+                        .filter_map(std::result::Result::ok)
                         .collect::<Vec<_>>(),
                 );
             }
@@ -749,11 +742,8 @@ impl Client {
             let url = Url::parse(url).map_err(wrap_url_parse_error)?;
             let value = value
                 .into_iter()
-                .map(|value| {
-                    HeaderValue::from_bytes(value.as_bytes())
-                        .map_err(wrap_invali_header_value_error)
-                })
-                .flat_map(Result::ok)
+                .map(|value| HeaderValue::from_bytes(value.as_bytes()))
+                .flat_map(std::result::Result::ok)
                 .collect::<Vec<HeaderValue>>();
 
             self.0.load().set_cookies(&url, value);
@@ -825,11 +815,8 @@ impl Client {
                 client_mut.headers_order(
                     value
                         .into_iter()
-                        .map(|name| {
-                            HeaderName::from_bytes(name.as_bytes())
-                                .map_err(wrap_invali_header_name_error)
-                        })
-                        .filter_map(Result::ok)
+                        .map(|name| HeaderName::from_bytes(name.as_bytes()))
+                        .filter_map(std::result::Result::ok)
                         .collect::<Vec<_>>(),
                 );
             });
