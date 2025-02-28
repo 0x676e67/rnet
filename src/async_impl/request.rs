@@ -7,7 +7,7 @@ use crate::{
     Result,
 };
 use pyo3::prelude::*;
-use rquest::header::{self, HeaderValue};
+use rquest::header::{self, HeaderMap, HeaderValue};
 use rquest::redirect::Policy;
 use std::net::IpAddr;
 use std::ops::Deref;
@@ -80,14 +80,13 @@ where
     );
 
     // Headers options.
-    if let Some(headers) = params.headers.take() {
-        let headers: header::HeaderMap = headers.into();
-        for (key, value) in headers {
-            if let Some(key) = key {
-                builder = builder.header(key, value);
-            }
-        }
-    }
+    apply_option!(
+        apply_transformed_option,
+        builder,
+        params.headers,
+        headers,
+        HeaderMap::from
+    );
 
     // Cookies options.
     if let Some(cookies) = params.cookies.take() {
@@ -217,14 +216,13 @@ where
         }
 
         // Headers options.
-        if let Some(headers) = params.headers.take() {
-            let headers: header::HeaderMap = headers.into();
-            for (key, value) in headers {
-                if let Some(name) = key {
-                    builder = builder.header(name, value);
-                }
-            }
-        }
+        apply_option!(
+            apply_transformed_option,
+            builder,
+            params.headers,
+            headers,
+            HeaderMap::from
+        );
 
         // Query options.
         apply_option!(apply_if_some_ref, builder, params.query, query);

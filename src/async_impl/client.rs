@@ -10,7 +10,7 @@ use pyo3::prelude::*;
 use pyo3_async_runtimes::tokio::future_into_py;
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 use rquest::{
-    header::{self, HeaderMap, HeaderName, HeaderValue},
+    header::{HeaderMap, HeaderName, HeaderValue},
     redirect::Policy,
     Url,
 };
@@ -450,21 +450,13 @@ impl Client {
             apply_option!(apply_if_some, builder, params.user_agent, user_agent);
 
             // Default headers options.
-            if let Some(default_headers) = params.default_headers.take() {
-                let default_headers: header::HeaderMap = default_headers.into();
-                let len = default_headers.len();
-                let default_headers = default_headers.into_iter().try_fold(
-                    HeaderMap::with_capacity(len),
-                    |mut headers, (name, value)| {
-                        if let Some(name) = name {
-                            headers.insert(name, value);
-                        }
-                        Ok::<_, PyErr>(headers)
-                    },
-                )?;
-
-                builder = builder.default_headers(default_headers);
-            }
+            apply_option!(
+                apply_transformed_option,
+                builder,
+                params.default_headers,
+                default_headers,
+                HeaderMap::from
+            );
 
             // Headers order options.
             if let Some(headers_order) = params.headers_order.take() {
@@ -810,20 +802,8 @@ impl Client {
 
             // Default headers options.
             params.headers.take().map(|default_headers| {
-                let default_headers: header::HeaderMap = default_headers.into();
-                let len = default_headers.len();
-                let _ = default_headers
-                    .into_iter()
-                    .try_fold(
-                        HeaderMap::with_capacity(len),
-                        |mut headers, (name, value)| {
-                            if let Some(name) = name {
-                                headers.insert(name, value);
-                            }
-                            Ok::<_, PyErr>(headers)
-                        },
-                    )
-                    .map(|mut headers| std::mem::swap(client_mut.headers(), &mut headers));
+                let mut default_headers = HeaderMap::from(default_headers);
+                std::mem::swap(client_mut.headers(), &mut default_headers)
             });
 
             // Headers order options.
