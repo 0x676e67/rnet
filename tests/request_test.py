@@ -1,7 +1,28 @@
 import pytest
 import rnet
+from rnet import Version
 
 client = rnet.Client(tls_info=True)
+
+
+@pytest.mark.asyncio
+@pytest.mark.flaky(reruns=3, reruns_delay=2)
+async def test_send_with_version():
+    url = "https://httpbin.org/anything"
+    response = await client.get(url, version=Version.HTTP_11)
+    assert response.version == Version.HTTP_11
+
+    response = await client.get(url, version=Version.HTTP_2)
+    assert response.version == Version.HTTP_2
+
+
+@pytest.mark.asyncio
+@pytest.mark.flaky(reruns=3, reruns_delay=2)
+async def test_send_headers():
+    url = "https://httpbin.org/headers"
+    response = await client.get(url, headers={"foo": "bar"})
+    json = await response.json()
+    assert json["headers"]["Foo"] == "bar"
 
 
 @pytest.mark.asyncio
