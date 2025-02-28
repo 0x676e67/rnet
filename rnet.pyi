@@ -832,25 +832,37 @@ class Message:
     r"""
     A WebSocket message.
     """
+    data: bytes
     text: typing.Optional[builtins.str]
+    binary: typing.Optional[bytes]
+    ping: typing.Optional[bytes]
+    pong: typing.Optional[bytes]
     close: typing.Optional[tuple[builtins.int, typing.Optional[builtins.str]]]
-    def __str__(self) -> builtins.str:
+    @staticmethod
+    def text_from_json(json:typing.Any) -> Message:
         r"""
-        Returns a string representation of the message.
+        Creates a new text message from the JSON representation.
+        
+        # Arguments
+        * `json` - The JSON representation of the message.
         
         # Returns
         
-        A string representing the message.
+        A new `Message` instance containing the message.
         """
         ...
 
-    def __repr__(self) -> builtins.str:
+    @staticmethod
+    def binary_from_json(json:typing.Any) -> Message:
         r"""
-        Returns a string representation of the message.
+        Creates a new binary message from the JSON representation.
+        
+        # Arguments
+        * `json` - The JSON representation of the message.
         
         # Returns
         
-        A string representing the message.
+        A new `Message` instance containing the message.
         """
         ...
 
@@ -870,7 +882,7 @@ class Message:
         ...
 
     @staticmethod
-    def from_binary(data:typing.Sequence[builtins.int]) -> Message:
+    def from_binary(data:bytes) -> Message:
         r"""
         Creates a new binary message.
         
@@ -885,7 +897,7 @@ class Message:
         ...
 
     @staticmethod
-    def from_ping(data:typing.Sequence[builtins.int]) -> Message:
+    def from_ping(data:bytes) -> Message:
         r"""
         Creates a new ping message.
         
@@ -900,7 +912,7 @@ class Message:
         ...
 
     @staticmethod
-    def from_pong(data:typing.Sequence[builtins.int]) -> Message:
+    def from_pong(data:bytes) -> Message:
         r"""
         Creates a new pong message.
         
@@ -927,6 +939,22 @@ class Message:
         # Returns
         
         A new `Message` instance containing the close message.
+        """
+        ...
+
+    def __str__(self) -> builtins.str:
+        ...
+
+    def __repr__(self) -> builtins.str:
+        ...
+
+    def json(self) -> typing.Any:
+        r"""
+        Returns the JSON representation of the message.
+        
+        # Returns
+        
+        A `PyResult` containing the JSON representation of the message.
         """
         ...
 
@@ -1507,7 +1535,7 @@ class WebSocketParams:
 
 class Impersonate(Enum):
     r"""
-    A impersonate.
+    An impersonate.
     """
     Chrome100 = auto()
     Chrome101 = auto()
@@ -1569,7 +1597,7 @@ class Impersonate(Enum):
 
 class ImpersonateOS(Enum):
     r"""
-    A impersonate operating system.
+    An impersonate operating system.
     """
     Windows = auto()
     MacOS = auto()
@@ -1589,7 +1617,7 @@ class LookupIpStrategy(Enum):
 
 class Method(Enum):
     r"""
-    A HTTP method.
+    An HTTP method.
     """
     GET = auto()
     HEAD = auto()
@@ -1612,7 +1640,7 @@ class TlsVersion(Enum):
 
 class Version(Enum):
     r"""
-    A HTTP version.
+    An HTTP version.
     """
     HTTP_09 = auto()
     HTTP_10 = auto()

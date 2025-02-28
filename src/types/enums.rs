@@ -4,7 +4,7 @@ use pyo3_stub_gen::derive::gen_stub_pyclass_enum;
 
 define_enum_with_conversion!(
     const,
-    /// A HTTP version.
+    /// An HTTP version.
     Version,
     rquest::Version,
     HTTP_09,
@@ -15,7 +15,7 @@ define_enum_with_conversion!(
 );
 
 define_enum_with_conversion!(
-    /// A HTTP method.
+    /// An HTTP method.
     Method,
     rquest::Method,
     GET,
@@ -31,7 +31,7 @@ define_enum_with_conversion!(
 
 define_enum_with_conversion!(
     const,
-    /// A impersonate.
+    /// An impersonate.
     Impersonate,
     rquest::Impersonate,
     Chrome100,
@@ -95,7 +95,7 @@ define_enum_with_conversion!(
 
 define_enum_with_conversion!(
     const,
-    /// A impersonate operating system.
+    /// An impersonate operating system.
     ImpersonateOS,
     rquest::ImpersonateOS,
     Windows,
