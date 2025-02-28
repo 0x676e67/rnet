@@ -6,6 +6,14 @@ client = rnet.Client(tls_info=True)
 
 @pytest.mark.asyncio
 @pytest.mark.flaky(reruns=3, reruns_delay=2)
+async def test_send_cookies():
+    url = "https://httpbin.org/cookies"
+    response = await client.get(url, cookies={"foo": "bar"})
+    json = await response.json()
+    assert json["cookies"] == {"foo": "bar"}
+
+@pytest.mark.asyncio
+@pytest.mark.flaky(reruns=3, reruns_delay=2)
 async def test_send_form():
     url = "https://httpbin.org/post"
     response = await client.post(url, form=[("foo", "bar")])

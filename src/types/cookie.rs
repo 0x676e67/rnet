@@ -1,9 +1,29 @@
+use crate::error::wrap_invali_header_value_error;
+
 use super::IndexMap;
 use pyo3::FromPyObject;
 use pyo3::{prelude::*, types::PyDict};
 use pyo3_stub_gen::{PyStubType, TypeInfo};
+use rquest::header::HeaderValue;
 
 pub type CookieMap = super::IndexMap<String, String>;
+
+impl TryFrom<CookieMap> for HeaderValue {
+    type Error = PyErr;
+
+    fn try_from(cookies: CookieMap) -> Result<Self, Self::Error> {
+        let mut kv = String::with_capacity(cookies.len() * 8);
+        for (k, v) in cookies.iter() {
+            if !kv.is_empty() {
+                kv.push_str("; ");
+            }
+            kv.push_str(k);
+            kv.push('=');
+            kv.push_str(v);
+        }
+        HeaderValue::from_str(&kv).map_err(wrap_invali_header_value_error)
+    }
+}
 
 impl PyStubType for CookieMap {
     fn type_output() -> TypeInfo {

@@ -1,4 +1,4 @@
-use crate::types::{HeaderMap, IpAddr};
+use crate::types::{CookieMap, HeaderMap, IpAddr};
 use pyo3::prelude::*;
 use pyo3_stub_gen::derive::gen_stub_pyclass;
 
@@ -43,6 +43,9 @@ pub struct WebSocketParams {
 
     /// The headers to use for the request.
     pub headers: Option<HeaderMap>,
+
+    /// The cookies to use for the request.
+    pub cookies: Option<CookieMap>,
 
     /// The protocols to use for the request.
     pub protocols: Option<Vec<String>>,
@@ -116,6 +119,7 @@ impl<'py> FromPyObject<'py> for WebSocketParams {
         extract_option!(ob, params, interface);
 
         extract_option!(ob, params, headers);
+        extract_option!(ob, params, cookies);
         extract_option!(ob, params, protocols);
         extract_option!(ob, params, auth);
         extract_option!(ob, params, bearer_auth);

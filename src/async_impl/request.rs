@@ -7,7 +7,7 @@ use crate::{
     Result,
 };
 use pyo3::prelude::*;
-use rquest::header;
+use rquest::header::{self, HeaderValue};
 use rquest::redirect::Policy;
 use std::net::IpAddr;
 use std::ops::Deref;
@@ -87,6 +87,12 @@ where
                 builder = builder.header(key, value);
             }
         }
+    }
+
+    // Cookies options.
+    if let Some(cookies) = params.cookies.take() {
+        let cookies: HeaderValue = cookies.try_into()?;
+        builder = builder.header(header::COOKIE, cookies);
     }
 
     // Authentication options.
@@ -177,6 +183,12 @@ where
         params.accept_unmasked_frames,
         accept_unmasked_frames
     );
+
+    // Cookies options.
+    if let Some(cookies) = params.cookies.take() {
+        let cookies: HeaderValue = cookies.try_into()?;
+        builder = builder.with_builder(|builder| builder.header(header::COOKIE, cookies));
+    }
 
     // The origin to use for the request.
     builder = builder.with_builder(|mut builder| {

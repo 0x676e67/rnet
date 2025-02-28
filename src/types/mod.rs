@@ -49,6 +49,7 @@ impl Iterator for PyIterator {
     }
 }
 
+#[derive(Clone, Debug)]
 pub struct IndexMap<K, V, S = RandomState>(indexmap::IndexMap<K, V, S>);
 
 impl<K, V, S> IndexMap<K, V, S>

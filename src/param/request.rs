@@ -1,4 +1,4 @@
-use crate::types::{Body, HeaderMap, IpAddr, Json, Multipart, Version};
+use crate::types::{Body, CookieMap, HeaderMap, IpAddr, Json, Multipart, Version};
 use pyo3::prelude::*;
 use pyo3_stub_gen::derive::gen_stub_pyclass;
 
@@ -55,6 +55,9 @@ pub struct RequestParams {
     /// The headers to use for the request.
     pub headers: Option<HeaderMap>,
 
+    /// The cookies to use for the request.
+    pub cookies: Option<CookieMap>,
+
     /// Whether to allow redirects.
     pub allow_redirects: Option<bool>,
 
@@ -105,6 +108,7 @@ impl<'py> FromPyObject<'py> for RequestParams {
 
         extract_option!(ob, params, version);
         extract_option!(ob, params, headers);
+        extract_option!(ob, params, cookies);
         extract_option!(ob, params, allow_redirects);
         extract_option!(ob, params, max_redirects);
         extract_option!(ob, params, auth);
