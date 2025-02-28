@@ -13,7 +13,7 @@ use pyo3_stub_gen::{PyStubType, TypeInfo};
 /// The body to use for the request.
 #[derive(Clone)]
 pub enum Body {
-    Text(String),
+    Text(Bytes),
     Bytes(Bytes),
     Iterator(Arc<ArcSwapOption<SyncStream>>),
     Stream(Arc<ArcSwapOption<AsyncStream>>),
@@ -24,8 +24,7 @@ impl TryFrom<Body> for rquest::Body {
 
     fn try_from(value: Body) -> Result<rquest::Body, Self::Error> {
         match value {
-            Body::Text(text) => Ok(rquest::Body::from(text)),
-            Body::Bytes(bytes) => Ok(rquest::Body::from(bytes)),
+            Body::Text(bytes) | Body::Bytes(bytes) => Ok(rquest::Body::from(bytes)),
             Body::Iterator(iterator) => iterator
                 .swap(None)
                 .and_then(Arc::into_inner)
@@ -60,7 +59,7 @@ impl PyStubType for Body {
 impl FromPyObject<'_> for Body {
     fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
         if let Ok(text) = ob.extract::<String>() {
-            Ok(Self::Text(text))
+            Ok(Self::Text(Bytes::from(text)))
         } else if let Ok(bytes) = ob.downcast::<PyBytes>() {
             Ok(Self::Bytes(Bytes::from(bytes.as_bytes().to_vec())))
         } else if let Ok(iter) = ob.extract::<PyObject>() {

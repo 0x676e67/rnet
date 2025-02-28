@@ -21,7 +21,7 @@ pub struct Part {
 
 /// The data for a part of a multipart form.
 pub enum PartData {
-    Text(String),
+    Text(Bytes),
     Bytes(Bytes),
     File(PathBuf),
     Iterator(Arc<ArcSwapOption<SyncStream>>),
@@ -62,8 +62,7 @@ impl Part {
         py.allow_threads(|| {
             // Create the inner part
             let mut inner = match value {
-                PartData::Text(text) => rquest::multipart::Part::text(text),
-                PartData::Bytes(bytes) => {
+                PartData::Text(bytes) | PartData::Bytes(bytes) => {
                     rquest::multipart::Part::stream(rquest::Body::from(bytes))
                 }
                 PartData::File(path) => pyo3_async_runtimes::tokio::get_runtime()
@@ -104,7 +103,7 @@ impl Part {
 impl FromPyObject<'_> for PartData {
     fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
         if let Ok(text) = ob.extract::<String>() {
-            Ok(Self::Text(text))
+            Ok(Self::Text(Bytes::from(text)))
         } else if let Ok(bytes) = ob.downcast::<PyBytes>() {
             Ok(Self::Bytes(Bytes::from(bytes.as_bytes().to_vec())))
         } else if let Ok(path) = ob.extract::<PathBuf>() {
