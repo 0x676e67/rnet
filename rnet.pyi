@@ -410,7 +410,7 @@ class Client:
         ```python
         import rnet
         
-        client = rnet.Client()
+        client = rnet.Client(cookie_store=True)
         cookies = client.get_cookies("https://example.com")
         print(cookies)
         ```
@@ -435,7 +435,7 @@ class Client:
         ```python
         import rnet
         
-        client = rnet.Client()
+        client = rnet.Client(cookie_store=True)
         client.set_cookies("https://example.com", ["cookie1=value1", "cookie2=value2"])
         ```
         """
