@@ -116,3 +116,14 @@ define_enum_with_conversion!(
     Ipv6thenIpv4,
     Ipv4thenIpv6,
 );
+
+define_enum_with_conversion!(
+    const,
+    /// The TLS version.
+    TlsVersion,
+    rquest::TlsVersion,
+    TLS_1_0,
+    TLS_1_1,
+    TLS_1_2,
+    TLS_1_3,
+);

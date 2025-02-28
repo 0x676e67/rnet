@@ -12,7 +12,7 @@ mod status;
 pub use self::{
     body::Body,
     cookie::CookieMap,
-    enums::{Impersonate, ImpersonateOS, LookupIpStrategy, Method, Version},
+    enums::{Impersonate, ImpersonateOS, LookupIpStrategy, Method, TlsVersion, Version},
     headers::HeaderMap,
     ipaddr::{IpAddr, SocketAddr},
     json::Json,

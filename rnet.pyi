@@ -814,9 +814,11 @@ class ClientParams:
     http2_only: typing.Optional[builtins.bool]
     https_only: typing.Optional[builtins.bool]
     tcp_nodelay: typing.Optional[builtins.bool]
-    danger_accept_invalid_certs: typing.Optional[builtins.bool]
     http2_max_retry_count: typing.Optional[builtins.int]
+    danger_accept_invalid_certs: typing.Optional[builtins.bool]
     tls_info: typing.Optional[builtins.bool]
+    min_tls_version: typing.Optional[TlsVersion]
+    max_tls_version: typing.Optional[TlsVersion]
     no_proxy: typing.Optional[builtins.bool]
     proxies: typing.Optional[builtins.list[Proxy]]
     local_address: typing.Optional[typing.Optional[typing.Union[str, ipaddress.IPv4Address, ipaddress.IPv6Address]]]
@@ -1598,6 +1600,15 @@ class Method(Enum):
     OPTIONS = auto()
     TRACE = auto()
     PATCH = auto()
+
+class TlsVersion(Enum):
+    r"""
+    The TLS version.
+    """
+    TLS_1_0 = auto()
+    TLS_1_1 = auto()
+    TLS_1_2 = auto()
+    TLS_1_3 = auto()
 
 class Version(Enum):
     r"""

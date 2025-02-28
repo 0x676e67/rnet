@@ -20,7 +20,7 @@ use pyo3_log::{Caching, Logger};
 use pyo3_stub_gen::{define_stub_info_gatherer, derive::*};
 use types::{
     HeaderMap, Impersonate, ImpersonateOS, LookupIpStrategy, Method, Multipart, Part, Proxy,
-    SocketAddr, StatusCode, Version,
+    SocketAddr, StatusCode, TlsVersion, Version,
 };
 
 #[cfg(not(target_env = "msvc"))]
@@ -309,6 +309,7 @@ fn rnet(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<Version>()?;
     m.add_class::<Impersonate>()?;
     m.add_class::<ImpersonateOS>()?;
+    m.add_class::<TlsVersion>()?;
     m.add_class::<SocketAddr>()?;
     m.add_class::<Proxy>()?;
     m.add_class::<LookupIpStrategy>()?;

@@ -3,7 +3,7 @@ use crate::{
     apply_option, dns,
     error::{wrap_rquest_error, wrap_url_parse_error},
     param::{ClientParams, RequestParams, UpdateClientParams, WebSocketParams},
-    types::{ImpersonateOS, Method},
+    types::{ImpersonateOS, Method, TlsVersion},
 };
 use arc_swap::ArcSwap;
 use pyo3::prelude::*;
@@ -584,6 +584,22 @@ impl Client {
                 builder,
                 params.http2_max_retry_count,
                 http2_max_retry_count
+            );
+
+            // TLS options.
+            apply_option!(
+                apply_transformed_option,
+                builder,
+                params.min_tls_version,
+                min_tls_version,
+                TlsVersion::into_ffi
+            );
+            apply_option!(
+                apply_transformed_option,
+                builder,
+                params.max_tls_version,
+                max_tls_version,
+                TlsVersion::into_ffi
             );
             apply_option!(apply_if_some, builder, params.tls_info, tls_info);
             apply_option!(

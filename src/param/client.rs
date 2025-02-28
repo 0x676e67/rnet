@@ -1,4 +1,6 @@
-use crate::types::{HeaderMap, Impersonate, ImpersonateOS, IpAddr, LookupIpStrategy, Proxy};
+use crate::types::{
+    HeaderMap, Impersonate, ImpersonateOS, IpAddr, LookupIpStrategy, Proxy, TlsVersion,
+};
 use pyo3::prelude::*;
 use pyo3_stub_gen::derive::gen_stub_pyclass;
 
@@ -109,14 +111,21 @@ pub struct ClientParams {
     /// Set whether sockets have `TCP_NODELAY` enabled.
     pub tcp_nodelay: Option<bool>,
 
-    /// Whether to verify the SSL certificate.
-    pub danger_accept_invalid_certs: Option<bool>,
-
     /// The maximum number of times to retry a request.
     pub http2_max_retry_count: Option<usize>,
 
+    // ========= TLS options =========
+    /// Whether to verify the SSL certificate.
+    pub danger_accept_invalid_certs: Option<bool>,
+
     /// Add TLS information as `TlsInfo` extension to responses.
     pub tls_info: Option<bool>,
+
+    /// The minimum TLS version to use for the request.
+    pub min_tls_version: Option<TlsVersion>,
+
+    /// The maximum TLS version to use for the request.
+    pub max_tls_version: Option<TlsVersion>,
 
     // ========= Network options =========
     /// Whether to disable the proxy for the request.
@@ -245,6 +254,8 @@ impl<'py> FromPyObject<'py> for ClientParams {
         extract_option!(ob, params, danger_accept_invalid_certs);
         extract_option!(ob, params, http2_max_retry_count);
         extract_option!(ob, params, tls_info);
+        extract_option!(ob, params, min_tls_version);
+        extract_option!(ob, params, max_tls_version);
 
         extract_option!(ob, params, gzip);
         extract_option!(ob, params, brotli);
