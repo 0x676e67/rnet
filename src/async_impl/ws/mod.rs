@@ -91,29 +91,36 @@ impl WebSocket {
         code: Option<u16>,
         reason: Option<String>,
     ) -> PyResult<()> {
+        #[cfg(feature = "logging")]
+        log::debug!("Closing WebSocket connection");
+
         let mut lock = receiver.lock().await;
         let receiver = lock.take();
         drop(lock);
+        drop(receiver);
 
         let mut lock = sender.lock().await;
         let sender = lock.take();
         drop(lock);
 
-        let (receiver, mut sender) = receiver
-            .zip(sender)
-            .ok_or_else(websocket_disconnect_error)?;
-        drop(receiver);
-
-        if let Some(code) = code {
+        if let Some(mut sender) = sender {
             sender
                 .send(rquest::Message::Close {
-                    code: rquest::CloseCode::from(code),
+                    code: code
+                        .map(rquest::CloseCode::from)
+                        .unwrap_or(rquest::CloseCode::Normal),
                     reason,
                 })
                 .await
                 .map_err(wrap_rquest_error)?;
+            sender.flush().await.map_err(wrap_rquest_error)?;
+            sender.close().await.map_err(wrap_rquest_error)?;
+
+            #[cfg(feature = "logging")]
+            log::debug!("WebSocket connection closed");
         }
-        sender.close().await.map_err(wrap_rquest_error)
+
+        Ok(())
     }
 }
 
@@ -296,9 +303,7 @@ impl WebSocket {
 
             drop(lock);
 
-            recv.map(|val| val.map(Message))
-                .map(Some)
-                .map_err(wrap_rquest_error)
+            recv.map(|val| val.map(Message)).map_err(wrap_rquest_error)
         })
     }
 

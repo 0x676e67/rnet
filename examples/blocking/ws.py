@@ -10,7 +10,7 @@ def send_message(ws, stop_event):
             break
         print(f"Sending: Message {i + 1}")
         ws.send(Message.from_text(f"Message {i + 1}"))
-        time.sleep(1)
+        time.sleep(0.1)
     ws.send(Message.from_text("CLOSE"))
 
 

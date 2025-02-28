@@ -307,9 +307,12 @@ impl Response {
     }
 
     /// Closes the response connection.
-    pub fn close(&self, py: Python) {
+    pub fn close(&self, py: Python) -> PyResult<()> {
         py.allow_threads(|| {
+            #[cfg(feature = "logging")]
+            log::debug!("Closing HTTP connection");
             let _ = self.inner().map(drop);
+            Ok(())
         })
     }
 }
@@ -329,8 +332,8 @@ impl Response {
         _exc_value: &Bound<'a, PyAny>,
         _traceback: &Bound<'a, PyAny>,
     ) -> PyResult<Bound<'a, PyAny>> {
-        self.close(py);
-        future_into_py(py, async move { Ok(()) })
+        let res = self.close(py);
+        future_into_py(py, async move { res })
     }
 }
 

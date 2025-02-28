@@ -229,8 +229,8 @@ impl BlockingResponse {
 
     /// Closes the response connection.
     #[inline(always)]
-    pub fn close(&self, py: Python) {
-        self.0.close(py);
+    pub fn close(&self, py: Python) -> PyResult<()> {
+        self.0.close(py)
     }
 }
 
@@ -249,7 +249,7 @@ impl BlockingResponse {
         _exc_value: &Bound<'a, PyAny>,
         _traceback: &Bound<'a, PyAny>,
     ) -> PyResult<()> {
-        Ok(self.close(py))
+        self.close(py)
     }
 }
 

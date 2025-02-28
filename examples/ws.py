@@ -8,7 +8,7 @@ async def send_message(ws):
     for i in range(20):
         print(f"Sending: Message {i + 1}")
         await ws.send(Message.from_text(f"Message {i + 1}"))
-        await asyncio.sleep(1)
+        await asyncio.sleep(0.1)
 
 
 async def receive_message(ws):
