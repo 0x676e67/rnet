@@ -1,12 +1,11 @@
 use std::fmt::Debug;
-use std::pin::Pin;
 use std::sync::Arc;
 
-use super::PyIterator;
 use crate::error::stream_consumed_error;
+use crate::stream::{AsyncStream, SyncStream};
 use arc_swap::ArcSwapOption;
-use futures_util::StreamExt;
 use pyo3::prelude::*;
+use pyo3::types::PyBytes;
 use pyo3::{FromPyObject, IntoPyObject, PyAny};
 use pyo3_stub_gen::{PyStubType, TypeInfo};
 
@@ -15,14 +14,8 @@ use pyo3_stub_gen::{PyStubType, TypeInfo};
 pub enum Body {
     Text(String),
     Bytes(Vec<u8>),
-    Iterator(Arc<ArcSwapOption<Box<dyn Iterator<Item = Vec<u8>> + Send + Sync + 'static>>>),
-    Stream(
-        Arc<
-            ArcSwapOption<
-                Pin<Box<dyn futures_util::Stream<Item = PyObject> + Send + Sync + 'static>>,
-            >,
-        >,
-    ),
+    Iterator(Arc<ArcSwapOption<SyncStream>>),
+    Stream(Arc<ArcSwapOption<AsyncStream>>),
 }
 
 impl TryFrom<Body> for rquest::Body {
@@ -35,15 +28,12 @@ impl TryFrom<Body> for rquest::Body {
             Body::Iterator(iterator) => iterator
                 .swap(None)
                 .and_then(Arc::into_inner)
-                .map(|iter| iter.map(|item| Ok::<_, PyErr>(item)))
-                .map(futures_util::stream::iter)
-                .map(rquest::Body::wrap_stream)
+                .map(Into::into)
                 .ok_or_else(stream_consumed_error),
             Body::Stream(stream) => stream
                 .swap(None)
                 .and_then(Arc::into_inner)
-                .map(|stream| stream.map(|item| Python::with_gil(|py| item.extract::<Vec<u8>>(py))))
-                .map(rquest::Body::wrap_stream)
+                .map(Into::into)
                 .ok_or_else(stream_consumed_error),
         }
     }
@@ -70,21 +60,15 @@ impl FromPyObject<'_> for Body {
     fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
         if let Ok(text) = ob.extract::<String>() {
             Ok(Self::Text(text))
-        } else if let Ok(bytes) = ob.extract::<Vec<u8>>() {
-            Ok(Self::Bytes(bytes))
+        } else if let Ok(bytes) = ob.downcast::<PyBytes>() {
+            Ok(Self::Bytes(bytes.as_bytes().to_vec()))
         } else if let Ok(iter) = ob.extract::<PyObject>() {
             Ok(Self::Iterator(Arc::new(ArcSwapOption::from_pointee(
-                Box::new(PyIterator::new(iter))
-                    as Box<dyn Iterator<Item = Vec<u8>> + Send + Sync + 'static>,
+                SyncStream::new(iter),
             ))))
         } else {
             pyo3_async_runtimes::tokio::into_stream_v2(ob.to_owned())
-                .map(|s| {
-                    Box::pin(s)
-                        as Pin<
-                            Box<dyn futures_util::Stream<Item = PyObject> + Send + Sync + 'static>,
-                        >
-                })
+                .map(AsyncStream::new)
                 .map(ArcSwapOption::from_pointee)
                 .map(Arc::new)
                 .map(Self::Stream)
