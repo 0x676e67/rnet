@@ -48,6 +48,10 @@ pub fn py_stop_async_iteration_error() -> pyo3::PyErr {
     PyStopAsyncIteration::new_err("The iterator is exhausted")
 }
 
+pub fn websocket_disconnect_error() -> pyo3::PyErr {
+    PyRuntimeError::new_err("The WebSocket has been disconnected")
+}
+
 pub fn stream_consumed_error() -> pyo3::PyErr {
     BodyError::new_err("Stream is already consumed")
 }

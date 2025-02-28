@@ -1,13 +1,12 @@
-use std::ops::Deref;
-
 use crate::{
-    async_impl::{self, Message},
+    async_impl::{self, Message, WebSocket},
     error::{py_stop_iteration_error, wrap_rquest_error},
     typing::{HeaderMap, SocketAddr, StatusCode, Version},
 };
-use futures_util::{SinkExt, TryStreamExt};
+use futures_util::TryStreamExt;
 use pyo3::prelude::*;
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
+use std::ops::Deref;
 
 /// A blocking WebSocket response.
 #[gen_stub_pyclass]
@@ -102,6 +101,7 @@ impl BlockingWebSocket {
     /// # Returns
     ///
     /// An optional string representing the WebSocket protocol.
+    #[inline(always)]
     pub fn protocol(&self) -> Option<&str> {
         self.0.protocol()
     }
@@ -111,18 +111,10 @@ impl BlockingWebSocket {
     /// # Returns
     ///
     /// A `PyResult` containing a `Bound` object with the received message, or `None` if no message is received.
+    #[inline(always)]
     pub fn recv(&self, py: Python) -> PyResult<Option<Message>> {
         py.allow_threads(|| {
-            let websocket = self.receiver();
-            pyo3_async_runtimes::tokio::get_runtime().block_on(async move {
-                let mut lock = websocket.lock().await;
-                if let Some(recv) = lock.as_mut() {
-                    if let Ok(Some(val)) = recv.try_next().await {
-                        return Ok(Some(Message(val)));
-                    }
-                }
-                Ok(None)
-            })
+            pyo3_async_runtimes::tokio::get_runtime().block_on(WebSocket::_recv(self.receiver()))
         })
     }
 
@@ -136,16 +128,11 @@ impl BlockingWebSocket {
     ///
     /// A `PyResult` containing a `Bound` object.
     #[pyo3(signature = (message))]
+    #[inline(always)]
     pub fn send(&self, py: Python, message: Message) -> PyResult<()> {
         py.allow_threads(|| {
-            let sender = self.sender();
-            pyo3_async_runtimes::tokio::get_runtime().block_on(async move {
-                let mut lock = sender.lock().await;
-                if let Some(send) = lock.as_mut() {
-                    return send.send(message.0).await.map_err(wrap_rquest_error);
-                }
-                Ok(())
-            })
+            pyo3_async_runtimes::tokio::get_runtime()
+                .block_on(WebSocket::_send(self.sender(), message))
         })
     }
 
@@ -160,33 +147,15 @@ impl BlockingWebSocket {
     ///
     /// A `PyResult` containing a `Bound` object.
     #[pyo3(signature = (code=None, reason=None))]
+    #[inline(always)]
     pub fn close(&self, py: Python, code: Option<u16>, reason: Option<String>) -> PyResult<()> {
         py.allow_threads(|| {
-            let sender = self.sender();
-            let receiver = self.receiver();
-            pyo3_async_runtimes::tokio::get_runtime().block_on(async move {
-                let mut lock = receiver.lock().await;
-                drop(lock.take());
-                drop(lock);
-
-                let mut lock = sender.lock().await;
-                let send = lock.take();
-                drop(lock);
-
-                if let Some(mut send) = send {
-                    if let Some(code) = code {
-                        send.send(rquest::Message::Close {
-                            code: rquest::CloseCode::from(code),
-                            reason,
-                        })
-                        .await
-                        .map_err(wrap_rquest_error)?;
-                    }
-                    return send.close().await.map_err(wrap_rquest_error);
-                }
-
-                Ok(())
-            })
+            pyo3_async_runtimes::tokio::get_runtime().block_on(WebSocket::_close(
+                self.receiver(),
+                self.sender(),
+                code,
+                reason,
+            ))
         })
     }
 }

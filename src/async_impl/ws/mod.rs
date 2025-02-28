@@ -1,7 +1,7 @@
 mod message;
 
 use crate::{
-    error::{py_stop_async_iteration_error, wrap_rquest_error},
+    error::{py_stop_async_iteration_error, websocket_disconnect_error, wrap_rquest_error},
     typing::{HeaderMap, SocketAddr, StatusCode, Version},
 };
 use futures_util::{
@@ -56,16 +56,64 @@ impl WebSocket {
 }
 
 impl WebSocket {
-    /// Returns the sender of the WebSocket.
     #[inline(always)]
     pub fn sender(&self) -> Sender {
         self.sender.clone()
     }
 
-    /// Returns the receiver of the WebSocket.
     #[inline(always)]
     pub fn receiver(&self) -> Receiver {
         self.receiver.clone()
+    }
+
+    pub async fn _recv(receiver: Receiver) -> PyResult<Option<Message>> {
+        let mut lock = receiver.lock().await;
+        lock.as_mut()
+            .ok_or_else(websocket_disconnect_error)?
+            .try_next()
+            .await
+            .map(|val| val.map(Message))
+            .map_err(wrap_rquest_error)
+    }
+
+    pub async fn _send(sender: Sender, message: Message) -> PyResult<()> {
+        let mut lock = sender.lock().await;
+        lock.as_mut()
+            .ok_or_else(websocket_disconnect_error)?
+            .send(message.0)
+            .await
+            .map_err(wrap_rquest_error)
+    }
+
+    pub async fn _close(
+        receiver: Receiver,
+        sender: Sender,
+        code: Option<u16>,
+        reason: Option<String>,
+    ) -> PyResult<()> {
+        let mut lock = receiver.lock().await;
+        let receiver = lock.take();
+        drop(lock);
+
+        let mut lock = sender.lock().await;
+        let sender = lock.take();
+        drop(lock);
+
+        let (receiver, mut sender) = receiver
+            .zip(sender)
+            .ok_or_else(websocket_disconnect_error)?;
+        drop(receiver);
+
+        if let Some(code) = code {
+            sender
+                .send(rquest::Message::Close {
+                    code: rquest::CloseCode::from(code),
+                    reason,
+                })
+                .await
+                .map_err(wrap_rquest_error)?;
+        }
+        sender.close().await.map_err(wrap_rquest_error)
     }
 }
 
@@ -143,6 +191,7 @@ impl WebSocket {
     /// # Returns
     ///
     /// An optional string representing the WebSocket protocol.
+    #[inline(always)]
     pub fn protocol(&self) -> Option<&str> {
         self.protocol.as_deref()
     }
@@ -156,17 +205,9 @@ impl WebSocket {
     /// # Returns
     ///
     /// A `PyResult` containing a `Bound` object with the received message, or `None` if no message is received.
+    #[inline(always)]
     pub fn recv<'rt>(&self, py: Python<'rt>) -> PyResult<Bound<'rt, PyAny>> {
-        let websocket = self.receiver.clone();
-        future_into_py(py, async move {
-            let mut lock = websocket.lock().await;
-            if let Some(recv) = lock.as_mut() {
-                if let Ok(Some(val)) = recv.try_next().await {
-                    return Ok(Some(Message(val)));
-                }
-            }
-            Ok(None)
-        })
+        future_into_py(py, Self::_recv(self.receiver.clone()))
     }
 
     /// Sends a message to the WebSocket.
@@ -180,15 +221,9 @@ impl WebSocket {
     ///
     /// A `PyResult` containing a `Bound` object.
     #[pyo3(signature = (message))]
+    #[inline(always)]
     pub fn send<'rt>(&self, py: Python<'rt>, message: Message) -> PyResult<Bound<'rt, PyAny>> {
-        let sender = self.sender.clone();
-        future_into_py(py, async move {
-            let mut lock = sender.lock().await;
-            if let Some(send) = lock.as_mut() {
-                return send.send(message.0).await.map_err(wrap_rquest_error);
-            }
-            Ok(())
-        })
+        future_into_py(py, Self::_send(self.sender.clone(), message))
     }
 
     /// Closes the WebSocket connection.
@@ -203,6 +238,7 @@ impl WebSocket {
     ///
     /// A `PyResult` containing a `Bound` object.
     #[pyo3(signature = (code=None, reason=None))]
+    #[inline(always)]
     pub fn close<'rt>(
         &self,
         py: Python<'rt>,
@@ -211,29 +247,7 @@ impl WebSocket {
     ) -> PyResult<Bound<'rt, PyAny>> {
         let sender = self.sender.clone();
         let receiver = self.receiver.clone();
-        future_into_py(py, async move {
-            let mut lock = receiver.lock().await;
-            drop(lock.take());
-            drop(lock);
-
-            let mut lock = sender.lock().await;
-            let send = lock.take();
-            drop(lock);
-
-            if let Some(mut send) = send {
-                if let Some(code) = code {
-                    send.send(rquest::Message::Close {
-                        code: rquest::CloseCode::from(code),
-                        reason,
-                    })
-                    .await
-                    .map_err(wrap_rquest_error)?;
-                }
-                return send.close().await.map_err(wrap_rquest_error);
-            }
-
-            Ok(())
-        })
+        future_into_py(py, Self::_close(receiver, sender, code, reason))
     }
 }
 
