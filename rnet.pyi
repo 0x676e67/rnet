@@ -832,11 +832,11 @@ class Message:
     r"""
     A WebSocket message.
     """
-    data: bytes
+    data: typing.Optional[typing.Any]
     text: typing.Optional[builtins.str]
-    binary: typing.Optional[bytes]
-    ping: typing.Optional[bytes]
-    pong: typing.Optional[bytes]
+    binary: typing.Optional[typing.Any]
+    ping: typing.Optional[typing.Any]
+    pong: typing.Optional[typing.Any]
     close: typing.Optional[tuple[builtins.int, typing.Optional[builtins.str]]]
     @staticmethod
     def text_from_json(json:typing.Any) -> Message:

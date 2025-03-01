@@ -1,7 +1,11 @@
 use pyo3::{prelude::*, types::PyBytes};
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 
-use crate::{error::wrap_rquest_error, typing::Json};
+use crate::{
+    buffer::{Buffer, PyBufferProtocol},
+    error::wrap_rquest_error,
+    typing::Json,
+};
 
 /// A WebSocket message.
 #[gen_stub_pyclass]
@@ -35,15 +39,15 @@ impl Message {
     ///
     /// A byte slice representing the data of the message.
     #[getter]
-    pub fn data<'py>(&self, py: Python<'py>) -> Bound<'py, PyBytes> {
+    pub fn data<'py>(&self, py: Python<'py>) -> Option<Bound<'py, PyAny>> {
         let bytes = match &self.0 {
             rquest::Message::Text(text) => text.as_bytes(),
             rquest::Message::Binary(bytes)
             | rquest::Message::Ping(bytes)
             | rquest::Message::Pong(bytes) => bytes,
-            _ => &[],
+            _ => return None,
         };
-        PyBytes::new(py, bytes)
+        Buffer::new(bytes.to_vec()).into_bytes_ref(py).ok()
     }
 
     /// Returns the text content of the message if it is a text message.
@@ -66,9 +70,9 @@ impl Message {
     ///
     /// An optional byte slice representing the binary data of the message.
     #[getter]
-    pub fn binary<'py>(&self, py: Python<'py>) -> Option<Bound<'py, PyBytes>> {
+    pub fn binary<'py>(&self, py: Python<'py>) -> Option<Bound<'py, PyAny>> {
         if let rquest::Message::Binary(data) = &self.0 {
-            Some(PyBytes::new(py, data))
+            Buffer::new(data.to_owned()).into_bytes_ref(py).ok()
         } else {
             None
         }
@@ -80,9 +84,9 @@ impl Message {
     ///
     /// An optional byte slice representing the ping data of the message.
     #[getter]
-    pub fn ping<'py>(&self, py: Python<'py>) -> Option<Bound<'py, PyBytes>> {
+    pub fn ping<'py>(&self, py: Python<'py>) -> Option<Bound<'py, PyAny>> {
         if let rquest::Message::Ping(data) = &self.0 {
-            Some(PyBytes::new(py, data))
+            Buffer::new(data.to_owned()).into_bytes_ref(py).ok()
         } else {
             None
         }
@@ -94,9 +98,9 @@ impl Message {
     ///
     /// An optional byte slice representing the pong data of the message.
     #[getter]
-    pub fn pong<'py>(&self, py: Python<'py>) -> Option<Bound<'py, PyBytes>> {
+    pub fn pong<'py>(&self, py: Python<'py>) -> Option<Bound<'py, PyAny>> {
         if let rquest::Message::Pong(data) = &self.0 {
-            Some(PyBytes::new(py, data))
+            Buffer::new(data.to_owned()).into_bytes_ref(py).ok()
         } else {
             None
         }
