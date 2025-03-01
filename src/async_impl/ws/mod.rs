@@ -122,6 +122,24 @@ impl WebSocket {
 
         Ok(())
     }
+
+    pub async fn _anext(
+        receiver: Receiver,
+        py_stop_iteration_error: fn() -> PyErr,
+    ) -> PyResult<Message> {
+        let mut lock = receiver.lock().await;
+        let val = lock
+            .as_mut()
+            .ok_or_else(py_stop_iteration_error)?
+            .try_next()
+            .await;
+
+        drop(lock);
+
+        val.map(|val| val.map(Message))
+            .map_err(wrap_rquest_error)?
+            .ok_or_else(py_stop_iteration_error)
+    }
 }
 
 #[gen_stub_pymethods]
@@ -261,50 +279,17 @@ impl WebSocket {
 #[gen_stub_pymethods]
 #[pymethods]
 impl WebSocket {
-    /// Returns the WebSocket instance itself as an asynchronous iterator.
-    ///
-    /// This method is used to make the WebSocket instance iterable in an asynchronous context.
-    ///
-    /// # Arguments
-    ///
-    /// * `slf` - A reference to the WebSocket instance.
-    ///
-    /// # Returns
-    ///
-    /// Returns the WebSocket instance itself.
     #[inline(always)]
     fn __aiter__(slf: PyRef<'_, Self>) -> PyRef<'_, Self> {
         slf
     }
 
-    /// Returns the next message from the WebSocket.
-    ///
-    /// This method is used to retrieve the next message from the WebSocket in an asynchronous iteration.
-    ///
-    /// # Arguments
-    ///
-    /// * `py` - The Python runtime.
-    ///
-    /// # Returns
-    ///
-    /// Returns a `PyResult` containing an `Option` with a `Bound` object representing the received message.
-    /// If no message is received, returns `None`.
+    #[inline(always)]
     fn __anext__<'rt>(&self, py: Python<'rt>) -> PyResult<Bound<'rt, PyAny>> {
-        let recv = self.receiver.clone();
-        future_into_py(py, async move {
-            // Here we lock the mutex to access the data inside
-            // and call try_next() method to get the next value.
-            let mut lock = recv.lock().await;
-            let recv = lock
-                .as_mut()
-                .ok_or_else(py_stop_async_iteration_error)?
-                .try_next()
-                .await;
-
-            drop(lock);
-
-            recv.map(|val| val.map(Message)).map_err(wrap_rquest_error)
-        })
+        future_into_py(
+            py,
+            WebSocket::_anext(self.receiver.clone(), py_stop_async_iteration_error),
+        )
     }
 
     fn __aenter__<'a>(slf: PyRef<'a, Self>, py: Python<'a>) -> PyResult<Bound<'a, PyAny>> {

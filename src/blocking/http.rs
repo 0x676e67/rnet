@@ -1,12 +1,11 @@
 use std::ops::Deref;
 
 use crate::{
-    async_impl,
+    async_impl::{self},
     buffer::{BytesBuffer, PyBufferProtocol},
     error::{py_stop_iteration_error, wrap_rquest_error},
     typing::{CookieMap, HeaderMap, Json, SocketAddr, StatusCode, Version},
 };
-use futures_util::StreamExt;
 use pyo3::prelude::*;
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 
@@ -272,26 +271,10 @@ impl BlockingStreamer {
 
     fn __next__(&self, py: Python) -> PyResult<Py<PyAny>> {
         py.allow_threads(|| {
-            let streamer = self.0.clone();
-            pyo3_async_runtimes::tokio::get_runtime().block_on(async move {
-                // Here we lock the mutex to access the data inside
-                // and call next() method to get the next value.
-                let mut lock = streamer.lock().await;
-                let val = lock
-                    .as_mut()
-                    .ok_or_else(py_stop_iteration_error)?
-                    .next()
-                    .await;
-
-                drop(lock);
-
-                let buffer = val
-                    .ok_or_else(py_stop_iteration_error)?
-                    .map(BytesBuffer::new)
-                    .map_err(wrap_rquest_error)?;
-
-                Python::with_gil(|py| buffer.into_bytes(py))
-            })
+            pyo3_async_runtimes::tokio::get_runtime().block_on(async_impl::Streamer::_anext(
+                self.0.deref().clone(),
+                py_stop_iteration_error,
+            ))
         })
     }
 

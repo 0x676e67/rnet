@@ -4,7 +4,7 @@ use crate::{
     typing::{CookieMap, HeaderMap, Json, SocketAddr, StatusCode, Version},
 };
 use arc_swap::ArcSwapOption;
-use futures_util::{Stream, StreamExt};
+use futures_util::{Stream, TryStreamExt};
 use mime::Mime;
 use pyo3::{prelude::*, IntoPyObjectExt};
 use pyo3_async_runtimes::tokio::future_into_py;
@@ -337,6 +337,9 @@ impl Response {
     }
 }
 
+type InnerStreamer =
+    Pin<Box<dyn Stream<Item = Result<bytes::Bytes, rquest::Error>> + Send + 'static>>;
+
 /// A byte stream response.
 /// An asynchronous iterator yielding data chunks from the response stream.
 /// Used to stream response content.
@@ -371,24 +374,10 @@ impl Response {
 #[gen_stub_pyclass]
 #[pyclass]
 #[derive(Clone)]
-pub struct Streamer(
-    Arc<
-        Mutex<
-            Option<
-                Pin<Box<dyn Stream<Item = Result<bytes::Bytes, rquest::Error>> + Send + 'static>>,
-            >,
-        >,
-    >,
-);
+pub struct Streamer(Arc<Mutex<Option<InnerStreamer>>>);
 
 impl Deref for Streamer {
-    type Target = Arc<
-        Mutex<
-            Option<
-                Pin<Box<dyn Stream<Item = Result<bytes::Bytes, rquest::Error>> + Send + 'static>>,
-            >,
-        >,
-    >;
+    type Target = Arc<Mutex<Option<InnerStreamer>>>;
 
     #[inline(always)]
     fn deref(&self) -> &Self::Target {
@@ -404,6 +393,27 @@ impl Streamer {
     ) -> Streamer {
         Streamer(Arc::new(Mutex::new(Some(Box::pin(stream)))))
     }
+
+    pub async fn _anext<'rt>(
+        streamer: Arc<Mutex<Option<InnerStreamer>>>,
+        py_stop_iteration_error: fn() -> PyErr,
+    ) -> PyResult<Py<PyAny>> {
+        let mut lock = streamer.lock().await;
+        let val = lock
+            .as_mut()
+            .ok_or_else(py_stop_iteration_error)?
+            .try_next()
+            .await;
+
+        drop(lock);
+
+        let buffer = val
+            .map_err(wrap_rquest_error)?
+            .map(BytesBuffer::new)
+            .ok_or_else(&py_stop_iteration_error)?;
+
+        Python::with_gil(|py| buffer.into_bytes(py))
+    }
 }
 
 #[gen_stub_pymethods]
@@ -414,27 +424,12 @@ impl Streamer {
         slf
     }
 
+    #[inline(always)]
     fn __anext__<'rt>(&self, py: Python<'rt>) -> PyResult<Bound<'rt, PyAny>> {
-        let streamer = self.0.clone();
-        future_into_py(py, async move {
-            // Here we lock the mutex to access the data inside
-            // and call next() method to get the next value.
-            let mut lock = streamer.lock().await;
-            let val = lock
-                .as_mut()
-                .ok_or_else(py_stop_async_iteration_error)?
-                .next()
-                .await;
-
-            drop(lock);
-
-            let buffer = val
-                .ok_or_else(py_stop_async_iteration_error)?
-                .map(BytesBuffer::new)
-                .map_err(wrap_rquest_error)?;
-
-            Python::with_gil(|py| buffer.into_bytes(py))
-        })
+        future_into_py(
+            py,
+            Streamer::_anext(self.0.clone(), py_stop_async_iteration_error),
+        )
     }
 
     fn __aenter__<'a>(slf: PyRef<'a, Self>, py: Python<'a>) -> PyResult<Bound<'a, PyAny>> {

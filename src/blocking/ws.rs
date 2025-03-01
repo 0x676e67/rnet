@@ -1,9 +1,8 @@
 use crate::{
-    async_impl::{self, Message, WebSocket},
-    error::{py_stop_iteration_error, wrap_rquest_error},
+    async_impl::{self, Message},
+    error::py_stop_iteration_error,
     typing::{HeaderMap, SocketAddr, StatusCode, Version},
 };
-use futures_util::TryStreamExt;
 use pyo3::prelude::*;
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 use std::ops::Deref;
@@ -114,7 +113,8 @@ impl BlockingWebSocket {
     #[inline(always)]
     pub fn recv(&self, py: Python) -> PyResult<Option<Message>> {
         py.allow_threads(|| {
-            pyo3_async_runtimes::tokio::get_runtime().block_on(WebSocket::_recv(self.receiver()))
+            pyo3_async_runtimes::tokio::get_runtime()
+                .block_on(async_impl::WebSocket::_recv(self.receiver()))
         })
     }
 
@@ -132,7 +132,7 @@ impl BlockingWebSocket {
     pub fn send(&self, py: Python, message: Message) -> PyResult<()> {
         py.allow_threads(|| {
             pyo3_async_runtimes::tokio::get_runtime()
-                .block_on(WebSocket::_send(self.sender(), message))
+                .block_on(async_impl::WebSocket::_send(self.sender(), message))
         })
     }
 
@@ -150,7 +150,7 @@ impl BlockingWebSocket {
     #[inline(always)]
     pub fn close(&self, py: Python, code: Option<u16>, reason: Option<String>) -> PyResult<()> {
         py.allow_threads(|| {
-            pyo3_async_runtimes::tokio::get_runtime().block_on(WebSocket::_close(
+            pyo3_async_runtimes::tokio::get_runtime().block_on(async_impl::WebSocket::_close(
                 self.receiver(),
                 self.sender(),
                 code,
@@ -168,21 +168,12 @@ impl BlockingWebSocket {
         slf
     }
 
-    fn __next__(&self, py: Python) -> PyResult<Option<Message>> {
+    fn __next__(&self, py: Python) -> PyResult<Message> {
         py.allow_threads(|| {
-            let recv = self.receiver();
-            pyo3_async_runtimes::tokio::get_runtime().block_on(async move {
-                let mut lock = recv.lock().await;
-                let recv = lock
-                    .as_mut()
-                    .ok_or_else(py_stop_iteration_error)?
-                    .try_next()
-                    .await;
-
-                drop(lock);
-
-                recv.map(|val| val.map(Message)).map_err(wrap_rquest_error)
-            })
+            pyo3_async_runtimes::tokio::get_runtime().block_on(async_impl::WebSocket::_anext(
+                self.receiver(),
+                py_stop_iteration_error,
+            ))
         })
     }
 
