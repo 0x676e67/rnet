@@ -46,7 +46,30 @@ class BlockingClient:
         Updates the client with the given parameters.
         
         # Arguments
-        * `params` - The parameters to update the client with.
+        * `**kwds` - The parameters to update the client with.
+        
+            impersonate: typing.Optional[Impersonate]
+            impersonate_os: typing.Optional[ImpersonateOS]
+            impersonate_skip_http2: typing.Optional[builtins.bool]
+            impersonate_skip_headers: typing.Optional[builtins.bool]
+            headers: typing.Optional[typing.Dict[str, bytes]]
+            headers_order: typing.Optional[typing.List[str]]
+            proxies: typing.Optional[builtins.list[Proxy]]
+            local_address: typing.Optional[typing.Optional[typing.Union[str, ipaddress.IPv4Address, ipaddress.IPv6Address]]]
+            interface: typing.Optional[builtins.str]
+        
+        # Examples
+        
+        ```python
+        import rnet
+        
+        client = rnet.BlockingClient()
+        client.update(
+           impersonate=rnet.Impersonate.Firefox135,
+           headers={"X-My-Header": "value"},
+           proxies=[rnet.Proxy.all("http://proxy.example.com:8080")],
+        )
+        ```
         """
         ...
 
@@ -784,7 +807,7 @@ class Client:
         Updates the client with the given parameters.
         
         # Arguments
-        * `*kwds` - The parameters to update the client with.
+        * `**kwds` - The parameters to update the client with.
         
             impersonate: typing.Optional[Impersonate]
             impersonate_os: typing.Optional[ImpersonateOS]

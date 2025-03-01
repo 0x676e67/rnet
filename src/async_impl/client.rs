@@ -642,7 +642,7 @@ impl Client {
     /// Updates the client with the given parameters.
     ///
     /// # Arguments
-    /// * `*kwds` - The parameters to update the client with.
+    /// * `**kwds` - The parameters to update the client with.
     ///
     ///     impersonate: typing.Optional[Impersonate]
     ///     impersonate_os: typing.Optional[ImpersonateOS]

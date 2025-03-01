@@ -211,15 +211,68 @@ impl BlockingClient {
 #[gen_stub_pymethods]
 #[pymethods]
 impl BlockingClient {
-    /// Creates a new Client instance.
+    /// Creates a new BlockingClient instance.
     ///
     /// # Arguments
     ///
-    /// * `params` - Optional request parameters as a dictionary.
+    /// * `**kwds` - Optional request parameters as a dictionary.
+    ///
+    ///     impersonate: typing.Optional[Impersonate]
+    ///     impersonate_os: typing.Optional[ImpersonateOS]
+    ///     impersonate_skip_http2: typing.Optional[builtins.bool]
+    ///     impersonate_skip_headers: typing.Optional[builtins.bool]
+    ///     base_url: typing.Optional[str]
+    ///     user_agent: typing.Optional[str]
+    ///     default_headers: typing.Optional[typing.Dict[str, bytes]]
+    ///     headers_order: typing.Optional[typing.List[str]]
+    ///     referer: typing.Optional[builtins.bool]
+    ///     allow_redirects: typing.Optional[builtins.bool]
+    ///     max_redirects: typing.Optional[builtins.int]
+    ///     cookie_store: typing.Optional[builtins.bool]
+    ///     lookup_ip_strategy: typing.Optional[LookupIpStrategy]
+    ///     timeout: typing.Optional[builtins.int]
+    ///     connect_timeout: typing.Optional[builtins.int]
+    ///     read_timeout: typing.Optional[builtins.int]
+    ///     no_keepalive: typing.Optional[builtins.bool]
+    ///     tcp_keepalive: typing.Optional[builtins.int]
+    ///     pool_idle_timeout: typing.Optional[builtins.int]
+    ///     pool_max_idle_per_host: typing.Optional[builtins.int]
+    ///     pool_max_size: typing.Optional[builtins.int]
+    ///     http1_only: typing.Optional[builtins.bool]
+    ///     http2_only: typing.Optional[builtins.bool]
+    ///     https_only: typing.Optional[builtins.bool]
+    ///     tcp_nodelay: typing.Optional[builtins.bool]
+    ///     http2_max_retry_count: typing.Optional[builtins.int]
+    ///     danger_accept_invalid_certs: typing.Optional[builtins.bool]
+    ///     tls_info: typing.Optional[builtins.bool]
+    ///     min_tls_version: typing.Optional[TlsVersion]
+    ///     max_tls_version: typing.Optional[TlsVersion]
+    ///     no_proxy: typing.Optional[builtins.bool]
+    ///     proxies: typing.Optional[builtins.list[Proxy]]
+    ///     local_address: typing.Optional[typing.Optional[typing.Union[str, ipaddress.IPv4Address, ipaddress.IPv6Address]]]
+    ///     interface: typing.Optional[builtins.str]
+    ///     gzip: typing.Optional[builtins.bool]
+    ///     brotli: typing.Optional[builtins.bool]
+    ///     deflate: typing.Optional[builtins.bool]
+    ///     zstd: typing.Optional[builtins.bool]
     ///
     /// # Returns
     ///
-    /// A new `Client` instance.
+    /// A new `BlockingClient` instance.
+    ///
+    /// # Examples
+    ///
+    /// ```python
+    /// import asyncio
+    /// import rnet
+    ///
+    /// client = rnet.BlockingClient(
+    ///     user_agent="my-app/0.0.1",
+    ///     timeout=10,
+    /// )
+    /// response = client.get('https://httpbin.org/get')
+    /// print(response.text())
+    /// ```
     #[new]
     #[pyo3(signature = (**kwds))]
     #[inline(always)]
@@ -283,7 +336,30 @@ impl BlockingClient {
     /// Updates the client with the given parameters.
     ///
     /// # Arguments
-    /// * `params` - The parameters to update the client with.
+    /// * `**kwds` - The parameters to update the client with.
+    ///
+    ///     impersonate: typing.Optional[Impersonate]
+    ///     impersonate_os: typing.Optional[ImpersonateOS]
+    ///     impersonate_skip_http2: typing.Optional[builtins.bool]
+    ///     impersonate_skip_headers: typing.Optional[builtins.bool]
+    ///     headers: typing.Optional[typing.Dict[str, bytes]]
+    ///     headers_order: typing.Optional[typing.List[str]]
+    ///     proxies: typing.Optional[builtins.list[Proxy]]
+    ///     local_address: typing.Optional[typing.Optional[typing.Union[str, ipaddress.IPv4Address, ipaddress.IPv6Address]]]
+    ///     interface: typing.Optional[builtins.str]
+    ///
+    /// # Examples
+    ///
+    /// ```python
+    /// import rnet
+    ///
+    /// client = rnet.BlockingClient()
+    /// client.update(
+    ///    impersonate=rnet.Impersonate.Firefox135,
+    ///    headers={"X-My-Header": "value"},
+    ///    proxies=[rnet.Proxy.all("http://proxy.example.com:8080")],
+    /// )
+    /// ```
     #[pyo3(signature = (**kwds))]
     #[inline(always)]
     fn update(&self, py: Python, kwds: Option<UpdateClientParams>) {
