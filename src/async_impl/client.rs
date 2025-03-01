@@ -63,7 +63,7 @@ impl Client {
     pub fn get<'rt>(
         &self,
         py: Python<'rt>,
-        url: String,
+        url: PyBackedStr,
         kwds: Option<RequestParams>,
     ) -> PyResult<Bound<'rt, PyAny>> {
         self.request(py, Method::GET, url, kwds)
@@ -98,7 +98,7 @@ impl Client {
     pub fn post<'rt>(
         &self,
         py: Python<'rt>,
-        url: String,
+        url: PyBackedStr,
         kwds: Option<RequestParams>,
     ) -> PyResult<Bound<'rt, PyAny>> {
         self.request(py, Method::POST, url, kwds)
@@ -133,7 +133,7 @@ impl Client {
     pub fn put<'rt>(
         &self,
         py: Python<'rt>,
-        url: String,
+        url: PyBackedStr,
         kwds: Option<RequestParams>,
     ) -> PyResult<Bound<'rt, PyAny>> {
         self.request(py, Method::PUT, url, kwds)
@@ -168,7 +168,7 @@ impl Client {
     pub fn patch<'rt>(
         &self,
         py: Python<'rt>,
-        url: String,
+        url: PyBackedStr,
         kwds: Option<RequestParams>,
     ) -> PyResult<Bound<'rt, PyAny>> {
         self.request(py, Method::PATCH, url, kwds)
@@ -203,7 +203,7 @@ impl Client {
     pub fn delete<'rt>(
         &self,
         py: Python<'rt>,
-        url: String,
+        url: PyBackedStr,
         kwds: Option<RequestParams>,
     ) -> PyResult<Bound<'rt, PyAny>> {
         self.request(py, Method::DELETE, url, kwds)
@@ -238,7 +238,7 @@ impl Client {
     pub fn head<'rt>(
         &self,
         py: Python<'rt>,
-        url: String,
+        url: PyBackedStr,
         kwds: Option<RequestParams>,
     ) -> PyResult<Bound<'rt, PyAny>> {
         self.request(py, Method::HEAD, url, kwds)
@@ -273,7 +273,7 @@ impl Client {
     pub fn options<'rt>(
         &self,
         py: Python<'rt>,
-        url: String,
+        url: PyBackedStr,
         kwds: Option<RequestParams>,
     ) -> PyResult<Bound<'rt, PyAny>> {
         self.request(py, Method::OPTIONS, url, kwds)
@@ -308,7 +308,7 @@ impl Client {
     pub fn trace<'rt>(
         &self,
         py: Python<'rt>,
-        url: String,
+        url: PyBackedStr,
         kwds: Option<RequestParams>,
     ) -> PyResult<Bound<'rt, PyAny>> {
         self.request(py, Method::TRACE, url, kwds)
@@ -346,7 +346,7 @@ impl Client {
         &self,
         py: Python<'rt>,
         method: Method,
-        url: String,
+        url: PyBackedStr,
         kwds: Option<RequestParams>,
     ) -> PyResult<Bound<'rt, PyAny>> {
         let client = self.0.load();
@@ -385,7 +385,7 @@ impl Client {
     pub fn websocket<'rt>(
         &self,
         py: Python<'rt>,
-        url: String,
+        url: PyBackedStr,
         kwds: Option<WebSocketParams>,
     ) -> PyResult<Bound<'rt, PyAny>> {
         let client = self.0.load();
@@ -707,9 +707,9 @@ impl Client {
     /// print(cookies)
     /// ```
     #[pyo3(signature = (url))]
-    pub fn get_cookies(&self, py: Python, url: &str) -> PyResult<Vec<String>> {
+    pub fn get_cookies(&self, py: Python, url: PyBackedStr) -> PyResult<Vec<String>> {
         py.allow_threads(|| {
-            let url = Url::parse(url).map_err(wrap_url_parse_error)?;
+            let url = Url::parse(url.as_ref()).map_err(wrap_url_parse_error)?;
             let cookies = self
                 .0
                 .load()
@@ -743,9 +743,14 @@ impl Client {
     /// client.set_cookies("https://example.com", ["cookie1=value1", "cookie2=value2"])
     /// ```
     #[pyo3(signature = (url, cookies))]
-    pub fn set_cookies(&self, py: Python, url: &str, cookies: Vec<PyBackedStr>) -> PyResult<()> {
+    pub fn set_cookies(
+        &self,
+        py: Python,
+        url: PyBackedStr,
+        cookies: Vec<PyBackedStr>,
+    ) -> PyResult<()> {
         py.allow_threads(|| {
-            let url = Url::parse(url).map_err(wrap_url_parse_error)?;
+            let url = Url::parse(url.as_ref()).map_err(wrap_url_parse_error)?;
             let cookies = cookies
                 .into_iter()
                 .map(|value| HeaderValue::from_bytes(value.as_bytes()))

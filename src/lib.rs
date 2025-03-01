@@ -14,7 +14,7 @@ use blocking::{BlockingClient, BlockingResponse, BlockingStreamer, BlockingWebSo
 #[cfg(feature = "logging")]
 use log::LevelFilter;
 use param::{ClientParams, RequestParams, UpdateClientParams, WebSocketParams};
-use pyo3::prelude::*;
+use pyo3::{prelude::*, pybacked::PyBackedStr};
 use pyo3_async_runtimes::tokio::future_into_py;
 #[cfg(feature = "logging")]
 use pyo3_log::{Caching, Logger};
@@ -65,7 +65,11 @@ type Result<T> = std::result::Result<T, PyErr>;
 #[pyfunction]
 #[pyo3(signature = (url, **kwds))]
 #[inline(always)]
-fn get(py: Python<'_>, url: String, kwds: Option<RequestParams>) -> PyResult<Bound<'_, PyAny>> {
+fn get(
+    py: Python<'_>,
+    url: PyBackedStr,
+    kwds: Option<RequestParams>,
+) -> PyResult<Bound<'_, PyAny>> {
     future_into_py(py, async_impl::shortcut_request(url, Method::GET, kwds))
 }
 
@@ -88,7 +92,7 @@ fn get(py: Python<'_>, url: String, kwds: Option<RequestParams>) -> PyResult<Bou
 #[pyfunction]
 #[pyo3(signature = (url, **kwds))]
 #[inline(always)]
-fn post(py: Python, url: String, kwds: Option<RequestParams>) -> PyResult<Bound<'_, PyAny>> {
+fn post(py: Python, url: PyBackedStr, kwds: Option<RequestParams>) -> PyResult<Bound<'_, PyAny>> {
     future_into_py(py, async_impl::shortcut_request(url, Method::POST, kwds))
 }
 
@@ -111,7 +115,11 @@ fn post(py: Python, url: String, kwds: Option<RequestParams>) -> PyResult<Bound<
 #[pyfunction]
 #[pyo3(signature = (url, **kwds))]
 #[inline(always)]
-fn put(py: Python<'_>, url: String, kwds: Option<RequestParams>) -> PyResult<Bound<'_, PyAny>> {
+fn put(
+    py: Python<'_>,
+    url: PyBackedStr,
+    kwds: Option<RequestParams>,
+) -> PyResult<Bound<'_, PyAny>> {
     future_into_py(py, async_impl::shortcut_request(url, Method::PUT, kwds))
 }
 
@@ -134,7 +142,11 @@ fn put(py: Python<'_>, url: String, kwds: Option<RequestParams>) -> PyResult<Bou
 #[pyfunction]
 #[pyo3(signature = (url, **kwds))]
 #[inline(always)]
-fn patch(py: Python<'_>, url: String, kwds: Option<RequestParams>) -> PyResult<Bound<'_, PyAny>> {
+fn patch(
+    py: Python<'_>,
+    url: PyBackedStr,
+    kwds: Option<RequestParams>,
+) -> PyResult<Bound<'_, PyAny>> {
     future_into_py(py, async_impl::shortcut_request(url, Method::PATCH, kwds))
 }
 
@@ -157,7 +169,11 @@ fn patch(py: Python<'_>, url: String, kwds: Option<RequestParams>) -> PyResult<B
 #[pyfunction]
 #[pyo3(signature = (url, **kwds))]
 #[inline(always)]
-fn delete(py: Python<'_>, url: String, kwds: Option<RequestParams>) -> PyResult<Bound<'_, PyAny>> {
+fn delete(
+    py: Python<'_>,
+    url: PyBackedStr,
+    kwds: Option<RequestParams>,
+) -> PyResult<Bound<'_, PyAny>> {
     future_into_py(py, async_impl::shortcut_request(url, Method::DELETE, kwds))
 }
 
@@ -179,7 +195,11 @@ fn delete(py: Python<'_>, url: String, kwds: Option<RequestParams>) -> PyResult<
 #[pyfunction]
 #[pyo3(signature = (url, **kwds))]
 #[inline(always)]
-fn head(py: Python<'_>, url: String, kwds: Option<RequestParams>) -> PyResult<Bound<'_, PyAny>> {
+fn head(
+    py: Python<'_>,
+    url: PyBackedStr,
+    kwds: Option<RequestParams>,
+) -> PyResult<Bound<'_, PyAny>> {
     future_into_py(py, async_impl::shortcut_request(url, Method::HEAD, kwds))
 }
 
@@ -201,7 +221,11 @@ fn head(py: Python<'_>, url: String, kwds: Option<RequestParams>) -> PyResult<Bo
 #[pyfunction]
 #[pyo3(signature = (url, **kwds))]
 #[inline(always)]
-fn options(py: Python<'_>, url: String, kwds: Option<RequestParams>) -> PyResult<Bound<'_, PyAny>> {
+fn options(
+    py: Python<'_>,
+    url: PyBackedStr,
+    kwds: Option<RequestParams>,
+) -> PyResult<Bound<'_, PyAny>> {
     future_into_py(py, async_impl::shortcut_request(url, Method::OPTIONS, kwds))
 }
 
@@ -223,7 +247,11 @@ fn options(py: Python<'_>, url: String, kwds: Option<RequestParams>) -> PyResult
 #[pyfunction]
 #[pyo3(signature = (url, **kwds))]
 #[inline(always)]
-fn trace(py: Python<'_>, url: String, kwds: Option<RequestParams>) -> PyResult<Bound<'_, PyAny>> {
+fn trace(
+    py: Python<'_>,
+    url: PyBackedStr,
+    kwds: Option<RequestParams>,
+) -> PyResult<Bound<'_, PyAny>> {
     future_into_py(py, async_impl::shortcut_request(url, Method::TRACE, kwds))
 }
 
@@ -252,7 +280,7 @@ fn trace(py: Python<'_>, url: String, kwds: Option<RequestParams>) -> PyResult<B
 fn request(
     py: Python<'_>,
     method: Method,
-    url: String,
+    url: PyBackedStr,
     kwds: Option<RequestParams>,
 ) -> PyResult<Bound<'_, PyAny>> {
     future_into_py(py, async_impl::shortcut_request(url, method, kwds))
@@ -284,7 +312,7 @@ fn request(
 #[inline(always)]
 fn websocket(
     py: Python<'_>,
-    url: String,
+    url: PyBackedStr,
     kwds: Option<WebSocketParams>,
 ) -> PyResult<Bound<'_, PyAny>> {
     future_into_py(py, async_impl::shortcut_websocket_request(url, kwds))

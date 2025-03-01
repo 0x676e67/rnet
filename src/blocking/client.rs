@@ -30,7 +30,7 @@ impl BlockingClient {
     pub fn get(
         &self,
         py: Python,
-        url: String,
+        url: PyBackedStr,
         kwds: Option<RequestParams>,
     ) -> PyResult<BlockingResponse> {
         self.request(py, Method::GET, url, kwds)
@@ -51,7 +51,7 @@ impl BlockingClient {
     pub fn post(
         &self,
         py: Python,
-        url: String,
+        url: PyBackedStr,
         kwds: Option<RequestParams>,
     ) -> PyResult<BlockingResponse> {
         self.request(py, Method::POST, url, kwds)
@@ -72,7 +72,7 @@ impl BlockingClient {
     pub fn put(
         &self,
         py: Python,
-        url: String,
+        url: PyBackedStr,
         kwds: Option<RequestParams>,
     ) -> PyResult<BlockingResponse> {
         self.request(py, Method::PUT, url, kwds)
@@ -93,7 +93,7 @@ impl BlockingClient {
     pub fn patch(
         &self,
         py: Python,
-        url: String,
+        url: PyBackedStr,
         kwds: Option<RequestParams>,
     ) -> PyResult<BlockingResponse> {
         self.request(py, Method::PATCH, url, kwds)
@@ -114,7 +114,7 @@ impl BlockingClient {
     pub fn delete(
         &self,
         py: Python,
-        url: String,
+        url: PyBackedStr,
         kwds: Option<RequestParams>,
     ) -> PyResult<BlockingResponse> {
         self.request(py, Method::DELETE, url, kwds)
@@ -135,7 +135,7 @@ impl BlockingClient {
     pub fn head(
         &self,
         py: Python,
-        url: String,
+        url: PyBackedStr,
         kwds: Option<RequestParams>,
     ) -> PyResult<BlockingResponse> {
         self.request(py, Method::HEAD, url, kwds)
@@ -155,7 +155,7 @@ impl BlockingClient {
     pub fn options(
         &self,
         py: Python,
-        url: String,
+        url: PyBackedStr,
         kwds: Option<RequestParams>,
     ) -> PyResult<BlockingResponse> {
         self.request(py, Method::OPTIONS, url, kwds)
@@ -176,7 +176,7 @@ impl BlockingClient {
     pub fn trace(
         &self,
         py: Python,
-        url: String,
+        url: PyBackedStr,
         kwds: Option<RequestParams>,
     ) -> PyResult<BlockingResponse> {
         self.request(py, Method::TRACE, url, kwds)
@@ -199,7 +199,7 @@ impl BlockingClient {
         &self,
         py: Python,
         method: Method,
-        url: String,
+        url: PyBackedStr,
         kwds: Option<RequestParams>,
     ) -> PyResult<BlockingResponse> {
         py.allow_threads(|| {
@@ -225,7 +225,7 @@ impl BlockingClient {
     pub fn websocket(
         &self,
         py: Python,
-        url: String,
+        url: PyBackedStr,
         kwds: Option<WebSocketParams>,
     ) -> PyResult<BlockingWebSocket> {
         py.allow_threads(|| {
@@ -289,7 +289,7 @@ impl BlockingClient {
     /// A list of cookie strings.
     #[pyo3(signature = (url))]
     #[inline(always)]
-    fn get_cookies(&self, py: Python, url: &str) -> PyResult<Vec<String>> {
+    fn get_cookies(&self, py: Python, url: PyBackedStr) -> PyResult<Vec<String>> {
         self.0.get_cookies(py, url)
     }
 
@@ -305,7 +305,7 @@ impl BlockingClient {
     /// A `PyResult` indicating success or failure.
     #[pyo3(signature = (url, value))]
     #[inline(always)]
-    fn set_cookies(&self, py: Python, url: &str, value: Vec<PyBackedStr>) -> PyResult<()> {
+    fn set_cookies(&self, py: Python, url: PyBackedStr, value: Vec<PyBackedStr>) -> PyResult<()> {
         self.0.set_cookies(py, url, value)
     }
 
