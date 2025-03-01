@@ -27,7 +27,7 @@ class BlockingClient:
         """
         ...
 
-    def set_cookies(self, url:builtins.str, value:typing.Sequence[builtins.str]) -> None:
+    def set_cookies(self, url:builtins.str, value:typing.Sequence[str]) -> None:
         r"""
         Sets cookies for the given URL.
         
@@ -418,7 +418,7 @@ class Client:
         """
         ...
 
-    def set_cookies(self, url:builtins.str, value:typing.Sequence[builtins.str]) -> None:
+    def set_cookies(self, url:builtins.str, cookies:typing.Sequence[str]) -> None:
         r"""
         Sets cookies for the given URL.
         
