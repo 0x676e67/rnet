@@ -6,7 +6,7 @@ use crate::{
     typing::{ImpersonateOS, Method, TlsVersion},
 };
 use arc_swap::ArcSwap;
-use pyo3::prelude::*;
+use pyo3::{prelude::*, pybacked::PyBackedStr};
 use pyo3_async_runtimes::tokio::future_into_py;
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 use rquest::{
@@ -742,17 +742,17 @@ impl Client {
     /// client = rnet.Client(cookie_store=True)
     /// client.set_cookies("https://example.com", ["cookie1=value1", "cookie2=value2"])
     /// ```
-    #[pyo3(signature = (url, value))]
-    pub fn set_cookies(&self, py: Python, url: &str, value: Vec<String>) -> PyResult<()> {
+    #[pyo3(signature = (url, cookies))]
+    pub fn set_cookies(&self, py: Python, url: &str, cookies: Vec<PyBackedStr>) -> PyResult<()> {
         py.allow_threads(|| {
             let url = Url::parse(url).map_err(wrap_url_parse_error)?;
-            let value = value
+            let cookies = cookies
                 .into_iter()
                 .map(|value| HeaderValue::from_bytes(value.as_bytes()))
                 .flat_map(std::result::Result::ok)
                 .collect::<Vec<HeaderValue>>();
 
-            self.0.load().set_cookies(&url, value);
+            self.0.load().set_cookies(&url, cookies);
             Ok(())
         })
     }

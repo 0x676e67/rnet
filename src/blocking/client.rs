@@ -4,7 +4,7 @@ use crate::{
     param::{ClientParams, RequestParams, UpdateClientParams, WebSocketParams},
     typing::Method,
 };
-use pyo3::prelude::*;
+use pyo3::{prelude::*, pybacked::PyBackedStr};
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 
 /// A blocking client for making HTTP requests.
@@ -305,7 +305,7 @@ impl BlockingClient {
     /// A `PyResult` indicating success or failure.
     #[pyo3(signature = (url, value))]
     #[inline(always)]
-    fn set_cookies(&self, py: Python, url: &str, value: Vec<String>) -> PyResult<()> {
+    fn set_cookies(&self, py: Python, url: &str, value: Vec<PyBackedStr>) -> PyResult<()> {
         self.0.set_cookies(py, url, value)
     }
 
