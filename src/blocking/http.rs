@@ -149,6 +149,7 @@ impl BlockingResponse {
     ///
     /// A Python dictionary representing the cookies of the response.
     #[getter]
+    #[inline(always)]
     pub fn cookies(&self, py: Python) -> CookieMap {
         self.0.cookies(py)
     }
