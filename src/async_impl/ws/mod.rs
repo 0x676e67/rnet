@@ -53,9 +53,7 @@ impl WebSocket {
             receiver: Arc::new(Mutex::new(Some(receiver))),
         })
     }
-}
 
-impl WebSocket {
     #[inline(always)]
     pub fn sender(&self) -> Sender {
         self.sender.clone()
