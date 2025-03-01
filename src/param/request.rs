@@ -1,37 +1,8 @@
-use crate::typing::{Body, CookieMap, HeaderMap, IpAddr, Json, Multipart, Version};
-use pyo3::prelude::*;
-use pyo3_stub_gen::derive::gen_stub_pyclass;
+use crate::typing::{Body, CookieMap, HeaderMap, IpAddr, Json, Multipart, QueryOrForm, Version};
+use pyo3::{prelude::*, pybacked::PyBackedStr};
+use pyo3_stub_gen::{PyStubType, TypeInfo};
 
 /// The parameters for a request.
-///
-/// # Examples
-///
-/// ```python
-/// import rnet
-/// from rnet import Impersonate, Version
-///
-/// params = rnet.RequestParams(
-///     impersonate=Impersonate.Chrome100,
-///     version=Version.HTTP_2,
-///     user_agent="Mozilla/5.0",
-///     headers={"Content-Type": "application/json"},
-///     timeout=10,
-///     connect_timeout=5,
-///     read_timeout=15,
-///     local_address="192.168.1.188",
-///     no_keepalive=True,
-///     no_proxy=False,
-///     http1_only=False,
-///     http2_only=True,
-///     referer=True
-/// )
-///
-/// response = await rnet.get("https://www.rust-lang.org", **params)
-/// body = await response.text()
-/// print(body)
-/// ```
-#[gen_stub_pyclass]
-#[pyclass(get_all, set_all)]
 #[derive(Default, Debug)]
 pub struct RequestParams {
     /// The proxy to use for the request.
@@ -65,19 +36,19 @@ pub struct RequestParams {
     pub max_redirects: Option<usize>,
 
     /// The authentication to use for the request.
-    pub auth: Option<String>,
+    pub auth: Option<PyBackedStr>,
 
     /// The bearer authentication to use for the request.
-    pub bearer_auth: Option<String>,
+    pub bearer_auth: Option<PyBackedStr>,
 
     /// The basic authentication to use for the request.
-    pub basic_auth: Option<(String, Option<String>)>,
+    pub basic_auth: Option<(PyBackedStr, Option<PyBackedStr>)>,
 
     /// The query parameters to use for the request.
-    pub query: Option<Vec<(String, String)>>,
+    pub query: Option<QueryOrForm>,
 
     /// The form parameters to use for the request.
-    pub form: Option<Vec<(String, String)>>,
+    pub form: Option<QueryOrForm>,
 
     /// The JSON body to use for the request.
     pub json: Option<Json>,
@@ -121,5 +92,11 @@ impl<'py> FromPyObject<'py> for RequestParams {
         extract_option!(ob, params, multipart);
 
         Ok(params)
+    }
+}
+
+impl PyStubType for RequestParams {
+    fn type_output() -> TypeInfo {
+        TypeInfo::with_module("typing.Dict[str, typing.Any]", "typing".into())
     }
 }

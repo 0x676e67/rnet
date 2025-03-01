@@ -1,39 +1,12 @@
-use crate::typing::{CookieMap, HeaderMap, IpAddr};
-use pyo3::prelude::*;
-use pyo3_stub_gen::derive::gen_stub_pyclass;
+use crate::typing::{CookieMap, HeaderMap, IpAddr, QueryOrForm};
+use pyo3::{prelude::*, pybacked::PyBackedStr};
+use pyo3_stub_gen::{PyStubType, TypeInfo};
 
 /// The parameters for a WebSocket request.
-///
-/// # Examples
-///
-/// ```python
-/// import rnet
-/// from rnet import Impersonate, Version
-///
-/// params = rnet.WebSocketParams(
-///     proxy="http://proxy.example.com",
-///     local_address="192.168.1.1",
-///     interface="eth0",
-///     headers={"Content-Type": "application/json"},
-///     auth="Basic dXNlcjpwYXNzd29yZA==",
-///     bearer_auth="Bearer token",
-///     basic_auth=("user", "password"),
-///     query=[("key1", "value1"), ("key2", "value2")]
-/// )
-///
-/// async with rnet.websocket("wss://echo.websocket.org") as ws:
-///    await ws.send("Hello, World!")
-///    message = await ws.recv()
-///    print(message)
-///
-/// asyncio.run(run())
-/// ```
-#[gen_stub_pyclass]
-#[pyclass(get_all, set_all)]
 #[derive(Default, Debug)]
 pub struct WebSocketParams {
     /// The proxy to use for the request.
-    pub proxy: Option<String>,
+    pub proxy: Option<PyBackedStr>,
 
     /// Bind to a local IP Address.
     pub local_address: Option<IpAddr>,
@@ -51,16 +24,16 @@ pub struct WebSocketParams {
     pub protocols: Option<Vec<String>>,
 
     /// The authentication to use for the request.
-    pub auth: Option<String>,
+    pub auth: Option<PyBackedStr>,
 
     /// The bearer authentication to use for the request.
-    pub bearer_auth: Option<String>,
+    pub bearer_auth: Option<PyBackedStr>,
 
     /// The basic authentication to use for the request.
-    pub basic_auth: Option<(String, Option<String>)>,
+    pub basic_auth: Option<(PyBackedStr, Option<PyBackedStr>)>,
 
     /// The query parameters to use for the request.
-    pub query: Option<Vec<(String, String)>>,
+    pub query: Option<QueryOrForm>,
 
     /// The target minimum size of the write buffer to reach before writing the data
     /// to the underlying stream.
@@ -132,5 +105,11 @@ impl<'py> FromPyObject<'py> for WebSocketParams {
         extract_option!(ob, params, max_frame_size);
         extract_option!(ob, params, accept_unmasked_frames);
         Ok(params)
+    }
+}
+
+impl PyStubType for WebSocketParams {
+    fn type_output() -> TypeInfo {
+        TypeInfo::with_module("typing.Dict[str, typing.Any]", "typing".into())
     }
 }

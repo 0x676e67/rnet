@@ -2,37 +2,10 @@ use crate::typing::{
     HeaderMap, HeaderNameOrder, Impersonate, ImpersonateOS, IpAddr, LookupIpStrategy, Proxy,
     TlsVersion,
 };
-use pyo3::prelude::*;
-use pyo3_stub_gen::derive::gen_stub_pyclass;
+use pyo3::{prelude::*, pybacked::PyBackedStr};
+use pyo3_stub_gen::{PyStubType, TypeInfo};
 
 /// The parameters for a request.
-///
-/// # Examples
-///
-/// ```python
-/// import rnet
-/// from rnet import Impersonate, Version
-///
-/// params = rnet.RequestParams(
-///     impersonate=Impersonate.Chrome100,
-///     default_headers={"Content-Type": "application/json"},
-///     user_agent="Mozilla/5.0",
-///     timeout=10,
-///     connect_timeout=5,
-///     read_timeout=15,
-///     no_keepalive=True,
-///     no_proxy=False,
-///     http1_only=False,
-///     http2_only=True,
-///     referer=True
-/// )
-///
-/// response = await rnet.get("https://www.rust-lang.org", **params)
-/// body = await response.text()
-/// print(body)
-/// ```
-#[gen_stub_pyclass]
-#[pyclass(get_all, set_all)]
 #[derive(Default, Debug)]
 pub struct ClientParams {
     /// The impersonation settings for the request.
@@ -48,10 +21,10 @@ pub struct ClientParams {
     pub impersonate_skip_headers: Option<bool>,
 
     /// The base URL to use for the request.
-    pub base_url: Option<String>,
+    pub base_url: Option<PyBackedStr>,
 
     /// The user agent to use for the request.
-    pub user_agent: Option<String>,
+    pub user_agent: Option<PyBackedStr>,
 
     /// The headers to use for the request.
     pub default_headers: Option<HeaderMap>,
@@ -156,28 +129,6 @@ pub struct ClientParams {
 }
 
 /// The parameters for updating a client.
-///
-/// This struct allows you to update various settings for an existing client instance.
-///
-/// # Examples
-///
-/// ```python
-/// import rnet
-/// from rnet import Impersonate, UpdateClientParams
-///
-/// params = UpdateClientParams(
-///     impersonate=Impersonate.Chrome100,
-///     headers={"Content-Type": "application/json"},
-///     proxies=[rnet.Proxy.all("http://proxy.example.com:8080")]
-/// )
-///
-/// client = rnet.Client()
-/// client.update(**params)
-/// ```
-///
-/// This will update the client with the specified impersonation settings, headers, and proxies.
-#[gen_stub_pyclass]
-#[pyclass(get_all, set_all)]
 #[derive(Default, Debug)]
 pub struct UpdateClientParams {
     /// The impersonation settings for the request.
@@ -279,5 +230,17 @@ impl<'py> FromPyObject<'py> for UpdateClientParams {
         extract_option!(ob, params, local_address);
         extract_option!(ob, params, interface);
         Ok(params)
+    }
+}
+
+impl PyStubType for ClientParams {
+    fn type_output() -> TypeInfo {
+        TypeInfo::with_module("typing.Dict[str, typing.Any]", "typing".into())
+    }
+}
+
+impl PyStubType for UpdateClientParams {
+    fn type_output() -> TypeInfo {
+        TypeInfo::with_module("typing.Dict[str, typing.Any]", "typing".into())
     }
 }

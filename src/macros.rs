@@ -20,6 +20,16 @@ macro_rules! apply_option {
             $builder = $builder.$method($transform(value));
         }
     };
+    (apply_transformed_option_ref, $builder:expr, $option:expr, $method:ident, $transform:expr) => {
+        if let Some(value) = $option.take() {
+            $builder = $builder.$method($transform(&value));
+        }
+    };
+    (apply_ref_transformed_option, $builder:expr, $option:expr, $method:ident, $transform:expr) => {
+        if let Some(value) = $option.take() {
+            $builder = $builder.$method(&$transform(value));
+        }
+    };
     (apply_option_or_default, $builder:expr, $option:expr, $method:ident, $default:expr) => {
         if $option.unwrap_or($default) {
             $builder = $builder.$method();

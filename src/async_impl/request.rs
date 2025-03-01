@@ -95,7 +95,13 @@ where
     }
 
     // Authentication options.
-    apply_option!(apply_if_some, builder, params.auth, auth);
+    apply_option!(
+        apply_transformed_option_ref,
+        builder,
+        params.auth,
+        auth,
+        AsRef::<str>::as_ref
+    );
 
     // Bearer authentication options.
     apply_option!(apply_if_some, builder, params.bearer_auth, bearer_auth);
@@ -192,7 +198,13 @@ where
     // The origin to use for the request.
     builder = builder.with_builder(|mut builder| {
         // Network options.
-        apply_option!(apply_if_some, builder, params.proxy, proxy);
+        apply_option!(
+            apply_transformed_option_ref,
+            builder,
+            params.proxy,
+            proxy,
+            AsRef::<str>::as_ref
+        );
         apply_option!(
             apply_transformed_option,
             builder,
@@ -205,7 +217,13 @@ where
         );
 
         // Authentication options.
-        apply_option!(apply_if_some, builder, params.auth, auth);
+        apply_option!(
+            apply_transformed_option_ref,
+            builder,
+            params.auth,
+            auth,
+            AsRef::<str>::as_ref
+        );
 
         // Bearer authentication options.
         apply_option!(apply_if_some, builder, params.bearer_auth, bearer_auth);

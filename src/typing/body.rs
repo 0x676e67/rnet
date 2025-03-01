@@ -7,7 +7,7 @@ use arc_swap::ArcSwapOption;
 use bytes::Bytes;
 use pyo3::prelude::*;
 use pyo3::types::PyBytes;
-use pyo3::{FromPyObject, IntoPyObject, PyAny};
+use pyo3::{FromPyObject, PyAny};
 use pyo3_stub_gen::{PyStubType, TypeInfo};
 
 /// The body to use for the request.
@@ -73,15 +73,5 @@ impl FromPyObject<'_> for Body {
                 .map(Arc::new)
                 .map(Self::Stream)
         }
-    }
-}
-
-impl<'rt> IntoPyObject<'rt> for Body {
-    type Error = PyErr;
-    type Output = Bound<'rt, Self::Target>;
-    type Target = PyAny;
-
-    fn into_pyobject(self, _: Python<'rt>) -> Result<Self::Output, Self::Error> {
-        unimplemented!()
     }
 }

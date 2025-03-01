@@ -31,296 +31,106 @@ impl Deref for Client {
     }
 }
 
+macro_rules! define_http_method {
+    ($name:ident, $method:expr) => {
+        #[gen_stub_pymethods]
+        #[pymethods]
+        impl Client {
+            /// Sends a request with the given method and URL.
+            ///
+            /// # Arguments
+            ///
+            /// * `url` - The URL to send the request to.
+            /// * `**kwds` - Additional request parameters.
+            ///
+            ///     proxy: typing.Optional[builtins.str]
+            ///     local_address: typing.Optional[typing.Optional[typing.Union[str, ipaddress.IPv4Address, ipaddress.IPv6Address]]]
+            ///     interface: typing.Optional[builtins.str]
+            ///     timeout: typing.Optional[builtins.int]
+            ///     read_timeout: typing.Optional[builtins.int]
+            ///     version: typing.Optional[Version]
+            ///     headers: typing.Optional[typing.Dict[str, bytes]]
+            ///     cookies: typing.Optional[typing.Dict[str, str]]
+            ///     allow_redirects: typing.Optional[builtins.bool]
+            ///     max_redirects: typing.Optional[builtins.int]
+            ///     auth: typing.Optional[str]
+            ///     bearer_auth: typing.Optional[str]
+            ///     basic_auth: typing.Optional[tuple[str, typing.Optional[str]]]
+            ///     query: typing.Optional[typing.List[typing.Tuple[str, str]]]
+            ///     form: typing.Optional[typing.List[typing.Tuple[str, str]]]
+            ///     json: typing.Optional[typing.Any]
+            ///     body: typing.Optional[typing.Any]
+            ///     multipart: typing.Optional[Multipart]
+            ///
+            /// # Returns
+            ///
+            /// A `Response` object.
+            ///
+            /// # Examples
+            ///
+            /// ```python
+            /// import rnet
+            /// import asyncio
+            /// from rnet import Method
+            ///
+            /// async def main():
+            ///     client = rnet.Client()
+            ///     response = await client.get("https://httpbin.org/anything")
+            ///     print(await response.text())
+            ///
+            /// asyncio.run(main())
+            /// ```
+            #[pyo3(signature = (url, **kwds))]
+            #[inline(always)]
+            pub fn $name<'rt>(
+                &self,
+                py: Python<'rt>,
+                url: PyBackedStr,
+                kwds: Option<RequestParams>,
+            ) -> PyResult<Bound<'rt, PyAny>> {
+                self.request(py, $method, url, kwds)
+            }
+        }
+    };
+}
+
+define_http_method!(get, Method::GET);
+define_http_method!(post, Method::POST);
+define_http_method!(put, Method::PUT);
+define_http_method!(patch, Method::PATCH);
+define_http_method!(delete, Method::DELETE);
+define_http_method!(head, Method::HEAD);
+define_http_method!(options, Method::OPTIONS);
+define_http_method!(trace, Method::TRACE);
+
 #[gen_stub_pymethods]
 #[pymethods]
 impl Client {
-    /// Sends a GET request.
-    ///
-    /// # Arguments
-    ///
-    /// * `url` - The URL to send the request to.
-    /// * `**kwds` - Additional request parameters.
-    ///
-    /// # Returns
-    ///
-    /// A `Response` object.
-    ///
-    /// # Examples
-    ///
-    /// ```python
-    /// import rnet
-    /// import asyncio
-    ///
-    /// async def main():
-    ///     client = rnet.Client()
-    ///     response = await client.get("https://httpbin.org/get")
-    ///     print(await response.text())
-    ///
-    /// asyncio.run(main())
-    /// ```
-    #[pyo3(signature = (url, **kwds))]
-    #[inline(always)]
-    pub fn get<'rt>(
-        &self,
-        py: Python<'rt>,
-        url: PyBackedStr,
-        kwds: Option<RequestParams>,
-    ) -> PyResult<Bound<'rt, PyAny>> {
-        self.request(py, Method::GET, url, kwds)
-    }
-
-    /// Sends a POST request.
-    ///
-    /// # Arguments
-    ///
-    /// * `url` - The URL to send the request to.
-    /// * `**kwds` - Additional request parameters.
-    ///
-    /// # Returns
-    ///
-    /// A `Response` object.
-    ///
-    /// # Examples
-    ///
-    /// ```python
-    /// import rnet
-    /// import asyncio
-    ///
-    /// async def main():
-    ///     client = rnet.Client()
-    ///     response = await client.post("https://httpbin.org/post", json={"key": "value"})
-    ///     print(await response.text())
-    ///
-    /// asyncio.run(main())
-    /// ```
-    #[pyo3(signature = (url, **kwds))]
-    #[inline(always)]
-    pub fn post<'rt>(
-        &self,
-        py: Python<'rt>,
-        url: PyBackedStr,
-        kwds: Option<RequestParams>,
-    ) -> PyResult<Bound<'rt, PyAny>> {
-        self.request(py, Method::POST, url, kwds)
-    }
-
-    /// Sends a PUT request.
-    ///
-    /// # Arguments
-    ///
-    /// * `url` - The URL to send the request to.
-    /// * `**kwds` - Additional request parameters.
-    ///
-    /// # Returns
-    ///
-    /// A `Response` object.
-    ///
-    /// # Examples
-    ///
-    /// ```python
-    /// import rnet
-    /// import asyncio
-    ///
-    /// async def main():
-    ///     client = rnet.Client()
-    ///     response = await client.put("https://httpbin.org/put", json={"key": "value"})
-    ///     print(await response.text())
-    ///
-    /// asyncio.run(main())
-    /// ```
-    #[pyo3(signature = (url, **kwds))]
-    #[inline(always)]
-    pub fn put<'rt>(
-        &self,
-        py: Python<'rt>,
-        url: PyBackedStr,
-        kwds: Option<RequestParams>,
-    ) -> PyResult<Bound<'rt, PyAny>> {
-        self.request(py, Method::PUT, url, kwds)
-    }
-
-    /// Sends a PATCH request.
-    ///
-    /// # Arguments
-    ///
-    /// * `url` - The URL to send the request to.
-    /// * `**kwds` - Additional request parameters.
-    ///
-    /// # Returns
-    ///
-    /// A `Response` object.
-    ///
-    /// # Examples
-    ///
-    /// ```python
-    /// import rnet
-    /// import asyncio
-    ///
-    /// async def main():
-    ///     client = rnet.Client()
-    ///     response = await client.patch("https://httpbin.org/patch", json={"key": "value"})
-    ///     print(await response.text())
-    ///
-    /// asyncio.run(main())
-    /// ```
-    #[pyo3(signature = (url, **kwds))]
-    #[inline(always)]
-    pub fn patch<'rt>(
-        &self,
-        py: Python<'rt>,
-        url: PyBackedStr,
-        kwds: Option<RequestParams>,
-    ) -> PyResult<Bound<'rt, PyAny>> {
-        self.request(py, Method::PATCH, url, kwds)
-    }
-
-    /// Sends a DELETE request.
-    ///
-    /// # Arguments
-    ///
-    /// * `url` - The URL to send the request to.
-    /// * `**kwds` - Additional request parameters.
-    ///
-    /// # Returns
-    ///
-    /// A `Response` object.
-    ///
-    /// # Examples
-    ///
-    /// ```python
-    /// import rnet
-    /// import asyncio
-    ///
-    /// async def main():
-    ///     client = rnet.Client()
-    ///     response = await client.delete("https://httpbin.org/delete")
-    ///     print(await response.text())
-    ///
-    /// asyncio.run(main())
-    /// ```
-    #[pyo3(signature = (url, **kwds))]
-    #[inline(always)]
-    pub fn delete<'rt>(
-        &self,
-        py: Python<'rt>,
-        url: PyBackedStr,
-        kwds: Option<RequestParams>,
-    ) -> PyResult<Bound<'rt, PyAny>> {
-        self.request(py, Method::DELETE, url, kwds)
-    }
-
-    /// Sends a HEAD request.
-    ///
-    /// # Arguments
-    ///
-    /// * `url` - The URL to send the request to.
-    /// * `**kwds` - Additional request parameters.
-    ///
-    /// # Returns
-    ///
-    /// A `Response` object.
-    ///
-    /// # Examples
-    ///
-    /// ```python
-    /// import rnet
-    /// import asyncio
-    ///
-    /// async def main():
-    ///     client = rnet.Client()
-    ///     response = await client.head("https://httpbin.org/head")
-    ///     print(response.status_code)
-    ///
-    /// asyncio.run(main())
-    /// ```
-    #[pyo3(signature = (url, **kwds))]
-    #[inline(always)]
-    pub fn head<'rt>(
-        &self,
-        py: Python<'rt>,
-        url: PyBackedStr,
-        kwds: Option<RequestParams>,
-    ) -> PyResult<Bound<'rt, PyAny>> {
-        self.request(py, Method::HEAD, url, kwds)
-    }
-
-    /// Sends an OPTIONS request.
-    ///
-    /// # Arguments
-    ///
-    /// * `url` - The URL to send the request to.
-    /// * `**kwds` - Additional request parameters.
-    ///
-    /// # Returns
-    ///
-    /// A `Response` object.
-    ///
-    /// # Examples
-    ///
-    /// ```python
-    /// import rnet
-    /// import asyncio
-    ///
-    /// async def main():
-    ///     client = rnet.Client()
-    ///     response = await client.options("https://httpbin.org/options")
-    ///     print(response.headers)
-    ///
-    /// asyncio.run(main())
-    /// ```
-    #[pyo3(signature = (url, **kwds))]
-    #[inline(always)]
-    pub fn options<'rt>(
-        &self,
-        py: Python<'rt>,
-        url: PyBackedStr,
-        kwds: Option<RequestParams>,
-    ) -> PyResult<Bound<'rt, PyAny>> {
-        self.request(py, Method::OPTIONS, url, kwds)
-    }
-
-    /// Sends a TRACE request.
-    ///
-    /// # Arguments
-    ///
-    /// * `url` - The URL to send the request to.
-    /// * `**kwds` - Additional request parameters.
-    ///
-    /// # Returns
-    ///
-    /// A `Response` object.
-    ///
-    /// # Examples
-    ///
-    /// ```python
-    /// import rnet
-    /// import asyncio
-    ///
-    /// async def main():
-    ///     client = rnet.Client()
-    ///     response = await client.trace("https://httpbin.org/trace")
-    ///     print(response.headers)
-    ///
-    /// asyncio.run(main())
-    /// ```
-    #[pyo3(signature = (url, **kwds))]
-    #[inline(always)]
-    pub fn trace<'rt>(
-        &self,
-        py: Python<'rt>,
-        url: PyBackedStr,
-        kwds: Option<RequestParams>,
-    ) -> PyResult<Bound<'rt, PyAny>> {
-        self.request(py, Method::TRACE, url, kwds)
-    }
-
     /// Sends a request with the given method and URL.
     ///
     /// # Arguments
     ///
-    /// * `method` - The HTTP method to use.
     /// * `url` - The URL to send the request to.
     /// * `**kwds` - Additional request parameters.
+    ///
+    ///     proxy: typing.Optional[builtins.str]
+    ///     local_address: typing.Optional[typing.Optional[typing.Union[str, ipaddress.IPv4Address, ipaddress.IPv6Address]]]
+    ///     interface: typing.Optional[builtins.str]
+    ///     timeout: typing.Optional[builtins.int]
+    ///     read_timeout: typing.Optional[builtins.int]
+    ///     version: typing.Optional[Version]
+    ///     headers: typing.Optional[typing.Dict[str, bytes]]
+    ///     cookies: typing.Optional[typing.Dict[str, str]]
+    ///     allow_redirects: typing.Optional[builtins.bool]
+    ///     max_redirects: typing.Optional[builtins.int]
+    ///     auth: typing.Optional[str]
+    ///     bearer_auth: typing.Optional[str]
+    ///     basic_auth: typing.Optional[tuple[str, typing.Optional[str]]]
+    ///     query: typing.Optional[typing.List[typing.Tuple[str, str]]]
+    ///     form: typing.Optional[typing.List[typing.Tuple[str, str]]]
+    ///     json: typing.Optional[typing.Any]
+    ///     body: typing.Optional[typing.Any]
+    ///     multipart: typing.Optional[Multipart]
     ///
     /// # Returns
     ///
@@ -335,7 +145,7 @@ impl Client {
     ///
     /// async def main():
     ///     client = rnet.Client()
-    ///     response = await client.request(Method.GET, "https://httpbin.org/get")
+    ///     response = await client.request(Method.GET, "https://httpbin.org/anything")
     ///     print(await response.text())
     ///
     /// asyncio.run(main())
@@ -359,6 +169,22 @@ impl Client {
     ///
     /// * `url` - The URL to send the WebSocket request to.
     /// * `**kwds` - Additional WebSocket request parameters.
+    ///
+    ///     proxy: typing.Optional[builtins.str]
+    ///     local_address: typing.Optional[typing.Optional[typing.Union[str, ipaddress.IPv4Address, ipaddress.IPv6Address]]]
+    ///     interface: typing.Optional[builtins.str]
+    ///     headers: typing.Optional[typing.Dict[str, bytes]]
+    ///     cookies: typing.Optional[typing.Dict[str, str]]
+    ///     protocols: typing.Optional[builtins.list[builtins.str]]
+    ///     auth: typing.Optional[builtins.str]
+    ///     bearer_auth: typing.Optional[builtins.str]
+    ///     basic_auth: typing.Optional[tuple[builtins.str, typing.Optional[builtins.str]]]
+    ///     query: typing.Optional[builtins.list[tuple[builtins.str, builtins.str]]]
+    ///     write_buffer_size: typing.Optional[builtins.int]
+    ///     max_write_buffer_size: typing.Optional[builtins.int]
+    ///     max_message_size: typing.Optional[builtins.int]
+    ///     max_frame_size: typing.Optional[builtins.int]
+    ///     accept_unmasked_frames: typing.Optional[builtins.bool]
     ///
     /// # Returns
     ///
@@ -400,7 +226,46 @@ impl Client {
     ///
     /// # Arguments
     ///
-    /// * `params` - Optional request parameters as a dictionary.
+    /// * `**kwds` - Optional request parameters as a dictionary.
+    ///
+    ///     impersonate: typing.Optional[Impersonate]
+    ///     impersonate_os: typing.Optional[ImpersonateOS]
+    ///     impersonate_skip_http2: typing.Optional[builtins.bool]
+    ///     impersonate_skip_headers: typing.Optional[builtins.bool]
+    ///     base_url: typing.Optional[str]
+    ///     user_agent: typing.Optional[str]
+    ///     default_headers: typing.Optional[typing.Dict[str, bytes]]
+    ///     headers_order: typing.Optional[typing.List[str]]
+    ///     referer: typing.Optional[builtins.bool]
+    ///     allow_redirects: typing.Optional[builtins.bool]
+    ///     max_redirects: typing.Optional[builtins.int]
+    ///     cookie_store: typing.Optional[builtins.bool]
+    ///     lookup_ip_strategy: typing.Optional[LookupIpStrategy]
+    ///     timeout: typing.Optional[builtins.int]
+    ///     connect_timeout: typing.Optional[builtins.int]
+    ///     read_timeout: typing.Optional[builtins.int]
+    ///     no_keepalive: typing.Optional[builtins.bool]
+    ///     tcp_keepalive: typing.Optional[builtins.int]
+    ///     pool_idle_timeout: typing.Optional[builtins.int]
+    ///     pool_max_idle_per_host: typing.Optional[builtins.int]
+    ///     pool_max_size: typing.Optional[builtins.int]
+    ///     http1_only: typing.Optional[builtins.bool]
+    ///     http2_only: typing.Optional[builtins.bool]
+    ///     https_only: typing.Optional[builtins.bool]
+    ///     tcp_nodelay: typing.Optional[builtins.bool]
+    ///     http2_max_retry_count: typing.Optional[builtins.int]
+    ///     danger_accept_invalid_certs: typing.Optional[builtins.bool]
+    ///     tls_info: typing.Optional[builtins.bool]
+    ///     min_tls_version: typing.Optional[TlsVersion]
+    ///     max_tls_version: typing.Optional[TlsVersion]
+    ///     no_proxy: typing.Optional[builtins.bool]
+    ///     proxies: typing.Optional[builtins.list[Proxy]]
+    ///     local_address: typing.Optional[typing.Optional[typing.Union[str, ipaddress.IPv4Address, ipaddress.IPv6Address]]]
+    ///     interface: typing.Optional[builtins.str]
+    ///     gzip: typing.Optional[builtins.bool]
+    ///     brotli: typing.Optional[builtins.bool]
+    ///     deflate: typing.Optional[builtins.bool]
+    ///     zstd: typing.Optional[builtins.bool]
     ///
     /// # Returns
     ///
@@ -444,10 +309,22 @@ impl Client {
             }
 
             // Base URL options.
-            apply_option!(apply_if_some, builder, params.base_url, base_url);
+            apply_option!(
+                apply_transformed_option_ref,
+                builder,
+                params.base_url,
+                base_url,
+                AsRef::<str>::as_ref
+            );
 
             // User agent options.
-            apply_option!(apply_if_some, builder, params.user_agent, user_agent);
+            apply_option!(
+                apply_transformed_option_ref,
+                builder,
+                params.user_agent,
+                user_agent,
+                AsRef::<str>::as_ref
+            );
 
             // Default headers options.
             apply_option!(
@@ -765,7 +642,17 @@ impl Client {
     /// Updates the client with the given parameters.
     ///
     /// # Arguments
-    /// * `params` - The parameters to update the client with.
+    /// * `*kwds` - The parameters to update the client with.
+    ///
+    ///     impersonate: typing.Optional[Impersonate]
+    ///     impersonate_os: typing.Optional[ImpersonateOS]
+    ///     impersonate_skip_http2: typing.Optional[builtins.bool]
+    ///     impersonate_skip_headers: typing.Optional[builtins.bool]
+    ///     headers: typing.Optional[typing.Dict[str, bytes]]
+    ///     headers_order: typing.Optional[typing.List[str]]
+    ///     proxies: typing.Optional[builtins.list[Proxy]]
+    ///     local_address: typing.Optional[typing.Optional[typing.Union[str, ipaddress.IPv4Address, ipaddress.IPv6Address]]]
+    ///     interface: typing.Optional[builtins.str]
     ///
     /// # Examples
     ///

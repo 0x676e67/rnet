@@ -2,7 +2,6 @@
 # ruff: noqa: E501, F401
 
 import builtins
-import ipaddress
 import typing
 from enum import Enum, auto
 
@@ -13,7 +12,7 @@ class BlockingClient:
     user_agent: typing.Optional[builtins.str]
     headers: typing.Dict[str, bytes]
     def __new__(cls,**kwds): ...
-    def get_cookies(self, url:builtins.str) -> builtins.list[builtins.str]:
+    def get_cookies(self, url:str) -> builtins.list[builtins.str]:
         r"""
         Returns the cookies for the given URL.
         
@@ -27,7 +26,7 @@ class BlockingClient:
         """
         ...
 
-    def set_cookies(self, url:builtins.str, value:typing.Sequence[str]) -> None:
+    def set_cookies(self, url:str, value:typing.Sequence[str]) -> None:
         r"""
         Sets cookies for the given URL.
         
@@ -51,143 +50,56 @@ class BlockingClient:
         """
         ...
 
-    def get(self, url:builtins.str, **kwds) -> BlockingResponse:
-        r"""
-        Sends a GET request.
-        
-        # Arguments
-        
-        * `url` - The URL to send the request to.
-        * `**kwds` - Additional request parameters.
-        
-        # Returns
-        
-        A `Response` object.
-        """
-        ...
-
-    def post(self, url:builtins.str, **kwds) -> BlockingResponse:
-        r"""
-        Sends a POST request.
-        
-        # Arguments
-        
-        * `url` - The URL to send the request to.
-        * `**kwds` - Additional request parameters.
-        
-        # Returns
-        
-        A `Response` object.
-        """
-        ...
-
-    def put(self, url:builtins.str, **kwds) -> BlockingResponse:
-        r"""
-        Sends a PUT request.
-        
-        # Arguments
-        
-        * `url` - The URL to send the request to.
-        * `**kwds` - Additional request parameters.
-        
-        # Returns
-        
-        A `Response` object.
-        """
-        ...
-
-    def patch(self, url:builtins.str, **kwds) -> BlockingResponse:
-        r"""
-        Sends a PATCH request.
-        
-        # Arguments
-        
-        * `url` - The URL to send the request to.
-        * `**kwds` - Additional request parameters.
-        
-        # Returns
-        
-        A `Response` object.
-        """
-        ...
-
-    def delete(self, url:builtins.str, **kwds) -> BlockingResponse:
-        r"""
-        Sends a DELETE request.
-        
-        # Arguments
-        
-        * `url` - The URL to send the request to.
-        * `**kwds` - Additional request parameters.
-        
-        # Returns
-        
-        A `Response` object.
-        """
-        ...
-
-    def head(self, url:builtins.str, **kwds) -> BlockingResponse:
-        r"""
-        Sends a HEAD request.
-        
-        # Arguments
-        
-        * `url` - The URL to send the request to.
-        * `**kwds` - Additional request parameters.
-        
-        # Returns
-        
-        A `Response` object.
-        """
-        ...
-
-    def options(self, url:builtins.str, **kwds) -> BlockingResponse:
-        r"""
-        Sends an OPTIONS request.
-        
-        # Arguments
-        
-        * `url` - The URL to send the request to.
-        * `**kwds` - Additional request parameters.
-        
-        # Returns
-        
-        A `Response` object.
-        """
-        ...
-
-    def trace(self, url:builtins.str, **kwds) -> BlockingResponse:
-        r"""
-        Sends a TRACE request.
-        
-        # Arguments
-        
-        * `url` - The URL to send the request to.
-        * `**kwds` - Additional request parameters.
-        
-        # Returns
-        
-        A `Response` object.
-        """
-        ...
-
-    def request(self, method:Method, url:builtins.str, **kwds) -> BlockingResponse:
+    def request(self, method:Method, url:str, kwds:typing.Optional[typing.Dict[str, typing.Any]]) -> BlockingResponse:
         r"""
         Sends a request with the given method and URL.
         
         # Arguments
         
-        * `method` - The HTTP method to use.
         * `url` - The URL to send the request to.
         * `**kwds` - Additional request parameters.
+        
+            proxy: typing.Optional[builtins.str]
+            local_address: typing.Optional[typing.Optional[typing.Union[str, ipaddress.IPv4Address, ipaddress.IPv6Address]]]
+            interface: typing.Optional[builtins.str]
+            timeout: typing.Optional[builtins.int]
+            read_timeout: typing.Optional[builtins.int]
+            version: typing.Optional[Version]
+            headers: typing.Optional[typing.Dict[str, bytes]]
+            cookies: typing.Optional[typing.Dict[str, str]]
+            allow_redirects: typing.Optional[builtins.bool]
+            max_redirects: typing.Optional[builtins.int]
+            auth: typing.Optional[str]
+            bearer_auth: typing.Optional[str]
+            basic_auth: typing.Optional[tuple[str, typing.Optional[str]]]
+            query: typing.Optional[typing.List[typing.Tuple[str, str]]]
+            form: typing.Optional[typing.List[typing.Tuple[str, str]]]
+            json: typing.Optional[typing.Any]
+            body: typing.Optional[typing.Any]
+            multipart: typing.Optional[Multipart]
         
         # Returns
         
         A `Response` object.
+        
+        # Examples
+        
+        ```python
+        import rnet
+        import asyncio
+        from rnet import Method
+        
+        async def main():
+            client = rnet.BlockingClient()
+            response = client.request(Method.GET, "https://httpbin.org/anything")
+            print(response.text())
+        
+        asyncio.run(main())
+        ```
         """
         ...
 
-    def websocket(self, url:builtins.str, **kwds) -> BlockingWebSocket:
+    def websocket(self, url:str, **kwds) -> BlockingWebSocket:
         r"""
         Sends a WebSocket request.
         
@@ -196,9 +108,434 @@ class BlockingClient:
         * `url` - The URL to send the WebSocket request to.
         * `**kwds` - Additional WebSocket request parameters.
         
+            proxy: typing.Optional[builtins.str]
+            local_address: typing.Optional[typing.Optional[typing.Union[str, ipaddress.IPv4Address, ipaddress.IPv6Address]]]
+            interface: typing.Optional[builtins.str]
+            headers: typing.Optional[typing.Dict[str, bytes]]
+            cookies: typing.Optional[typing.Dict[str, str]]
+            protocols: typing.Optional[builtins.list[builtins.str]]
+            auth: typing.Optional[builtins.str]
+            bearer_auth: typing.Optional[builtins.str]
+            basic_auth: typing.Optional[tuple[builtins.str, typing.Optional[builtins.str]]]
+            query: typing.Optional[builtins.list[tuple[builtins.str, builtins.str]]]
+            write_buffer_size: typing.Optional[builtins.int]
+            max_write_buffer_size: typing.Optional[builtins.int]
+            max_message_size: typing.Optional[builtins.int]
+            max_frame_size: typing.Optional[builtins.int]
+            accept_unmasked_frames: typing.Optional[builtins.bool]
+        
         # Returns
         
         A `WebSocket` object representing the WebSocket connection.
+        
+        # Examples
+        
+        ```python
+        import rnet
+        import asyncio
+        
+        async def main():
+            client = rnet.BlockingClient()
+            ws = client.websocket("wss://echo.websocket.org")
+            ws.send(rnet.Message.from_text("Hello, WebSocket!"))
+            message = ws.recv()
+            print("Received:", message.data)
+            ws.close()
+        
+        asyncio.run(main())
+        ```
+        """
+        ...
+
+    def trace(self, url:str, **kwds) -> BlockingResponse:
+        r"""
+        Sends a request with the given method and URL.
+        
+        # Arguments
+        
+        * `url` - The URL to send the request to.
+        * `**kwds` - Additional request parameters.
+        
+            proxy: typing.Optional[builtins.str]
+            local_address: typing.Optional[typing.Optional[typing.Union[str, ipaddress.IPv4Address, ipaddress.IPv6Address]]]
+            interface: typing.Optional[builtins.str]
+            timeout: typing.Optional[builtins.int]
+            read_timeout: typing.Optional[builtins.int]
+            version: typing.Optional[Version]
+            headers: typing.Optional[typing.Dict[str, bytes]]
+            cookies: typing.Optional[typing.Dict[str, str]]
+            allow_redirects: typing.Optional[builtins.bool]
+            max_redirects: typing.Optional[builtins.int]
+            auth: typing.Optional[str]
+            bearer_auth: typing.Optional[str]
+            basic_auth: typing.Optional[tuple[str, typing.Optional[str]]]
+            query: typing.Optional[typing.List[typing.Tuple[str, str]]]
+            form: typing.Optional[typing.List[typing.Tuple[str, str]]]
+            json: typing.Optional[typing.Any]
+            body: typing.Optional[typing.Any]
+            multipart: typing.Optional[Multipart]
+        
+        # Returns
+        
+        A `Response` object.
+        
+        # Examples
+        
+        ```python
+        import rnet
+        import asyncio
+        from rnet import Method
+        
+        async def main():
+            client = rnet.BlockingClient()
+            response = client.get("https://httpbin.org/anything")
+            print(response.text())
+        
+        asyncio.run(main())
+        ```
+        """
+        ...
+
+    def options(self, url:str, **kwds) -> BlockingResponse:
+        r"""
+        Sends a request with the given method and URL.
+        
+        # Arguments
+        
+        * `url` - The URL to send the request to.
+        * `**kwds` - Additional request parameters.
+        
+            proxy: typing.Optional[builtins.str]
+            local_address: typing.Optional[typing.Optional[typing.Union[str, ipaddress.IPv4Address, ipaddress.IPv6Address]]]
+            interface: typing.Optional[builtins.str]
+            timeout: typing.Optional[builtins.int]
+            read_timeout: typing.Optional[builtins.int]
+            version: typing.Optional[Version]
+            headers: typing.Optional[typing.Dict[str, bytes]]
+            cookies: typing.Optional[typing.Dict[str, str]]
+            allow_redirects: typing.Optional[builtins.bool]
+            max_redirects: typing.Optional[builtins.int]
+            auth: typing.Optional[str]
+            bearer_auth: typing.Optional[str]
+            basic_auth: typing.Optional[tuple[str, typing.Optional[str]]]
+            query: typing.Optional[typing.List[typing.Tuple[str, str]]]
+            form: typing.Optional[typing.List[typing.Tuple[str, str]]]
+            json: typing.Optional[typing.Any]
+            body: typing.Optional[typing.Any]
+            multipart: typing.Optional[Multipart]
+        
+        # Returns
+        
+        A `Response` object.
+        
+        # Examples
+        
+        ```python
+        import rnet
+        import asyncio
+        from rnet import Method
+        
+        async def main():
+            client = rnet.BlockingClient()
+            response = client.get("https://httpbin.org/anything")
+            print(response.text())
+        
+        asyncio.run(main())
+        ```
+        """
+        ...
+
+    def head(self, url:str, **kwds) -> BlockingResponse:
+        r"""
+        Sends a request with the given method and URL.
+        
+        # Arguments
+        
+        * `url` - The URL to send the request to.
+        * `**kwds` - Additional request parameters.
+        
+            proxy: typing.Optional[builtins.str]
+            local_address: typing.Optional[typing.Optional[typing.Union[str, ipaddress.IPv4Address, ipaddress.IPv6Address]]]
+            interface: typing.Optional[builtins.str]
+            timeout: typing.Optional[builtins.int]
+            read_timeout: typing.Optional[builtins.int]
+            version: typing.Optional[Version]
+            headers: typing.Optional[typing.Dict[str, bytes]]
+            cookies: typing.Optional[typing.Dict[str, str]]
+            allow_redirects: typing.Optional[builtins.bool]
+            max_redirects: typing.Optional[builtins.int]
+            auth: typing.Optional[str]
+            bearer_auth: typing.Optional[str]
+            basic_auth: typing.Optional[tuple[str, typing.Optional[str]]]
+            query: typing.Optional[typing.List[typing.Tuple[str, str]]]
+            form: typing.Optional[typing.List[typing.Tuple[str, str]]]
+            json: typing.Optional[typing.Any]
+            body: typing.Optional[typing.Any]
+            multipart: typing.Optional[Multipart]
+        
+        # Returns
+        
+        A `Response` object.
+        
+        # Examples
+        
+        ```python
+        import rnet
+        import asyncio
+        from rnet import Method
+        
+        async def main():
+            client = rnet.BlockingClient()
+            response = client.get("https://httpbin.org/anything")
+            print(response.text())
+        
+        asyncio.run(main())
+        ```
+        """
+        ...
+
+    def delete(self, url:str, **kwds) -> BlockingResponse:
+        r"""
+        Sends a request with the given method and URL.
+        
+        # Arguments
+        
+        * `url` - The URL to send the request to.
+        * `**kwds` - Additional request parameters.
+        
+            proxy: typing.Optional[builtins.str]
+            local_address: typing.Optional[typing.Optional[typing.Union[str, ipaddress.IPv4Address, ipaddress.IPv6Address]]]
+            interface: typing.Optional[builtins.str]
+            timeout: typing.Optional[builtins.int]
+            read_timeout: typing.Optional[builtins.int]
+            version: typing.Optional[Version]
+            headers: typing.Optional[typing.Dict[str, bytes]]
+            cookies: typing.Optional[typing.Dict[str, str]]
+            allow_redirects: typing.Optional[builtins.bool]
+            max_redirects: typing.Optional[builtins.int]
+            auth: typing.Optional[str]
+            bearer_auth: typing.Optional[str]
+            basic_auth: typing.Optional[tuple[str, typing.Optional[str]]]
+            query: typing.Optional[typing.List[typing.Tuple[str, str]]]
+            form: typing.Optional[typing.List[typing.Tuple[str, str]]]
+            json: typing.Optional[typing.Any]
+            body: typing.Optional[typing.Any]
+            multipart: typing.Optional[Multipart]
+        
+        # Returns
+        
+        A `Response` object.
+        
+        # Examples
+        
+        ```python
+        import rnet
+        import asyncio
+        from rnet import Method
+        
+        async def main():
+            client = rnet.BlockingClient()
+            response = client.get("https://httpbin.org/anything")
+            print(response.text())
+        
+        asyncio.run(main())
+        ```
+        """
+        ...
+
+    def patch(self, url:str, **kwds) -> BlockingResponse:
+        r"""
+        Sends a request with the given method and URL.
+        
+        # Arguments
+        
+        * `url` - The URL to send the request to.
+        * `**kwds` - Additional request parameters.
+        
+            proxy: typing.Optional[builtins.str]
+            local_address: typing.Optional[typing.Optional[typing.Union[str, ipaddress.IPv4Address, ipaddress.IPv6Address]]]
+            interface: typing.Optional[builtins.str]
+            timeout: typing.Optional[builtins.int]
+            read_timeout: typing.Optional[builtins.int]
+            version: typing.Optional[Version]
+            headers: typing.Optional[typing.Dict[str, bytes]]
+            cookies: typing.Optional[typing.Dict[str, str]]
+            allow_redirects: typing.Optional[builtins.bool]
+            max_redirects: typing.Optional[builtins.int]
+            auth: typing.Optional[str]
+            bearer_auth: typing.Optional[str]
+            basic_auth: typing.Optional[tuple[str, typing.Optional[str]]]
+            query: typing.Optional[typing.List[typing.Tuple[str, str]]]
+            form: typing.Optional[typing.List[typing.Tuple[str, str]]]
+            json: typing.Optional[typing.Any]
+            body: typing.Optional[typing.Any]
+            multipart: typing.Optional[Multipart]
+        
+        # Returns
+        
+        A `Response` object.
+        
+        # Examples
+        
+        ```python
+        import rnet
+        import asyncio
+        from rnet import Method
+        
+        async def main():
+            client = rnet.BlockingClient()
+            response = client.get("https://httpbin.org/anything")
+            print(response.text())
+        
+        asyncio.run(main())
+        ```
+        """
+        ...
+
+    def put(self, url:str, **kwds) -> BlockingResponse:
+        r"""
+        Sends a request with the given method and URL.
+        
+        # Arguments
+        
+        * `url` - The URL to send the request to.
+        * `**kwds` - Additional request parameters.
+        
+            proxy: typing.Optional[builtins.str]
+            local_address: typing.Optional[typing.Optional[typing.Union[str, ipaddress.IPv4Address, ipaddress.IPv6Address]]]
+            interface: typing.Optional[builtins.str]
+            timeout: typing.Optional[builtins.int]
+            read_timeout: typing.Optional[builtins.int]
+            version: typing.Optional[Version]
+            headers: typing.Optional[typing.Dict[str, bytes]]
+            cookies: typing.Optional[typing.Dict[str, str]]
+            allow_redirects: typing.Optional[builtins.bool]
+            max_redirects: typing.Optional[builtins.int]
+            auth: typing.Optional[str]
+            bearer_auth: typing.Optional[str]
+            basic_auth: typing.Optional[tuple[str, typing.Optional[str]]]
+            query: typing.Optional[typing.List[typing.Tuple[str, str]]]
+            form: typing.Optional[typing.List[typing.Tuple[str, str]]]
+            json: typing.Optional[typing.Any]
+            body: typing.Optional[typing.Any]
+            multipart: typing.Optional[Multipart]
+        
+        # Returns
+        
+        A `Response` object.
+        
+        # Examples
+        
+        ```python
+        import rnet
+        import asyncio
+        from rnet import Method
+        
+        async def main():
+            client = rnet.BlockingClient()
+            response = client.get("https://httpbin.org/anything")
+            print(response.text())
+        
+        asyncio.run(main())
+        ```
+        """
+        ...
+
+    def post(self, url:str, **kwds) -> BlockingResponse:
+        r"""
+        Sends a request with the given method and URL.
+        
+        # Arguments
+        
+        * `url` - The URL to send the request to.
+        * `**kwds` - Additional request parameters.
+        
+            proxy: typing.Optional[builtins.str]
+            local_address: typing.Optional[typing.Optional[typing.Union[str, ipaddress.IPv4Address, ipaddress.IPv6Address]]]
+            interface: typing.Optional[builtins.str]
+            timeout: typing.Optional[builtins.int]
+            read_timeout: typing.Optional[builtins.int]
+            version: typing.Optional[Version]
+            headers: typing.Optional[typing.Dict[str, bytes]]
+            cookies: typing.Optional[typing.Dict[str, str]]
+            allow_redirects: typing.Optional[builtins.bool]
+            max_redirects: typing.Optional[builtins.int]
+            auth: typing.Optional[str]
+            bearer_auth: typing.Optional[str]
+            basic_auth: typing.Optional[tuple[str, typing.Optional[str]]]
+            query: typing.Optional[typing.List[typing.Tuple[str, str]]]
+            form: typing.Optional[typing.List[typing.Tuple[str, str]]]
+            json: typing.Optional[typing.Any]
+            body: typing.Optional[typing.Any]
+            multipart: typing.Optional[Multipart]
+        
+        # Returns
+        
+        A `Response` object.
+        
+        # Examples
+        
+        ```python
+        import rnet
+        import asyncio
+        from rnet import Method
+        
+        async def main():
+            client = rnet.BlockingClient()
+            response = client.get("https://httpbin.org/anything")
+            print(response.text())
+        
+        asyncio.run(main())
+        ```
+        """
+        ...
+
+    def get(self, url:str, **kwds) -> BlockingResponse:
+        r"""
+        Sends a request with the given method and URL.
+        
+        # Arguments
+        
+        * `url` - The URL to send the request to.
+        * `**kwds` - Additional request parameters.
+        
+            proxy: typing.Optional[builtins.str]
+            local_address: typing.Optional[typing.Optional[typing.Union[str, ipaddress.IPv4Address, ipaddress.IPv6Address]]]
+            interface: typing.Optional[builtins.str]
+            timeout: typing.Optional[builtins.int]
+            read_timeout: typing.Optional[builtins.int]
+            version: typing.Optional[Version]
+            headers: typing.Optional[typing.Dict[str, bytes]]
+            cookies: typing.Optional[typing.Dict[str, str]]
+            allow_redirects: typing.Optional[builtins.bool]
+            max_redirects: typing.Optional[builtins.int]
+            auth: typing.Optional[str]
+            bearer_auth: typing.Optional[str]
+            basic_auth: typing.Optional[tuple[str, typing.Optional[str]]]
+            query: typing.Optional[typing.List[typing.Tuple[str, str]]]
+            form: typing.Optional[typing.List[typing.Tuple[str, str]]]
+            json: typing.Optional[typing.Any]
+            body: typing.Optional[typing.Any]
+            multipart: typing.Optional[Multipart]
+        
+        # Returns
+        
+        A `Response` object.
+        
+        # Examples
+        
+        ```python
+        import rnet
+        import asyncio
+        from rnet import Method
+        
+        async def main():
+            client = rnet.BlockingClient()
+            response = client.get("https://httpbin.org/anything")
+            print(response.text())
+        
+        asyncio.run(main())
+        ```
         """
         ...
 
@@ -394,7 +731,7 @@ class Client:
     user_agent: typing.Optional[builtins.str]
     headers: typing.Dict[str, bytes]
     def __new__(cls,**kwds): ...
-    def get_cookies(self, url:builtins.str) -> builtins.list[builtins.str]:
+    def get_cookies(self, url:str) -> builtins.list[builtins.str]:
         r"""
         Returns the cookies for the given URL.
         
@@ -418,7 +755,7 @@ class Client:
         """
         ...
 
-    def set_cookies(self, url:builtins.str, cookies:typing.Sequence[str]) -> None:
+    def set_cookies(self, url:str, cookies:typing.Sequence[str]) -> None:
         r"""
         Sets cookies for the given URL.
         
@@ -447,7 +784,17 @@ class Client:
         Updates the client with the given parameters.
         
         # Arguments
-        * `params` - The parameters to update the client with.
+        * `*kwds` - The parameters to update the client with.
+        
+            impersonate: typing.Optional[Impersonate]
+            impersonate_os: typing.Optional[ImpersonateOS]
+            impersonate_skip_http2: typing.Optional[builtins.bool]
+            impersonate_skip_headers: typing.Optional[builtins.bool]
+            headers: typing.Optional[typing.Dict[str, bytes]]
+            headers_order: typing.Optional[typing.List[str]]
+            proxies: typing.Optional[builtins.list[Proxy]]
+            local_address: typing.Optional[typing.Optional[typing.Union[str, ipaddress.IPv4Address, ipaddress.IPv6Address]]]
+            interface: typing.Optional[builtins.str]
         
         # Examples
         
@@ -464,247 +811,33 @@ class Client:
         """
         ...
 
-    def get(self, url:builtins.str, **kwds) -> typing.Any:
-        r"""
-        Sends a GET request.
-        
-        # Arguments
-        
-        * `url` - The URL to send the request to.
-        * `**kwds` - Additional request parameters.
-        
-        # Returns
-        
-        A `Response` object.
-        
-        # Examples
-        
-        ```python
-        import rnet
-        import asyncio
-        
-        async def main():
-            client = rnet.Client()
-            response = await client.get("https://httpbin.org/get")
-            print(await response.text())
-        
-        asyncio.run(main())
-        ```
-        """
-        ...
-
-    def post(self, url:builtins.str, **kwds) -> typing.Any:
-        r"""
-        Sends a POST request.
-        
-        # Arguments
-        
-        * `url` - The URL to send the request to.
-        * `**kwds` - Additional request parameters.
-        
-        # Returns
-        
-        A `Response` object.
-        
-        # Examples
-        
-        ```python
-        import rnet
-        import asyncio
-        
-        async def main():
-            client = rnet.Client()
-            response = await client.post("https://httpbin.org/post", json={"key": "value"})
-            print(await response.text())
-        
-        asyncio.run(main())
-        ```
-        """
-        ...
-
-    def put(self, url:builtins.str, **kwds) -> typing.Any:
-        r"""
-        Sends a PUT request.
-        
-        # Arguments
-        
-        * `url` - The URL to send the request to.
-        * `**kwds` - Additional request parameters.
-        
-        # Returns
-        
-        A `Response` object.
-        
-        # Examples
-        
-        ```python
-        import rnet
-        import asyncio
-        
-        async def main():
-            client = rnet.Client()
-            response = await client.put("https://httpbin.org/put", json={"key": "value"})
-            print(await response.text())
-        
-        asyncio.run(main())
-        ```
-        """
-        ...
-
-    def patch(self, url:builtins.str, **kwds) -> typing.Any:
-        r"""
-        Sends a PATCH request.
-        
-        # Arguments
-        
-        * `url` - The URL to send the request to.
-        * `**kwds` - Additional request parameters.
-        
-        # Returns
-        
-        A `Response` object.
-        
-        # Examples
-        
-        ```python
-        import rnet
-        import asyncio
-        
-        async def main():
-            client = rnet.Client()
-            response = await client.patch("https://httpbin.org/patch", json={"key": "value"})
-            print(await response.text())
-        
-        asyncio.run(main())
-        ```
-        """
-        ...
-
-    def delete(self, url:builtins.str, **kwds) -> typing.Any:
-        r"""
-        Sends a DELETE request.
-        
-        # Arguments
-        
-        * `url` - The URL to send the request to.
-        * `**kwds` - Additional request parameters.
-        
-        # Returns
-        
-        A `Response` object.
-        
-        # Examples
-        
-        ```python
-        import rnet
-        import asyncio
-        
-        async def main():
-            client = rnet.Client()
-            response = await client.delete("https://httpbin.org/delete")
-            print(await response.text())
-        
-        asyncio.run(main())
-        ```
-        """
-        ...
-
-    def head(self, url:builtins.str, **kwds) -> typing.Any:
-        r"""
-        Sends a HEAD request.
-        
-        # Arguments
-        
-        * `url` - The URL to send the request to.
-        * `**kwds` - Additional request parameters.
-        
-        # Returns
-        
-        A `Response` object.
-        
-        # Examples
-        
-        ```python
-        import rnet
-        import asyncio
-        
-        async def main():
-            client = rnet.Client()
-            response = await client.head("https://httpbin.org/head")
-            print(response.status_code)
-        
-        asyncio.run(main())
-        ```
-        """
-        ...
-
-    def options(self, url:builtins.str, **kwds) -> typing.Any:
-        r"""
-        Sends an OPTIONS request.
-        
-        # Arguments
-        
-        * `url` - The URL to send the request to.
-        * `**kwds` - Additional request parameters.
-        
-        # Returns
-        
-        A `Response` object.
-        
-        # Examples
-        
-        ```python
-        import rnet
-        import asyncio
-        
-        async def main():
-            client = rnet.Client()
-            response = await client.options("https://httpbin.org/options")
-            print(response.headers)
-        
-        asyncio.run(main())
-        ```
-        """
-        ...
-
-    def trace(self, url:builtins.str, **kwds) -> typing.Any:
-        r"""
-        Sends a TRACE request.
-        
-        # Arguments
-        
-        * `url` - The URL to send the request to.
-        * `**kwds` - Additional request parameters.
-        
-        # Returns
-        
-        A `Response` object.
-        
-        # Examples
-        
-        ```python
-        import rnet
-        import asyncio
-        
-        async def main():
-            client = rnet.Client()
-            response = await client.trace("https://httpbin.org/trace")
-            print(response.headers)
-        
-        asyncio.run(main())
-        ```
-        """
-        ...
-
-    def request(self, method:Method, url:builtins.str, **kwds) -> typing.Any:
+    def request(self, method:Method, url:str, **kwds) -> typing.Any:
         r"""
         Sends a request with the given method and URL.
         
         # Arguments
         
-        * `method` - The HTTP method to use.
         * `url` - The URL to send the request to.
         * `**kwds` - Additional request parameters.
+        
+            proxy: typing.Optional[builtins.str]
+            local_address: typing.Optional[typing.Optional[typing.Union[str, ipaddress.IPv4Address, ipaddress.IPv6Address]]]
+            interface: typing.Optional[builtins.str]
+            timeout: typing.Optional[builtins.int]
+            read_timeout: typing.Optional[builtins.int]
+            version: typing.Optional[Version]
+            headers: typing.Optional[typing.Dict[str, bytes]]
+            cookies: typing.Optional[typing.Dict[str, str]]
+            allow_redirects: typing.Optional[builtins.bool]
+            max_redirects: typing.Optional[builtins.int]
+            auth: typing.Optional[str]
+            bearer_auth: typing.Optional[str]
+            basic_auth: typing.Optional[tuple[str, typing.Optional[str]]]
+            query: typing.Optional[typing.List[typing.Tuple[str, str]]]
+            form: typing.Optional[typing.List[typing.Tuple[str, str]]]
+            json: typing.Optional[typing.Any]
+            body: typing.Optional[typing.Any]
+            multipart: typing.Optional[Multipart]
         
         # Returns
         
@@ -719,7 +852,7 @@ class Client:
         
         async def main():
             client = rnet.Client()
-            response = await client.request(Method.GET, "https://httpbin.org/get")
+            response = await client.request(Method.GET, "https://httpbin.org/anything")
             print(await response.text())
         
         asyncio.run(main())
@@ -727,7 +860,7 @@ class Client:
         """
         ...
 
-    def websocket(self, url:builtins.str, **kwds) -> typing.Any:
+    def websocket(self, url:str, **kwds) -> typing.Any:
         r"""
         Sends a WebSocket request.
         
@@ -735,6 +868,22 @@ class Client:
         
         * `url` - The URL to send the WebSocket request to.
         * `**kwds` - Additional WebSocket request parameters.
+        
+            proxy: typing.Optional[builtins.str]
+            local_address: typing.Optional[typing.Optional[typing.Union[str, ipaddress.IPv4Address, ipaddress.IPv6Address]]]
+            interface: typing.Optional[builtins.str]
+            headers: typing.Optional[typing.Dict[str, bytes]]
+            cookies: typing.Optional[typing.Dict[str, str]]
+            protocols: typing.Optional[builtins.list[builtins.str]]
+            auth: typing.Optional[builtins.str]
+            bearer_auth: typing.Optional[builtins.str]
+            basic_auth: typing.Optional[tuple[builtins.str, typing.Optional[builtins.str]]]
+            query: typing.Optional[builtins.list[tuple[builtins.str, builtins.str]]]
+            write_buffer_size: typing.Optional[builtins.int]
+            max_write_buffer_size: typing.Optional[builtins.int]
+            max_message_size: typing.Optional[builtins.int]
+            max_frame_size: typing.Optional[builtins.int]
+            accept_unmasked_frames: typing.Optional[builtins.bool]
         
         # Returns
         
@@ -759,74 +908,398 @@ class Client:
         """
         ...
 
+    def trace(self, url:str, **kwds) -> typing.Any:
+        r"""
+        Sends a request with the given method and URL.
+        
+        # Arguments
+        
+        * `url` - The URL to send the request to.
+        * `**kwds` - Additional request parameters.
+        
+            proxy: typing.Optional[builtins.str]
+            local_address: typing.Optional[typing.Optional[typing.Union[str, ipaddress.IPv4Address, ipaddress.IPv6Address]]]
+            interface: typing.Optional[builtins.str]
+            timeout: typing.Optional[builtins.int]
+            read_timeout: typing.Optional[builtins.int]
+            version: typing.Optional[Version]
+            headers: typing.Optional[typing.Dict[str, bytes]]
+            cookies: typing.Optional[typing.Dict[str, str]]
+            allow_redirects: typing.Optional[builtins.bool]
+            max_redirects: typing.Optional[builtins.int]
+            auth: typing.Optional[str]
+            bearer_auth: typing.Optional[str]
+            basic_auth: typing.Optional[tuple[str, typing.Optional[str]]]
+            query: typing.Optional[typing.List[typing.Tuple[str, str]]]
+            form: typing.Optional[typing.List[typing.Tuple[str, str]]]
+            json: typing.Optional[typing.Any]
+            body: typing.Optional[typing.Any]
+            multipart: typing.Optional[Multipart]
+        
+        # Returns
+        
+        A `Response` object.
+        
+        # Examples
+        
+        ```python
+        import rnet
+        import asyncio
+        from rnet import Method
+        
+        async def main():
+            client = rnet.Client()
+            response = await client.get("https://httpbin.org/anything")
+            print(await response.text())
+        
+        asyncio.run(main())
+        ```
+        """
+        ...
 
-class ClientParams:
-    r"""
-    The parameters for a request.
-    
-    # Examples
-    
-    ```python
-    import rnet
-    from rnet import Impersonate, Version
-    
-    params = rnet.RequestParams(
-        impersonate=Impersonate.Chrome100,
-        default_headers={"Content-Type": "application/json"},
-        user_agent="Mozilla/5.0",
-        timeout=10,
-        connect_timeout=5,
-        read_timeout=15,
-        no_keepalive=True,
-        no_proxy=False,
-        http1_only=False,
-        http2_only=True,
-        referer=True
-    )
-    
-    response = await rnet.get("https://www.rust-lang.org", **params)
-    body = await response.text()
-    print(body)
-    ```
-    """
-    impersonate: typing.Optional[Impersonate]
-    impersonate_os: typing.Optional[ImpersonateOS]
-    impersonate_skip_http2: typing.Optional[builtins.bool]
-    impersonate_skip_headers: typing.Optional[builtins.bool]
-    base_url: typing.Optional[builtins.str]
-    user_agent: typing.Optional[builtins.str]
-    default_headers: typing.Optional[typing.Dict[str, bytes]]
-    headers_order: typing.Optional[typing.List[str]]
-    referer: typing.Optional[builtins.bool]
-    allow_redirects: typing.Optional[builtins.bool]
-    max_redirects: typing.Optional[builtins.int]
-    cookie_store: typing.Optional[builtins.bool]
-    lookup_ip_strategy: typing.Optional[LookupIpStrategy]
-    timeout: typing.Optional[builtins.int]
-    connect_timeout: typing.Optional[builtins.int]
-    read_timeout: typing.Optional[builtins.int]
-    no_keepalive: typing.Optional[builtins.bool]
-    tcp_keepalive: typing.Optional[builtins.int]
-    pool_idle_timeout: typing.Optional[builtins.int]
-    pool_max_idle_per_host: typing.Optional[builtins.int]
-    pool_max_size: typing.Optional[builtins.int]
-    http1_only: typing.Optional[builtins.bool]
-    http2_only: typing.Optional[builtins.bool]
-    https_only: typing.Optional[builtins.bool]
-    tcp_nodelay: typing.Optional[builtins.bool]
-    http2_max_retry_count: typing.Optional[builtins.int]
-    danger_accept_invalid_certs: typing.Optional[builtins.bool]
-    tls_info: typing.Optional[builtins.bool]
-    min_tls_version: typing.Optional[TlsVersion]
-    max_tls_version: typing.Optional[TlsVersion]
-    no_proxy: typing.Optional[builtins.bool]
-    proxies: typing.Optional[builtins.list[Proxy]]
-    local_address: typing.Optional[typing.Optional[typing.Union[str, ipaddress.IPv4Address, ipaddress.IPv6Address]]]
-    interface: typing.Optional[builtins.str]
-    gzip: typing.Optional[builtins.bool]
-    brotli: typing.Optional[builtins.bool]
-    deflate: typing.Optional[builtins.bool]
-    zstd: typing.Optional[builtins.bool]
+    def options(self, url:str, **kwds) -> typing.Any:
+        r"""
+        Sends a request with the given method and URL.
+        
+        # Arguments
+        
+        * `url` - The URL to send the request to.
+        * `**kwds` - Additional request parameters.
+        
+            proxy: typing.Optional[builtins.str]
+            local_address: typing.Optional[typing.Optional[typing.Union[str, ipaddress.IPv4Address, ipaddress.IPv6Address]]]
+            interface: typing.Optional[builtins.str]
+            timeout: typing.Optional[builtins.int]
+            read_timeout: typing.Optional[builtins.int]
+            version: typing.Optional[Version]
+            headers: typing.Optional[typing.Dict[str, bytes]]
+            cookies: typing.Optional[typing.Dict[str, str]]
+            allow_redirects: typing.Optional[builtins.bool]
+            max_redirects: typing.Optional[builtins.int]
+            auth: typing.Optional[str]
+            bearer_auth: typing.Optional[str]
+            basic_auth: typing.Optional[tuple[str, typing.Optional[str]]]
+            query: typing.Optional[typing.List[typing.Tuple[str, str]]]
+            form: typing.Optional[typing.List[typing.Tuple[str, str]]]
+            json: typing.Optional[typing.Any]
+            body: typing.Optional[typing.Any]
+            multipart: typing.Optional[Multipart]
+        
+        # Returns
+        
+        A `Response` object.
+        
+        # Examples
+        
+        ```python
+        import rnet
+        import asyncio
+        from rnet import Method
+        
+        async def main():
+            client = rnet.Client()
+            response = await client.get("https://httpbin.org/anything")
+            print(await response.text())
+        
+        asyncio.run(main())
+        ```
+        """
+        ...
+
+    def head(self, url:str, **kwds) -> typing.Any:
+        r"""
+        Sends a request with the given method and URL.
+        
+        # Arguments
+        
+        * `url` - The URL to send the request to.
+        * `**kwds` - Additional request parameters.
+        
+            proxy: typing.Optional[builtins.str]
+            local_address: typing.Optional[typing.Optional[typing.Union[str, ipaddress.IPv4Address, ipaddress.IPv6Address]]]
+            interface: typing.Optional[builtins.str]
+            timeout: typing.Optional[builtins.int]
+            read_timeout: typing.Optional[builtins.int]
+            version: typing.Optional[Version]
+            headers: typing.Optional[typing.Dict[str, bytes]]
+            cookies: typing.Optional[typing.Dict[str, str]]
+            allow_redirects: typing.Optional[builtins.bool]
+            max_redirects: typing.Optional[builtins.int]
+            auth: typing.Optional[str]
+            bearer_auth: typing.Optional[str]
+            basic_auth: typing.Optional[tuple[str, typing.Optional[str]]]
+            query: typing.Optional[typing.List[typing.Tuple[str, str]]]
+            form: typing.Optional[typing.List[typing.Tuple[str, str]]]
+            json: typing.Optional[typing.Any]
+            body: typing.Optional[typing.Any]
+            multipart: typing.Optional[Multipart]
+        
+        # Returns
+        
+        A `Response` object.
+        
+        # Examples
+        
+        ```python
+        import rnet
+        import asyncio
+        from rnet import Method
+        
+        async def main():
+            client = rnet.Client()
+            response = await client.get("https://httpbin.org/anything")
+            print(await response.text())
+        
+        asyncio.run(main())
+        ```
+        """
+        ...
+
+    def delete(self, url:str, **kwds) -> typing.Any:
+        r"""
+        Sends a request with the given method and URL.
+        
+        # Arguments
+        
+        * `url` - The URL to send the request to.
+        * `**kwds` - Additional request parameters.
+        
+            proxy: typing.Optional[builtins.str]
+            local_address: typing.Optional[typing.Optional[typing.Union[str, ipaddress.IPv4Address, ipaddress.IPv6Address]]]
+            interface: typing.Optional[builtins.str]
+            timeout: typing.Optional[builtins.int]
+            read_timeout: typing.Optional[builtins.int]
+            version: typing.Optional[Version]
+            headers: typing.Optional[typing.Dict[str, bytes]]
+            cookies: typing.Optional[typing.Dict[str, str]]
+            allow_redirects: typing.Optional[builtins.bool]
+            max_redirects: typing.Optional[builtins.int]
+            auth: typing.Optional[str]
+            bearer_auth: typing.Optional[str]
+            basic_auth: typing.Optional[tuple[str, typing.Optional[str]]]
+            query: typing.Optional[typing.List[typing.Tuple[str, str]]]
+            form: typing.Optional[typing.List[typing.Tuple[str, str]]]
+            json: typing.Optional[typing.Any]
+            body: typing.Optional[typing.Any]
+            multipart: typing.Optional[Multipart]
+        
+        # Returns
+        
+        A `Response` object.
+        
+        # Examples
+        
+        ```python
+        import rnet
+        import asyncio
+        from rnet import Method
+        
+        async def main():
+            client = rnet.Client()
+            response = await client.get("https://httpbin.org/anything")
+            print(await response.text())
+        
+        asyncio.run(main())
+        ```
+        """
+        ...
+
+    def patch(self, url:str, **kwds) -> typing.Any:
+        r"""
+        Sends a request with the given method and URL.
+        
+        # Arguments
+        
+        * `url` - The URL to send the request to.
+        * `**kwds` - Additional request parameters.
+        
+            proxy: typing.Optional[builtins.str]
+            local_address: typing.Optional[typing.Optional[typing.Union[str, ipaddress.IPv4Address, ipaddress.IPv6Address]]]
+            interface: typing.Optional[builtins.str]
+            timeout: typing.Optional[builtins.int]
+            read_timeout: typing.Optional[builtins.int]
+            version: typing.Optional[Version]
+            headers: typing.Optional[typing.Dict[str, bytes]]
+            cookies: typing.Optional[typing.Dict[str, str]]
+            allow_redirects: typing.Optional[builtins.bool]
+            max_redirects: typing.Optional[builtins.int]
+            auth: typing.Optional[str]
+            bearer_auth: typing.Optional[str]
+            basic_auth: typing.Optional[tuple[str, typing.Optional[str]]]
+            query: typing.Optional[typing.List[typing.Tuple[str, str]]]
+            form: typing.Optional[typing.List[typing.Tuple[str, str]]]
+            json: typing.Optional[typing.Any]
+            body: typing.Optional[typing.Any]
+            multipart: typing.Optional[Multipart]
+        
+        # Returns
+        
+        A `Response` object.
+        
+        # Examples
+        
+        ```python
+        import rnet
+        import asyncio
+        from rnet import Method
+        
+        async def main():
+            client = rnet.Client()
+            response = await client.get("https://httpbin.org/anything")
+            print(await response.text())
+        
+        asyncio.run(main())
+        ```
+        """
+        ...
+
+    def put(self, url:str, **kwds) -> typing.Any:
+        r"""
+        Sends a request with the given method and URL.
+        
+        # Arguments
+        
+        * `url` - The URL to send the request to.
+        * `**kwds` - Additional request parameters.
+        
+            proxy: typing.Optional[builtins.str]
+            local_address: typing.Optional[typing.Optional[typing.Union[str, ipaddress.IPv4Address, ipaddress.IPv6Address]]]
+            interface: typing.Optional[builtins.str]
+            timeout: typing.Optional[builtins.int]
+            read_timeout: typing.Optional[builtins.int]
+            version: typing.Optional[Version]
+            headers: typing.Optional[typing.Dict[str, bytes]]
+            cookies: typing.Optional[typing.Dict[str, str]]
+            allow_redirects: typing.Optional[builtins.bool]
+            max_redirects: typing.Optional[builtins.int]
+            auth: typing.Optional[str]
+            bearer_auth: typing.Optional[str]
+            basic_auth: typing.Optional[tuple[str, typing.Optional[str]]]
+            query: typing.Optional[typing.List[typing.Tuple[str, str]]]
+            form: typing.Optional[typing.List[typing.Tuple[str, str]]]
+            json: typing.Optional[typing.Any]
+            body: typing.Optional[typing.Any]
+            multipart: typing.Optional[Multipart]
+        
+        # Returns
+        
+        A `Response` object.
+        
+        # Examples
+        
+        ```python
+        import rnet
+        import asyncio
+        from rnet import Method
+        
+        async def main():
+            client = rnet.Client()
+            response = await client.get("https://httpbin.org/anything")
+            print(await response.text())
+        
+        asyncio.run(main())
+        ```
+        """
+        ...
+
+    def post(self, url:str, **kwds) -> typing.Any:
+        r"""
+        Sends a request with the given method and URL.
+        
+        # Arguments
+        
+        * `url` - The URL to send the request to.
+        * `**kwds` - Additional request parameters.
+        
+            proxy: typing.Optional[builtins.str]
+            local_address: typing.Optional[typing.Optional[typing.Union[str, ipaddress.IPv4Address, ipaddress.IPv6Address]]]
+            interface: typing.Optional[builtins.str]
+            timeout: typing.Optional[builtins.int]
+            read_timeout: typing.Optional[builtins.int]
+            version: typing.Optional[Version]
+            headers: typing.Optional[typing.Dict[str, bytes]]
+            cookies: typing.Optional[typing.Dict[str, str]]
+            allow_redirects: typing.Optional[builtins.bool]
+            max_redirects: typing.Optional[builtins.int]
+            auth: typing.Optional[str]
+            bearer_auth: typing.Optional[str]
+            basic_auth: typing.Optional[tuple[str, typing.Optional[str]]]
+            query: typing.Optional[typing.List[typing.Tuple[str, str]]]
+            form: typing.Optional[typing.List[typing.Tuple[str, str]]]
+            json: typing.Optional[typing.Any]
+            body: typing.Optional[typing.Any]
+            multipart: typing.Optional[Multipart]
+        
+        # Returns
+        
+        A `Response` object.
+        
+        # Examples
+        
+        ```python
+        import rnet
+        import asyncio
+        from rnet import Method
+        
+        async def main():
+            client = rnet.Client()
+            response = await client.get("https://httpbin.org/anything")
+            print(await response.text())
+        
+        asyncio.run(main())
+        ```
+        """
+        ...
+
+    def get(self, url:str, **kwds) -> typing.Any:
+        r"""
+        Sends a request with the given method and URL.
+        
+        # Arguments
+        
+        * `url` - The URL to send the request to.
+        * `**kwds` - Additional request parameters.
+        
+            proxy: typing.Optional[builtins.str]
+            local_address: typing.Optional[typing.Optional[typing.Union[str, ipaddress.IPv4Address, ipaddress.IPv6Address]]]
+            interface: typing.Optional[builtins.str]
+            timeout: typing.Optional[builtins.int]
+            read_timeout: typing.Optional[builtins.int]
+            version: typing.Optional[Version]
+            headers: typing.Optional[typing.Dict[str, bytes]]
+            cookies: typing.Optional[typing.Dict[str, str]]
+            allow_redirects: typing.Optional[builtins.bool]
+            max_redirects: typing.Optional[builtins.int]
+            auth: typing.Optional[str]
+            bearer_auth: typing.Optional[str]
+            basic_auth: typing.Optional[tuple[str, typing.Optional[str]]]
+            query: typing.Optional[typing.List[typing.Tuple[str, str]]]
+            form: typing.Optional[typing.List[typing.Tuple[str, str]]]
+            json: typing.Optional[typing.Any]
+            body: typing.Optional[typing.Any]
+            multipart: typing.Optional[Multipart]
+        
+        # Returns
+        
+        A `Response` object.
+        
+        # Examples
+        
+        ```python
+        import rnet
+        import asyncio
+        from rnet import Method
+        
+        async def main():
+            client = rnet.Client()
+            response = await client.get("https://httpbin.org/anything")
+            print(await response.text())
+        
+        asyncio.run(main())
+        ```
+        """
+        ...
+
 
 class Message:
     r"""
@@ -1065,56 +1538,6 @@ class Proxy:
         ...
 
 
-class RequestParams:
-    r"""
-    The parameters for a request.
-    
-    # Examples
-    
-    ```python
-    import rnet
-    from rnet import Impersonate, Version
-    
-    params = rnet.RequestParams(
-        impersonate=Impersonate.Chrome100,
-        version=Version.HTTP_2,
-        user_agent="Mozilla/5.0",
-        headers={"Content-Type": "application/json"},
-        timeout=10,
-        connect_timeout=5,
-        read_timeout=15,
-        local_address="192.168.1.188",
-        no_keepalive=True,
-        no_proxy=False,
-        http1_only=False,
-        http2_only=True,
-        referer=True
-    )
-    
-    response = await rnet.get("https://www.rust-lang.org", **params)
-    body = await response.text()
-    print(body)
-    ```
-    """
-    proxy: typing.Optional[builtins.str]
-    local_address: typing.Optional[typing.Optional[typing.Union[str, ipaddress.IPv4Address, ipaddress.IPv6Address]]]
-    interface: typing.Optional[builtins.str]
-    timeout: typing.Optional[builtins.int]
-    read_timeout: typing.Optional[builtins.int]
-    version: typing.Optional[Version]
-    headers: typing.Optional[typing.Dict[str, bytes]]
-    cookies: typing.Optional[typing.Dict[str, str]]
-    allow_redirects: typing.Optional[builtins.bool]
-    max_redirects: typing.Optional[builtins.int]
-    auth: typing.Optional[builtins.str]
-    bearer_auth: typing.Optional[builtins.str]
-    basic_auth: typing.Optional[tuple[builtins.str, typing.Optional[builtins.str]]]
-    query: typing.Optional[builtins.list[tuple[builtins.str, builtins.str]]]
-    form: typing.Optional[builtins.list[tuple[builtins.str, builtins.str]]]
-    json: typing.Optional[typing.Any]
-    body: typing.Optional[typing.Any]
-    multipart: typing.Optional[Multipart]
-
 class Response:
     r"""
     A response from a request.
@@ -1349,40 +1772,6 @@ class Streamer:
         ...
 
 
-class UpdateClientParams:
-    r"""
-    The parameters for updating a client.
-    
-    This struct allows you to update various settings for an existing client instance.
-    
-    # Examples
-    
-    ```python
-    import rnet
-    from rnet import Impersonate, UpdateClientParams
-    
-    params = UpdateClientParams(
-        impersonate=Impersonate.Chrome100,
-        headers={"Content-Type": "application/json"},
-        proxies=[rnet.Proxy.all("http://proxy.example.com:8080")]
-    )
-    
-    client = rnet.Client()
-    client.update(**params)
-    ```
-    
-    This will update the client with the specified impersonation settings, headers, and proxies.
-    """
-    impersonate: typing.Optional[Impersonate]
-    impersonate_os: typing.Optional[ImpersonateOS]
-    impersonate_skip_http2: typing.Optional[builtins.bool]
-    impersonate_skip_headers: typing.Optional[builtins.bool]
-    headers: typing.Optional[typing.Dict[str, bytes]]
-    headers_order: typing.Optional[typing.List[str]]
-    proxies: typing.Optional[builtins.list[Proxy]]
-    local_address: typing.Optional[typing.Optional[typing.Union[str, ipaddress.IPv4Address, ipaddress.IPv6Address]]]
-    interface: typing.Optional[builtins.str]
-
 class WebSocket:
     r"""
     A WebSocket response.
@@ -1460,51 +1849,6 @@ class WebSocket:
         """
         ...
 
-
-class WebSocketParams:
-    r"""
-    The parameters for a WebSocket request.
-    
-    # Examples
-    
-    ```python
-    import rnet
-    from rnet import Impersonate, Version
-    
-    params = rnet.WebSocketParams(
-        proxy="http://proxy.example.com",
-        local_address="192.168.1.1",
-        interface="eth0",
-        headers={"Content-Type": "application/json"},
-        auth="Basic dXNlcjpwYXNzd29yZA==",
-        bearer_auth="Bearer token",
-        basic_auth=("user", "password"),
-        query=[("key1", "value1"), ("key2", "value2")]
-    )
-    
-    async with rnet.websocket("wss://echo.websocket.org") as ws:
-       await ws.send("Hello, World!")
-       message = await ws.recv()
-       print(message)
-    
-    asyncio.run(run())
-    ```
-    """
-    proxy: typing.Optional[builtins.str]
-    local_address: typing.Optional[typing.Optional[typing.Union[str, ipaddress.IPv4Address, ipaddress.IPv6Address]]]
-    interface: typing.Optional[builtins.str]
-    headers: typing.Optional[typing.Dict[str, bytes]]
-    cookies: typing.Optional[typing.Dict[str, str]]
-    protocols: typing.Optional[builtins.list[builtins.str]]
-    auth: typing.Optional[builtins.str]
-    bearer_auth: typing.Optional[builtins.str]
-    basic_auth: typing.Optional[tuple[builtins.str, typing.Optional[builtins.str]]]
-    query: typing.Optional[builtins.list[tuple[builtins.str, builtins.str]]]
-    write_buffer_size: typing.Optional[builtins.int]
-    max_write_buffer_size: typing.Optional[builtins.int]
-    max_message_size: typing.Optional[builtins.int]
-    max_frame_size: typing.Optional[builtins.int]
-    accept_unmasked_frames: typing.Optional[builtins.bool]
 
 class Impersonate(Enum):
     r"""
@@ -1621,36 +1965,33 @@ class Version(Enum):
     HTTP_2 = auto()
     HTTP_3 = auto()
 
-def delete(url:builtins.str, **kwds) -> typing.Any:
-    r"""
-    Shortcut method to quickly make a `DELETE` request.
-    
-    # Examples
-    
-    ```python
-    import rnet
-    import asyncio
-    
-    async def run():
-        response = await rnet.delete("https://httpbin.org/anything")
-        body = await response.text()
-        print(body)
-    
-    asyncio.run(run())
-    ```
-    """
-    ...
-
-def get(url:builtins.str, **kwds) -> typing.Any:
+def delete(url:str, **kwds) -> typing.Any:
     r"""
     Shortcut method to quickly make a `GET` request.
     
-    See also the methods on the [`rquest::Response`](./struct.Response.html)
-    type.
+    # Arguments
     
-    **NOTE**: This function creates a new internal `Client` on each call,
-    and so should not be used if making many requests. Create a
-    [`Client`](./struct.Client.html) instead.
+    * `url` - The URL to send the request to.
+    * `**kwds` - Additional request parameters.
+    
+        proxy: typing.Optional[builtins.str]
+        local_address: typing.Optional[typing.Optional[typing.Union[str, ipaddress.IPv4Address, ipaddress.IPv6Address]]]
+        interface: typing.Optional[builtins.str]
+        timeout: typing.Optional[builtins.int]
+        read_timeout: typing.Optional[builtins.int]
+        version: typing.Optional[Version]
+        headers: typing.Optional[typing.Dict[str, bytes]]
+        cookies: typing.Optional[typing.Dict[str, str]]
+        allow_redirects: typing.Optional[builtins.bool]
+        max_redirects: typing.Optional[builtins.int]
+        auth: typing.Optional[str]
+        bearer_auth: typing.Optional[str]
+        basic_auth: typing.Optional[tuple[str, typing.Optional[str]]]
+        query: typing.Optional[typing.List[typing.Tuple[str, str]]]
+        form: typing.Optional[typing.List[typing.Tuple[str, str]]]
+        json: typing.Optional[typing.Any]
+        body: typing.Optional[typing.Any]
+        multipart: typing.Optional[Multipart]
     
     # Examples
     
@@ -1665,21 +2006,36 @@ def get(url:builtins.str, **kwds) -> typing.Any:
     
     asyncio.run(run())
     ```
-    
-    # Errors
-    
-    This function fails if:
-    
-    - native TLS backend cannot be initialized
-    - supplied `Url` cannot be parsed
-    - there was an error while sending request
-    - redirect limit was exhausted
     """
     ...
 
-def head(url:builtins.str, **kwds) -> typing.Any:
+def get(url:str, **kwds) -> typing.Any:
     r"""
-    Shortcut method to quickly make a `HEAD` request.
+    Shortcut method to quickly make a `GET` request.
+    
+    # Arguments
+    
+    * `url` - The URL to send the request to.
+    * `**kwds` - Additional request parameters.
+    
+        proxy: typing.Optional[builtins.str]
+        local_address: typing.Optional[typing.Optional[typing.Union[str, ipaddress.IPv4Address, ipaddress.IPv6Address]]]
+        interface: typing.Optional[builtins.str]
+        timeout: typing.Optional[builtins.int]
+        read_timeout: typing.Optional[builtins.int]
+        version: typing.Optional[Version]
+        headers: typing.Optional[typing.Dict[str, bytes]]
+        cookies: typing.Optional[typing.Dict[str, str]]
+        allow_redirects: typing.Optional[builtins.bool]
+        max_redirects: typing.Optional[builtins.int]
+        auth: typing.Optional[str]
+        bearer_auth: typing.Optional[str]
+        basic_auth: typing.Optional[tuple[str, typing.Optional[str]]]
+        query: typing.Optional[typing.List[typing.Tuple[str, str]]]
+        form: typing.Optional[typing.List[typing.Tuple[str, str]]]
+        json: typing.Optional[typing.Any]
+        body: typing.Optional[typing.Any]
+        multipart: typing.Optional[Multipart]
     
     # Examples
     
@@ -1688,45 +2044,7 @@ def head(url:builtins.str, **kwds) -> typing.Any:
     import asyncio
     
     async def run():
-        response = await rnet.head("https://httpbin.org/anything")
-        print(response.headers)
-    
-    asyncio.run(run())
-    ```
-    """
-    ...
-
-def options(url:builtins.str, **kwds) -> typing.Any:
-    r"""
-    Shortcut method to quickly make an `OPTIONS` request.
-    
-    # Examples
-    
-    ```python
-    import rnet
-    import asyncio
-    
-    async def run():
-        response = await rnet.options("https://httpbin.org/anything")
-        print(response.headers)
-    
-    asyncio.run(run())
-    ```
-    """
-    ...
-
-def patch(url:builtins.str, **kwds) -> typing.Any:
-    r"""
-    Shortcut method to quickly make a `PATCH` request.
-    
-    # Examples
-    
-    ```python
-    import rnet
-    import asyncio
-    
-    async def run():
-        response = await rnet.patch("https://httpbin.org/anything", json={"key": "value"})
+        response = await rnet.get("https://httpbin.org/anything")
         body = await response.text()
         print(body)
     
@@ -1735,9 +2053,33 @@ def patch(url:builtins.str, **kwds) -> typing.Any:
     """
     ...
 
-def post(url:builtins.str, **kwds) -> typing.Any:
+def head(url:str, **kwds) -> typing.Any:
     r"""
-    Shortcut method to quickly make a `POST` request.
+    Shortcut method to quickly make a `GET` request.
+    
+    # Arguments
+    
+    * `url` - The URL to send the request to.
+    * `**kwds` - Additional request parameters.
+    
+        proxy: typing.Optional[builtins.str]
+        local_address: typing.Optional[typing.Optional[typing.Union[str, ipaddress.IPv4Address, ipaddress.IPv6Address]]]
+        interface: typing.Optional[builtins.str]
+        timeout: typing.Optional[builtins.int]
+        read_timeout: typing.Optional[builtins.int]
+        version: typing.Optional[Version]
+        headers: typing.Optional[typing.Dict[str, bytes]]
+        cookies: typing.Optional[typing.Dict[str, str]]
+        allow_redirects: typing.Optional[builtins.bool]
+        max_redirects: typing.Optional[builtins.int]
+        auth: typing.Optional[str]
+        bearer_auth: typing.Optional[str]
+        basic_auth: typing.Optional[tuple[str, typing.Optional[str]]]
+        query: typing.Optional[typing.List[typing.Tuple[str, str]]]
+        form: typing.Optional[typing.List[typing.Tuple[str, str]]]
+        json: typing.Optional[typing.Any]
+        body: typing.Optional[typing.Any]
+        multipart: typing.Optional[Multipart]
     
     # Examples
     
@@ -1746,7 +2088,7 @@ def post(url:builtins.str, **kwds) -> typing.Any:
     import asyncio
     
     async def run():
-        response = await rnet.post("https://httpbin.org/anything", json={"key": "value"})
+        response = await rnet.get("https://httpbin.org/anything")
         body = await response.text()
         print(body)
     
@@ -1755,9 +2097,33 @@ def post(url:builtins.str, **kwds) -> typing.Any:
     """
     ...
 
-def put(url:builtins.str, **kwds) -> typing.Any:
+def options(url:str, **kwds) -> typing.Any:
     r"""
-    Shortcut method to quickly make a `PUT` request.
+    Shortcut method to quickly make a `GET` request.
+    
+    # Arguments
+    
+    * `url` - The URL to send the request to.
+    * `**kwds` - Additional request parameters.
+    
+        proxy: typing.Optional[builtins.str]
+        local_address: typing.Optional[typing.Optional[typing.Union[str, ipaddress.IPv4Address, ipaddress.IPv6Address]]]
+        interface: typing.Optional[builtins.str]
+        timeout: typing.Optional[builtins.int]
+        read_timeout: typing.Optional[builtins.int]
+        version: typing.Optional[Version]
+        headers: typing.Optional[typing.Dict[str, bytes]]
+        cookies: typing.Optional[typing.Dict[str, str]]
+        allow_redirects: typing.Optional[builtins.bool]
+        max_redirects: typing.Optional[builtins.int]
+        auth: typing.Optional[str]
+        bearer_auth: typing.Optional[str]
+        basic_auth: typing.Optional[tuple[str, typing.Optional[str]]]
+        query: typing.Optional[typing.List[typing.Tuple[str, str]]]
+        form: typing.Optional[typing.List[typing.Tuple[str, str]]]
+        json: typing.Optional[typing.Any]
+        body: typing.Optional[typing.Any]
+        multipart: typing.Optional[Multipart]
     
     # Examples
     
@@ -1766,7 +2132,7 @@ def put(url:builtins.str, **kwds) -> typing.Any:
     import asyncio
     
     async def run():
-        response = await rnet.put("https://httpbin.org/anything", json={"key": "value"})
+        response = await rnet.get("https://httpbin.org/anything")
         body = await response.text()
         print(body)
     
@@ -1775,11 +2141,165 @@ def put(url:builtins.str, **kwds) -> typing.Any:
     """
     ...
 
-def request(method:Method, url:builtins.str, **kwds) -> typing.Any:
+def patch(url:str, **kwds) -> typing.Any:
+    r"""
+    Shortcut method to quickly make a `GET` request.
+    
+    # Arguments
+    
+    * `url` - The URL to send the request to.
+    * `**kwds` - Additional request parameters.
+    
+        proxy: typing.Optional[builtins.str]
+        local_address: typing.Optional[typing.Optional[typing.Union[str, ipaddress.IPv4Address, ipaddress.IPv6Address]]]
+        interface: typing.Optional[builtins.str]
+        timeout: typing.Optional[builtins.int]
+        read_timeout: typing.Optional[builtins.int]
+        version: typing.Optional[Version]
+        headers: typing.Optional[typing.Dict[str, bytes]]
+        cookies: typing.Optional[typing.Dict[str, str]]
+        allow_redirects: typing.Optional[builtins.bool]
+        max_redirects: typing.Optional[builtins.int]
+        auth: typing.Optional[str]
+        bearer_auth: typing.Optional[str]
+        basic_auth: typing.Optional[tuple[str, typing.Optional[str]]]
+        query: typing.Optional[typing.List[typing.Tuple[str, str]]]
+        form: typing.Optional[typing.List[typing.Tuple[str, str]]]
+        json: typing.Optional[typing.Any]
+        body: typing.Optional[typing.Any]
+        multipart: typing.Optional[Multipart]
+    
+    # Examples
+    
+    ```python
+    import rnet
+    import asyncio
+    
+    async def run():
+        response = await rnet.get("https://httpbin.org/anything")
+        body = await response.text()
+        print(body)
+    
+    asyncio.run(run())
+    ```
+    """
+    ...
+
+def post(url:str, **kwds) -> typing.Any:
+    r"""
+    Shortcut method to quickly make a `GET` request.
+    
+    # Arguments
+    
+    * `url` - The URL to send the request to.
+    * `**kwds` - Additional request parameters.
+    
+        proxy: typing.Optional[builtins.str]
+        local_address: typing.Optional[typing.Optional[typing.Union[str, ipaddress.IPv4Address, ipaddress.IPv6Address]]]
+        interface: typing.Optional[builtins.str]
+        timeout: typing.Optional[builtins.int]
+        read_timeout: typing.Optional[builtins.int]
+        version: typing.Optional[Version]
+        headers: typing.Optional[typing.Dict[str, bytes]]
+        cookies: typing.Optional[typing.Dict[str, str]]
+        allow_redirects: typing.Optional[builtins.bool]
+        max_redirects: typing.Optional[builtins.int]
+        auth: typing.Optional[str]
+        bearer_auth: typing.Optional[str]
+        basic_auth: typing.Optional[tuple[str, typing.Optional[str]]]
+        query: typing.Optional[typing.List[typing.Tuple[str, str]]]
+        form: typing.Optional[typing.List[typing.Tuple[str, str]]]
+        json: typing.Optional[typing.Any]
+        body: typing.Optional[typing.Any]
+        multipart: typing.Optional[Multipart]
+    
+    # Examples
+    
+    ```python
+    import rnet
+    import asyncio
+    
+    async def run():
+        response = await rnet.get("https://httpbin.org/anything")
+        body = await response.text()
+        print(body)
+    
+    asyncio.run(run())
+    ```
+    """
+    ...
+
+def put(url:str, **kwds) -> typing.Any:
+    r"""
+    Shortcut method to quickly make a `GET` request.
+    
+    # Arguments
+    
+    * `url` - The URL to send the request to.
+    * `**kwds` - Additional request parameters.
+    
+        proxy: typing.Optional[builtins.str]
+        local_address: typing.Optional[typing.Optional[typing.Union[str, ipaddress.IPv4Address, ipaddress.IPv6Address]]]
+        interface: typing.Optional[builtins.str]
+        timeout: typing.Optional[builtins.int]
+        read_timeout: typing.Optional[builtins.int]
+        version: typing.Optional[Version]
+        headers: typing.Optional[typing.Dict[str, bytes]]
+        cookies: typing.Optional[typing.Dict[str, str]]
+        allow_redirects: typing.Optional[builtins.bool]
+        max_redirects: typing.Optional[builtins.int]
+        auth: typing.Optional[str]
+        bearer_auth: typing.Optional[str]
+        basic_auth: typing.Optional[tuple[str, typing.Optional[str]]]
+        query: typing.Optional[typing.List[typing.Tuple[str, str]]]
+        form: typing.Optional[typing.List[typing.Tuple[str, str]]]
+        json: typing.Optional[typing.Any]
+        body: typing.Optional[typing.Any]
+        multipart: typing.Optional[Multipart]
+    
+    # Examples
+    
+    ```python
+    import rnet
+    import asyncio
+    
+    async def run():
+        response = await rnet.get("https://httpbin.org/anything")
+        body = await response.text()
+        print(body)
+    
+    asyncio.run(run())
+    ```
+    """
+    ...
+
+def request(method:Method, url:str, **kwds) -> typing.Any:
     r"""
     Make a request with the given parameters.
     
-    This function allows you to make a request with the specified parameters encapsulated in a `Request` object.
+    # Arguments
+    
+    * `url` - The URL to send the request to.
+    * `**kwds` - Additional request parameters.
+    
+        proxy: typing.Optional[builtins.str]
+        local_address: typing.Optional[typing.Optional[typing.Union[str, ipaddress.IPv4Address, ipaddress.IPv6Address]]]
+        interface: typing.Optional[builtins.str]
+        timeout: typing.Optional[builtins.int]
+        read_timeout: typing.Optional[builtins.int]
+        version: typing.Optional[Version]
+        headers: typing.Optional[typing.Dict[str, bytes]]
+        cookies: typing.Optional[typing.Dict[str, str]]
+        allow_redirects: typing.Optional[builtins.bool]
+        max_redirects: typing.Optional[builtins.int]
+        auth: typing.Optional[str]
+        bearer_auth: typing.Optional[str]
+        basic_auth: typing.Optional[tuple[str, typing.Optional[str]]]
+        query: typing.Optional[typing.List[typing.Tuple[str, str]]]
+        form: typing.Optional[typing.List[typing.Tuple[str, str]]]
+        json: typing.Optional[typing.Any]
+        body: typing.Optional[typing.Any]
+        multipart: typing.Optional[Multipart]
     
     # Examples
     
@@ -1798,9 +2318,33 @@ def request(method:Method, url:builtins.str, **kwds) -> typing.Any:
     """
     ...
 
-def trace(url:builtins.str, **kwds) -> typing.Any:
+def trace(url:str, **kwds) -> typing.Any:
     r"""
-    Shortcut method to quickly make a `TRACE` request.
+    Shortcut method to quickly make a `GET` request.
+    
+    # Arguments
+    
+    * `url` - The URL to send the request to.
+    * `**kwds` - Additional request parameters.
+    
+        proxy: typing.Optional[builtins.str]
+        local_address: typing.Optional[typing.Optional[typing.Union[str, ipaddress.IPv4Address, ipaddress.IPv6Address]]]
+        interface: typing.Optional[builtins.str]
+        timeout: typing.Optional[builtins.int]
+        read_timeout: typing.Optional[builtins.int]
+        version: typing.Optional[Version]
+        headers: typing.Optional[typing.Dict[str, bytes]]
+        cookies: typing.Optional[typing.Dict[str, str]]
+        allow_redirects: typing.Optional[builtins.bool]
+        max_redirects: typing.Optional[builtins.int]
+        auth: typing.Optional[str]
+        bearer_auth: typing.Optional[str]
+        basic_auth: typing.Optional[tuple[str, typing.Optional[str]]]
+        query: typing.Optional[typing.List[typing.Tuple[str, str]]]
+        form: typing.Optional[typing.List[typing.Tuple[str, str]]]
+        json: typing.Optional[typing.Any]
+        body: typing.Optional[typing.Any]
+        multipart: typing.Optional[Multipart]
     
     # Examples
     
@@ -1809,19 +2353,39 @@ def trace(url:builtins.str, **kwds) -> typing.Any:
     import asyncio
     
     async def run():
-        response = await rnet.trace("https://www.rust-lang.org")
-        print(response.headers)
+        response = await rnet.get("https://httpbin.org/anything")
+        body = await response.text()
+        print(body)
     
     asyncio.run(run())
     ```
     """
     ...
 
-def websocket(url:builtins.str, **kwds) -> typing.Any:
+def websocket(url:str, **kwds) -> typing.Any:
     r"""
     Make a WebSocket connection with the given parameters.
     
-    This function allows you to make a WebSocket connection with the specified parameters encapsulated in a `WebSocket` object.
+    # Arguments
+    
+    * `url` - The URL to send the WebSocket request to.
+    * `**kwds` - Additional WebSocket request parameters.
+    
+        proxy: typing.Optional[builtins.str]
+        local_address: typing.Optional[typing.Optional[typing.Union[str, ipaddress.IPv4Address, ipaddress.IPv6Address]]]
+        interface: typing.Optional[builtins.str]
+        headers: typing.Optional[typing.Dict[str, bytes]]
+        cookies: typing.Optional[typing.Dict[str, str]]
+        protocols: typing.Optional[builtins.list[builtins.str]]
+        auth: typing.Optional[builtins.str]
+        bearer_auth: typing.Optional[builtins.str]
+        basic_auth: typing.Optional[tuple[builtins.str, typing.Optional[builtins.str]]]
+        query: typing.Optional[builtins.list[tuple[builtins.str, builtins.str]]]
+        write_buffer_size: typing.Optional[builtins.int]
+        max_write_buffer_size: typing.Optional[builtins.int]
+        max_message_size: typing.Optional[builtins.int]
+        max_frame_size: typing.Optional[builtins.int]
+        accept_unmasked_frames: typing.Optional[builtins.bool]
     
     # Examples
     
