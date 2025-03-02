@@ -23,7 +23,6 @@ define_enum_with_conversion!(
     POST,
     PUT,
     DELETE,
-    CONNECT,
     OPTIONS,
     TRACE,
     PATCH,
