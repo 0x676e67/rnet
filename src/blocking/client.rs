@@ -2,7 +2,7 @@ use super::{http::BlockingResponse, ws::BlockingWebSocket};
 use crate::{
     async_impl::{self, execute_request2, execute_websocket_request2},
     param::{ClientParams, RequestParams, UpdateClientParams, WebSocketParams},
-    typing::Method,
+    typing::{FromPyCookieList, Method},
 };
 use pyo3::{
     prelude::*,
@@ -468,7 +468,7 @@ impl BlockingClient {
     /// A `PyResult` indicating success or failure.
     #[pyo3(signature = (url, value))]
     #[inline(always)]
-    fn set_cookies(&self, py: Python, url: PyBackedStr, value: Vec<PyBackedStr>) -> PyResult<()> {
+    fn set_cookies(&self, py: Python, url: PyBackedStr, value: FromPyCookieList) -> PyResult<()> {
         self.0.set_cookies(py, url, value)
     }
 

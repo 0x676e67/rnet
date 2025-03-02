@@ -3,7 +3,9 @@ use crate::{
     apply_option, dns,
     error::{wrap_rquest_error, wrap_url_parse_error},
     param::{ClientParams, RequestParams, UpdateClientParams, WebSocketParams},
-    typing::{CookieHeader, HeaderMapRef, ImpersonateOS, Method, TlsVersion},
+    typing::{
+        FromPyCookieList, HeaderMapRef, ImpersonateOS, IntoPyCookieHeader, Method, TlsVersion,
+    },
 };
 use arc_swap::ArcSwap;
 use pyo3::{
@@ -13,7 +15,7 @@ use pyo3::{
 };
 use pyo3_async_runtimes::tokio::future_into_py;
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
-use rquest::{header::HeaderValue, redirect::Policy, Url};
+use rquest::{redirect::Policy, Url};
 use std::{net::IpAddr, num::NonZeroUsize, ops::Deref};
 use std::{sync::Arc, time::Duration};
 
@@ -724,7 +726,7 @@ impl Client {
             Ok::<_, PyErr>(cookies)
         })?;
 
-        CookieHeader(cookies).into_pyobject(py)
+        IntoPyCookieHeader(cookies).into_pyobject(py)
     }
 
     /// Sets cookies for the given URL.
@@ -751,17 +753,11 @@ impl Client {
         &self,
         py: Python,
         url: PyBackedStr,
-        cookies: Vec<PyBackedStr>,
+        cookies: FromPyCookieList,
     ) -> PyResult<()> {
         py.allow_threads(|| {
             let url = Url::parse(url.as_ref()).map_err(wrap_url_parse_error)?;
-            let cookies = cookies
-                .into_iter()
-                .map(|value| HeaderValue::from_bytes(value.as_bytes()))
-                .flat_map(Result::ok)
-                .collect::<Vec<HeaderValue>>();
-
-            self.0.load().set_cookies(&url, cookies);
+            self.0.load().set_cookies(&url, cookies.0);
             Ok(())
         })
     }

@@ -1,4 +1,4 @@
-use crate::typing::{CookieMap, HeaderMap, IpAddr, QueryOrForm};
+use crate::typing::{FromPyCookieMap, HeaderMap, IpAddr, QueryOrForm};
 use pyo3::{prelude::*, pybacked::PyBackedStr};
 use pyo3_stub_gen::{PyStubType, TypeInfo};
 
@@ -18,7 +18,7 @@ pub struct WebSocketParams {
     pub headers: Option<HeaderMap>,
 
     /// The cookies to use for the request.
-    pub cookies: Option<CookieMap>,
+    pub cookies: Option<FromPyCookieMap>,
 
     /// The protocols to use for the request.
     pub protocols: Option<Vec<String>>,
