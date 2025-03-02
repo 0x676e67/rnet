@@ -7,7 +7,7 @@ use crate::{
     Result,
 };
 use pyo3::prelude::*;
-use rquest::header::{self, HeaderValue};
+use rquest::header;
 use rquest::redirect::Policy;
 use std::net::IpAddr;
 use std::ops::Deref;
@@ -90,8 +90,7 @@ where
 
     // Cookies options.
     if let Some(cookies) = params.cookies.take() {
-        let cookies = HeaderValue::try_from(cookies)?;
-        builder = builder.header(header::COOKIE, cookies);
+        builder = builder.header(header::COOKIE, cookies.0);
     }
 
     // Authentication options.
@@ -191,8 +190,7 @@ where
 
     // Cookies options.
     if let Some(cookies) = params.cookies.take() {
-        let cookies = HeaderValue::try_from(cookies)?;
-        builder = builder.with_builder(|builder| builder.header(header::COOKIE, cookies));
+        builder = builder.with_builder(|builder| builder.header(header::COOKIE, cookies.0));
     }
 
     // The origin to use for the request.

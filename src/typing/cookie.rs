@@ -1,5 +1,4 @@
 use crate::error::wrap_invali_header_value_error;
-use indexmap::IndexMap;
 use pyo3::pybacked::PyBackedStr;
 use pyo3::types::PyList;
 use pyo3::FromPyObject;
@@ -7,7 +6,7 @@ use pyo3::{prelude::*, types::PyDict};
 use pyo3_stub_gen::{PyStubType, TypeInfo};
 use rquest::header::{self, HeaderMap, HeaderValue};
 
-pub struct FromPyCookieMap(pub IndexMap<String, String>);
+pub struct FromPyCookieMap(pub HeaderValue);
 
 pub struct IntoPyCookieMapRef<'a>(pub &'a HeaderMap);
 
@@ -15,26 +14,27 @@ pub struct IntoPyCookieHeader(pub Option<HeaderValue>);
 
 pub struct FromPyCookieList(pub Vec<HeaderValue>);
 
-impl TryFrom<FromPyCookieMap> for HeaderValue {
-    type Error = PyErr;
-
-    fn try_from(cookies: FromPyCookieMap) -> Result<Self, Self::Error> {
-        let mut kv = String::with_capacity(cookies.0.len() * 8);
-        for (k, v) in cookies.0.iter() {
-            if !kv.is_empty() {
-                kv.push_str("; ");
-            }
-            kv.push_str(k);
-            kv.push('=');
-            kv.push_str(v);
-        }
-        HeaderValue::from_str(&kv).map_err(wrap_invali_header_value_error)
-    }
-}
-
 impl FromPyObject<'_> for FromPyCookieMap {
     fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
-        ob.extract().map(FromPyCookieMap)
+        let dict = ob.downcast::<PyDict>()?;
+        dict.iter()
+            .try_fold(
+                String::with_capacity(dict.len() * 8),
+                |mut cookies, (k, v)| {
+                    if !cookies.is_empty() {
+                        cookies.push_str("; ");
+                    }
+                    cookies.push_str(k.extract::<PyBackedStr>()?.as_ref());
+                    cookies.push('=');
+                    cookies.push_str(v.extract::<PyBackedStr>()?.as_ref());
+                    Ok(cookies)
+                },
+            )
+            .and_then(|cookies| {
+                HeaderValue::from_maybe_shared(cookies)
+                    .map(Self)
+                    .map_err(wrap_invali_header_value_error)
+            })
     }
 }
 
@@ -58,8 +58,7 @@ impl<'py> IntoPyObject<'py> for IntoPyCookieMapRef<'py> {
             })
             .filter_map(Result::ok)
             .try_fold(PyDict::new(py), |dict, cookie| {
-                dict.set_item(cookie.name(), cookie.value())?;
-                Ok(dict)
+                dict.set_item(cookie.name(), cookie.value()).map(|_| dict)
             })
     }
 }
@@ -84,14 +83,15 @@ impl<'py> IntoPyObject<'py> for IntoPyCookieHeader {
 impl FromPyObject<'_> for FromPyCookieList {
     fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
         let list = ob.downcast::<PyList>()?;
-        let mut vec = Vec::with_capacity(list.len());
-        for item in list.iter() {
-            let str = item.extract::<PyBackedStr>()?;
-            let header =
-                HeaderValue::from_bytes(str.as_bytes()).map_err(wrap_invali_header_value_error)?;
-            vec.push(header);
-        }
-        Ok(Self(vec))
+        list.iter()
+            .try_fold(Vec::with_capacity(list.len()), |mut vec, item| {
+                let str = item.extract::<PyBackedStr>()?;
+                let header = HeaderValue::from_bytes(str.as_bytes())
+                    .map_err(wrap_invali_header_value_error)?;
+                vec.push(header);
+                Ok(vec)
+            })
+            .map(Self)
     }
 }
 

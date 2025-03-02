@@ -1,6 +1,7 @@
 use crate::error::{wrap_invali_header_name_error, wrap_invali_header_value_error};
 use pyo3::{
     prelude::*,
+    pybacked::PyBackedStr,
     types::{PyBytes, PyDict, PyList},
 };
 use rquest::header::{self, HeaderName, HeaderValue};
@@ -55,9 +56,11 @@ impl FromPyObject<'_> for FromPyHeaderMap {
             .try_fold(
                 header::HeaderMap::with_capacity(dict.len()),
                 |mut headers, (key, value)| {
-                    let name = HeaderName::from_str(key.extract::<&str>()?)
+                    let key = key.extract::<PyBackedStr>()?;
+                    let name = HeaderName::from_bytes(key.as_bytes())
                         .map_err(wrap_invali_header_name_error)?;
-                    let value = HeaderValue::from_str(value.extract::<&str>()?)
+                    let value = value.extract::<PyBackedStr>()?;
+                    let value = HeaderValue::from_bytes(value.as_bytes())
                         .map_err(wrap_invali_header_value_error)?;
                     headers.insert(name, value);
                     Ok(headers)
