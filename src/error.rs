@@ -36,60 +36,73 @@ create_exception!(exceptions, HTTPMethodParseError, PyException);
 create_exception!(exceptions, URLParseError, PyException);
 create_exception!(exceptions, MIMEParseError, PyException);
 
+#[inline(always)]
 pub fn memory_error() -> pyo3::PyErr {
     PyRuntimeError::new_err(RACE_CONDITION_ERROR_MSG)
 }
 
+#[inline(always)]
 pub fn py_stop_iteration_error() -> pyo3::PyErr {
     PyStopIteration::new_err("The iterator is exhausted")
 }
 
+#[inline(always)]
 pub fn py_stop_async_iteration_error() -> pyo3::PyErr {
     PyStopAsyncIteration::new_err("The iterator is exhausted")
 }
 
+#[inline(always)]
 pub fn websocket_disconnect_error() -> pyo3::PyErr {
     PyRuntimeError::new_err("The WebSocket has been disconnected")
 }
 
+#[inline(always)]
 pub fn stream_consumed_error() -> pyo3::PyErr {
     BodyError::new_err("Stream is already consumed")
 }
 
+#[inline(always)]
 pub fn wrap_invali_header_name_error(error: header::InvalidHeaderName) -> pyo3::PyErr {
     PyRuntimeError::new_err(format!("Invalid header name: {:?}", error))
 }
 
+#[inline(always)]
 pub fn wrap_invali_header_value_error(error: header::InvalidHeaderValue) -> pyo3::PyErr {
     PyRuntimeError::new_err(format!("Invalid header value: {:?}", error))
 }
 
+#[inline(always)]
 pub fn wrap_url_parse_error(error: url::ParseError) -> pyo3::PyErr {
     URLParseError::new_err(format!("URL parse error: {:?}", error))
 }
 
+#[inline(always)]
 pub fn wrap_io_error(error: std::io::Error) -> pyo3::PyErr {
     PyRuntimeError::new_err(format!("IO error: {:?}", error))
 }
 
+macro_rules! wrap_error {
+    ($error:expr, $($variant:ident => $exception:ident),*) => {
+        {
+            $(
+                if $error.$variant() {
+                    return $exception::new_err(format!(concat!(stringify!($variant), " error: {:?}"), $error));
+                }
+            )*
+            UnknownError::new_err(format!("Unknown error occurred: {:?}", $error))
+        }
+    };
+}
+
 pub fn wrap_rquest_error(error: rquest::Error) -> pyo3::PyErr {
-    if error.is_body() {
-        BodyError::new_err(format!("Body related error: {:?}", error))
-    } else if error.is_connect() {
-        return ConnectionError::new_err(format!("Could not connect to host: {:?}", error));
-    } else if error.is_decode() {
-        return DecodingError::new_err(format!("Response body decoding error: {:?}", error));
-    } else if error.is_redirect() {
-        return RedirectError::new_err(format!("Maximum redirect count was reached: {:?}", error));
-    } else if error.is_timeout() {
-        return TimeoutError::new_err(format!("Timeout has been reached: {:?}", error));
-    } else if error.is_status() {
-        return StatusError::new_err(format!("Error status code in the response: {:?}", error));
-    } else if error.is_request() {
-        return RequestError::new_err(format!("Request error: {:?}", error));
-    } else if error.is_builder() {
-        return BuilderError::new_err(format!("Could not build the request: {:?}", error));
-    } else {
-        return UnknownError::new_err(format!("Unknown error occured: {:?}", error));
-    }
+    wrap_error!(error,
+        is_body => BodyError,
+        is_connect => ConnectionError,
+        is_decode => DecodingError,
+        is_redirect => RedirectError,
+        is_timeout => TimeoutError,
+        is_status => StatusError,
+        is_request => RequestError,
+        is_builder => BuilderError
+    )
 }
