@@ -151,6 +151,7 @@ impl Response {
     ///
     /// A Python dictionary representing the cookies of the response.
     #[getter]
+    #[inline(always)]
     pub fn cookies<'py>(&'py self, py: Python<'py>) -> Option<Bound<'py, PyDict>> {
         IntoPyCookieMapRef(&self.headers).into_pyobject(py).ok()
     }
