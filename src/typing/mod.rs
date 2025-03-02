@@ -20,7 +20,6 @@ pub use self::{
     status::StatusCode,
 };
 use pyo3::{prelude::*, pybacked::PyBackedStr};
-use pyo3_stub_gen::{PyStubType, TypeInfo};
 use serde::ser::{Serialize, SerializeSeq, Serializer};
 use std::{
     hash::RandomState,
@@ -29,15 +28,6 @@ use std::{
 
 #[derive(Clone, Debug)]
 pub struct IndexMap<K, V, S = RandomState>(indexmap::IndexMap<K, V, S>);
-
-impl<K, V, S> IndexMap<K, V, S>
-where
-    S: Default,
-{
-    pub fn new() -> IndexMap<K, V, S> {
-        IndexMap(indexmap::IndexMap::with_hasher(S::default()))
-    }
-}
 
 impl<K, V, S> Deref for IndexMap<K, V, S> {
     type Target = indexmap::IndexMap<K, V, S>;
@@ -66,12 +56,6 @@ impl Serialize for QueryOrForm {
             seq.serialize_element::<(&str, &str)>(&(key.as_ref(), value.as_ref()))?;
         }
         seq.end()
-    }
-}
-
-impl PyStubType for QueryOrForm {
-    fn type_output() -> TypeInfo {
-        TypeInfo::with_module("typing.List[typing.Tuple[str, str]]", "typing".into())
     }
 }
 

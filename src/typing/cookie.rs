@@ -4,7 +4,7 @@ use pyo3::FromPyObject;
 use pyo3::{prelude::*, types::PyDict};
 use rquest::header::{self, HeaderMap, HeaderValue};
 
-pub type CookieMap = IndexMap<String, String>;
+pub struct CookieMap(pub IndexMap<String, String>);
 
 pub struct CookieMapRef<'a>(pub &'a HeaderMap);
 
@@ -12,8 +12,8 @@ impl TryFrom<CookieMap> for HeaderValue {
     type Error = PyErr;
 
     fn try_from(cookies: CookieMap) -> Result<Self, Self::Error> {
-        let mut kv = String::with_capacity(cookies.len() * 8);
-        for (k, v) in cookies.iter() {
+        let mut kv = String::with_capacity(cookies.0.len() * 8);
+        for (k, v) in cookies.0.iter() {
             if !kv.is_empty() {
                 kv.push_str("; ");
             }
@@ -27,7 +27,7 @@ impl TryFrom<CookieMap> for HeaderValue {
 
 impl FromPyObject<'_> for CookieMap {
     fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
-        ob.extract().map(IndexMap)
+        ob.extract().map(IndexMap).map(CookieMap)
     }
 }
 

@@ -7,7 +7,7 @@ use crate::{
     Result,
 };
 use pyo3::prelude::*;
-use rquest::header::{self, HeaderMap, HeaderValue};
+use rquest::header::{self, HeaderValue};
 use rquest::redirect::Policy;
 use std::net::IpAddr;
 use std::ops::Deref;
@@ -85,7 +85,7 @@ where
         builder,
         params.headers,
         headers,
-        HeaderMap::from
+        From::from
     );
 
     // Cookies options.
@@ -239,7 +239,7 @@ where
             builder,
             params.headers,
             headers,
-            HeaderMap::from
+            From::from
         );
 
         // Query options.

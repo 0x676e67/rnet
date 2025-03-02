@@ -8,7 +8,6 @@ use bytes::Bytes;
 use pyo3::prelude::*;
 use pyo3::types::PyBytes;
 use pyo3::{FromPyObject, PyAny};
-use pyo3_stub_gen::{PyStubType, TypeInfo};
 
 /// The body to use for the request.
 #[derive(Clone)]
@@ -47,12 +46,6 @@ impl Debug for Body {
             Self::Iterator(_) => write!(f, "Body::Iterator(...)"),
             Self::Stream(_) => write!(f, "Body::Stream(...)"),
         }
-    }
-}
-
-impl PyStubType for Body {
-    fn type_output() -> TypeInfo {
-        TypeInfo::any()
     }
 }
 

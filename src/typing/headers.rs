@@ -3,20 +3,17 @@ use pyo3::{
     prelude::*,
     types::{PyBytes, PyDict, PyList},
 };
-use pyo3_stub_gen::{PyStubType, TypeInfo};
 use rquest::header::{self, HeaderName, HeaderValue};
-use std::{collections::HashSet, ops::Deref, str::FromStr};
+use std::{ops::Deref, str::FromStr};
 
 /// A HTTP header map.
-#[derive(Clone, Debug)]
-pub struct HeaderMap(header::HeaderMap);
+pub struct HeaderMap(pub header::HeaderMap);
 
 /// A HTTP reference to a header map.
 pub struct HeaderMapRef<'a>(pub &'a header::HeaderMap);
 
 /// A list of header names in order.
-#[derive(Clone, Debug)]
-pub struct HeaderNameOrder(Vec<HeaderName>);
+pub struct HeaderNameOrder(pub Vec<HeaderName>);
 
 impl From<header::HeaderMap> for HeaderMap {
     fn from(map: header::HeaderMap) -> Self {
@@ -47,24 +44,6 @@ impl Deref for HeaderMap {
 
     fn deref(&self) -> &Self::Target {
         &self.0
-    }
-}
-
-impl PyStubType for HeaderMap {
-    fn type_output() -> TypeInfo {
-        TypeInfo {
-            name: "typing.Dict[str, bytes]".to_owned(),
-            import: HashSet::new(),
-        }
-    }
-}
-
-impl PyStubType for HeaderNameOrder {
-    fn type_output() -> TypeInfo {
-        TypeInfo {
-            name: "typing.List[str]".to_owned(),
-            import: HashSet::new(),
-        }
     }
 }
 

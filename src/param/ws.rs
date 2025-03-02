@@ -3,7 +3,7 @@ use pyo3::{prelude::*, pybacked::PyBackedStr};
 use pyo3_stub_gen::{PyStubType, TypeInfo};
 
 /// The parameters for a WebSocket request.
-#[derive(Default, Debug)]
+#[derive(Default)]
 pub struct WebSocketParams {
     /// The proxy to use for the request.
     pub proxy: Option<PyBackedStr>,

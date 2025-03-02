@@ -6,7 +6,7 @@ use pyo3::{prelude::*, pybacked::PyBackedStr};
 use pyo3_stub_gen::{PyStubType, TypeInfo};
 
 /// The parameters for a request.
-#[derive(Default, Debug)]
+#[derive(Default)]
 pub struct ClientParams {
     /// The impersonation settings for the request.
     pub impersonate: Option<Impersonate>,
@@ -129,7 +129,7 @@ pub struct ClientParams {
 }
 
 /// The parameters for updating a client.
-#[derive(Default, Debug)]
+#[derive(Default)]
 pub struct UpdateClientParams {
     /// The impersonation settings for the request.
     pub impersonate: Option<Impersonate>,
