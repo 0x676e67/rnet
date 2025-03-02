@@ -1,15 +1,18 @@
 use crate::{
     buffer::{Buffer, BytesBuffer, PyBufferProtocol},
     error::{memory_error, py_stop_async_iteration_error, wrap_rquest_error},
-    typing::{CookieMap, HeaderMap, Json, SocketAddr, StatusCode, Version},
+    typing::{CookieMapRef, HeaderMapRef, Json, SocketAddr, StatusCode, Version},
 };
 use arc_swap::ArcSwapOption;
 use futures_util::{Stream, TryStreamExt};
 use mime::Mime;
-use pyo3::{prelude::*, IntoPyObjectExt};
+use pyo3::{prelude::*, types::PyDict, IntoPyObjectExt};
 use pyo3_async_runtimes::tokio::future_into_py;
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
-use rquest::{header, TlsInfo, Url};
+use rquest::{
+    header::{self, HeaderMap},
+    TlsInfo, Url,
+};
 use std::{ops::Deref, pin::Pin, sync::Arc};
 use tokio::sync::Mutex;
 
@@ -58,7 +61,7 @@ impl Response {
             status_code: StatusCode::from(response.status()),
             remote_addr: response.remote_addr().map(SocketAddr::from),
             content_length: response.content_length(),
-            headers: HeaderMap::from(std::mem::take(response.headers_mut())),
+            headers: std::mem::take(response.headers_mut()),
             response: ArcSwapOption::from_pointee(response),
         }
     }
@@ -138,8 +141,18 @@ impl Response {
     /// A `HeaderMap` object representing the headers of the response.
     #[getter]
     #[inline(always)]
-    pub fn headers(&self) -> HeaderMap {
-        self.headers.clone()
+    pub fn headers<'py>(&self, py: Python<'py>) -> Option<Bound<'py, PyDict>> {
+        HeaderMapRef(&self.headers).into_pyobject(py).ok()
+    }
+
+    /// Returns the cookies of the response.
+    ///
+    /// # Returns
+    ///
+    /// A Python dictionary representing the cookies of the response.
+    #[getter]
+    pub fn cookies<'py>(&'py self, py: Python<'py>) -> Option<Bound<'py, PyDict>> {
+        CookieMapRef(&self.headers).into_pyobject(py).ok()
     }
 
     /// Returns the content length of the response.
@@ -203,30 +216,6 @@ impl Response {
         });
 
         s.map(|buffer| buffer.into_bytes_ref(py)).transpose()
-    }
-
-    /// Returns the cookies of the response.
-    ///
-    /// # Returns
-    ///
-    /// A Python dictionary representing the cookies of the response.
-    #[getter]
-    pub fn cookies(&self, py: Python) -> CookieMap {
-        py.allow_threads(|| {
-            self.headers
-                .get_all(header::SET_COOKIE)
-                .iter()
-                .map(|value| {
-                    std::str::from_utf8(value.as_bytes())
-                        .map_err(cookie::ParseError::from)
-                        .and_then(cookie::Cookie::parse)
-                })
-                .filter_map(Result::ok)
-                .fold(CookieMap::new(), |mut map, cookie| {
-                    map.insert(cookie.name().to_owned(), cookie.value().to_owned());
-                    map
-                })
-        })
     }
 
     /// Returns the text content of the response.

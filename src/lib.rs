@@ -20,8 +20,8 @@ use pyo3_async_runtimes::tokio::future_into_py;
 use pyo3_log::{Caching, Logger};
 use pyo3_stub_gen::{define_stub_info_gatherer, derive::*};
 use typing::{
-    HeaderMap, Impersonate, ImpersonateOS, LookupIpStrategy, Method, Multipart, Part, Proxy,
-    SocketAddr, StatusCode, TlsVersion, Version,
+    Impersonate, ImpersonateOS, LookupIpStrategy, Method, Multipart, Part, Proxy, SocketAddr,
+    StatusCode, TlsVersion, Version,
 };
 
 #[cfg(not(target_env = "msvc"))]

@@ -11,6 +11,9 @@ use std::{collections::HashSet, ops::Deref, str::FromStr};
 #[derive(Clone, Debug)]
 pub struct HeaderMap(header::HeaderMap);
 
+/// A HTTP reference to a header map.
+pub struct HeaderMapRef<'a>(pub &'a header::HeaderMap);
+
 /// A list of header names in order.
 #[derive(Clone, Debug)]
 pub struct HeaderNameOrder(Vec<HeaderName>);
@@ -18,6 +21,12 @@ pub struct HeaderNameOrder(Vec<HeaderName>);
 impl From<header::HeaderMap> for HeaderMap {
     fn from(map: header::HeaderMap) -> Self {
         HeaderMap(map)
+    }
+}
+
+impl<'a> From<&'a header::HeaderMap> for HeaderMapRef<'a> {
+    fn from(map: &'a header::HeaderMap) -> Self {
+        HeaderMapRef(map)
     }
 }
 
@@ -93,7 +102,7 @@ impl<'py> FromPyObject<'py> for HeaderNameOrder {
     }
 }
 
-impl<'py> IntoPyObject<'py> for HeaderMap {
+impl<'py> IntoPyObject<'py> for HeaderMapRef<'_> {
     type Target = PyDict;
 
     type Output = Bound<'py, Self::Target>;
@@ -107,17 +116,5 @@ impl<'py> IntoPyObject<'py> for HeaderMap {
                 dict.set_item(name.as_str(), PyBytes::new(py, value.as_bytes()))?;
                 Ok(dict)
             })
-    }
-}
-
-impl<'py> IntoPyObject<'py> for HeaderNameOrder {
-    type Target = PyList;
-
-    type Output = Bound<'py, Self::Target>;
-
-    type Error = PyErr;
-
-    fn into_pyobject(self, py: Python<'py>) -> Result<Self::Output, Self::Error> {
-        PyList::new(py, self.0.iter().map(|name| name.as_str()))
     }
 }

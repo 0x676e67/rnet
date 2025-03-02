@@ -4,9 +4,9 @@ use crate::{
     async_impl::{self},
     buffer::{BytesBuffer, PyBufferProtocol},
     error::{py_stop_iteration_error, wrap_rquest_error},
-    typing::{CookieMap, HeaderMap, Json, SocketAddr, StatusCode, Version},
+    typing::{Json, SocketAddr, StatusCode, Version},
 };
-use pyo3::prelude::*;
+use pyo3::{prelude::*, types::PyDict};
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 
 /// A bloking response from a request.
@@ -93,8 +93,19 @@ impl BlockingResponse {
     /// A `HeaderMap` object representing the headers of the response.
     #[getter]
     #[inline(always)]
-    pub fn headers(&self) -> HeaderMap {
-        self.0.headers()
+    pub fn headers<'py>(&self, py: Python<'py>) -> Option<Bound<'py, PyDict>> {
+        self.0.headers(py)
+    }
+
+    /// Returns the cookies of the response.
+    ///
+    /// # Returns
+    ///
+    /// A Python dictionary representing the cookies of the response.
+    #[getter]
+    #[inline(always)]
+    pub fn cookies<'py>(&'py self, py: Python<'py>) -> Option<Bound<'py, PyDict>> {
+        self.0.cookies(py)
     }
 
     /// Returns the content length of the response.
@@ -141,17 +152,6 @@ impl BlockingResponse {
         py: Python<'rt>,
     ) -> PyResult<Option<Bound<'rt, PyAny>>> {
         self.0.peer_certificate(py)
-    }
-
-    /// Returns the cookies of the response.
-    ///
-    /// # Returns
-    ///
-    /// A Python dictionary representing the cookies of the response.
-    #[getter]
-    #[inline(always)]
-    pub fn cookies(&self, py: Python) -> CookieMap {
-        self.0.cookies(py)
     }
 
     /// Returns the text content of the response.

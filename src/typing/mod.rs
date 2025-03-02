@@ -10,9 +10,9 @@ mod status;
 
 pub use self::{
     body::Body,
-    cookie::CookieMap,
+    cookie::{CookieMap, CookieMapRef},
     enums::{Impersonate, ImpersonateOS, LookupIpStrategy, Method, TlsVersion, Version},
-    headers::{HeaderMap, HeaderNameOrder},
+    headers::{HeaderMap, HeaderMapRef, HeaderNameOrder},
     ipaddr::{IpAddr, SocketAddr},
     json::Json,
     multipart::{Multipart, Part},

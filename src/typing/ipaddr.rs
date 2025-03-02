@@ -20,18 +20,6 @@ impl FromPyObject<'_> for IpAddr {
     }
 }
 
-impl<'py> IntoPyObject<'py> for IpAddr {
-    type Target = PyAny;
-
-    type Output = Bound<'py, Self::Target>;
-
-    type Error = PyErr;
-
-    fn into_pyobject(self, py: Python<'py>) -> Result<Self::Output, Self::Error> {
-        self.0.into_bound_py_any(py)
-    }
-}
-
 impl PyStubType for IpAddr {
     fn type_output() -> TypeInfo {
         TypeInfo::with_module(

@@ -10,7 +10,7 @@ class BlockingClient:
     A blocking client for making HTTP requests.
     """
     user_agent: typing.Optional[builtins.str]
-    headers: typing.Dict[str, bytes]
+    headers: typing.Optional[dict]
     def __new__(cls,**kwds): ...
     def get_cookies(self, url:str) -> builtins.list[builtins.str]:
         r"""
@@ -573,11 +573,11 @@ class BlockingResponse:
     status: builtins.int
     status_code: StatusCode
     version: Version
-    headers: typing.Dict[str, bytes]
+    headers: typing.Optional[dict]
+    cookies: typing.Optional[dict]
     content_length: builtins.int
     remote_addr: typing.Optional[SocketAddr]
     encoding: builtins.str
-    cookies: typing.Dict[str, str]
     def __enter__(self) -> BlockingResponse:
         ...
 
@@ -684,7 +684,7 @@ class BlockingWebSocket:
     status: builtins.int
     status_code: StatusCode
     version: Version
-    headers: typing.Dict[str, bytes]
+    headers: typing.Optional[dict]
     remote_addr: typing.Optional[SocketAddr]
     def __iter__(self) -> BlockingWebSocket:
         ...
@@ -753,7 +753,7 @@ class Client:
     A client for making HTTP requests.
     """
     user_agent: typing.Optional[builtins.str]
-    headers: typing.Dict[str, bytes]
+    headers: typing.Optional[dict]
     def __new__(cls,**kwds): ...
     def get_cookies(self, url:str) -> builtins.list[builtins.str]:
         r"""
@@ -1595,11 +1595,11 @@ class Response:
     status: builtins.int
     status_code: StatusCode
     version: Version
-    headers: typing.Dict[str, bytes]
+    headers: typing.Optional[dict]
+    cookies: typing.Optional[dict]
     content_length: builtins.int
     remote_addr: typing.Optional[SocketAddr]
     encoding: builtins.str
-    cookies: typing.Dict[str, str]
     def __aenter__(self) -> typing.Any:
         ...
 
@@ -1799,7 +1799,7 @@ class WebSocket:
     status: builtins.int
     status_code: StatusCode
     version: Version
-    headers: typing.Dict[str, bytes]
+    headers: typing.Optional[dict]
     remote_addr: typing.Optional[SocketAddr]
     def __aiter__(self) -> WebSocket:
         ...

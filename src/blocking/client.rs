@@ -4,7 +4,7 @@ use crate::{
     param::{ClientParams, RequestParams, UpdateClientParams, WebSocketParams},
     typing::Method,
 };
-use pyo3::{prelude::*, pybacked::PyBackedStr};
+use pyo3::{prelude::*, pybacked::PyBackedStr, types::PyDict};
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 
 /// A blocking client for making HTTP requests.
@@ -429,7 +429,7 @@ impl BlockingClient {
     /// A `HeaderMap` object containing the headers of the client.
     #[getter]
     #[inline(always)]
-    fn headers(&self, py: Python) -> crate::HeaderMap {
+    fn headers<'py>(&self, py: Python<'py>) -> Option<Bound<'py, PyDict>> {
         self.0.headers(py)
     }
 

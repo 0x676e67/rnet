@@ -6,14 +6,14 @@ use crate::{
     typing::{ImpersonateOS, Method, TlsVersion},
 };
 use arc_swap::ArcSwap;
-use pyo3::{prelude::*, pybacked::PyBackedStr};
+use pyo3::{
+    prelude::*,
+    pybacked::PyBackedStr,
+    types::{PyBytes, PyDict},
+};
 use pyo3_async_runtimes::tokio::future_into_py;
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
-use rquest::{
-    header::{HeaderMap, HeaderValue},
-    redirect::Policy,
-    Url,
-};
+use rquest::{header::HeaderValue, redirect::Policy, Url};
 use std::{net::IpAddr, num::NonZeroUsize, ops::Deref};
 use std::{sync::Arc, time::Duration};
 
@@ -463,7 +463,7 @@ impl Client {
                 builder,
                 params.default_headers,
                 default_headers,
-                HeaderMap::from
+                From::from
             );
 
             // Headers order options.
@@ -687,12 +687,16 @@ impl Client {
     /// print(headers)
     /// ```
     #[getter]
-    pub fn headers(&self, py: Python) -> crate::HeaderMap {
-        py.allow_threads(|| {
-            let binding = self.0.load();
-            let headers = binding.headers();
-            crate::HeaderMap::from(headers.clone())
-        })
+    pub fn headers<'py>(&self, py: Python<'py>) -> Option<Bound<'py, PyDict>> {
+        let binding = self.0.load();
+        let headers = binding.headers();
+        headers
+            .iter()
+            .try_fold(PyDict::new(py), |dict, (name, value)| {
+                dict.set_item(name.as_str(), PyBytes::new(py, value.as_bytes()))
+                    .map(|_| dict)
+            })
+            .ok()
     }
 
     /// Returns the cookies for the given URL.
@@ -823,8 +827,7 @@ impl Client {
 
             // Default headers options.
             params.headers.take().map(|default_headers| {
-                let mut default_headers = HeaderMap::from(default_headers);
-                std::mem::swap(client_mut.headers(), &mut default_headers)
+                std::mem::swap(client_mut.headers(), &mut From::from(default_headers))
             });
 
             // Headers order options.
