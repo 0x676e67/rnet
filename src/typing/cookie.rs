@@ -2,7 +2,6 @@ use super::IndexMap;
 use crate::error::wrap_invali_header_value_error;
 use pyo3::FromPyObject;
 use pyo3::{prelude::*, types::PyDict};
-use pyo3_stub_gen::{PyStubType, TypeInfo};
 use rquest::header::{self, HeaderMap, HeaderValue};
 
 pub type CookieMap = IndexMap<String, String>;
@@ -23,12 +22,6 @@ impl TryFrom<CookieMap> for HeaderValue {
             kv.push_str(v);
         }
         HeaderValue::from_str(&kv).map_err(wrap_invali_header_value_error)
-    }
-}
-
-impl PyStubType for CookieMap {
-    fn type_output() -> TypeInfo {
-        TypeInfo::with_module("typing.Dict[str, str]", "typing".into())
     }
 }
 
