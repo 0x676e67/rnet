@@ -1960,7 +1960,6 @@ class Method(Enum):
     POST = auto()
     PUT = auto()
     DELETE = auto()
-    CONNECT = auto()
     OPTIONS = auto()
     TRACE = auto()
     PATCH = auto()
