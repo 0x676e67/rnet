@@ -10,7 +10,7 @@ pub struct FromPyCookieMap(pub HeaderValue);
 
 pub struct IntoPyCookieMapRef<'a>(pub &'a HeaderMap);
 
-pub struct IntoPyCookieHeader(pub Option<HeaderValue>);
+pub struct IntoPyCookieList(pub Option<HeaderValue>);
 
 pub struct FromPyCookieList(pub Vec<HeaderValue>);
 
@@ -63,7 +63,7 @@ impl<'py> IntoPyObject<'py> for IntoPyCookieMapRef<'py> {
     }
 }
 
-impl<'py> IntoPyObject<'py> for IntoPyCookieHeader {
+impl<'py> IntoPyObject<'py> for IntoPyCookieList {
     type Target = PyList;
 
     type Output = Bound<'py, Self::Target>;

@@ -5,7 +5,7 @@ use pyo3::{
     types::{PyBytes, PyDict, PyList},
 };
 use rquest::header::{self, HeaderName, HeaderValue};
-use std::{ops::Deref, str::FromStr};
+use std::str::FromStr;
 
 /// A HTTP header map.
 pub struct FromPyHeaderMap(pub header::HeaderMap);
@@ -14,39 +14,7 @@ pub struct FromPyHeaderMap(pub header::HeaderMap);
 pub struct IntoPyHeaderMapRef<'a>(pub &'a header::HeaderMap);
 
 /// A list of header names in order.
-pub struct FromPyHeaderNameOrder(pub Vec<HeaderName>);
-
-impl From<header::HeaderMap> for FromPyHeaderMap {
-    fn from(map: header::HeaderMap) -> Self {
-        FromPyHeaderMap(map)
-    }
-}
-
-impl<'a> From<&'a header::HeaderMap> for IntoPyHeaderMapRef<'a> {
-    fn from(map: &'a header::HeaderMap) -> Self {
-        IntoPyHeaderMapRef(map)
-    }
-}
-
-impl From<FromPyHeaderMap> for header::HeaderMap {
-    fn from(map: FromPyHeaderMap) -> Self {
-        map.0
-    }
-}
-
-impl From<FromPyHeaderNameOrder> for Vec<HeaderName> {
-    fn from(order: FromPyHeaderNameOrder) -> Self {
-        order.0
-    }
-}
-
-impl Deref for FromPyHeaderMap {
-    type Target = header::HeaderMap;
-
-    fn deref(&self) -> &Self::Target {
-        &self.0
-    }
-}
+pub struct FromPyHeaderOrderList(pub Vec<HeaderName>);
 
 impl FromPyObject<'_> for FromPyHeaderMap {
     fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
@@ -66,11 +34,11 @@ impl FromPyObject<'_> for FromPyHeaderMap {
                     Ok(headers)
                 },
             )
-            .map(FromPyHeaderMap)
+            .map(Self)
     }
 }
 
-impl<'py> FromPyObject<'py> for FromPyHeaderNameOrder {
+impl<'py> FromPyObject<'py> for FromPyHeaderOrderList {
     fn extract_bound(ob: &Bound<'py, PyAny>) -> PyResult<Self> {
         let list = ob.downcast::<PyList>()?;
         list.iter()
@@ -80,7 +48,7 @@ impl<'py> FromPyObject<'py> for FromPyHeaderNameOrder {
                 order.push(name);
                 Ok(order)
             })
-            .map(FromPyHeaderNameOrder)
+            .map(Self)
     }
 }
 

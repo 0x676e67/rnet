@@ -59,7 +59,7 @@ pub struct RequestParams {
     pub body: Option<FromPyBody>,
 
     /// The multipart form to use for the request.
-    pub multipart: Option<Py<Multipart>>,
+    pub multipart: Option<rquest::multipart::Form>,
 }
 
 macro_rules! extract_option {
@@ -91,7 +91,10 @@ impl<'py> FromPyObject<'py> for RequestParams {
         extract_option!(ob, params, form);
         extract_option!(ob, params, json);
         extract_option!(ob, params, body);
-        extract_option!(ob, params, multipart);
+        if let Ok(value) = ob.get_item("multipart") {
+            let form = value.downcast_into_exact::<Multipart>()?;
+            params.multipart = form.borrow_mut().0.take();
+        }
 
         Ok(params)
     }

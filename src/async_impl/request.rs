@@ -6,7 +6,7 @@ use crate::{
     typing::{Method, Version},
     Result,
 };
-use pyo3::prelude::*;
+
 use rquest::header;
 use rquest::redirect::Policy;
 use std::net::IpAddr;
@@ -80,13 +80,7 @@ where
     );
 
     // Headers options.
-    apply_option!(
-        apply_transformed_option,
-        builder,
-        params.headers,
-        headers,
-        From::from
-    );
+    apply_option!(apply_if_some_inner, builder, params.headers, headers);
 
     // Cookies options.
     if let Some(cookies) = params.cookies.take() {
@@ -125,12 +119,7 @@ where
     }
 
     // Multipart options.
-    if let Some(multipart) = params.multipart.take() {
-        let multipart = Python::with_gil(|py| multipart.borrow_mut(py).0.take());
-        if let Some(multipart) = multipart {
-            builder = builder.multipart(multipart);
-        }
-    }
+    apply_option!(apply_if_some, builder, params.multipart, multipart);
 
     // Send the request.
     builder
@@ -227,13 +216,7 @@ where
         }
 
         // Headers options.
-        apply_option!(
-            apply_transformed_option,
-            builder,
-            params.headers,
-            headers,
-            From::from
-        );
+        apply_option!(apply_if_some_inner, builder, params.headers, headers);
 
         // Cookies options.
         if let Some(cookies) = params.cookies.take() {

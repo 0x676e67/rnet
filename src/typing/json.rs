@@ -3,7 +3,7 @@ use pyo3::prelude::*;
 use pyo3_stub_gen::{PyStubType, TypeInfo};
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, FromPyObject, IntoPyObject, Serialize, Deserialize)]
+#[derive(Clone, FromPyObject, IntoPyObject, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum Json {
     Object(IndexMap<String, Json>),

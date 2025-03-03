@@ -10,9 +10,9 @@ mod status;
 
 pub use self::{
     body::FromPyBody,
-    cookie::{FromPyCookieList, FromPyCookieMap, IntoPyCookieHeader, IntoPyCookieMapRef},
+    cookie::{FromPyCookieList, FromPyCookieMap, IntoPyCookieList, IntoPyCookieMapRef},
     enums::{Impersonate, ImpersonateOS, LookupIpStrategy, Method, TlsVersion, Version},
-    headers::{FromPyHeaderMap, FromPyHeaderNameOrder, IntoPyHeaderMapRef},
+    headers::{FromPyHeaderMap, FromPyHeaderOrderList, IntoPyHeaderMapRef},
     ipaddr::{IpAddr, SocketAddr},
     json::Json,
     multipart::{Multipart, Part},
@@ -22,7 +22,6 @@ pub use self::{
 use pyo3::{prelude::*, pybacked::PyBackedStr};
 use serde::ser::{Serialize, SerializeSeq, Serializer};
 
-#[derive(Debug)]
 pub struct QueryOrForm(Vec<(PyBackedStr, PyBackedStr)>);
 
 impl Serialize for QueryOrForm {

@@ -4,7 +4,7 @@ use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 /// HTTP status code.
 #[gen_stub_pyclass]
 #[pyclass(eq)]
-#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash)]
 pub struct StatusCode(rquest::StatusCode);
 
 #[gen_stub_pymethods]

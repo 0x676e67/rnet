@@ -6,7 +6,7 @@ macro_rules! define_enum_with_conversion {
         $(#[$meta])*
         #[gen_stub_pyclass_enum]
         #[pyclass(eq, eq_int)]
-        #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
+        #[derive(Clone, Copy, PartialEq, Eq, Hash)]
         #[allow(non_camel_case_types)]
         pub enum $enum_type {
             $($variant),*

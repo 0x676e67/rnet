@@ -7,7 +7,6 @@ use rquest::multipart::Form;
 /// A multipart form for a request.
 #[gen_stub_pyclass]
 #[pyclass]
-#[derive(Debug)]
 pub struct Multipart(pub Option<Form>);
 
 #[gen_stub_pymethods]

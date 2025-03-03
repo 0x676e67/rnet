@@ -1,8 +1,8 @@
 use crate::typing::{
-    FromPyHeaderMap, FromPyHeaderNameOrder, Impersonate, ImpersonateOS, IpAddr, LookupIpStrategy,
+    FromPyHeaderMap, FromPyHeaderOrderList, Impersonate, ImpersonateOS, IpAddr, LookupIpStrategy,
     Proxy, TlsVersion,
 };
-use pyo3::{prelude::*, pybacked::PyBackedStr};
+use pyo3::{prelude::*, pybacked::PyBackedStr, types::PyList};
 use pyo3_stub_gen::{PyStubType, TypeInfo};
 
 /// The parameters for a request.
@@ -30,7 +30,7 @@ pub struct ClientParams {
     pub default_headers: Option<FromPyHeaderMap>,
 
     /// The order of the headers to use for the request.
-    pub headers_order: Option<FromPyHeaderNameOrder>,
+    pub headers_order: Option<FromPyHeaderOrderList>,
 
     /// Whether to use referer.
     pub referer: Option<bool>,
@@ -106,7 +106,7 @@ pub struct ClientParams {
     pub no_proxy: Option<bool>,
 
     /// The proxy to use for the request.
-    pub proxies: Option<Vec<Proxy>>,
+    pub proxies: Option<Vec<rquest::Proxy>>,
 
     /// Bind to a local IP Address.
     pub local_address: Option<IpAddr>,
@@ -147,11 +147,11 @@ pub struct UpdateClientParams {
     pub headers: Option<FromPyHeaderMap>,
 
     /// The order of the headers to use for the request.
-    pub headers_order: Option<FromPyHeaderNameOrder>,
+    pub headers_order: Option<FromPyHeaderOrderList>,
 
     // ========= Network options =========
     /// The proxy to use for the request.
-    pub proxies: Option<Vec<Proxy>>,
+    pub proxies: Option<Vec<rquest::Proxy>>,
 
     /// Bind to a local IP Address.
     pub local_address: Option<IpAddr>,
@@ -166,6 +166,25 @@ macro_rules! extract_option {
             $params.$field = value.extract()?;
         }
     };
+}
+
+fn extract_proxies(ob: &Bound<'_, PyAny>) -> PyResult<Option<Vec<rquest::Proxy>>> {
+    if let Ok(proxies) = ob.get_item("proxies") {
+        let proxies = proxies.downcast_into_exact::<PyList>()?;
+        let len = proxies.len();
+        proxies
+            .into_iter()
+            .try_fold(Vec::with_capacity(len), |mut list, proxy| {
+                let proxy = proxy.downcast_into_exact::<Proxy>()?;
+                if let Some(proxy) = proxy.borrow_mut().0.take() {
+                    list.push(proxy);
+                }
+                Ok::<_, PyErr>(list)
+            })
+            .map(Some)
+    } else {
+        Ok(None)
+    }
 }
 
 impl<'py> FromPyObject<'py> for ClientParams {
@@ -195,7 +214,7 @@ impl<'py> FromPyObject<'py> for ClientParams {
         extract_option!(ob, params, tcp_keepalive);
 
         extract_option!(ob, params, no_proxy);
-        extract_option!(ob, params, proxies);
+        params.proxies = extract_proxies(ob)?;
         extract_option!(ob, params, local_address);
         extract_option!(ob, params, interface);
 
@@ -226,7 +245,7 @@ impl<'py> FromPyObject<'py> for UpdateClientParams {
         extract_option!(ob, params, impersonate_skip_headers);
         extract_option!(ob, params, headers);
         extract_option!(ob, params, headers_order);
-        extract_option!(ob, params, proxies);
+        params.proxies = extract_proxies(ob)?;
         extract_option!(ob, params, local_address);
         extract_option!(ob, params, interface);
         Ok(params)

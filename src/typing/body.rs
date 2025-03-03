@@ -1,6 +1,3 @@
-use std::fmt::Debug;
-use std::sync::Arc;
-
 use crate::error::stream_consumed_error;
 use crate::stream::{AsyncStream, SyncStream};
 use arc_swap::ArcSwapOption;
@@ -8,6 +5,7 @@ use bytes::Bytes;
 use pyo3::prelude::*;
 use pyo3::types::PyBytes;
 use pyo3::{FromPyObject, PyAny};
+use std::sync::Arc;
 
 /// The body to use for the request.
 pub enum FromPyBody {
@@ -33,17 +31,6 @@ impl TryFrom<FromPyBody> for rquest::Body {
                 .and_then(Arc::into_inner)
                 .map(Into::into)
                 .ok_or_else(stream_consumed_error),
-        }
-    }
-}
-
-impl Debug for FromPyBody {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::Text(inner) => write!(f, "Body::Text({:?})", inner),
-            Self::Bytes(inner) => write!(f, "Body::Bytes({:?})", inner),
-            Self::Iterator(_) => write!(f, "Body::Iterator(...)"),
-            Self::Stream(_) => write!(f, "Body::Stream(...)"),
         }
     }
 }

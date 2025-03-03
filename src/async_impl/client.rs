@@ -4,7 +4,8 @@ use crate::{
     error::{wrap_rquest_error, wrap_url_parse_error},
     param::{ClientParams, RequestParams, UpdateClientParams, WebSocketParams},
     typing::{
-        FromPyCookieList, ImpersonateOS, IntoPyCookieHeader, IntoPyHeaderMapRef, Method, TlsVersion,
+        FromPyCookieList, FromPyHeaderOrderList, ImpersonateOS, IntoPyCookieList,
+        IntoPyHeaderMapRef, Method, TlsVersion,
     },
 };
 use arc_swap::ArcSwap;
@@ -461,11 +462,10 @@ impl Client {
 
             // Default headers options.
             apply_option!(
-                apply_transformed_option,
+                apply_if_some_inner,
                 builder,
                 params.default_headers,
-                default_headers,
-                From::from
+                default_headers
             );
 
             // Headers order options.
@@ -474,7 +474,7 @@ impl Client {
                 builder,
                 params.headers_order,
                 headers_order,
-                Vec::from
+                |s: FromPyHeaderOrderList| s.0
             );
 
             // Referer options.
@@ -612,7 +612,7 @@ impl Client {
             // Network options.
             if let Some(proxies) = params.proxies.take() {
                 for proxy in proxies {
-                    builder = builder.proxy(proxy.into());
+                    builder = builder.proxy(proxy);
                 }
             }
             apply_option!(
@@ -726,7 +726,7 @@ impl Client {
             Ok::<_, PyErr>(cookies)
         })?;
 
-        IntoPyCookieHeader(cookies).into_pyobject(py)
+        IntoPyCookieList(cookies).into_pyobject(py)
     }
 
     /// Sets cookies for the given URL.
@@ -814,18 +814,18 @@ impl Client {
             }
 
             // Default headers options.
-            params.headers.take().map(|default_headers| {
-                std::mem::swap(client_mut.headers(), &mut From::from(default_headers))
+            params.headers.take().map(|mut default_headers| {
+                std::mem::swap(client_mut.headers(), &mut default_headers.0)
             });
 
             // Headers order options.
             params.headers_order.take().map(|value| {
-                client_mut.headers_order(Vec::from(value));
+                client_mut.headers_order(value.0);
             });
 
             // Network options.
             params.proxies.take().map(|proxies| {
-                client_mut.proxies(proxies.into_iter().map(Into::into).collect::<Vec<_>>());
+                client_mut.proxies(proxies);
             });
             params
                 .local_address

@@ -5,7 +5,7 @@ use pyo3_stub_gen::{
 };
 
 /// An IP address.
-#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash)]
 pub struct IpAddr(std::net::IpAddr);
 
 impl From<IpAddr> for std::net::IpAddr {

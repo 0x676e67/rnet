@@ -31,11 +31,11 @@ async def main():
         impersonate=Impersonate.Firefox133,
         user_agent="rnet",
         proxies=[
-            Proxy.http("socks5h://abc:def@127.0.0.1:1080"),
-            Proxy.https(url="socks5h://127.0.0.1:1080", username="abc", password="def"),
-            Proxy.http(url="http://abc:def@127.0.0.1:1080", custom_http_auth="abcedf"),
+            Proxy.http("socks5h://abc:def@127.0.0.1:6152"),
+            Proxy.https(url="socks5h://127.0.0.1:6153", username="abc", password="def"),
+            Proxy.http(url="http://abc:def@127.0.0.1:6152", custom_http_auth="abcedf"),
             Proxy.all(
-                url="socks5h://abc:def@127.0.0.1:1080",
+                url="socks5h://abc:def@127.0.0.1:6153",
                 exclusion="google.com, facebook.com, twitter.com",
             ),
         ],

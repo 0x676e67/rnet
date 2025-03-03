@@ -6,14 +6,7 @@ use rquest::header::HeaderValue;
 /// A proxy server for a request.
 #[gen_stub_pyclass]
 #[pyclass]
-#[derive(Clone, Debug)]
-pub struct Proxy(rquest::Proxy);
-
-impl From<Proxy> for rquest::Proxy {
-    fn from(proxy: Proxy) -> rquest::Proxy {
-        proxy.0
-    }
-}
+pub struct Proxy(pub Option<rquest::Proxy>);
 
 #[gen_stub_pymethods]
 #[pymethods]
@@ -191,6 +184,6 @@ impl Proxy {
             proxy = proxy.no_proxy(rquest::NoProxy::from_string(exclusion))
         }
 
-        Ok(Proxy(proxy))
+        Ok(Proxy(Some(proxy)))
     }
 }
