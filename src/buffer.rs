@@ -65,7 +65,7 @@ impl Buffer {
         view: *mut ffi::Py_buffer,
         flags: c_int,
     ) -> PyResult<()> {
-        fill_buffer_info(slf.as_slice(), slf.as_ptr(), view, flags, slf.py())
+        unsafe { fill_buffer_info(slf.as_slice(), slf.as_ptr(), view, flags, slf.py()) }
     }
 }
 
@@ -94,7 +94,7 @@ impl BytesBuffer {
         view: *mut ffi::Py_buffer,
         flags: c_int,
     ) -> PyResult<()> {
-        fill_buffer_info(slf.as_slice(), slf.as_ptr(), view, flags, slf.py())
+        unsafe { fill_buffer_info(slf.as_slice(), slf.as_ptr(), view, flags, slf.py()) }
     }
 }
 
@@ -106,14 +106,16 @@ unsafe fn fill_buffer_info(
     flags: c_int,
     py: Python,
 ) -> PyResult<()> {
-    let ret = ffi::PyBuffer_FillInfo(
-        view,
-        obj_ptr as *mut _,
-        bytes.as_ptr() as *mut _,
-        bytes.len() as _,
-        1,
-        flags,
-    );
+    let ret = unsafe {
+        ffi::PyBuffer_FillInfo(
+            view,
+            obj_ptr as *mut _,
+            bytes.as_ptr() as *mut _,
+            bytes.len() as _,
+            1,
+            flags,
+        )
+    };
     if ret == -1 {
         return Err(PyErr::fetch(py));
     }
