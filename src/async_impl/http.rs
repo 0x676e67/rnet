@@ -6,12 +6,12 @@ use crate::{
 use arc_swap::ArcSwapOption;
 use futures_util::{Stream, TryStreamExt};
 use mime::Mime;
-use pyo3::{prelude::*, types::PyDict, IntoPyObjectExt};
+use pyo3::{IntoPyObjectExt, prelude::*, types::PyDict};
 use pyo3_async_runtimes::tokio::future_into_py;
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 use rquest::{
-    header::{self, HeaderMap},
     TlsInfo, Url,
+    header::{self, HeaderMap},
 };
 use std::{ops::Deref, pin::Pin, sync::Arc};
 use tokio::sync::Mutex;

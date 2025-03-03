@@ -1,7 +1,7 @@
 use crate::error::wrap_invali_header_value_error;
+use pyo3::FromPyObject;
 use pyo3::pybacked::PyBackedStr;
 use pyo3::types::PyList;
-use pyo3::FromPyObject;
 use pyo3::{prelude::*, types::PyDict};
 use pyo3_stub_gen::{PyStubType, TypeInfo};
 use rquest::header::{self, HeaderMap, HeaderValue};

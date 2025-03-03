@@ -1,13 +1,13 @@
 use crate::{
-    error::{stream_consumed_error, wrap_io_error, MIMEParseError},
+    error::{MIMEParseError, stream_consumed_error, wrap_io_error},
     stream::{AsyncStream, SyncStream},
 };
 use arc_swap::ArcSwapOption;
 use bytes::Bytes;
 use pyo3::{prelude::*, types::PyBytes};
 use pyo3_stub_gen::{
-    derive::{gen_stub_pyclass, gen_stub_pymethods},
     PyStubType, TypeInfo,
+    derive::{gen_stub_pyclass, gen_stub_pymethods},
 };
 use std::{fmt::Debug, path::PathBuf, sync::Arc};
 

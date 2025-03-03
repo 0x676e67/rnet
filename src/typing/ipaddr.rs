@@ -1,7 +1,7 @@
-use pyo3::{prelude::*, IntoPyObjectExt};
+use pyo3::{IntoPyObjectExt, prelude::*};
 use pyo3_stub_gen::{
-    derive::{gen_stub_pyclass, gen_stub_pymethods},
     PyStubType, TypeInfo,
+    derive::{gen_stub_pyclass, gen_stub_pymethods},
 };
 
 /// An IP address.

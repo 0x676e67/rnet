@@ -1,8 +1,8 @@
 use bytes::Bytes;
 use futures_util::Stream;
 use pyo3::{
-    types::{PyBytes, PyBytesMethods},
     PyObject, PyResult, Python,
+    types::{PyBytes, PyBytesMethods},
 };
 use std::{pin::Pin, task::Context};
 

@@ -2,8 +2,8 @@
 name = "rnet"
 version = "1.6.0"
 description = "An easy and powerful Python HTTP Client with Black Magic"
-edition = "2021"
-rust-version = "1.83.0"
+edition = "2024"
+rust-version = "1.85.0"
 license = "GPL-3.0"
 repository = "https://github.com/0x676e67/rnet"
 authors = ["0x676e67 <gngppz@gmail.com>"]

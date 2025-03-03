@@ -16,7 +16,7 @@ use pyo3::{
 };
 use pyo3_async_runtimes::tokio::future_into_py;
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
-use rquest::{redirect::Policy, Url};
+use rquest::{Url, redirect::Policy};
 use std::{net::IpAddr, num::NonZeroUsize, ops::Deref};
 use std::{sync::Arc, time::Duration};
 

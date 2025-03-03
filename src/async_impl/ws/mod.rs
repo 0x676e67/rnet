@@ -5,11 +5,11 @@ use crate::{
     typing::{IntoPyHeaderMapRef, SocketAddr, StatusCode, Version},
 };
 use futures_util::{
-    stream::{SplitSink, SplitStream},
     SinkExt, StreamExt, TryStreamExt,
+    stream::{SplitSink, SplitStream},
 };
 pub use message::Message;
-use pyo3::{prelude::*, types::PyDict, IntoPyObjectExt};
+use pyo3::{IntoPyObjectExt, prelude::*, types::PyDict};
 use pyo3_async_runtimes::tokio::future_into_py;
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 use rquest::header::HeaderMap;
