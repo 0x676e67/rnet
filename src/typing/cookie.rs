@@ -1,4 +1,5 @@
 use crate::error::wrap_invali_header_value_error;
+use bytes::Bytes;
 use pyo3::FromPyObject;
 use pyo3::pybacked::PyBackedStr;
 use pyo3::types::PyList;
@@ -31,7 +32,7 @@ impl FromPyObject<'_> for FromPyCookieMap {
                 },
             )
             .and_then(|cookies| {
-                HeaderValue::from_maybe_shared(cookies)
+                HeaderValue::from_maybe_shared(Bytes::from(cookies))
                     .map(Self)
                     .map_err(wrap_invali_header_value_error)
             })
