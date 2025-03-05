@@ -1,6 +1,10 @@
 use bytes::Bytes;
 use futures_util::Stream;
-use pyo3::{PyObject, PyResult, Python, buffer::PyBuffer, exceptions::PyValueError};
+use pyo3::{
+    PyObject, PyResult, Python,
+    buffer::PyBuffer,
+    exceptions::{PyTypeError, PyValueError},
+};
 use std::{pin::Pin, task::Context};
 
 pub struct SyncStream {
@@ -39,7 +43,7 @@ impl Stream for SyncStream {
                 .iter
                 .call_method0(py, "__next__")
                 .ok()
-                .map(|item| downcast_bound_data(py, item));
+                .map(|item| downcast_bound_bytes(py, item));
             py.allow_threads(|| std::task::Poll::Ready(next))
         })
     }
@@ -59,22 +63,33 @@ impl Stream for AsyncStream {
                     .as_mut()
                     .poll_next(&mut Context::from_waker(waker))
             })
-            .map(|item| item.map(|item| downcast_bound_data(py, item)))
+            .map(|item| item.map(|item| downcast_bound_bytes(py, item)))
         })
     }
 }
 
 #[inline]
-fn downcast_bound_data<'p>(py: Python<'p>, ob: PyObject) -> PyResult<Bytes> {
+fn downcast_bound_bytes<'p>(py: Python<'p>, ob: PyObject) -> PyResult<Bytes> {
     let buffer: PyBuffer<u8> = PyBuffer::get(ob.bind(py))?;
     if !buffer.readonly() {
         return Err(PyValueError::new_err("Must be read-only byte buffer"));
     }
 
+    let slice = buffer
+        .as_slice(py)
+        .ok_or_else(|| PyTypeError::new_err("Must be a contiguous sequence of bytes"))?;
+
     // issue: https://github.com/PyO3/pyo3/issues/2824
-    let slice =
-        unsafe { std::slice::from_raw_parts(buffer.buf_ptr() as *const u8, buffer.item_count()) };
-    Ok(Bytes::from(slice))
+    // Safety: The slice is &[ReadOnlyCell<u8>]. A ReadOnlyCell has the same
+    // memory representation as the underlying data; it's
+    // #[repr(transparent)] newtype around UnsafeCell. And per Rust docs
+    // "UnsafeCell<T> has the same in-memory representation as its inner
+    // type T". So the main issue is whether the data is _really_ read-only.
+    // We do the read-only check above, and yes a caller can probably somehow
+    // lie, but if they do that, that's really their fault.
+    let cbor: &'static [u8] = unsafe { std::mem::transmute(slice) };
+
+    Ok(Bytes::from(cbor))
 }
 
 impl From<SyncStream> for rquest::Body {
