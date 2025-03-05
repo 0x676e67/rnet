@@ -87,7 +87,7 @@ fn downcast_bound_bytes<'p>(py: Python<'p>, ob: PyObject) -> PyResult<Bytes> {
     // type T". So the main issue is whether the data is _really_ read-only.
     // We do the read-only check above, and yes a caller can probably somehow
     // lie, but if they do that, that's really their fault.
-    let cbor: &'static [u8] = unsafe { std::mem::transmute(slice) };
+    let cbor: &[u8] = unsafe { std::mem::transmute(slice) };
 
     Ok(Bytes::from(cbor))
 }
