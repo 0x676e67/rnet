@@ -2,7 +2,8 @@ use bytes::Bytes;
 use futures_util::Stream;
 use pyo3::{
     PyObject, PyResult, Python,
-    types::{PyBytes, PyBytesMethods},
+    buffer::PyBuffer,
+    exceptions::{PyTypeError, PyValueError},
 };
 use std::{pin::Pin, task::Context};
 
@@ -69,10 +70,26 @@ impl Stream for AsyncStream {
 
 #[inline]
 fn downcast_bound_bytes<'p>(py: Python<'p>, ob: PyObject) -> PyResult<Bytes> {
-    ob.downcast_bound::<PyBytes>(py)
-        .map(move |b| b.as_bytes().to_vec())
-        .map(Bytes::from)
-        .map_err(|_| pyo3::exceptions::PyTypeError::new_err("Stream must yield bytes-like objects"))
+    let buffer: PyBuffer<u8> = PyBuffer::get(ob.bind(py))?;
+    if !buffer.readonly() {
+        return Err(PyValueError::new_err("Must be read-only byte buffer"));
+    }
+
+    let slice = buffer
+        .as_slice(py)
+        .ok_or_else(|| PyTypeError::new_err("Must be a contiguous sequence of bytes"))?;
+
+    // issue: https://github.com/PyO3/pyo3/issues/2824
+    // Safety: The slice is &[ReadOnlyCell<u8>]. A ReadOnlyCell has the same
+    // memory representation as the underlying data; it's
+    // #[repr(transparent)] newtype around UnsafeCell. And per Rust docs
+    // "UnsafeCell<T> has the same in-memory representation as its inner
+    // type T". So the main issue is whether the data is _really_ read-only.
+    // We do the read-only check above, and yes a caller can probably somehow
+    // lie, but if they do that, that's really their fault.
+    let cbor: &[u8] = unsafe { std::mem::transmute(slice) };
+
+    Ok(Bytes::from(cbor))
 }
 
 impl From<SyncStream> for rquest::Body {
