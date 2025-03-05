@@ -1,9 +1,6 @@
 use bytes::Bytes;
 use futures_util::Stream;
-use pyo3::{
-    PyObject, PyResult, Python,
-    types::{PyBytes, PyBytesMethods},
-};
+use pyo3::{PyObject, PyResult, Python, buffer::PyBuffer, exceptions::PyValueError};
 use std::{pin::Pin, task::Context};
 
 pub struct SyncStream {
@@ -42,7 +39,7 @@ impl Stream for SyncStream {
                 .iter
                 .call_method0(py, "__next__")
                 .ok()
-                .map(|item| downcast_bound_bytes(py, item));
+                .map(|item| downcast_bound_data(py, item));
             py.allow_threads(|| std::task::Poll::Ready(next))
         })
     }
@@ -62,17 +59,22 @@ impl Stream for AsyncStream {
                     .as_mut()
                     .poll_next(&mut Context::from_waker(waker))
             })
-            .map(|item| item.map(|item| downcast_bound_bytes(py, item)))
+            .map(|item| item.map(|item| downcast_bound_data(py, item)))
         })
     }
 }
 
 #[inline]
-fn downcast_bound_bytes<'p>(py: Python<'p>, ob: PyObject) -> PyResult<Bytes> {
-    ob.downcast_bound::<PyBytes>(py)
-        .map(move |b| b.as_bytes().to_vec())
-        .map(Bytes::from)
-        .map_err(|_| pyo3::exceptions::PyTypeError::new_err("Stream must yield bytes-like objects"))
+fn downcast_bound_data<'p>(py: Python<'p>, ob: PyObject) -> PyResult<Bytes> {
+    let buffer: PyBuffer<u8> = PyBuffer::get(ob.bind(py))?;
+    if !buffer.readonly() {
+        return Err(PyValueError::new_err("Must be read-only byte buffer"));
+    }
+
+    // issue: https://github.com/PyO3/pyo3/issues/2824
+    let slice =
+        unsafe { std::slice::from_raw_parts(buffer.buf_ptr() as *const u8, buffer.item_count()) };
+    Ok(Bytes::from(slice))
 }
 
 impl From<SyncStream> for rquest::Body {
