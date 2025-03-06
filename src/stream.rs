@@ -1,9 +1,6 @@
 use bytes::Bytes;
 use futures_util::Stream;
-use pyo3::{
-    PyObject, PyResult, Python,
-    types::{PyBytes, PyBytesMethods},
-};
+use pyo3::{PyObject, PyResult, Python, pybacked::PyBackedBytes, types::PyAnyMethods};
 use std::{pin::Pin, task::Context};
 
 pub struct SyncStream {
@@ -41,9 +38,8 @@ impl Stream for SyncStream {
             let next = self
                 .iter
                 .call_method0(py, "__next__")
-                .ok()
-                .map(|item| downcast_bound_bytes(py, item));
-            py.allow_threads(|| std::task::Poll::Ready(next))
+                .and_then(|item| downcast_bound_bytes(py, item));
+            py.allow_threads(|| std::task::Poll::Ready(Some(next)))
         })
     }
 }
@@ -69,8 +65,9 @@ impl Stream for AsyncStream {
 
 #[inline]
 fn downcast_bound_bytes<'p>(py: Python<'p>, ob: PyObject) -> PyResult<Bytes> {
-    ob.downcast_bound::<PyBytes>(py)
-        .map(move |b| b.as_bytes().to_vec())
+    let bind = ob.bind(py);
+    bind.extract::<PyBackedBytes>()
+        .map(move |b| b.as_ref().to_vec())
         .map(Bytes::from)
         .map_err(|_| pyo3::exceptions::PyTypeError::new_err("Stream must yield bytes-like objects"))
 }

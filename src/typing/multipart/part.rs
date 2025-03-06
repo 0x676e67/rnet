@@ -4,7 +4,7 @@ use crate::{
 };
 use arc_swap::ArcSwapOption;
 use bytes::Bytes;
-use pyo3::{prelude::*, types::PyBytes};
+use pyo3::{prelude::*, pybacked::{PyBackedBytes, PyBackedStr}};
 use pyo3_stub_gen::{
     PyStubType, TypeInfo,
     derive::{gen_stub_pyclass, gen_stub_pymethods},
@@ -102,12 +102,12 @@ impl Part {
 
 impl FromPyObject<'_> for PartData {
     fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
-        if let Ok(text) = ob.extract::<String>() {
-            return Ok(Self::Text(Bytes::from(text)));
+        if let Ok(text) = ob.extract::<PyBackedStr>() {
+            return Ok(Self::Text(Bytes::from(text.as_bytes().to_vec())));
         }
 
-        if let Ok(bytes) = ob.downcast::<PyBytes>() {
-            return Ok(Self::Bytes(Bytes::from(bytes.as_bytes().to_vec())));
+        if let Ok(bytes) = ob.extract::<PyBackedBytes>() {
+            return Ok(Self::Bytes(Bytes::from(bytes.as_ref().to_vec())));
         }
 
         if let Ok(path) = ob.extract::<PathBuf>() {
