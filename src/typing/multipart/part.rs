@@ -4,7 +4,10 @@ use crate::{
 };
 use arc_swap::ArcSwapOption;
 use bytes::Bytes;
-use pyo3::{prelude::*, pybacked::{PyBackedBytes, PyBackedStr}};
+use pyo3::{
+    prelude::*,
+    pybacked::{PyBackedBytes, PyBackedStr},
+};
 use pyo3_stub_gen::{
     PyStubType, TypeInfo,
     derive::{gen_stub_pyclass, gen_stub_pymethods},
