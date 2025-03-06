@@ -72,7 +72,7 @@ async def test_send_bytes():
 
 @pytest.mark.asyncio
 @pytest.mark.flaky(reruns=3, reruns_delay=2)
-async def test_send_bytes_stream():
+async def test_send_async_bytes_stream():
     async def file_bytes_stream():
         with open("README.md", "rb") as f:
             while True:
@@ -83,5 +83,19 @@ async def test_send_bytes_stream():
 
     url = "https://httpbin.org/post"
     response = await client.post(url, body=file_bytes_stream())
+    json = await response.json()
+    assert json["data"] in open("README.md").read()
+
+
+@pytest.mark.asyncio
+@pytest.mark.flaky(reruns=3, reruns_delay=2)
+async def test_send_sync_bytes_stream():
+    def file_to_bytes_stream(file_path):
+        with open(file_path, "rb") as f:
+            while chunk := f.read(1024):
+                yield chunk
+
+    url = "https://httpbin.org/post"
+    response = await client.post(url, body=file_to_bytes_stream("README.md"))
     json = await response.json()
     assert json["data"] in open("README.md").read()

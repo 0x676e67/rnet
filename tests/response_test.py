@@ -32,14 +32,14 @@ async def test_multiple_requests():
             Part(name="abc", value=b"000", filename="abc.txt", mime="text/plain"),
             Part(
                 name="LICENSE",
-                value=Path("Cargo.toml"),
+                value=Path("./LICENSE"),
                 filename="LICENSE",
                 mime="text/plain",
             ),
             Part(
-                name="README",
-                value=file_to_bytes_stream("./README.md"),
-                filename="README.md",
+                name="Cargo.toml",
+                value=file_to_bytes_stream("./Cargo.toml"),
+                filename="Cargo.toml",
                 mime="text/plain",
             ),
         ),

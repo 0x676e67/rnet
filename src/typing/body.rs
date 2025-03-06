@@ -38,19 +38,25 @@ impl TryFrom<FromPyBody> for rquest::Body {
 impl FromPyObject<'_> for FromPyBody {
     fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
         if let Ok(text) = ob.extract::<String>() {
-            Ok(Self::Text(Bytes::from(text)))
-        } else if let Ok(bytes) = ob.downcast::<PyBytes>() {
-            Ok(Self::Bytes(Bytes::from(bytes.as_bytes().to_vec())))
-        } else if let Ok(iter) = ob.extract::<PyObject>() {
-            Ok(Self::Iterator(Arc::new(ArcSwapOption::from_pointee(
-                SyncStream::new(iter),
-            ))))
-        } else {
+            return Ok(Self::Text(Bytes::from(text)));
+        }
+
+        if let Ok(bytes) = ob.downcast::<PyBytes>() {
+            return Ok(Self::Bytes(Bytes::from(bytes.as_bytes().to_vec())));
+        }
+
+        if ob.hasattr("asend")? {
             pyo3_async_runtimes::tokio::into_stream_v2(ob.to_owned())
                 .map(AsyncStream::new)
                 .map(ArcSwapOption::from_pointee)
                 .map(Arc::new)
                 .map(Self::Stream)
+        } else {
+            ob.extract::<PyObject>()
+                .map(SyncStream::new)
+                .map(ArcSwapOption::from_pointee)
+                .map(Arc::new)
+                .map(Self::Iterator)
         }
     }
 }
