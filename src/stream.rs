@@ -38,8 +38,9 @@ impl Stream for SyncStream {
             let next = self
                 .iter
                 .call_method0(py, "__next__")
-                .and_then(|item| downcast_bound_bytes(py, item));
-            py.allow_threads(|| std::task::Poll::Ready(Some(next)))
+                .ok()
+                .map(|item| downcast_bound_bytes(py, item));
+            py.allow_threads(|| std::task::Poll::Ready(next))
         })
     }
 }
