@@ -22,7 +22,7 @@ path = "src/stub_gen.rs"
 logging = ["dep:pyo3-log", "dep:log"]
 
 [dependencies]
-tokio = { version = "1.0", features = ["sync"] }
+tokio = { version = "1.44.0", features = ["sync"] }
 pyo3 = { version = "0.23.5", features = [
     "indexmap",
     "multiple-pymethods",
@@ -44,7 +44,7 @@ rquest = { version = "2.2.1", features = [
     "websocket",
     "hickory-dns",
 ] }
-bytes = "1"
+bytes = "1.10.1"
 futures-util = { version = "0.3.31", default-features = false }
 
 [target.'cfg(not(target_env = "msvc"))'.dependencies]
