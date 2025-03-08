@@ -4,8 +4,8 @@ use crate::{
     error::{wrap_rquest_error, wrap_url_parse_error},
     param::{ClientParams, RequestParams, UpdateClientParams, WebSocketParams},
     typing::{
-        FromPyCookieList, FromPyHeaderOrderList, ImpersonateOS, IntoPyCookieList,
-        IntoPyHeaderMap, Method, TlsVersion,
+        FromPyCookieList, FromPyHeaderOrderList, ImpersonateOS, IntoPyCookieList, IntoPyHeaderMap,
+        Method, TlsVersion,
     },
 };
 use arc_swap::ArcSwap;
