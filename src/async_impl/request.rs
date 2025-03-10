@@ -182,6 +182,15 @@ where
         accept_unmasked_frames
     );
 
+    // Use http2 options.
+    apply_option!(
+        apply_option_or_default,
+        builder,
+        params.use_http2,
+        use_http2,
+        false
+    );
+
     // Network options.
     apply_option!(
         apply_transformed_option_ref,
