@@ -279,6 +279,7 @@ fn request(
 ///     headers: typing.Optional[typing.Dict[str, bytes]]
 ///     cookies: typing.Optional[typing.Dict[str, str]]
 ///     protocols: typing.Optional[builtins.list[builtins.str]]
+///     use_http2: typing.Optional[builtins.bool]
 ///     auth: typing.Optional[builtins.str]
 ///     bearer_auth: typing.Optional[builtins.str]
 ///     basic_auth: typing.Optional[tuple[builtins.str, typing.Optional[builtins.str]]]
