@@ -1,6 +1,6 @@
 use super::{http::BlockingResponse, ws::BlockingWebSocket};
 use crate::{
-    async_impl::{self, execute_request2, execute_websocket_request2},
+    async_impl::{self, execute_request, execute_websocket_request},
     param::{ClientParams, RequestParams, UpdateClientParams, WebSocketParams},
     typing::{FromPyCookieList, Method},
 };
@@ -276,9 +276,9 @@ impl BlockingClient {
         kwds: Option<RequestParams>,
     ) -> PyResult<BlockingResponse> {
         py.allow_threads(|| {
-            let client = self.0.load();
+            let client = self.0.clone();
             pyo3_async_runtimes::tokio::get_runtime()
-                .block_on(execute_request2(client, method, url, kwds))
+                .block_on(execute_request(client, method, url, kwds))
                 .map(Into::into)
         })
     }
@@ -335,9 +335,9 @@ impl BlockingClient {
         kwds: Option<WebSocketParams>,
     ) -> PyResult<BlockingWebSocket> {
         py.allow_threads(|| {
-            let client = self.0.load();
+            let client = self.0.clone();
             pyo3_async_runtimes::tokio::get_runtime()
-                .block_on(execute_websocket_request2(client, url, kwds))
+                .block_on(execute_websocket_request(client, url, kwds))
                 .map(Into::into)
         })
     }
@@ -356,7 +356,6 @@ impl BlockingClient {
     ///     impersonate_os: typing.Optional[ImpersonateOS]
     ///     impersonate_skip_http2: typing.Optional[builtins.bool]
     ///     impersonate_skip_headers: typing.Optional[builtins.bool]
-    ///     base_url: typing.Optional[str]
     ///     user_agent: typing.Optional[str]
     ///     default_headers: typing.Optional[typing.Dict[str, bytes]]
     ///     headers_order: typing.Optional[typing.List[str]]
@@ -501,7 +500,7 @@ impl BlockingClient {
     /// ```
     #[pyo3(signature = (**kwds))]
     #[inline(always)]
-    fn update(&self, py: Python, kwds: Option<UpdateClientParams>) {
-        self.0.update(py, kwds);
+    fn update(&self, py: Python, kwds: Option<UpdateClientParams>) -> PyResult<()> {
+        self.0.update(py, kwds)
     }
 }

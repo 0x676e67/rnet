@@ -43,17 +43,6 @@ async def test_update_impersonate():
         == "Mozilla/5.0 (Windows NT 10.0; rv:135.0) Gecko/20100101 Firefox/135.0"
     )
 
-
-@pytest.mark.asyncio
-@pytest.mark.flaky(reruns=3, reruns_delay=2)
-async def test_base_url():
-    base_url = "https://httpbin.org"
-    client = rnet.Client(tls_info=True, base_url=base_url)
-    url = "/anything"
-    response = await client.get(url)
-    assert response.url == base_url + url
-
-
 @pytest.mark.asyncio
 @pytest.mark.flaky(reruns=3, reruns_delay=2)
 async def test_alps_new_endpoint():

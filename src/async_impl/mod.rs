@@ -3,7 +3,6 @@ mod http;
 mod request;
 mod ws;
 
-pub use self::request::{execute_request2, execute_websocket_request2};
 pub use self::{
     client::Client,
     http::{Response, Streamer},
@@ -12,7 +11,7 @@ pub use self::{
 use crate::param::{RequestParams, WebSocketParams};
 use crate::typing::{LookupIpStrategy, Method};
 use crate::{apply_option, dns};
-use request::{execute_request, execute_websocket_request};
+pub use request::{execute_request, execute_websocket_request};
 use std::sync::LazyLock;
 
 #[macro_export]
@@ -89,7 +88,13 @@ pub async fn shortcut_request<U>(
 where
     U: AsRef<str>,
 {
-    execute_request(&*DEFAULT_CLIENT, method, url.as_ref().to_string(), params).await
+    execute_request(
+        DEFAULT_CLIENT.clone(),
+        method,
+        url.as_ref().to_string(),
+        params,
+    )
+    .await
 }
 
 /// Send a shortcut WebSocket request.
@@ -101,5 +106,5 @@ pub async fn shortcut_websocket_request<U>(
 where
     U: AsRef<str>,
 {
-    execute_websocket_request(&*DEFAULT_CLIENT, url.as_ref().to_string(), params).await
+    execute_websocket_request(DEFAULT_CLIENT.clone(), url.as_ref().to_string(), params).await
 }

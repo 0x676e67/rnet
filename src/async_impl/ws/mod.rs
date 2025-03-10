@@ -12,7 +12,7 @@ pub use message::Message;
 use pyo3::{IntoPyObjectExt, prelude::*, types::PyDict};
 use pyo3_async_runtimes::tokio::future_into_py;
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
-use rquest::header::HeaderMap;
+use rquest::header::{HeaderMap, HeaderValue};
 use std::sync::Arc;
 use tokio::sync::Mutex;
 
@@ -27,7 +27,7 @@ pub struct WebSocket {
     status_code: StatusCode,
     remote_addr: Option<SocketAddr>,
     headers: HeaderMap,
-    protocol: Option<String>,
+    protocol: Option<HeaderValue>,
     sender: Sender,
     receiver: Receiver,
 }
@@ -41,7 +41,7 @@ impl WebSocket {
         let remote_addr = response.remote_addr().map(SocketAddr::from);
         let headers = response.headers().clone();
         let websocket = response.into_websocket().await.map_err(wrap_rquest_error)?;
-        let protocol = websocket.protocol().map(ToOwned::to_owned);
+        let protocol = websocket.protocol().cloned();
         let (sender, receiver) = websocket.split();
 
         Ok(WebSocket {
@@ -104,12 +104,13 @@ impl WebSocket {
 
         if let Some(mut sender) = sender {
             sender
-                .send(rquest::Message::Close {
+                .send(rquest::Message::Close(Some(rquest::CloseFrame {
                     code: code
-                        .map(rquest::CloseCode::from)
-                        .unwrap_or(rquest::CloseCode::Normal),
-                    reason,
-                })
+                        .map(rquest::CloseCode)
+                        .unwrap_or(rquest::CloseCode::NORMAL),
+
+                    reason: rquest::Utf8Bytes::from(reason.as_deref().unwrap_or("Goodbye")),
+                })))
                 .await
                 .map_err(wrap_rquest_error)?;
             sender.flush().await.map_err(wrap_rquest_error)?;
@@ -217,7 +218,12 @@ impl WebSocket {
     /// An optional string representing the WebSocket protocol.
     #[inline(always)]
     pub fn protocol(&self) -> Option<&str> {
-        self.protocol.as_deref()
+        self.protocol
+            .as_ref()
+            .map(HeaderValue::to_str)
+            .transpose()
+            .ok()
+            .flatten()
     }
 
     /// Receives a message from the WebSocket.

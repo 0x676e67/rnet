@@ -88,7 +88,7 @@ define_enum_with_conversion!(
     /// An impersonate.
     const,
     Impersonate,
-    rquest::Impersonate,
+    rquest_util::Emulation,
     Chrome100,
     Chrome101,
     Chrome104,
@@ -111,6 +111,7 @@ define_enum_with_conversion!(
     Chrome129,
     Chrome130,
     Chrome131,
+    Chrome132,
     Chrome133,
     Edge101,
     Edge122,
@@ -123,6 +124,8 @@ define_enum_with_conversion!(
     Firefox135,
     FirefoxPrivate135,
     FirefoxAndroid135,
+    Firefox136,
+    FirefoxPrivate136,
     SafariIos17_2,
     SafariIos17_4_1,
     SafariIos16_5,
@@ -138,6 +141,7 @@ define_enum_with_conversion!(
     Safari18,
     SafariIPad18,
     Safari18_2,
+    Safari18_3,
     SafariIos18_1_1,
     OkHttp3_9,
     OkHttp3_11,
@@ -145,6 +149,7 @@ define_enum_with_conversion!(
     OkHttp3_14,
     OkHttp4_9,
     OkHttp4_10,
+    OkHttp4_12,
     OkHttp5
 );
 
@@ -152,7 +157,7 @@ define_enum_with_conversion!(
     /// An impersonate operating system.
     const,
     ImpersonateOS,
-    rquest::ImpersonateOS,
+    rquest_util::EmulationOS,
     Windows,
     MacOS,
     Linux,

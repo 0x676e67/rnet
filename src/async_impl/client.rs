@@ -1,4 +1,4 @@
-use super::{execute_request2, execute_websocket_request2};
+use super::request::{execute_request, execute_websocket_request};
 use crate::{
     apply_option, dns,
     error::{wrap_rquest_error, wrap_url_parse_error},
@@ -8,7 +8,6 @@ use crate::{
         Method, TlsVersion,
     },
 };
-use arc_swap::ArcSwap;
 use pyo3::{
     prelude::*,
     pybacked::PyBackedStr,
@@ -17,16 +16,16 @@ use pyo3::{
 use pyo3_async_runtimes::tokio::future_into_py;
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 use rquest::{Url, redirect::Policy};
-use std::{net::IpAddr, num::NonZeroUsize, ops::Deref};
-use std::{sync::Arc, time::Duration};
+use std::time::Duration;
+use std::{net::IpAddr, ops::Deref};
 
 /// A client for making HTTP requests.
 #[gen_stub_pyclass]
 #[pyclass]
-pub struct Client(ArcSwap<rquest::Client>);
+pub struct Client(rquest::Client);
 
 impl Deref for Client {
-    type Target = ArcSwap<rquest::Client>;
+    type Target = rquest::Client;
 
     #[inline(always)]
     fn deref(&self) -> &Self::Target {
@@ -293,8 +292,8 @@ impl Client {
         url: PyBackedStr,
         kwds: Option<RequestParams>,
     ) -> PyResult<Bound<'rt, PyAny>> {
-        let client = self.0.load();
-        future_into_py(py, execute_request2(client, method, url, kwds))
+        let client = self.0.clone();
+        future_into_py(py, execute_request(client, method, url, kwds))
     }
 
     /// Sends a WebSocket request.
@@ -348,8 +347,8 @@ impl Client {
         url: PyBackedStr,
         kwds: Option<WebSocketParams>,
     ) -> PyResult<Bound<'rt, PyAny>> {
-        let client = self.0.load();
-        future_into_py(py, execute_websocket_request2(client, url, kwds))
+        let client = self.0.clone();
+        future_into_py(py, execute_websocket_request(client, url, kwds))
     }
 }
 
@@ -427,10 +426,10 @@ impl Client {
 
             // Impersonation options.
             if let Some(impersonate) = params.impersonate.take() {
-                builder = builder.impersonate(
-                    rquest::Impersonate::builder()
-                        .impersonate(impersonate.into_ffi())
-                        .impersonate_os(
+                builder = builder.emulation(
+                    rquest_util::EmulationOption::builder()
+                        .emulation(impersonate.into_ffi())
+                        .emulation_os(
                             params
                                 .impersonate_os
                                 .map(ImpersonateOS::into_ffi)
@@ -441,15 +440,6 @@ impl Client {
                         .build(),
                 );
             }
-
-            // Base URL options.
-            apply_option!(
-                apply_transformed_option_ref,
-                builder,
-                params.base_url,
-                base_url,
-                AsRef::<str>::as_ref
-            );
 
             // User agent options.
             apply_option!(
@@ -554,13 +544,7 @@ impl Client {
                 params.pool_max_idle_per_host,
                 pool_max_idle_per_host
             );
-            apply_option!(
-                apply_transformed_option,
-                builder,
-                params.pool_max_size,
-                pool_max_size,
-                NonZeroUsize::new
-            );
+            apply_option!(apply_if_some, builder, params.pool_max_size, pool_max_size);
 
             // Protocol options.
             apply_option!(
@@ -629,9 +613,17 @@ impl Client {
                 local_address,
                 IpAddr::from
             );
-            rquest::cfg_bindable_device!({
-                apply_option!(apply_if_some, builder, params.interface, interface);
-            });
+            #[cfg(any(
+                target_os = "android",
+                target_os = "fuchsia",
+                target_os = "linux",
+                target_os = "ios",
+                target_os = "visionos",
+                target_os = "macos",
+                target_os = "tvos",
+                target_os = "watchos"
+            ))]
+            apply_option!(apply_if_some, builder, params.interface, interface);
 
             // Compression options.
             apply_option!(apply_if_some, builder, params.gzip, gzip);
@@ -639,11 +631,7 @@ impl Client {
             apply_option!(apply_if_some, builder, params.deflate, deflate);
             apply_option!(apply_if_some, builder, params.zstd, zstd);
 
-            builder
-                .build()
-                .map(ArcSwap::from_pointee)
-                .map(Client)
-                .map_err(wrap_rquest_error)
+            builder.build().map(Client).map_err(wrap_rquest_error)
         })
     }
 
@@ -666,10 +654,8 @@ impl Client {
     pub fn user_agent(&self, py: Python) -> Option<String> {
         py.allow_threads(|| {
             self.0
-                .load()
                 .user_agent()
-                .and_then(|hv| hv.to_str().ok())
-                .map(ToString::to_string)
+                .and_then(|hv| hv.to_str().map(ToString::to_string).ok())
         })
     }
 
@@ -690,9 +676,8 @@ impl Client {
     /// ```
     #[getter]
     pub fn headers<'py>(&self, py: Python<'py>) -> Option<Bound<'py, PyDict>> {
-        let binding = self.0.load();
-        let headers = binding.headers();
-        IntoPyHeaderMap(headers).into_pyobject(py).ok()
+        let headers = self.0.headers();
+        IntoPyHeaderMap(&headers).into_pyobject(py).ok()
     }
 
     /// Returns the cookies for the given URL.
@@ -722,7 +707,7 @@ impl Client {
     ) -> PyResult<Bound<'py, PyList>> {
         let cookies = py.allow_threads(|| {
             let url = Url::parse(url.as_ref()).map_err(wrap_url_parse_error)?;
-            let cookies = self.0.load().get_cookies(&url);
+            let cookies = self.0.get_cookies(&url);
             Ok::<_, PyErr>(cookies)
         })?;
 
@@ -757,7 +742,7 @@ impl Client {
     ) -> PyResult<()> {
         py.allow_threads(|| {
             let url = Url::parse(url.as_ref()).map_err(wrap_url_parse_error)?;
-            self.0.load().set_cookies(&url, cookies.0);
+            self.0.set_cookies(&url, cookies.0);
             Ok(())
         })
     }
@@ -790,18 +775,17 @@ impl Client {
     /// )
     /// ```
     #[pyo3(signature = (**kwds))]
-    pub fn update(&self, py: Python, mut kwds: Option<UpdateClientParams>) {
+    pub fn update(&self, py: Python, mut kwds: Option<UpdateClientParams>) -> PyResult<()> {
         py.allow_threads(|| {
             let params = kwds.get_or_insert_default();
-            let mut this = self.0.load_full();
-            let mut client_mut = Arc::make_mut(&mut this).as_mut();
+            let mut update = self.0.update();
 
             // Impersonation options.
             if let Some(impersonate) = params.impersonate.take() {
-                client_mut.impersonate(
-                    rquest::Impersonate::builder()
-                        .impersonate(impersonate.into_ffi())
-                        .impersonate_os(
+                update = update.emulation(
+                    rquest_util::EmulationOption::builder()
+                        .emulation(impersonate.into_ffi())
+                        .emulation_os(
                             params
                                 .impersonate_os
                                 .map(ImpersonateOS::into_ffi)
@@ -814,32 +798,42 @@ impl Client {
             }
 
             // Default headers options.
-            params.headers.take().map(|mut default_headers| {
-                std::mem::swap(client_mut.headers(), &mut default_headers.0)
-            });
+            if let Some(mut default_headers) = params.headers.take() {
+                update = update.headers(|headers| std::mem::swap(headers, &mut default_headers.0));
+            }
 
             // Headers order options.
-            params.headers_order.take().map(|value| {
-                client_mut.headers_order(value.0);
-            });
+            apply_option!(
+                apply_transformed_option,
+                update,
+                params.headers_order,
+                headers_order,
+                |s: FromPyHeaderOrderList| s.0
+            );
 
             // Network options.
-            params.proxies.take().map(|proxies| {
-                client_mut.proxies(proxies);
-            });
-            params
-                .local_address
-                .take()
-                .map(|value| client_mut.local_address::<std::net::IpAddr>(value.into()));
-            rquest::cfg_bindable_device!({
-                params
-                    .interface
-                    .take()
-                    .map(|value| client_mut.interface(value));
-            });
+            apply_option!(apply_if_some, update, params.proxies, proxies);
+            apply_option!(
+                apply_transformed_option,
+                update,
+                params.local_address,
+                local_address,
+                IpAddr::from
+            );
+            #[cfg(any(
+                target_os = "android",
+                target_os = "fuchsia",
+                target_os = "linux",
+                target_os = "ios",
+                target_os = "visionos",
+                target_os = "macos",
+                target_os = "tvos",
+                target_os = "watchos"
+            ))]
+            apply_option!(apply_if_some, update, params.interface, interface);
 
             // Apply the changes.
-            self.0.store(this);
+            update.apply().map_err(wrap_rquest_error)
         })
     }
 }

@@ -1,8 +1,13 @@
-use pyo3::{prelude::*, types::PyBytes};
+use bytes::Bytes;
+use pyo3::{
+    prelude::*,
+    pybacked::{PyBackedBytes, PyBackedStr},
+};
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
+use rquest::Utf8Bytes;
 
 use crate::{
-    buffer::{Buffer, PyBufferProtocol},
+    buffer::{Buffer, BytesBuffer, PyBufferProtocol},
     error::wrap_rquest_error,
     typing::Json,
 };
@@ -64,7 +69,7 @@ impl Message {
     #[getter]
     pub fn binary<'py>(&self, py: Python<'py>) -> Option<Bound<'py, PyAny>> {
         if let rquest::Message::Binary(data) = &self.0 {
-            Buffer::new(data.to_owned()).into_bytes_ref(py).ok()
+            BytesBuffer::new(data.clone()).into_bytes_ref(py).ok()
         } else {
             None
         }
@@ -78,7 +83,7 @@ impl Message {
     #[getter]
     pub fn ping<'py>(&self, py: Python<'py>) -> Option<Bound<'py, PyAny>> {
         if let rquest::Message::Ping(data) = &self.0 {
-            Buffer::new(data.to_owned()).into_bytes_ref(py).ok()
+            BytesBuffer::new(data.clone()).into_bytes_ref(py).ok()
         } else {
             None
         }
@@ -92,7 +97,7 @@ impl Message {
     #[getter]
     pub fn pong<'py>(&self, py: Python<'py>) -> Option<Bound<'py, PyAny>> {
         if let rquest::Message::Pong(data) = &self.0 {
-            Buffer::new(data.to_owned()).into_bytes_ref(py).ok()
+            BytesBuffer::new(data.clone()).into_bytes_ref(py).ok()
         } else {
             None
         }
@@ -105,8 +110,8 @@ impl Message {
     /// An optional tuple containing the close code and reason.
     #[getter]
     pub fn close(&self) -> Option<(u16, Option<&str>)> {
-        if let rquest::Message::Close { code, reason } = &self.0 {
-            Some((u16::from(*code), reason.as_deref()))
+        if let rquest::Message::Close(Some(s)) = &self.0 {
+            Some((s.code.0, Some(s.reason.as_str())))
         } else {
             None
         }
@@ -166,8 +171,9 @@ impl Message {
     #[staticmethod]
     #[pyo3(signature = (text))]
     #[inline(always)]
-    pub fn from_text(text: &str) -> Self {
-        Message(rquest::Message::Text(text.to_owned()))
+    pub fn from_text(text: PyBackedStr) -> Self {
+        let msg = rquest::Message::Text(rquest::Utf8Bytes::from(text.as_ref() as &str));
+        Message(msg)
     }
 
     /// Creates a new binary message.
@@ -182,8 +188,9 @@ impl Message {
     #[staticmethod]
     #[pyo3(signature = (data))]
     #[inline(always)]
-    pub fn from_binary(data: &Bound<PyBytes>) -> Self {
-        Message(rquest::Message::Binary(data.as_bytes().to_vec()))
+    pub fn from_binary(data: PyBackedBytes) -> Self {
+        let msg = rquest::Message::binary(data.as_ref().to_owned());
+        Message(msg)
     }
 
     /// Creates a new ping message.
@@ -198,8 +205,9 @@ impl Message {
     #[staticmethod]
     #[pyo3(signature = (data))]
     #[inline(always)]
-    pub fn from_ping(data: &Bound<PyBytes>) -> Self {
-        Message(rquest::Message::Ping(data.as_bytes().to_vec()))
+    pub fn from_ping(data: PyBackedBytes) -> Self {
+        let msg = rquest::Message::Ping(Bytes::from(data.as_ref().to_owned()));
+        Message(msg)
     }
 
     /// Creates a new pong message.
@@ -214,8 +222,9 @@ impl Message {
     #[staticmethod]
     #[pyo3(signature = (data))]
     #[inline(always)]
-    pub fn from_pong(data: &Bound<PyBytes>) -> Self {
-        Message(rquest::Message::Pong(data.as_bytes().to_vec()))
+    pub fn from_pong(data: PyBackedBytes) -> Self {
+        let msg = rquest::Message::Pong(Bytes::from(data.as_ref().to_owned()));
+        Message(msg)
     }
 
     /// Creates a new close message.
@@ -232,10 +241,11 @@ impl Message {
     #[pyo3(signature = (code, reason=None))]
     #[inline(always)]
     pub fn from_close(code: u16, reason: Option<String>) -> Self {
-        Message(rquest::Message::Close {
-            code: rquest::CloseCode::from(code),
-            reason,
-        })
+        let msg = rquest::Message::Close(Some(rquest::CloseFrame {
+            code: rquest::CloseCode(code),
+            reason: Utf8Bytes::from(reason.as_deref().unwrap_or("Goodbye")),
+        }));
+        Message(msg)
     }
 }
 
