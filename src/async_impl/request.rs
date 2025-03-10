@@ -154,6 +154,12 @@ where
     apply_option!(
         apply_if_some,
         builder,
+        params.read_buffer_size,
+        read_buffer_size
+    );
+    apply_option!(
+        apply_if_some,
+        builder,
         params.write_buffer_size,
         write_buffer_size
     );

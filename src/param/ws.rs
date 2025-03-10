@@ -38,6 +38,18 @@ pub struct WebSocketParams {
     /// The query parameters to use for the request.
     pub query: Option<QueryOrForm>,
 
+    /// Read buffer capacity. This buffer is eagerly allocated and used for receiving
+    /// messages.
+    ///
+    /// For high read load scenarios a larger buffer, e.g. 128 KiB, improves performance.
+    ///
+    /// For scenarios where you expect a lot of connections and don't need high read load
+    /// performance a smaller buffer, e.g. 4 KiB, would be appropriate to lower total
+    /// memory usage.
+    ///
+    /// The default value is 128 KiB.
+    pub read_buffer_size: Option<usize>,
+
     /// The target minimum size of the write buffer to reach before writing the data
     /// to the underlying stream.
     /// The default value is 128 KiB.
@@ -103,6 +115,7 @@ impl<'py> FromPyObject<'py> for WebSocketParams {
         extract_option!(ob, params, basic_auth);
         extract_option!(ob, params, query);
 
+        extract_option!(ob, params, read_buffer_size);
         extract_option!(ob, params, write_buffer_size);
         extract_option!(ob, params, max_write_buffer_size);
         extract_option!(ob, params, max_message_size);

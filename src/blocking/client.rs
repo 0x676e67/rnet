@@ -301,6 +301,7 @@ impl BlockingClient {
     ///     bearer_auth: typing.Optional[builtins.str]
     ///     basic_auth: typing.Optional[tuple[builtins.str, typing.Optional[builtins.str]]]
     ///     query: typing.Optional[builtins.list[tuple[builtins.str, builtins.str]]]
+    ///     read_buffer_size: typing.Optional[builtins.int]
     ///     write_buffer_size: typing.Optional[builtins.int]
     ///     max_write_buffer_size: typing.Optional[builtins.int]
     ///     max_message_size: typing.Optional[builtins.int]
