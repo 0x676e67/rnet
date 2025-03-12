@@ -6,7 +6,7 @@ use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 use rquest::Utf8Bytes;
 
 use crate::{
-    buffer::{Buffer, BytesBuffer, PyBufferProtocol},
+    buffer::{BytesBuffer, PyBufferProtocol},
     error::wrap_rquest_error,
     typing::Json,
 };
@@ -37,13 +37,13 @@ impl Message {
     #[getter]
     pub fn data<'py>(&self, py: Python<'py>) -> Option<Bound<'py, PyAny>> {
         let bytes = match &self.0 {
-            rquest::Message::Text(text) => text.as_bytes(),
+            rquest::Message::Text(text) => text.clone().into(),
             rquest::Message::Binary(bytes)
             | rquest::Message::Ping(bytes)
-            | rquest::Message::Pong(bytes) => bytes,
+            | rquest::Message::Pong(bytes) => bytes.clone(),
             _ => return None,
         };
-        Buffer::new(bytes.to_vec()).into_bytes_ref(py).ok()
+        BytesBuffer::new(bytes).into_bytes_ref(py).ok()
     }
 
     /// Returns the text content of the message if it is a text message.
@@ -171,7 +171,7 @@ impl Message {
     #[pyo3(signature = (text))]
     #[inline(always)]
     pub fn from_text(text: PyBackedStr) -> Self {
-        let msg = rquest::Message::Text(rquest::Utf8Bytes::from(text.as_ref() as &str));
+        let msg = rquest::Message::text(text.as_ref() as &str);
         Message(msg)
     }
 
