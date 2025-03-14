@@ -28,7 +28,7 @@ pyo3 = { version = "0.23.5", features = [
     "multiple-pymethods",
     "generate-import-lib",
 ] }
-pyo3-async-runtimes = { version = "0.23.0", features = ["tokio-runtime", "unstable-streams"] }
+pyo3-async-runtimes = { version = "0.24.0", features = ["tokio-runtime", "unstable-streams"] }
 pyo3-log = { version = "0.12.1", optional = true }
 pyo3-stub-gen = "0.7.0"
 log = { version = "0.4", optional = true }
