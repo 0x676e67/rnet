@@ -9,13 +9,9 @@ mod typing;
 
 use async_impl::{Client, Message, Response, Streamer, WebSocket};
 use blocking::{BlockingClient, BlockingResponse, BlockingStreamer, BlockingWebSocket};
-#[cfg(feature = "logging")]
-use log::LevelFilter;
 use param::{RequestParams, WebSocketParams};
 use pyo3::{prelude::*, pybacked::PyBackedStr};
 use pyo3_async_runtimes::tokio::future_into_py;
-#[cfg(feature = "logging")]
-use pyo3_log::{Caching, Logger};
 use pyo3_stub_gen::{define_stub_info_gatherer, derive::*};
 use typing::{
     Impersonate, ImpersonateOS, LookupIpStrategy, Method, Multipart, Part, Proxy, SocketAddr,
@@ -322,18 +318,6 @@ fn websocket(
 #[pymodule(gil_used = false)]
 fn rnet(m: &Bound<'_, PyModule>) -> PyResult<()> {
     pyo3::prepare_freethreaded_python();
-
-    // A good place to install the Rust -> Python logger.
-    #[cfg(feature = "logging")]
-    {
-        let handle = Logger::new(m.py(), Caching::LoggersAndLevels)?
-            .filter(LevelFilter::Trace)
-            .install()
-            .expect("Someone installed a logger before rnet.");
-
-        // Some time in the future when logging changes, reset the caches:
-        handle.reset();
-    }
 
     m.add_class::<Method>()?;
     m.add_class::<Version>()?;

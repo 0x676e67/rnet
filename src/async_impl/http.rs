@@ -299,8 +299,6 @@ impl Response {
     /// Closes the response connection.
     pub fn close(&self, py: Python) -> PyResult<()> {
         py.allow_threads(|| {
-            #[cfg(feature = "logging")]
-            log::debug!("Closing HTTP connection");
             let _ = self.inner().map(drop);
             Ok(())
         })

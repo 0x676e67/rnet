@@ -18,18 +18,14 @@ doctest = false
 name = "stub_gen"
 path = "src/stub_gen.rs"
 
-[features]
-logging = ["dep:pyo3-log", "dep:log"]
-
 [dependencies]
-tokio = { version = "1.44.0", features = ["sync"] }
+tokio = { version = "1.44.1", features = ["sync"] }
 pyo3 = { version = "0.24.0", features = [
     "indexmap",
     "multiple-pymethods",
     "generate-import-lib",
 ] }
 pyo3-async-runtimes = { version = "0.24.0", features = ["tokio-runtime", "unstable-streams"] }
-pyo3-log = { version = "0.12.1", optional = true }
 pyo3-stub-gen = "0.7.0"
 log = { version = "0.4", optional = true }
 serde = { version = "1.0.219", features = ["derive"] }

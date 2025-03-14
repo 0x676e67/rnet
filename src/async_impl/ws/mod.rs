@@ -90,9 +90,6 @@ impl WebSocket {
         code: Option<u16>,
         reason: Option<String>,
     ) -> PyResult<()> {
-        #[cfg(feature = "logging")]
-        log::debug!("Closing WebSocket connection");
-
         let mut lock = receiver.lock().await;
         let receiver = lock.take();
         drop(lock);
@@ -115,9 +112,6 @@ impl WebSocket {
                 .map_err(wrap_rquest_error)?;
             sender.flush().await.map_err(wrap_rquest_error)?;
             sender.close().await.map_err(wrap_rquest_error)?;
-
-            #[cfg(feature = "logging")]
-            log::debug!("WebSocket connection closed");
         }
 
         Ok(())
