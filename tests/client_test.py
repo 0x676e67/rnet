@@ -17,7 +17,7 @@ async def test_update_headers():
 async def test_update_cookies():
     url = "https://httpbin.org/cookies"
     client = rnet.Client(cookie_store=True)
-    cookies = ["foo=bar"]
+    cookies = {"foo": "bar"}
     client.set_cookies(url, cookies)
     assert client.get_cookies(url) == cookies
     response = await client.get(url)

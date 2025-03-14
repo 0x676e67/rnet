@@ -4,15 +4,11 @@ use crate::{
     error::{wrap_rquest_error, wrap_url_parse_error},
     param::{ClientParams, RequestParams, UpdateClientParams, WebSocketParams},
     typing::{
-        FromPyCookieList, HeaderMapIntoPyDict, ImpersonateOS, IntoPyCookieList, Method, TlsVersion,
-        Verify,
+        CookieIntoPyDict, CookiesFromPyDict, HeaderMapIntoPyDict, ImpersonateOS, Method,
+        TlsVersion, Verify,
     },
 };
-use pyo3::{
-    prelude::*,
-    pybacked::PyBackedStr,
-    types::{PyDict, PyList},
-};
+use pyo3::{prelude::*, pybacked::PyBackedStr, types::PyDict};
 use pyo3_async_runtimes::tokio::future_into_py;
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 use rquest::{RootCertStore, Url, redirect::Policy};
@@ -713,14 +709,14 @@ impl Client {
         &self,
         py: Python<'py>,
         url: PyBackedStr,
-    ) -> PyResult<Bound<'py, PyList>> {
+    ) -> PyResult<Bound<'py, PyDict>> {
         let cookies = py.allow_threads(|| {
             let url = Url::parse(url.as_ref()).map_err(wrap_url_parse_error)?;
             let cookies = self.0.get_cookies(&url);
             Ok::<_, PyErr>(cookies)
         })?;
 
-        IntoPyCookieList(cookies).into_pyobject(py)
+        CookieIntoPyDict(cookies).into_pyobject(py)
     }
 
     /// Sets cookies for the given URL.
@@ -747,7 +743,7 @@ impl Client {
         &self,
         py: Python,
         url: PyBackedStr,
-        cookies: FromPyCookieList,
+        cookies: CookiesFromPyDict,
     ) -> PyResult<()> {
         py.allow_threads(|| {
             let url = Url::parse(url.as_ref()).map_err(wrap_url_parse_error)?;
