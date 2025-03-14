@@ -379,7 +379,7 @@ impl BlockingClient {
     ///     https_only: typing.Optional[builtins.bool]
     ///     tcp_nodelay: typing.Optional[builtins.bool]
     ///     http2_max_retry_count: typing.Optional[builtins.int]
-    ///     danger_accept_invalid_certs: typing.Optional[builtins.bool]
+    ///     verify: Optional[Union[bool, Path]]
     ///     tls_info: typing.Optional[builtins.bool]
     ///     min_tls_version: typing.Optional[TlsVersion]
     ///     max_tls_version: typing.Optional[TlsVersion]

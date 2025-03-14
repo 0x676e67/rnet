@@ -5,7 +5,7 @@ use crate::{
     param::{ClientParams, RequestParams, UpdateClientParams, WebSocketParams},
     typing::{
         FromPyCookieList, FromPyHeaderOrderList, ImpersonateOS, IntoPyCookieList, IntoPyHeaderMap,
-        Method, TlsVersion,
+        Method, TlsVersion, Verify,
     },
 };
 use pyo3::{
@@ -15,7 +15,7 @@ use pyo3::{
 };
 use pyo3_async_runtimes::tokio::future_into_py;
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
-use rquest::{Url, redirect::Policy};
+use rquest::{RootCertStore, Url, redirect::Policy};
 use std::time::Duration;
 use std::{net::IpAddr, ops::Deref};
 
@@ -389,7 +389,7 @@ impl Client {
     ///     https_only: typing.Optional[builtins.bool]
     ///     tcp_nodelay: typing.Optional[builtins.bool]
     ///     http2_max_retry_count: typing.Optional[builtins.int]
-    ///     danger_accept_invalid_certs: typing.Optional[builtins.bool]
+    ///     verify: Optional[Union[bool, Path]]
     ///     tls_info: typing.Optional[builtins.bool]
     ///     min_tls_version: typing.Optional[TlsVersion]
     ///     max_tls_version: typing.Optional[TlsVersion]
@@ -462,11 +462,10 @@ impl Client {
 
             // Headers order options.
             apply_option!(
-                apply_transformed_option,
+                apply_if_some_inner,
                 builder,
                 params.headers_order,
-                headers_order,
-                |s: FromPyHeaderOrderList| s.0
+                headers_order
             );
 
             // Referer options.
@@ -588,12 +587,20 @@ impl Client {
                 TlsVersion::into_ffi
             );
             apply_option!(apply_if_some, builder, params.tls_info, tls_info);
-            apply_option!(
-                apply_if_some,
-                builder,
-                params.danger_accept_invalid_certs,
-                danger_accept_invalid_certs
-            );
+
+            // SSL Verification options.
+            if let Some(verify) = params.verify.take() {
+                builder = match verify {
+                    Verify::DisableSslVerification(verify) => {
+                        builder.danger_accept_invalid_certs(!verify)
+                    }
+                    Verify::RootCertificateFilepath(path_buf) => {
+                        let store =
+                            RootCertStore::from_pem_file(path_buf).map_err(wrap_rquest_error)?;
+                        builder.root_cert_store(store)
+                    }
+                }
+            }
 
             // Network options.
             if let Some(proxies) = params.proxies.take() {

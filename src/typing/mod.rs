@@ -7,6 +7,7 @@ mod json;
 mod multipart;
 mod proxy;
 mod status;
+mod verify;
 
 pub use self::{
     body::FromPyBody,
@@ -18,6 +19,7 @@ pub use self::{
     multipart::{Multipart, Part},
     proxy::Proxy,
     status::StatusCode,
+    verify::Verify,
 };
 use pyo3::{prelude::*, pybacked::PyBackedStr};
 use serde::ser::{Serialize, SerializeSeq, Serializer};

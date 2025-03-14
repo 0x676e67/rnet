@@ -1,6 +1,6 @@
 use crate::typing::{
     FromPyHeaderMap, FromPyHeaderOrderList, Impersonate, ImpersonateOS, IpAddr, LookupIpStrategy,
-    Proxy, TlsVersion,
+    Proxy, TlsVersion, Verify,
 };
 use pyo3::{prelude::*, pybacked::PyBackedStr, types::PyList};
 use pyo3_stub_gen::{PyStubType, TypeInfo};
@@ -86,8 +86,8 @@ pub struct ClientParams {
     pub http2_max_retry_count: Option<usize>,
 
     // ========= TLS options =========
-    /// Whether to verify the SSL certificate.
-    pub danger_accept_invalid_certs: Option<bool>,
+    /// Whether to verify the SSL certificate or root certificate file path.
+    pub verify: Option<Verify>,
 
     /// Add TLS information as `TlsInfo` extension to responses.
     pub tls_info: Option<bool>,
@@ -218,7 +218,7 @@ impl<'py> FromPyObject<'py> for ClientParams {
         extract_option!(ob, params, http2_only);
         extract_option!(ob, params, https_only);
         extract_option!(ob, params, tcp_nodelay);
-        extract_option!(ob, params, danger_accept_invalid_certs);
+        extract_option!(ob, params, verify);
         extract_option!(ob, params, http2_max_retry_count);
         extract_option!(ob, params, tls_info);
         extract_option!(ob, params, min_tls_version);
