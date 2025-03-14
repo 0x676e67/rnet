@@ -4,8 +4,8 @@ use crate::{
     error::{wrap_rquest_error, wrap_url_parse_error},
     param::{ClientParams, RequestParams, UpdateClientParams, WebSocketParams},
     typing::{
-        CookieIntoPyDict, CookiesFromPyDict, HeaderMapIntoPyDict, ImpersonateOS, Method,
-        TlsVersion, Verify,
+        CookieFromPyList, CookieIntoPyDict, HeaderMapIntoPyDict, ImpersonateOS, Method, TlsVersion,
+        Verify,
     },
 };
 use pyo3::{prelude::*, pybacked::PyBackedStr, types::PyDict};
@@ -743,7 +743,7 @@ impl Client {
         &self,
         py: Python,
         url: PyBackedStr,
-        cookies: CookiesFromPyDict,
+        cookies: CookieFromPyList,
     ) -> PyResult<()> {
         py.allow_threads(|| {
             let url = Url::parse(url.as_ref()).map_err(wrap_url_parse_error)?;

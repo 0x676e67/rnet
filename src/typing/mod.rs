@@ -11,7 +11,7 @@ mod verify;
 
 pub use self::{
     body::FromPyBody,
-    cookie::{CookieFromPyDict, CookieIntoPyDict, CookieMapIntoPyDict, CookiesFromPyDict},
+    cookie::{CookieFromPyDict, CookieFromPyList, CookieIntoPyDict, CookieMapIntoPyDict},
     enums::{Impersonate, ImpersonateOS, LookupIpStrategy, Method, TlsVersion, Version},
     headers::{HeaderMapFromPyDict, HeaderMapIntoPyDict, HeadersOrderFromPyList},
     ipaddr::{IpAddr, SocketAddr},

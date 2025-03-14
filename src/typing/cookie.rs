@@ -2,15 +2,16 @@ use crate::error::wrap_invali_header_value_error;
 use bytes::Bytes;
 use pyo3::FromPyObject;
 use pyo3::pybacked::PyBackedStr;
+use pyo3::types::PyList;
 use pyo3::{prelude::*, types::PyDict};
 use pyo3_stub_gen::{PyStubType, TypeInfo};
 use rquest::header::{self, HeaderMap, HeaderValue};
 
-/// Parse a cookie header from a Python list.
-pub struct CookiesFromPyDict(pub Vec<HeaderValue>);
-
 /// Parse a cookie header from a Python dictionary.
 pub struct CookieFromPyDict(pub HeaderValue);
+
+/// Parse a cookie header from a Python list.
+pub struct CookieFromPyList(pub Vec<HeaderValue>);
 
 /// Convert a header value into a Python dictionary.
 pub struct CookieIntoPyDict(pub Option<HeaderValue>);
@@ -91,26 +92,22 @@ impl<'py> IntoPyObject<'py> for CookieIntoPyDict {
     }
 }
 
-impl FromPyObject<'_> for CookiesFromPyDict {
+impl FromPyObject<'_> for CookieFromPyList {
     fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
-        let dict = ob.downcast::<PyDict>()?;
-        dict.iter()
-            .try_fold(Vec::with_capacity(dict.len()), |mut cookies, (k, v)| {
-                let key = k.extract::<PyBackedStr>()?;
-                let value = v.extract::<PyBackedStr>()?;
-                let kv = format!("{}={}", key.as_ref() as &str, value.as_ref() as &str);
-                HeaderValue::from_maybe_shared(Bytes::from(kv))
-                    .map_err(wrap_invali_header_value_error)
-                    .map(|value| {
-                        cookies.push(value);
-                        cookies
-                    })
+        let list = ob.downcast::<PyList>()?;
+        list.iter()
+            .try_fold(Vec::with_capacity(list.len()), |mut vec, item| {
+                let str = item.extract::<PyBackedStr>()?;
+                let header = HeaderValue::from_bytes(str.as_bytes())
+                    .map_err(wrap_invali_header_value_error)?;
+                vec.push(header);
+                Ok(vec)
             })
             .map(Self)
     }
 }
 
-impl PyStubType for CookiesFromPyDict {
+impl PyStubType for CookieFromPyList {
     fn type_output() -> TypeInfo {
         TypeInfo::with_module("typing.List[str]", "typing".into())
     }
