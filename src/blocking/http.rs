@@ -4,7 +4,7 @@ use crate::{
     async_impl::{self},
     buffer::{BytesBuffer, PyBufferProtocol},
     error::{py_stop_iteration_error, wrap_rquest_error},
-    typing::{Json, SocketAddr, StatusCode, Version},
+    typing::{HeaderMap, Json, SocketAddr, StatusCode, Version},
 };
 use pyo3::{prelude::*, types::PyDict};
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
@@ -93,8 +93,8 @@ impl BlockingResponse {
     /// A `HeaderMap` object representing the headers of the response.
     #[getter]
     #[inline(always)]
-    pub fn headers<'py>(&self, py: Python<'py>) -> Option<Bound<'py, PyDict>> {
-        self.0.headers(py)
+    pub fn headers(&self) -> HeaderMap {
+        self.0.headers()
     }
 
     /// Returns the cookies of the response.
