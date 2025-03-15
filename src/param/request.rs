@@ -1,5 +1,6 @@
 use crate::typing::{
-    FromPyBody, FromPyCookieMap, HeaderMapFromPyDict, IpAddr, Json, Multipart, QueryOrForm, Version,
+    CookieFromPyDict, FromPyBody, HeaderMapFromPyDict, IpAddr, Json, Multipart, QueryOrForm,
+    Version,
 };
 use pyo3::{prelude::*, pybacked::PyBackedStr};
 use pyo3_stub_gen::{PyStubType, TypeInfo};
@@ -29,7 +30,7 @@ pub struct RequestParams {
     pub headers: Option<HeaderMapFromPyDict>,
 
     /// The cookies to use for the request.
-    pub cookies: Option<FromPyCookieMap>,
+    pub cookies: Option<CookieFromPyDict>,
 
     /// Whether to allow redirects.
     pub allow_redirects: Option<bool>,
