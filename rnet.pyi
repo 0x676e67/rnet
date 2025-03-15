@@ -2,6 +2,7 @@
 # ruff: noqa: E501, F401
 
 import builtins
+import datetime
 import typing
 from enum import Enum, auto
 
@@ -12,7 +13,7 @@ class BlockingClient:
     user_agent: typing.Optional[builtins.str]
     headers: typing.Optional[dict]
     def __new__(cls,**kwds): ...
-    def get_cookies(self, url:str) -> list:
+    def get_cookies(self, url:str) -> dict:
         r"""
         Returns the cookies for the given URL.
         
@@ -757,7 +758,7 @@ class Client:
     user_agent: typing.Optional[builtins.str]
     headers: typing.Optional[dict]
     def __new__(cls,**kwds): ...
-    def get_cookies(self, url:str) -> list:
+    def get_cookies(self, url:str) -> dict:
         r"""
         Returns the cookies for the given URL.
         
@@ -1329,6 +1330,22 @@ class Client:
         """
         ...
 
+
+class Cookie:
+    r"""
+    A cookie.
+    """
+    name: builtins.str
+    value: builtins.str
+    http_only: builtins.bool
+    secure: builtins.bool
+    same_site_lax: builtins.bool
+    same_site_strict: builtins.bool
+    path: typing.Optional[builtins.str]
+    domain: typing.Optional[builtins.str]
+    max_age: typing.Optional[datetime.timedelta]
+    expires: typing.Optional[datetime.datetime]
+    def __new__(cls,name:builtins.str, value:builtins.str, domain:typing.Optional[builtins.str]=None, path:typing.Optional[builtins.str]=None, max_age:typing.Optional[datetime.timedelta]=None, expires:typing.Optional[datetime.datetime]=None, http_only:builtins.bool=False, secure:builtins.bool=False, same_site:typing.Optional[SameSite]=None): ...
 
 class Message:
     r"""
@@ -1972,6 +1989,14 @@ class Method(Enum):
     OPTIONS = auto()
     TRACE = auto()
     PATCH = auto()
+
+class SameSite(Enum):
+    r"""
+    The Cookie SameSite attribute.
+    """
+    Strict = auto()
+    Lax = auto()
+    None = auto()
 
 class TlsVersion(Enum):
     r"""
