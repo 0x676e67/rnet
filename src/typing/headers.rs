@@ -19,12 +19,14 @@ pub struct HeaderMap(pub header::HeaderMap);
 #[gen_stub_pymethods]
 #[pymethods]
 impl HeaderMap {
+    #[inline]
     fn __getitem__<'py>(&self, py: Python<'py>, key: PyBackedStr) -> Option<Bound<'py, PyAny>> {
         let value = self.0.get(key.as_ref() as &str)?;
         let buffer = Buffer::new(value.as_bytes().to_vec());
         buffer.into_bytes_ref(py).ok()
     }
 
+    #[inline]
     fn __setitem__(&mut self, key: PyBackedStr, value: PyBackedStr) {
         if let (Ok(name), Ok(value)) = (
             HeaderName::from_bytes(key.as_bytes()),
@@ -34,34 +36,41 @@ impl HeaderMap {
         }
     }
 
+    #[inline]
     fn __delitem__(&mut self, key: PyBackedStr) {
         self.0.remove(key.as_ref() as &str);
     }
 
+    #[inline]
     fn __contains__(&self, key: PyBackedStr) -> bool {
         self.0.contains_key(key.as_ref() as &str)
     }
 
+    #[inline]
     fn __len__(&self) -> usize {
         self.0.len()
     }
 
+    #[inline]
     fn __iter__(&self) -> HeaderMapKeysIter {
         HeaderMapKeysIter {
             inner: self.0.keys().cloned().collect(),
         }
     }
 
+    #[inline]
     fn items(&self) -> HeaderMapItemsIter {
         HeaderMapItemsIter {
             inner: self.0.iter().map(|(k, v)| (k.clone(), v.clone())).collect(),
         }
     }
 
+    #[inline]
     fn __str__(&self) -> String {
         format!("{:?}", self.0)
     }
 
+    #[inline]
     fn __repr__(&self) -> String {
         self.__str__()
     }
@@ -77,10 +86,12 @@ pub struct HeaderMapKeysIter {
 #[gen_stub_pymethods]
 #[pymethods]
 impl HeaderMapKeysIter {
+    #[inline]
     fn __iter__(slf: PyRefMut<Self>) -> PyRefMut<Self> {
         slf
     }
 
+    #[inline]
     fn __next__(mut slf: PyRefMut<Self>) -> Option<String> {
         slf.inner.pop().map(|k| k.to_string())
     }
@@ -96,14 +107,16 @@ pub struct HeaderMapItemsIter {
 #[gen_stub_pymethods]
 #[pymethods]
 impl HeaderMapItemsIter {
+    #[inline]
     fn __iter__(slf: PyRefMut<Self>) -> PyRefMut<Self> {
         slf
     }
 
-    fn __next__(mut slf: PyRefMut<Self>) -> Option<(String, String)> {
+    #[inline]
+    fn __next__(mut slf: PyRefMut<Self>) -> Option<(String, Option<String>)> {
         slf.inner
             .pop()
-            .map(|(k, v)| (k.to_string(), v.to_str().unwrap().to_string()))
+            .map(|(k, v)| (k.to_string(), v.to_str().ok().map(String::from)))
     }
 }
 
