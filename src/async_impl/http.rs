@@ -1,7 +1,7 @@
 use crate::{
     buffer::{Buffer, BytesBuffer, PyBufferProtocol},
     error::{memory_error, py_stop_async_iteration_error, wrap_rquest_error},
-    typing::{IntoPyCookieMap, HeaderMapIntoPyDict, Json, SocketAddr, StatusCode, Version},
+    typing::{HeaderMap, IntoPyCookieMap, Json, SocketAddr, StatusCode, Version},
 };
 use arc_swap::ArcSwapOption;
 use futures_util::{Stream, TryStreamExt};
@@ -9,10 +9,7 @@ use mime::Mime;
 use pyo3::{IntoPyObjectExt, prelude::*, types::PyDict};
 use pyo3_async_runtimes::tokio::future_into_py;
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
-use rquest::{
-    TlsInfo, Url,
-    header::{self, HeaderMap},
-};
+use rquest::{TlsInfo, Url, header};
 use std::{ops::Deref, pin::Pin, sync::Arc};
 use tokio::sync::Mutex;
 
@@ -48,7 +45,7 @@ pub struct Response {
     status_code: StatusCode,
     remote_addr: Option<SocketAddr>,
     content_length: Option<u64>,
-    headers: HeaderMap,
+    headers: rquest::header::HeaderMap,
     response: ArcSwapOption<rquest::Response>,
 }
 
@@ -141,8 +138,8 @@ impl Response {
     /// A `HeaderMap` object representing the headers of the response.
     #[getter]
     #[inline(always)]
-    pub fn headers<'py>(&self, py: Python<'py>) -> Option<Bound<'py, PyDict>> {
-        HeaderMapIntoPyDict(&self.headers).into_pyobject(py).ok()
+    pub fn headers(&self) -> HeaderMap {
+        HeaderMap(self.headers.clone())
     }
 
     /// Returns the cookies of the response.

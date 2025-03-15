@@ -14,8 +14,8 @@ use pyo3::{prelude::*, pybacked::PyBackedStr};
 use pyo3_async_runtimes::tokio::future_into_py;
 use pyo3_stub_gen::{define_stub_info_gatherer, derive::*};
 use typing::{
-    Impersonate, ImpersonateOS, LookupIpStrategy, Method, Multipart, Part, Proxy, SocketAddr,
-    StatusCode, TlsVersion, Version,
+    HeaderMap, HeaderMapItemsIter, HeaderMapKeysIter, Impersonate, ImpersonateOS, LookupIpStrategy,
+    Method, Multipart, Part, Proxy, SocketAddr, StatusCode, TlsVersion, Version,
 };
 
 #[cfg(not(target_env = "msvc"))]
@@ -321,6 +321,9 @@ fn rnet(m: &Bound<'_, PyModule>) -> PyResult<()> {
 
     m.add_class::<Method>()?;
     m.add_class::<Version>()?;
+    m.add_class::<HeaderMap>()?;
+    m.add_class::<HeaderMapItemsIter>()?;
+    m.add_class::<HeaderMapKeysIter>()?;
     m.add_class::<Impersonate>()?;
     m.add_class::<ImpersonateOS>()?;
     m.add_class::<TlsVersion>()?;

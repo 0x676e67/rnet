@@ -1,11 +1,111 @@
-use crate::error::{wrap_invali_header_name_error, wrap_invali_header_value_error};
+use crate::{
+    buffer::{Buffer, PyBufferProtocol},
+    error::{wrap_invali_header_name_error, wrap_invali_header_value_error},
+};
 use pyo3::{
     prelude::*,
     pybacked::PyBackedStr,
     types::{PyBytes, PyDict, PyList},
 };
+use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 use rquest::header::{self, HeaderName, HeaderValue};
 use std::str::FromStr;
+
+/// A HTTP header map.
+#[gen_stub_pyclass]
+#[pyclass]
+pub struct HeaderMap(pub header::HeaderMap);
+
+#[gen_stub_pymethods]
+#[pymethods]
+impl HeaderMap {
+    fn __getitem__<'py>(&self, py: Python<'py>, key: PyBackedStr) -> Option<Bound<'py, PyAny>> {
+        let value = self.0.get(key.as_ref() as &str)?;
+        let buffer = Buffer::new(value.as_bytes().to_vec());
+        buffer.into_bytes_ref(py).ok()
+    }
+
+    fn __setitem__(&mut self, key: PyBackedStr, value: PyBackedStr) {
+        if let (Ok(name), Ok(value)) = (
+            HeaderName::from_bytes(key.as_bytes()),
+            HeaderValue::from_bytes(value.as_bytes()),
+        ) {
+            self.0.insert(name, value);
+        }
+    }
+
+    fn __delitem__(&mut self, key: PyBackedStr) {
+        self.0.remove(key.as_ref() as &str);
+    }
+
+    fn __contains__(&self, key: PyBackedStr) -> bool {
+        self.0.contains_key(key.as_ref() as &str)
+    }
+
+    fn __len__(&self) -> usize {
+        self.0.len()
+    }
+
+    fn __iter__(&self) -> HeaderMapKeysIter {
+        HeaderMapKeysIter {
+            inner: self.0.keys().cloned().collect(),
+        }
+    }
+
+    fn items(&self) -> HeaderMapItemsIter {
+        HeaderMapItemsIter {
+            inner: self.0.iter().map(|(k, v)| (k.clone(), v.clone())).collect(),
+        }
+    }
+
+    fn __str__(&self) -> String {
+        format!("{:?}", self.0)
+    }
+
+    fn __repr__(&self) -> String {
+        self.__str__()
+    }
+}
+
+/// An iterator over the keys in a HeaderMap.
+#[gen_stub_pyclass]
+#[pyclass]
+pub struct HeaderMapKeysIter {
+    inner: Vec<HeaderName>,
+}
+
+#[gen_stub_pymethods]
+#[pymethods]
+impl HeaderMapKeysIter {
+    fn __iter__(slf: PyRefMut<Self>) -> PyRefMut<Self> {
+        slf
+    }
+
+    fn __next__(mut slf: PyRefMut<Self>) -> Option<String> {
+        slf.inner.pop().map(|k| k.to_string())
+    }
+}
+
+/// An iterator over the items in a HeaderMap.
+#[gen_stub_pyclass]
+#[pyclass]
+pub struct HeaderMapItemsIter {
+    inner: Vec<(HeaderName, HeaderValue)>,
+}
+
+#[gen_stub_pymethods]
+#[pymethods]
+impl HeaderMapItemsIter {
+    fn __iter__(slf: PyRefMut<Self>) -> PyRefMut<Self> {
+        slf
+    }
+
+    fn __next__(mut slf: PyRefMut<Self>) -> Option<(String, String)> {
+        slf.inner
+            .pop()
+            .map(|(k, v)| (k.to_string(), v.to_str().unwrap().to_string()))
+    }
+}
 
 /// A HTTP header map.
 pub struct HeaderMapFromPyDict(pub header::HeaderMap);

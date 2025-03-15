@@ -13,6 +13,13 @@ async def main():
     print("Content-Length: ", resp.content_length)
     print("Encoding: ", resp.encoding)
     print("Remote Address: ", resp.remote_addr)
+    print("Headers set-cookie: ", resp.headers["set-cookie"] )
+    
+    for key in resp.headers:
+        print(key)
+    
+    for key, value in resp.headers.items():
+        print(f"{key}: {value}")
 
     # Close the response connection
     # resp.close()

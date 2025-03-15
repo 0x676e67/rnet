@@ -13,7 +13,10 @@ pub use self::{
     body::FromPyBody,
     cookie::{FromPyCookieList, FromPyCookieMap, IntoPyCookieList, IntoPyCookieMap},
     enums::{Impersonate, ImpersonateOS, LookupIpStrategy, Method, TlsVersion, Version},
-    headers::{HeaderMapFromPyDict, HeaderMapIntoPyDict, HeadersOrderFromPyList},
+    headers::{
+        HeaderMap, HeaderMapFromPyDict, HeaderMapIntoPyDict, HeaderMapItemsIter, HeaderMapKeysIter,
+        HeadersOrderFromPyList,
+    },
     ipaddr::{IpAddr, SocketAddr},
     json::Json,
     multipart::{Multipart, Part},
