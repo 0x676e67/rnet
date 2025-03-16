@@ -36,9 +36,7 @@ pub trait PyBufferProtocol<'py>: IntoPyObject<'py> {
     /// Consume self to build a bytes
     fn into_bytes_ref(self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
         let buffer = self.into_py_any(py)?;
-        let view =
-            unsafe { Bound::from_owned_ptr_or_err(py, ffi::PyBytes_FromObject(buffer.as_ptr()))? };
-        Ok(view)
+        unsafe { Bound::from_owned_ptr_or_err(py, ffi::PyBytes_FromObject(buffer.as_ptr())) }
     }
 }
 
@@ -100,6 +98,7 @@ impl BytesBuffer {
     }
 }
 
+/// A header value that implements buffer protocol.
 #[pyclass]
 pub struct HeaderValueBuffer {
     inner: HeaderValue,
@@ -128,6 +127,7 @@ impl HeaderValueBuffer {
     }
 }
 
+/// A header name that implements buffer protocol.
 #[pyclass]
 pub struct HeaderNameBuffer {
     inner: HeaderName,
