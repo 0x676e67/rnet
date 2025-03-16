@@ -1,5 +1,5 @@
 use crate::{
-    buffer::{Buffer, PyBufferProtocol},
+    buffer::{HeaderNameBuffer, HeaderValueBuffer, PyBufferProtocol},
     error::{wrap_invali_header_name_error, wrap_invali_header_value_error},
 };
 use pyo3::{
@@ -22,28 +22,32 @@ impl HeaderMap {
     #[inline]
     fn __getitem__<'py>(&self, py: Python<'py>, key: PyBackedStr) -> Option<Bound<'py, PyAny>> {
         let value = self.0.get(key.as_ref() as &str)?;
-        let buffer = Buffer::new(value.as_bytes().to_vec());
+        let buffer = HeaderValueBuffer::new(value.clone());
         buffer.into_bytes_ref(py).ok()
     }
 
     #[inline]
-    fn __setitem__(&mut self, key: PyBackedStr, value: PyBackedStr) {
-        if let (Ok(name), Ok(value)) = (
-            HeaderName::from_bytes(key.as_bytes()),
-            HeaderValue::from_bytes(value.as_bytes()),
-        ) {
-            self.0.insert(name, value);
-        }
+    fn __setitem__(&mut self, py: Python, key: PyBackedStr, value: PyBackedStr) {
+        py.allow_threads(|| {
+            if let (Ok(name), Ok(value)) = (
+                HeaderName::from_bytes(key.as_bytes()),
+                HeaderValue::from_bytes(value.as_bytes()),
+            ) {
+                self.0.insert(name, value);
+            }
+        })
     }
 
     #[inline]
-    fn __delitem__(&mut self, key: PyBackedStr) {
-        self.0.remove(key.as_ref() as &str);
+    fn __delitem__(&mut self, py: Python, key: PyBackedStr) {
+        py.allow_threads(|| {
+            self.0.remove(key.as_ref() as &str);
+        })
     }
 
     #[inline]
-    fn __contains__(&self, key: PyBackedStr) -> bool {
-        self.0.contains_key(key.as_ref() as &str)
+    fn __contains__(&self, py: Python, key: PyBackedStr) -> bool {
+        py.allow_threads(|| self.0.contains_key(key.as_ref() as &str))
     }
 
     #[inline]
@@ -87,13 +91,15 @@ pub struct HeaderMapKeysIter {
 #[pymethods]
 impl HeaderMapKeysIter {
     #[inline]
-    fn __iter__(slf: PyRefMut<Self>) -> PyRefMut<Self> {
+    fn __iter__<'py>(slf: PyRefMut<'py, Self>) -> PyRefMut<'py, Self> {
         slf
     }
 
     #[inline]
-    fn __next__(mut slf: PyRefMut<Self>) -> Option<String> {
-        slf.inner.pop().map(|k| k.to_string())
+    fn __next__(mut slf: PyRefMut<Self>) -> Option<Bound<'_, PyAny>> {
+        slf.inner
+            .pop()
+            .and_then(|k| HeaderNameBuffer::new(k).into_bytes_ref(slf.py()).ok())
     }
 }
 
@@ -113,10 +119,15 @@ impl HeaderMapItemsIter {
     }
 
     #[inline]
-    fn __next__(mut slf: PyRefMut<Self>) -> Option<(String, Option<String>)> {
-        slf.inner
-            .pop()
-            .map(|(k, v)| (k.to_string(), v.to_str().ok().map(String::from)))
+    fn __next__<'py>(
+        mut slf: PyRefMut<'py, Self>,
+    ) -> Option<(Bound<'py, PyAny>, Option<Bound<'py, PyAny>>)> {
+        if let Some((k, v)) = slf.inner.pop() {
+            let key = HeaderNameBuffer::new(k).into_bytes_ref(slf.py()).ok()?;
+            let value = HeaderValueBuffer::new(v).into_bytes_ref(slf.py()).ok();
+            return Some((key, value));
+        }
+        None
     }
 }
 

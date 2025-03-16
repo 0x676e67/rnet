@@ -11,7 +11,7 @@ class BlockingClient:
     A blocking client for making HTTP requests.
     """
     user_agent: typing.Optional[builtins.str]
-    headers: typing.Optional[dict]
+    headers: HeaderMap
     def __new__(cls,**kwds): ...
     def get_cookies(self, url:str) -> dict:
         r"""
@@ -576,7 +576,7 @@ class BlockingResponse:
     status: builtins.int
     status_code: StatusCode
     version: Version
-    headers: typing.Optional[dict]
+    headers: HeaderMap
     cookies: typing.Optional[dict]
     content_length: builtins.int
     remote_addr: typing.Optional[SocketAddr]
@@ -687,7 +687,7 @@ class BlockingWebSocket:
     status: builtins.int
     status_code: StatusCode
     version: Version
-    headers: typing.Optional[dict]
+    headers: HeaderMap
     remote_addr: typing.Optional[SocketAddr]
     def __iter__(self) -> BlockingWebSocket:
         ...
@@ -756,7 +756,7 @@ class Client:
     A client for making HTTP requests.
     """
     user_agent: typing.Optional[builtins.str]
-    headers: typing.Optional[dict]
+    headers: HeaderMap
     def __new__(cls,**kwds): ...
     def get_cookies(self, url:str) -> dict:
         r"""
@@ -1347,6 +1347,60 @@ class Cookie:
     expires: typing.Optional[datetime.datetime]
     def __new__(cls,name:builtins.str, value:builtins.str, domain:typing.Optional[builtins.str]=None, path:typing.Optional[builtins.str]=None, max_age:typing.Optional[datetime.timedelta]=None, expires:typing.Optional[datetime.datetime]=None, http_only:builtins.bool=False, secure:builtins.bool=False, same_site:typing.Optional[SameSite]=None): ...
 
+class HeaderMap:
+    r"""
+    A HTTP header map.
+    """
+    def __getitem__(self, key:str) -> typing.Optional[typing.Any]:
+        ...
+
+    def __setitem__(self, key:str, value:str) -> None:
+        ...
+
+    def __delitem__(self, key:str) -> None:
+        ...
+
+    def __contains__(self, key:str) -> builtins.bool:
+        ...
+
+    def __len__(self) -> builtins.int:
+        ...
+
+    def __iter__(self) -> HeaderMapKeysIter:
+        ...
+
+    def items(self) -> HeaderMapItemsIter:
+        ...
+
+    def __str__(self) -> builtins.str:
+        ...
+
+    def __repr__(self) -> builtins.str:
+        ...
+
+
+class HeaderMapItemsIter:
+    r"""
+    An iterator over the items in a HeaderMap.
+    """
+    def __iter__(self) -> HeaderMapItemsIter:
+        ...
+
+    def __next__(self) -> typing.Optional[tuple[typing.Any, typing.Optional[typing.Any]]]:
+        ...
+
+
+class HeaderMapKeysIter:
+    r"""
+    An iterator over the keys in a HeaderMap.
+    """
+    def __iter__(self) -> HeaderMapKeysIter:
+        ...
+
+    def __next__(self) -> typing.Optional[typing.Any]:
+        ...
+
+
 class Message:
     r"""
     A WebSocket message.
@@ -1616,7 +1670,7 @@ class Response:
     status: builtins.int
     status_code: StatusCode
     version: Version
-    headers: typing.Optional[dict]
+    headers: HeaderMap
     cookies: typing.Optional[dict]
     content_length: builtins.int
     remote_addr: typing.Optional[SocketAddr]
@@ -1820,7 +1874,7 @@ class WebSocket:
     status: builtins.int
     status_code: StatusCode
     version: Version
-    headers: typing.Optional[dict]
+    headers: HeaderMap
     remote_addr: typing.Optional[SocketAddr]
     def __aiter__(self) -> WebSocket:
         ...
