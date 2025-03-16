@@ -19,6 +19,8 @@ use bytes::Bytes;
 use pyo3::IntoPyObjectExt;
 use pyo3::ffi;
 use pyo3::prelude::*;
+use rquest::header::HeaderName;
+use rquest::header::HeaderValue;
 use std::os::raw::c_int;
 
 /// A trait to define common buffer behavior
@@ -89,6 +91,62 @@ impl BytesBuffer {
 
 #[pymethods]
 impl BytesBuffer {
+    unsafe fn __getbuffer__(
+        slf: PyRefMut<Self>,
+        view: *mut ffi::Py_buffer,
+        flags: c_int,
+    ) -> PyResult<()> {
+        unsafe { fill_buffer_info(slf.as_slice(), slf.as_ptr(), view, flags, slf.py()) }
+    }
+}
+
+#[pyclass]
+pub struct HeaderValueBuffer {
+    inner: HeaderValue,
+}
+
+impl HeaderValueBuffer {
+    pub fn new(inner: HeaderValue) -> Self {
+        HeaderValueBuffer { inner }
+    }
+}
+
+impl PyBufferProtocol<'_> for HeaderValueBuffer {
+    fn as_slice(&self) -> &[u8] {
+        self.inner.as_bytes()
+    }
+}
+
+#[pymethods]
+impl HeaderValueBuffer {
+    unsafe fn __getbuffer__(
+        slf: PyRefMut<Self>,
+        view: *mut ffi::Py_buffer,
+        flags: c_int,
+    ) -> PyResult<()> {
+        unsafe { fill_buffer_info(slf.as_slice(), slf.as_ptr(), view, flags, slf.py()) }
+    }
+}
+
+#[pyclass]
+pub struct HeaderNameBuffer {
+    inner: HeaderName,
+}
+
+impl HeaderNameBuffer {
+    pub fn new(inner: HeaderName) -> Self {
+        HeaderNameBuffer { inner }
+    }
+}
+
+impl PyBufferProtocol<'_> for HeaderNameBuffer {
+    fn as_slice(&self) -> &[u8] {
+        self.inner.as_ref()
+    }
+}
+
+#[pymethods]
+impl HeaderNameBuffer {
     unsafe fn __getbuffer__(
         slf: PyRefMut<Self>,
         view: *mut ffi::Py_buffer,
