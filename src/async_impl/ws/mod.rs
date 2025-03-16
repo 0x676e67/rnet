@@ -2,17 +2,17 @@ mod message;
 
 use crate::{
     error::{py_stop_async_iteration_error, websocket_disconnect_error, wrap_rquest_error},
-    typing::{HeaderMapIntoPyDict, SocketAddr, StatusCode, Version},
+    typing::{HeaderMap, SocketAddr, StatusCode, Version},
 };
 use futures_util::{
     SinkExt, StreamExt, TryStreamExt,
     stream::{SplitSink, SplitStream},
 };
 pub use message::Message;
-use pyo3::{IntoPyObjectExt, prelude::*, types::PyDict};
+use pyo3::{IntoPyObjectExt, prelude::*};
 use pyo3_async_runtimes::tokio::future_into_py;
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
-use rquest::header::{HeaderMap, HeaderValue};
+use rquest::header::{self, HeaderValue};
 use std::sync::Arc;
 use tokio::sync::Mutex;
 
@@ -26,7 +26,7 @@ pub struct WebSocket {
     version: Version,
     status_code: StatusCode,
     remote_addr: Option<SocketAddr>,
-    headers: HeaderMap,
+    headers: header::HeaderMap,
     protocol: Option<HeaderValue>,
     sender: Sender,
     receiver: Receiver,
@@ -190,8 +190,8 @@ impl WebSocket {
     /// A `HeaderMap` object representing the headers of the response.
     #[getter]
     #[inline(always)]
-    pub fn headers<'py>(&self, py: Python<'py>) -> Option<Bound<'py, PyDict>> {
-        HeaderMapIntoPyDict(&self.headers).into_pyobject(py).ok()
+    pub fn headers(&self) -> HeaderMap {
+        HeaderMap(self.headers.clone())
     }
 
     /// Returns the remote address of the response.

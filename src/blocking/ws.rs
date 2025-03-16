@@ -1,9 +1,9 @@
 use crate::{
     async_impl::{self, Message},
     error::py_stop_iteration_error,
-    typing::{SocketAddr, StatusCode, Version},
+    typing::{HeaderMap, SocketAddr, StatusCode, Version},
 };
-use pyo3::{prelude::*, types::PyDict};
+use pyo3::prelude::*;
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 use std::ops::Deref;
 
@@ -80,8 +80,8 @@ impl BlockingWebSocket {
     /// A `HeaderMap` object representing the headers of the response.
     #[getter]
     #[inline(always)]
-    pub fn headers<'py>(&self, py: Python<'py>) -> Option<Bound<'py, PyDict>> {
-        self.0.headers(py)
+    pub fn headers(&self) -> HeaderMap {
+        self.0.headers()
     }
 
     /// Returns the remote address of the response.

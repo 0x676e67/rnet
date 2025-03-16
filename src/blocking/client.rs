@@ -2,7 +2,7 @@ use super::{http::BlockingResponse, ws::BlockingWebSocket};
 use crate::{
     async_impl::{self, execute_request, execute_websocket_request},
     param::{ClientParams, RequestParams, UpdateClientParams, WebSocketParams},
-    typing::{CookieFromPyList, Method},
+    typing::{CookieFromPyList, HeaderMap, Method},
 };
 use pyo3::{prelude::*, pybacked::PyBackedStr, types::PyDict};
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
@@ -430,8 +430,8 @@ impl BlockingClient {
     /// A `HeaderMap` object containing the headers of the client.
     #[getter]
     #[inline(always)]
-    fn headers<'py>(&self, py: Python<'py>) -> Option<Bound<'py, PyDict>> {
-        self.0.headers(py)
+    fn headers(&self) -> HeaderMap {
+        self.0.headers()
     }
 
     /// Returns the cookies for the given URL.

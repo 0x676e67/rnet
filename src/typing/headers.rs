@@ -5,7 +5,7 @@ use crate::{
 use pyo3::{
     prelude::*,
     pybacked::PyBackedStr,
-    types::{PyBytes, PyDict, PyList},
+    types::{PyDict, PyList},
 };
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 use rquest::header::{self, HeaderName, HeaderValue};
@@ -123,9 +123,6 @@ impl HeaderMapItemsIter {
 /// A HTTP header map.
 pub struct HeaderMapFromPyDict(pub header::HeaderMap);
 
-/// A HTTP reference to a header map.
-pub struct HeaderMapIntoPyDict<'a>(pub &'a header::HeaderMap);
-
 /// A list of header names in order.
 pub struct HeadersOrderFromPyList(pub Vec<HeaderName>);
 
@@ -162,22 +159,5 @@ impl<'py> FromPyObject<'py> for HeadersOrderFromPyList {
                 Ok(order)
             })
             .map(Self)
-    }
-}
-
-impl<'py> IntoPyObject<'py> for HeaderMapIntoPyDict<'_> {
-    type Target = PyDict;
-
-    type Output = Bound<'py, Self::Target>;
-
-    type Error = PyErr;
-
-    fn into_pyobject(self, py: Python<'py>) -> Result<Self::Output, Self::Error> {
-        self.0
-            .iter()
-            .try_fold(PyDict::new(py), |dict, (name, value)| {
-                dict.set_item(name.as_str(), PyBytes::new(py, value.as_bytes()))?;
-                Ok(dict)
-            })
     }
 }
