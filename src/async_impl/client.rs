@@ -3,7 +3,9 @@ use crate::{
     apply_option, dns,
     error::{wrap_rquest_error, wrap_url_parse_error},
     param::{ClientParams, RequestParams, UpdateClientParams, WebSocketParams},
-    typing::{CookieFromPyList, CookieIntoPyDict, HeaderMap, ImpersonateOS, Method, TlsVersion, Verify},
+    typing::{
+        CookieFromPyList, CookieIntoPyDict, HeaderMap, ImpersonateOS, Method, TlsVersion, Verify,
+    },
 };
 use pyo3::{prelude::*, pybacked::PyBackedStr, types::PyDict};
 use pyo3_async_runtimes::tokio::future_into_py;
