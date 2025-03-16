@@ -1,6 +1,6 @@
 use crate::typing::{
     HeaderMapFromPyDict, HeadersOrderFromPyList, Impersonate, ImpersonateOS, IpAddr,
-    LookupIpStrategy, Proxy, TlsVersion, Verify,
+    LookupIpStrategy, Proxy, SslVerify, TlsVersion,
 };
 use pyo3::{prelude::*, pybacked::PyBackedStr, types::PyList};
 use pyo3_stub_gen::{PyStubType, TypeInfo};
@@ -87,7 +87,7 @@ pub struct ClientParams {
 
     // ========= TLS options =========
     /// Whether to verify the SSL certificate or root certificate file path.
-    pub verify: Option<Verify>,
+    pub verify: Option<SslVerify>,
 
     /// Add TLS information as `TlsInfo` extension to responses.
     pub tls_info: Option<bool>,

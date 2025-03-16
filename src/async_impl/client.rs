@@ -4,7 +4,7 @@ use crate::{
     error::{wrap_rquest_error, wrap_url_parse_error},
     param::{ClientParams, RequestParams, UpdateClientParams, WebSocketParams},
     typing::{
-        CookieFromPyList, CookieIntoPyDict, HeaderMap, ImpersonateOS, Method, TlsVersion, Verify,
+        CookieFromPyList, CookieIntoPyDict, HeaderMap, ImpersonateOS, Method, SslVerify, TlsVersion,
     },
 };
 use pyo3::{prelude::*, pybacked::PyBackedStr, types::PyDict};
@@ -586,10 +586,10 @@ impl Client {
             // SSL Verification options.
             if let Some(verify) = params.verify.take() {
                 builder = match verify {
-                    Verify::DisableSslVerification(verify) => {
+                    SslVerify::DisableSslVerification(verify) => {
                         builder.danger_accept_invalid_certs(!verify)
                     }
-                    Verify::RootCertificateFilepath(path_buf) => {
+                    SslVerify::RootCertificateFilepath(path_buf) => {
                         let store =
                             RootCertStore::from_pem_file(path_buf).map_err(wrap_rquest_error)?;
                         builder.root_cert_store(store)

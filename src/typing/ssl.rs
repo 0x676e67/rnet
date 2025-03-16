@@ -2,7 +2,7 @@ use pyo3::FromPyObject;
 use std::path::PathBuf;
 
 #[derive(FromPyObject)]
-pub enum Verify {
+pub enum SslVerify {
     DisableSslVerification(bool),
     RootCertificateFilepath(PathBuf),
 }
