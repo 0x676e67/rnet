@@ -1,4 +1,4 @@
-use crate::error::wrap_invali_header_value_error;
+use crate::error::{wrap_cookie_parse_error, wrap_invali_header_value_error};
 use bytes::Bytes;
 use cookie::{Expiration, SameSite};
 use pyo3::FromPyObject;
@@ -13,7 +13,25 @@ use std::time::SystemTime;
 /// A cookie.
 #[gen_stub_pyclass]
 #[pyclass]
-pub struct Cookie(cookie::Cookie<'static>);
+#[derive(Clone)]
+pub struct Cookie(pub cookie::Cookie<'static>);
+
+impl Cookie {
+    pub(crate) fn extract_cookies(headers: &HeaderMap) -> Vec<Self> {
+        headers
+            .get_all(header::SET_COOKIE)
+            .iter()
+            .map(|value| {
+                std::str::from_utf8(value.as_bytes())
+                    .map_err(cookie::ParseError::from)
+                    .and_then(cookie::Cookie::parse)
+            })
+            .flat_map(Result::ok)
+            .map(cookie::Cookie::into_owned)
+            .map(Cookie)
+            .collect()
+    }
+}
 
 #[gen_stub_pymethods]
 #[pymethods]
@@ -141,19 +159,18 @@ impl Cookie {
             None | Some(Expiration::Session) => None,
         }
     }
+
+    fn __str__(&self) -> String {
+        self.0.to_string()
+    }
+
+    fn __repr__(&self) -> String {
+        self.__str__()
+    }
 }
 
 /// Parse a cookie header from a Python dictionary.
 pub struct CookieFromPyDict(pub HeaderValue);
-
-/// Parse a cookie header from a Python list.
-pub struct CookieFromPyList(pub Vec<HeaderValue>);
-
-/// Convert a header value into a Python dictionary.
-pub struct CookieIntoPyDict(pub Option<HeaderValue>);
-
-/// Convert a headers header map into a Python dictionary.
-pub struct CookieMapIntoPyDict<'a>(pub &'a HeaderMap);
 
 impl FromPyObject<'_> for CookieFromPyDict {
     fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
@@ -179,65 +196,32 @@ impl FromPyObject<'_> for CookieFromPyDict {
     }
 }
 
-impl<'py> IntoPyObject<'py> for CookieMapIntoPyDict<'py> {
-    type Target = PyDict;
-
-    type Output = Bound<'py, Self::Target>;
-
-    type Error = PyErr;
-
-    fn into_pyobject(self, py: Python<'py>) -> Result<Self::Output, Self::Error> {
-        self.0
-            .get_all(header::SET_COOKIE)
-            .iter()
-            .map(|value| {
-                py.allow_threads(|| {
-                    std::str::from_utf8(value.as_bytes())
-                        .map_err(cookie::ParseError::from)
-                        .and_then(cookie::Cookie::parse)
-                })
-            })
-            .filter_map(Result::ok)
-            .try_fold(PyDict::new(py), |dict, cookie| {
-                dict.set_item(cookie.name(), cookie.value()).map(|_| dict)
-            })
+impl PyStubType for CookieFromPyDict {
+    fn type_output() -> TypeInfo {
+        TypeInfo::with_module("typing.Dict[str, str]", "typing".into())
     }
 }
 
-impl<'py> IntoPyObject<'py> for CookieIntoPyDict {
-    type Target = PyDict;
-
-    type Output = Bound<'py, Self::Target>;
-
-    type Error = PyErr;
-
-    fn into_pyobject(self, py: Python<'py>) -> Result<Self::Output, Self::Error> {
-        self.0
-            .iter()
-            .map(|value| {
-                py.allow_threads(|| {
-                    std::str::from_utf8(value.as_bytes())
-                        .map_err(cookie::ParseError::from)
-                        .and_then(cookie::Cookie::parse)
-                })
-            })
-            .filter_map(Result::ok)
-            .try_fold(PyDict::new(py), |dict, cookie| {
-                dict.set_item(cookie.name(), cookie.value()).map(|_| dict)
-            })
-    }
-}
+/// Parse a cookie header from a Python list.
+pub struct CookieFromPyList(pub Vec<HeaderValue>);
 
 impl FromPyObject<'_> for CookieFromPyList {
     fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
         let list = ob.downcast::<PyList>()?;
         list.iter()
-            .try_fold(Vec::with_capacity(list.len()), |mut vec, item| {
-                let str = item.extract::<PyBackedStr>()?;
-                let header = HeaderValue::from_bytes(str.as_bytes())
+            .try_fold(Vec::with_capacity(list.len()), |mut cookies, item| {
+                let cookie_str = if let Ok(cookie_str) = item.extract::<PyBackedStr>() {
+                    cookie::Cookie::parse(cookie_str.as_ref() as &str)
+                        .map_err(wrap_cookie_parse_error)?
+                        .to_string()
+                } else {
+                    let cookie = item.extract::<Cookie>()?;
+                    cookie.0.to_string()
+                };
+                let cookie = HeaderValue::from_maybe_shared(Bytes::from(cookie_str))
                     .map_err(wrap_invali_header_value_error)?;
-                vec.push(header);
-                Ok(vec)
+                cookies.push(cookie);
+                Ok(cookies)
             })
             .map(Self)
     }
@@ -245,6 +229,6 @@ impl FromPyObject<'_> for CookieFromPyList {
 
 impl PyStubType for CookieFromPyList {
     fn type_output() -> TypeInfo {
-        TypeInfo::with_module("typing.List[str]", "typing".into())
+        TypeInfo::with_module("typing.List[str|Cookie]", "typing".into())
     }
 }

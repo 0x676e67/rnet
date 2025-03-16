@@ -1,12 +1,12 @@
 use crate::{
     buffer::{Buffer, BytesBuffer, PyBufferProtocol},
     error::{memory_error, py_stop_async_iteration_error, wrap_rquest_error},
-    typing::{CookieMapIntoPyDict, HeaderMap, Json, SocketAddr, StatusCode, Version},
+    typing::{Cookie, HeaderMap, Json, SocketAddr, StatusCode, Version},
 };
 use arc_swap::ArcSwapOption;
 use futures_util::{Stream, TryStreamExt};
 use mime::Mime;
-use pyo3::{IntoPyObjectExt, prelude::*, types::PyDict};
+use pyo3::{IntoPyObjectExt, prelude::*};
 use pyo3_async_runtimes::tokio::future_into_py;
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 use rquest::{TlsInfo, Url, header};
@@ -146,11 +146,11 @@ impl Response {
     ///
     /// # Returns
     ///
-    /// A Python dictionary representing the cookies of the response.
+    /// A Python cookies object representing the cookies of the response.
     #[getter]
     #[inline(always)]
-    pub fn cookies<'py>(&'py self, py: Python<'py>) -> Option<Bound<'py, PyDict>> {
-        CookieMapIntoPyDict(&self.headers).into_pyobject(py).ok()
+    pub fn cookies<'py>(&'py self, py: Python<'py>) -> Vec<Cookie> {
+        py.allow_threads(|| Cookie::extract_cookies(&self.headers))
     }
 
     /// Returns the content length of the response.

@@ -1,13 +1,13 @@
 use super::request::{execute_request, execute_websocket_request};
 use crate::{
-    apply_option, dns,
+    apply_option,
+    buffer::{HeaderValueBuffer, PyBufferProtocol},
+    dns,
     error::{wrap_rquest_error, wrap_url_parse_error},
     param::{ClientParams, RequestParams, UpdateClientParams, WebSocketParams},
-    typing::{
-        CookieFromPyList, CookieIntoPyDict, HeaderMap, ImpersonateOS, Method, SslVerify, TlsVersion,
-    },
+    typing::{CookieFromPyList, HeaderMap, ImpersonateOS, Method, SslVerify, TlsVersion},
 };
-use pyo3::{prelude::*, pybacked::PyBackedStr, types::PyDict};
+use pyo3::{prelude::*, pybacked::PyBackedStr};
 use pyo3_async_runtimes::tokio::future_into_py;
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 use rquest::{RootCertStore, Url, redirect::Policy};
@@ -707,14 +707,17 @@ impl Client {
         &self,
         py: Python<'py>,
         url: PyBackedStr,
-    ) -> PyResult<Bound<'py, PyDict>> {
+    ) -> PyResult<Option<Bound<'py, PyAny>>> {
         let cookies = py.allow_threads(|| {
             let url = Url::parse(url.as_ref()).map_err(wrap_url_parse_error)?;
             let cookies = self.0.get_cookies(&url);
             Ok::<_, PyErr>(cookies)
         })?;
 
-        CookieIntoPyDict(cookies).into_pyobject(py)
+        cookies
+            .map(HeaderValueBuffer::new)
+            .map(|buffer| buffer.into_bytes_ref(py))
+            .transpose()
     }
 
     /// Sets cookies for the given URL.
@@ -735,6 +738,7 @@ impl Client {
     ///
     /// client = rnet.Client(cookie_store=True)
     /// client.set_cookies("https://example.com", ["cookie1=value1", "cookie2=value2"])
+    /// client.set_cookies("https://example.com", [rnet.Cookie("cookie1=value1"), rnet.Cookie("cookie2=value2")])
     /// ```
     #[pyo3(signature = (url, cookies))]
     pub fn set_cookies(

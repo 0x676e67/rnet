@@ -19,8 +19,7 @@ use bytes::Bytes;
 use pyo3::IntoPyObjectExt;
 use pyo3::ffi;
 use pyo3::prelude::*;
-use rquest::header::HeaderName;
-use rquest::header::HeaderValue;
+use rquest::header::{HeaderName, HeaderValue};
 use std::os::raw::c_int;
 
 /// A trait to define common buffer behavior

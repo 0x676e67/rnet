@@ -13,7 +13,7 @@ class BlockingClient:
     user_agent: typing.Optional[builtins.str]
     headers: HeaderMap
     def __new__(cls,**kwds): ...
-    def get_cookies(self, url:str) -> dict:
+    def get_cookies(self, url:str) -> typing.Optional[typing.Any]:
         r"""
         Returns the cookies for the given URL.
         
@@ -27,7 +27,7 @@ class BlockingClient:
         """
         ...
 
-    def set_cookies(self, url:str, value:typing.List[str]) -> None:
+    def set_cookies(self, url:str, value:typing.List[str|Cookie]) -> None:
         r"""
         Sets cookies for the given URL.
         
@@ -577,7 +577,7 @@ class BlockingResponse:
     status_code: StatusCode
     version: Version
     headers: HeaderMap
-    cookies: typing.Optional[dict]
+    cookies: builtins.list[Cookie]
     content_length: builtins.int
     remote_addr: typing.Optional[SocketAddr]
     encoding: builtins.str
@@ -688,6 +688,7 @@ class BlockingWebSocket:
     status_code: StatusCode
     version: Version
     headers: HeaderMap
+    cookies: builtins.list[Cookie]
     remote_addr: typing.Optional[SocketAddr]
     def __iter__(self) -> BlockingWebSocket:
         ...
@@ -758,7 +759,7 @@ class Client:
     user_agent: typing.Optional[builtins.str]
     headers: HeaderMap
     def __new__(cls,**kwds): ...
-    def get_cookies(self, url:str) -> dict:
+    def get_cookies(self, url:str) -> typing.Optional[typing.Any]:
         r"""
         Returns the cookies for the given URL.
         
@@ -782,7 +783,7 @@ class Client:
         """
         ...
 
-    def set_cookies(self, url:str, cookies:typing.List[str]) -> None:
+    def set_cookies(self, url:str, cookies:typing.List[str|Cookie]) -> None:
         r"""
         Sets cookies for the given URL.
         
@@ -802,6 +803,7 @@ class Client:
         
         client = rnet.Client(cookie_store=True)
         client.set_cookies("https://example.com", ["cookie1=value1", "cookie2=value2"])
+        client.set_cookies("https://example.com", [rnet.Cookie("cookie1=value1"), rnet.Cookie("cookie2=value2")])
         ```
         """
         ...
@@ -1346,6 +1348,12 @@ class Cookie:
     max_age: typing.Optional[datetime.timedelta]
     expires: typing.Optional[datetime.datetime]
     def __new__(cls,name:builtins.str, value:builtins.str, domain:typing.Optional[builtins.str]=None, path:typing.Optional[builtins.str]=None, max_age:typing.Optional[datetime.timedelta]=None, expires:typing.Optional[datetime.datetime]=None, http_only:builtins.bool=False, secure:builtins.bool=False, same_site:typing.Optional[SameSite]=None): ...
+    def __str__(self) -> builtins.str:
+        ...
+
+    def __repr__(self) -> builtins.str:
+        ...
+
 
 class HeaderMap:
     r"""
@@ -1671,7 +1679,7 @@ class Response:
     status_code: StatusCode
     version: Version
     headers: HeaderMap
-    cookies: typing.Optional[dict]
+    cookies: builtins.list[Cookie]
     content_length: builtins.int
     remote_addr: typing.Optional[SocketAddr]
     encoding: builtins.str
@@ -1875,6 +1883,7 @@ class WebSocket:
     status_code: StatusCode
     version: Version
     headers: HeaderMap
+    cookies: builtins.list[Cookie]
     remote_addr: typing.Optional[SocketAddr]
     def __aiter__(self) -> WebSocket:
         ...

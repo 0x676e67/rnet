@@ -56,8 +56,8 @@ async def test_multiple_requests():
 @pytest.mark.flaky(reruns=3, reruns_delay=2)
 async def test_get_cookies():
     url = "https://httpbin.org/cookies/set?mycookie=testvalue"
-    response = await client.get(url)
-    assert response.cookies == {"mycookie": "testvalue"}
+    response: rnet.Response = await client.get(url)
+    assert any(cookie.name == "mycookie" for cookie in response.cookies)
 
 
 @pytest.mark.asyncio

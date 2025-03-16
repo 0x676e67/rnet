@@ -2,7 +2,7 @@ mod message;
 
 use crate::{
     error::{py_stop_async_iteration_error, websocket_disconnect_error, wrap_rquest_error},
-    typing::{HeaderMap, SocketAddr, StatusCode, Version},
+    typing::{Cookie, HeaderMap, SocketAddr, StatusCode, Version},
 };
 use futures_util::{
     SinkExt, StreamExt, TryStreamExt,
@@ -192,6 +192,17 @@ impl WebSocket {
     #[inline(always)]
     pub fn headers(&self) -> HeaderMap {
         HeaderMap(self.headers.clone())
+    }
+
+    /// Returns the cookies of the response.
+    ///
+    /// # Returns
+    ///
+    /// A Python cookies object representing the cookies of the response.
+    #[getter]
+    #[inline(always)]
+    pub fn cookies<'py>(&'py self, py: Python<'py>) -> Vec<Cookie> {
+        py.allow_threads(|| Cookie::extract_cookies(&self.headers))
     }
 
     /// Returns the remote address of the response.

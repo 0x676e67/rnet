@@ -81,6 +81,11 @@ pub fn wrap_io_error(error: std::io::Error) -> pyo3::PyErr {
     PyRuntimeError::new_err(format!("IO error: {:?}", error))
 }
 
+#[inline(always)]
+pub fn wrap_cookie_parse_error(error: cookie::ParseError) -> pyo3::PyErr {
+    PyRuntimeError::new_err(format!("Cookie parse error: {:?}", error))
+}
+
 macro_rules! wrap_error {
     ($error:expr, $($variant:ident => $exception:ident),*) => {
         {
@@ -98,6 +103,7 @@ pub fn wrap_rquest_error(error: rquest::Error) -> pyo3::PyErr {
     wrap_error!(error,
         is_body => BodyError,
         is_connect => ConnectionError,
+        is_connection_reset => ConnectionError,
         is_decode => DecodingError,
         is_redirect => RedirectError,
         is_timeout => TimeoutError,

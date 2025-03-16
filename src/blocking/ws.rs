@@ -1,7 +1,7 @@
 use crate::{
     async_impl::{self, Message},
     error::py_stop_iteration_error,
-    typing::{HeaderMap, SocketAddr, StatusCode, Version},
+    typing::{Cookie, HeaderMap, SocketAddr, StatusCode, Version},
 };
 use pyo3::prelude::*;
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
@@ -82,6 +82,17 @@ impl BlockingWebSocket {
     #[inline(always)]
     pub fn headers(&self) -> HeaderMap {
         self.0.headers()
+    }
+
+    /// Returns the cookies of the response.
+    ///
+    /// # Returns
+    ///
+    /// A Python cookies object representing the cookies of the response.
+    #[getter]
+    #[inline(always)]
+    pub fn cookies<'py>(&'py self, py: Python<'py>) -> Vec<Cookie> {
+        self.0.cookies(py)
     }
 
     /// Returns the remote address of the response.

@@ -4,9 +4,9 @@ use crate::{
     async_impl::{self},
     buffer::{BytesBuffer, PyBufferProtocol},
     error::{py_stop_iteration_error, wrap_rquest_error},
-    typing::{HeaderMap, Json, SocketAddr, StatusCode, Version},
+    typing::{Cookie, HeaderMap, Json, SocketAddr, StatusCode, Version},
 };
-use pyo3::{prelude::*, types::PyDict};
+use pyo3::prelude::*;
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 
 /// A bloking response from a request.
@@ -101,10 +101,10 @@ impl BlockingResponse {
     ///
     /// # Returns
     ///
-    /// A Python dictionary representing the cookies of the response.
+    /// A Python cookies object representing the cookies of the response.
     #[getter]
     #[inline(always)]
-    pub fn cookies<'py>(&'py self, py: Python<'py>) -> Option<Bound<'py, PyDict>> {
+    pub fn cookies<'py>(&'py self, py: Python<'py>) -> Vec<Cookie> {
         self.0.cookies(py)
     }
 
