@@ -27,18 +27,46 @@ class BlockingClient:
         """
         ...
 
-    def set_cookies(self, url:str, value:typing.List[str|Cookie]) -> None:
+    def set_cookie(self, url:str, cookie:Cookie) -> None:
         r"""
-        Sets cookies for the given URL.
+        Sets the cookies for the given URL.
         
         # Arguments
-        
         * `url` - The URL to set the cookies for.
-        * `value` - A list of cookie strings to set.
+        * `cookie` - The cookie to set.
         
-        # Returns
+        # Examples
         
-        A `PyResult` indicating success or failure.
+        ```python
+        import rnet
+        
+        client = rnet.Client(cookie_store=True)
+        client.set_cookie("https://example.com", rnet.Cookie(name="foo", value="bar"))
+        ```
+        """
+        ...
+
+    def remove_cookie(self, url:str, name:str) -> None:
+        r"""
+        Removes the cookie with the given name for the given URL.
+        
+        # Arguments
+        * `url` - The URL to remove the cookie from.
+        * `name` - The name of the cookie to remove.
+        
+        # Examples
+        
+        ```python
+        import rnet
+        
+        client = rnet.Client(cookie_store=True)
+        client.remove_cookie("https://example.com", "foo")
+        """
+        ...
+
+    def clear_cookies(self) -> None:
+        r"""
+        Clears the cookies for the given URL.
         """
         ...
 
@@ -783,18 +811,13 @@ class Client:
         """
         ...
 
-    def set_cookies(self, url:str, cookies:typing.List[str|Cookie]) -> None:
+    def set_cookie(self, url:str, cookie:Cookie) -> None:
         r"""
-        Sets cookies for the given URL.
+        Sets the cookies for the given URL.
         
         # Arguments
-        
         * `url` - The URL to set the cookies for.
-        * `value` - A list of cookie strings to set.
-        
-        # Returns
-        
-        A `PyResult` indicating success or failure.
+        * `cookie` - The cookie to set.
         
         # Examples
         
@@ -802,9 +825,32 @@ class Client:
         import rnet
         
         client = rnet.Client(cookie_store=True)
-        client.set_cookies("https://example.com", ["cookie1=value1", "cookie2=value2"])
-        client.set_cookies("https://example.com", [rnet.Cookie("cookie1=value1"), rnet.Cookie("cookie2=value2")])
+        client.set_cookie("https://example.com", rnet.Cookie(name="foo", value="bar"))
         ```
+        """
+        ...
+
+    def remove_cookie(self, url:str, name:str) -> None:
+        r"""
+        Removes the cookie with the given name for the given URL.
+        
+        # Arguments
+        * `url` - The URL to remove the cookie from.
+        * `name` - The name of the cookie to remove.
+        
+        # Examples
+        
+        ```python
+        import rnet
+        
+        client = rnet.Client(cookie_store=True)
+        client.remove_cookie("https://example.com", "foo")
+        """
+        ...
+
+    def clear_cookies(self) -> None:
+        r"""
+        Clears the cookies for the given URL.
         """
         ...
 

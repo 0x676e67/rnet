@@ -11,7 +11,7 @@ mod status;
 
 pub use self::{
     body::FromPyBody,
-    cookie::{Cookie, CookieFromPyDict, CookieFromPyList},
+    cookie::{Cookie, CookieFromPyDict},
     enums::{Impersonate, ImpersonateOS, LookupIpStrategy, Method, SameSite, TlsVersion, Version},
     headers::{
         HeaderMap, HeaderMapFromPyDict, HeaderMapItemsIter, HeaderMapKeysIter,

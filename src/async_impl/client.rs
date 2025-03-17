@@ -5,7 +5,7 @@ use crate::{
     dns,
     error::{wrap_rquest_error, wrap_url_parse_error},
     param::{ClientParams, RequestParams, UpdateClientParams, WebSocketParams},
-    typing::{CookieFromPyList, HeaderMap, ImpersonateOS, Method, SslVerify, TlsVersion},
+    typing::{Cookie, HeaderMap, ImpersonateOS, Method, SslVerify, TlsVersion},
 };
 use pyo3::{prelude::*, pybacked::PyBackedStr};
 use pyo3_async_runtimes::tokio::future_into_py;
@@ -720,16 +720,11 @@ impl Client {
             .transpose()
     }
 
-    /// Sets cookies for the given URL.
+    /// Sets the cookies for the given URL.
     ///
     /// # Arguments
-    ///
     /// * `url` - The URL to set the cookies for.
-    /// * `value` - A list of cookie strings to set.
-    ///
-    /// # Returns
-    ///
-    /// A `PyResult` indicating success or failure.
+    /// * `cookie` - The cookie to set.
     ///
     /// # Examples
     ///
@@ -737,20 +732,43 @@ impl Client {
     /// import rnet
     ///
     /// client = rnet.Client(cookie_store=True)
-    /// client.set_cookies("https://example.com", ["cookie1=value1", "cookie2=value2"])
-    /// client.set_cookies("https://example.com", [rnet.Cookie("cookie1=value1"), rnet.Cookie("cookie2=value2")])
+    /// client.set_cookie("https://example.com", rnet.Cookie(name="foo", value="bar"))
     /// ```
-    #[pyo3(signature = (url, cookies))]
-    pub fn set_cookies(
-        &self,
-        py: Python,
-        url: PyBackedStr,
-        cookies: CookieFromPyList,
-    ) -> PyResult<()> {
+    #[pyo3(signature = (url, cookie))]
+    pub fn set_cookie(&self, py: Python, url: PyBackedStr, cookie: Cookie) -> PyResult<()> {
         py.allow_threads(|| {
             let url = Url::parse(url.as_ref()).map_err(wrap_url_parse_error)?;
-            self.0.set_cookies(&url, cookies.0);
+            self.0.set_cookie(&url, cookie.0);
             Ok(())
+        })
+    }
+
+    /// Removes the cookie with the given name for the given URL.
+    ///
+    /// # Arguments
+    /// * `url` - The URL to remove the cookie from.
+    /// * `name` - The name of the cookie to remove.
+    ///
+    /// # Examples
+    ///
+    /// ```python
+    /// import rnet
+    ///
+    /// client = rnet.Client(cookie_store=True)
+    /// client.remove_cookie("https://example.com", "foo")
+    #[pyo3(signature = (url, name))]
+    pub fn remove_cookie(&self, py: Python, url: PyBackedStr, name: PyBackedStr) -> PyResult<()> {
+        py.allow_threads(|| {
+            let url = Url::parse(url.as_ref()).map_err(wrap_url_parse_error)?;
+            self.0.remove_cookie(&url, &name);
+            Ok(())
+        })
+    }
+
+    /// Clears the cookies for the given URL.
+    pub fn clear_cookies(&self, py: Python) {
+        py.allow_threads(|| {
+            self.0.clear_cookies();
         })
     }
 

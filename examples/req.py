@@ -4,12 +4,12 @@ from rnet import Method
 
 
 async def main():
-    resp = await rnet.request(Method.GET, "https://www.google.com/")
+    resp: rnet.Response = await rnet.request(Method.GET, "https://www.google.com/")
     print("Status Code: ", resp.status_code)
     print("Version: ", resp.version)
     print("Response URL: ", resp.url)
     print("Headers: ", resp.headers)
-    print("Cookies: ", resp.cookies["AEC"])
+    print("Cookies: ", resp.cookies)
     print("Content-Length: ", resp.content_length)
     print("Encoding: ", resp.encoding)
     print("Remote Address: ", resp.remote_addr)
@@ -20,7 +20,9 @@ async def main():
 
     for key, value in resp.headers.items():
         print(f"{key}: {value}")
-
+        
+    for cookie in resp.cookies:
+        print(cookie)
     # Close the response connection
     # resp.close()
 

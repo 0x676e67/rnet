@@ -192,7 +192,7 @@ define_enum_with_conversion!(
     /// The Cookie SameSite attribute.
     const,
     SameSite,
-    cookie::SameSite,
+    rquest::cookie::SameSite,
     Strict,
     Lax,
     None,

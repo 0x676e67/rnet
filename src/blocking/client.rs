@@ -2,7 +2,7 @@ use super::{http::BlockingResponse, ws::BlockingWebSocket};
 use crate::{
     async_impl::{self, execute_request, execute_websocket_request},
     param::{ClientParams, RequestParams, UpdateClientParams, WebSocketParams},
-    typing::{CookieFromPyList, HeaderMap, Method},
+    typing::{Cookie, HeaderMap, Method},
 };
 use pyo3::{prelude::*, pybacked::PyBackedStr};
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
@@ -453,20 +453,49 @@ impl BlockingClient {
         self.0.get_cookies(py, url)
     }
 
-    /// Sets cookies for the given URL.
+    /// Sets the cookies for the given URL.
     ///
     /// # Arguments
-    ///
     /// * `url` - The URL to set the cookies for.
-    /// * `value` - A list of cookie strings to set.
+    /// * `cookie` - The cookie to set.
     ///
-    /// # Returns
+    /// # Examples
     ///
-    /// A `PyResult` indicating success or failure.
-    #[pyo3(signature = (url, value))]
+    /// ```python
+    /// import rnet
+    ///
+    /// client = rnet.Client(cookie_store=True)
+    /// client.set_cookie("https://example.com", rnet.Cookie(name="foo", value="bar"))
+    /// ```
+    #[pyo3(signature = (url, cookie))]
     #[inline(always)]
-    fn set_cookies(&self, py: Python, url: PyBackedStr, value: CookieFromPyList) -> PyResult<()> {
-        self.0.set_cookies(py, url, value)
+    pub fn set_cookie(&self, py: Python, url: PyBackedStr, cookie: Cookie) -> PyResult<()> {
+        self.0.set_cookie(py, url, cookie)
+    }
+
+    /// Removes the cookie with the given name for the given URL.
+    ///
+    /// # Arguments
+    /// * `url` - The URL to remove the cookie from.
+    /// * `name` - The name of the cookie to remove.
+    ///
+    /// # Examples
+    ///
+    /// ```python
+    /// import rnet
+    ///
+    /// client = rnet.Client(cookie_store=True)
+    /// client.remove_cookie("https://example.com", "foo")
+    #[pyo3(signature = (url, name))]
+    #[inline(always)]
+    pub fn remove_cookie(&self, py: Python, url: PyBackedStr, name: PyBackedStr) -> PyResult<()> {
+        self.0.remove_cookie(py, url, name)
+    }
+
+    /// Clears the cookies for the given URL.
+    #[inline(always)]
+    pub fn clear_cookies(&self, py: Python) {
+        self.0.clear_cookies(py);
     }
 
     /// Updates the client with the given parameters.
