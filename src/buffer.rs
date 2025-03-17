@@ -15,6 +15,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
+// This ignores bug warnings for macro-generated code
+#![allow(unsafe_op_in_unsafe_fn)]
+
 use bytes::Bytes;
 use pyo3::IntoPyObjectExt;
 use pyo3::ffi;
@@ -39,121 +42,42 @@ pub trait PyBufferProtocol<'py>: IntoPyObject<'py> {
     }
 }
 
-/// A bytes-like object that implements buffer protocol.
-#[pyclass]
-pub struct Buffer {
-    inner: Vec<u8>,
+macro_rules! impl_buffer {
+    ($name:ident, $inner_type:ty) => {
+        #[pyclass]
+        pub struct $name {
+            inner: $inner_type,
+        }
+
+        impl $name {
+            pub fn new(inner: $inner_type) -> Self {
+                $name { inner }
+            }
+        }
+
+        impl PyBufferProtocol<'_> for $name {
+            fn as_slice(&self) -> &[u8] {
+                self.inner.as_ref() as &[u8]
+            }
+        }
+
+        #[pymethods]
+        impl $name {
+            unsafe fn __getbuffer__(
+                slf: PyRefMut<Self>,
+                view: *mut ffi::Py_buffer,
+                flags: c_int,
+            ) -> PyResult<()> {
+                unsafe { fill_buffer_info(slf.as_slice(), slf.as_ptr(), view, flags, slf.py()) }
+            }
+        }
+    };
 }
 
-impl PyBufferProtocol<'_> for Buffer {
-    fn as_slice(&self) -> &[u8] {
-        &self.inner
-    }
-}
-
-impl Buffer {
-    pub fn new(inner: Vec<u8>) -> Self {
-        Buffer { inner }
-    }
-}
-
-#[pymethods]
-impl Buffer {
-    unsafe fn __getbuffer__(
-        slf: PyRefMut<Self>,
-        view: *mut ffi::Py_buffer,
-        flags: c_int,
-    ) -> PyResult<()> {
-        unsafe { fill_buffer_info(slf.as_slice(), slf.as_ptr(), view, flags, slf.py()) }
-    }
-}
-
-/// A bytes-like object that implements buffer protocol.
-#[pyclass]
-pub struct BytesBuffer {
-    inner: Bytes,
-}
-
-impl PyBufferProtocol<'_> for BytesBuffer {
-    fn as_slice(&self) -> &[u8] {
-        &self.inner
-    }
-}
-
-impl BytesBuffer {
-    pub fn new(inner: Bytes) -> Self {
-        BytesBuffer { inner }
-    }
-}
-
-#[pymethods]
-impl BytesBuffer {
-    unsafe fn __getbuffer__(
-        slf: PyRefMut<Self>,
-        view: *mut ffi::Py_buffer,
-        flags: c_int,
-    ) -> PyResult<()> {
-        unsafe { fill_buffer_info(slf.as_slice(), slf.as_ptr(), view, flags, slf.py()) }
-    }
-}
-
-/// A header value that implements buffer protocol.
-#[pyclass]
-pub struct HeaderValueBuffer {
-    inner: HeaderValue,
-}
-
-impl HeaderValueBuffer {
-    pub fn new(inner: HeaderValue) -> Self {
-        HeaderValueBuffer { inner }
-    }
-}
-
-impl PyBufferProtocol<'_> for HeaderValueBuffer {
-    fn as_slice(&self) -> &[u8] {
-        self.inner.as_bytes()
-    }
-}
-
-#[pymethods]
-impl HeaderValueBuffer {
-    unsafe fn __getbuffer__(
-        slf: PyRefMut<Self>,
-        view: *mut ffi::Py_buffer,
-        flags: c_int,
-    ) -> PyResult<()> {
-        unsafe { fill_buffer_info(slf.as_slice(), slf.as_ptr(), view, flags, slf.py()) }
-    }
-}
-
-/// A header name that implements buffer protocol.
-#[pyclass]
-pub struct HeaderNameBuffer {
-    inner: HeaderName,
-}
-
-impl HeaderNameBuffer {
-    pub fn new(inner: HeaderName) -> Self {
-        HeaderNameBuffer { inner }
-    }
-}
-
-impl PyBufferProtocol<'_> for HeaderNameBuffer {
-    fn as_slice(&self) -> &[u8] {
-        self.inner.as_ref()
-    }
-}
-
-#[pymethods]
-impl HeaderNameBuffer {
-    unsafe fn __getbuffer__(
-        slf: PyRefMut<Self>,
-        view: *mut ffi::Py_buffer,
-        flags: c_int,
-    ) -> PyResult<()> {
-        unsafe { fill_buffer_info(slf.as_slice(), slf.as_ptr(), view, flags, slf.py()) }
-    }
-}
+impl_buffer!(Buffer, Vec<u8>);
+impl_buffer!(BytesBuffer, Bytes);
+impl_buffer!(HeaderValueBuffer, HeaderValue);
+impl_buffer!(HeaderNameBuffer, HeaderName);
 
 /// A helper function to fill buffer info
 unsafe fn fill_buffer_info(
