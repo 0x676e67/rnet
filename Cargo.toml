@@ -34,7 +34,7 @@ indexmap = { version = "2.8.0", features = ["serde"] }
 cookie = "0.18.0"
 arc-swap = "1.7.1"
 url = "2.5"
-rquest = { version = "3.0.6", features = [
+rquest = { version = "4.1.0", features = [
     "full",
     "multipart",
     "websocket",
