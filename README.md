@@ -21,6 +21,7 @@ A blazing-fast Python HTTP client with TLS fingerprint, capable of mimicking `TL
 - WebSocket Upgrade
 - Async DNS Resolver
 - HTTPS via BoringSSL
+- Free-Threaded Safety
 
 ## Example
 
@@ -34,13 +35,12 @@ And then the code:
 
 ```python
 import asyncio
-from rnet import Impersonate, ImpersonateOS, Client
+from rnet import Impersonate, Client
 
 
 async def main():
     client = Client(
-        impersonate=Impersonate.Firefox136,
-        impersonate_os=ImpersonateOS.Windows,
+        impersonate=Impersonate.Firefox136
     )
     resp = await client.get("https://tls.browserleaks.com")
     print("Status Code: ", resp.status_code)
@@ -128,7 +128,7 @@ In fact, most device models share the same `TLS`/`HTTP2` configuration, with the
 
 | **Browser**   | **Versions**                                                                                     |
 |---------------|--------------------------------------------------------------------------------------------------|
-| **Chrome**    | `Chrome100`, `Chrome101`, `Chrome104`, `Chrome105`, `Chrome106`, `Chrome107`, `Chrome108`, `Chrome109`, `Chrome114`, `Chrome116`, `Chrome117`, `Chrome118`, `Chrome119`, `Chrome120`, `Chrome123`, `Chrome124`, `Chrome126`, `Chrome127`, `Chrome128`, `Chrome129`, `Chrome130`, `Chrome131`, `Chrome132`, `Chrome133` |
+| **Chrome**    | `Chrome100`, `Chrome101`, `Chrome104`, `Chrome105`, `Chrome106`, `Chrome107`, `Chrome108`, `Chrome109`, `Chrome114`, `Chrome116`, `Chrome117`, `Chrome118`, `Chrome119`, `Chrome120`, `Chrome123`, `Chrome124`, `Chrome126`, `Chrome127`, `Chrome128`, `Chrome129`, `Chrome130`, `Chrome131`, `Chrome132`, `Chrome133`, `Chrome134` |
 | **Edge**      | `Edge101`, `Edge122`, `Edge127`, `Edge131`, `Edge134`                                                       |
 | **Safari**    | `SafariIos17_2`, `SafariIos17_4_1`, `SafariIos16_5`, `Safari15_3`, `Safari15_5`, `Safari15_6_1`, `Safari16`, `Safari16_5`, `Safari17_0`, `Safari17_2_1`, `Safari17_4_1`, `Safari17_5`, `Safari18`,             `SafariIPad18`, `Safari18_2`, `Safari18_1_1`, `Safari18_3` |
 | **OkHttp**    | `OkHttp3_9`, `OkHttp3_11`, `OkHttp3_13`, `OkHttp3_14`, `OkHttp4_9`, `OkHttp4_10`, `OkHttp4_12`, `OkHttp5`         |
