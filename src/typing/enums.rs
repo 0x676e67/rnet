@@ -113,6 +113,7 @@ define_enum_with_conversion!(
     Chrome131,
     Chrome132,
     Chrome133,
+    Chrome134,
     Edge101,
     Edge122,
     Edge127,
