@@ -1,11 +1,20 @@
 import asyncio
 import rnet
+from rnet import Proxy
 
 
 async def main():
     resp = await rnet.post(
         "https://httpbin.org/anything",
-        proxy="http://127.0.0.1:6152",
+        proxy=Proxy.all(
+            url="http://127.0.0.1:6152",
+            custom_httt_headers={
+                "user-agent": "rnet",
+                "accept": "*/*",
+                "accept-encoding": "gzip, deflate, br",
+                "x-proxy": "rnet",
+            },
+        ),
     )
     print("Status Code: ", resp.status_code)
     print("Version: ", resp.version)

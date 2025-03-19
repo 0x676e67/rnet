@@ -7,7 +7,10 @@ use pyo3::{
     pybacked::PyBackedStr,
     types::{PyDict, PyList},
 };
-use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
+use pyo3_stub_gen::{
+    PyStubType, TypeInfo,
+    derive::{gen_stub_pyclass, gen_stub_pymethods},
+};
 use rquest::header::{self, HeaderName, HeaderValue};
 use std::str::FromStr;
 
@@ -156,6 +159,24 @@ impl FromPyObject<'_> for HeaderMapFromPyDict {
                 },
             )
             .map(Self)
+    }
+}
+
+impl<'py> IntoPyObject<'py> for HeaderMapFromPyDict {
+    type Target = HeaderMap;
+
+    type Output = Bound<'py, Self::Target>;
+
+    type Error = PyErr;
+
+    fn into_pyobject(self, py: Python<'py>) -> Result<Self::Output, Self::Error> {
+        HeaderMap(self.0).into_pyobject(py)
+    }
+}
+
+impl PyStubType for HeaderMapFromPyDict {
+    fn type_output() -> TypeInfo {
+        TypeInfo::with_module("typing.Dict[str, str]", "typing".into())
     }
 }
 

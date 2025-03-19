@@ -1,5 +1,5 @@
 use crate::typing::{
-    CookieFromPyDict, FromPyBody, HeaderMapFromPyDict, IpAddr, Json, Multipart, QueryOrForm,
+    CookieFromPyDict, FromPyBody, HeaderMapFromPyDict, IpAddr, Json, Multipart, Proxy, QueryOrForm,
     Version,
 };
 use pyo3::{prelude::*, pybacked::PyBackedStr};
@@ -9,7 +9,7 @@ use pyo3_stub_gen::{PyStubType, TypeInfo};
 #[derive(Default)]
 pub struct RequestParams {
     /// The proxy to use for the request.
-    pub proxy: Option<String>,
+    pub proxy: Option<rquest::Proxy>,
 
     /// Bind to a local IP Address.
     pub local_address: Option<IpAddr>,
@@ -74,7 +74,10 @@ macro_rules! extract_option {
 impl<'py> FromPyObject<'py> for RequestParams {
     fn extract_bound(ob: &Bound<'py, PyAny>) -> PyResult<RequestParams> {
         let mut params = Self::default();
-        extract_option!(ob, params, proxy);
+        if let Ok(ob) = ob.get_item("proxy") {
+            let proxy = ob.downcast_into_exact::<Proxy>()?;
+            params.proxy = proxy.borrow_mut().0.take();
+        }
         extract_option!(ob, params, local_address);
         extract_option!(ob, params, interface);
         extract_option!(ob, params, timeout);

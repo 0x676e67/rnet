@@ -1,9 +1,11 @@
+use super::HeaderMapFromPyDict;
 use crate::error::wrap_rquest_error;
 use pyo3::prelude::*;
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 use rquest::header::HeaderValue;
 
 /// A proxy server for a request.
+/// Supports HTTP, HTTPS, SOCKS4, SOCKS4a, SOCKS5, and SOCKS5h protocols.
 #[gen_stub_pyclass]
 #[pyclass]
 pub struct Proxy(pub Option<rquest::Proxy>);
@@ -40,6 +42,7 @@ impl Proxy {
         username = None,
         password = None,
         custom_http_auth = None,
+        custom_httt_headers = None,
         exclusion = None,
     ))]
     #[inline]
@@ -48,6 +51,7 @@ impl Proxy {
         username: Option<&str>,
         password: Option<&str>,
         custom_http_auth: Option<&str>,
+        custom_httt_headers: Option<HeaderMapFromPyDict>,
         exclusion: Option<&str>,
     ) -> PyResult<Self> {
         Self::create_proxy(
@@ -56,6 +60,7 @@ impl Proxy {
             username,
             password,
             custom_http_auth,
+            custom_httt_headers,
             exclusion,
         )
     }
@@ -89,6 +94,7 @@ impl Proxy {
         username = None,
         password = None,
         custom_http_auth = None,
+        custom_httt_headers = None,
         exclusion = None,
     ))]
     #[inline]
@@ -97,6 +103,7 @@ impl Proxy {
         username: Option<&str>,
         password: Option<&str>,
         custom_http_auth: Option<&str>,
+        custom_httt_headers: Option<HeaderMapFromPyDict>,
         exclusion: Option<&str>,
     ) -> PyResult<Self> {
         Self::create_proxy(
@@ -105,6 +112,7 @@ impl Proxy {
             username,
             password,
             custom_http_auth,
+            custom_httt_headers,
             exclusion,
         )
     }
@@ -138,6 +146,7 @@ impl Proxy {
         username = None,
         password = None,
         custom_http_auth = None,
+        custom_httt_headers = None,
         exclusion = None,
     ))]
     #[inline]
@@ -146,6 +155,7 @@ impl Proxy {
         username: Option<&str>,
         password: Option<&str>,
         custom_http_auth: Option<&str>,
+        custom_httt_headers: Option<HeaderMapFromPyDict>,
         exclusion: Option<&str>,
     ) -> PyResult<Self> {
         Self::create_proxy(
@@ -154,6 +164,7 @@ impl Proxy {
             username,
             password,
             custom_http_auth,
+            custom_httt_headers,
             exclusion,
         )
     }
@@ -166,6 +177,7 @@ impl Proxy {
         username: Option<&'a str>,
         password: Option<&str>,
         custom_http_auth: Option<&'a str>,
+        custom_httt_headers: Option<HeaderMapFromPyDict>,
         exclusion: Option<&'a str>,
     ) -> PyResult<Self> {
         let mut proxy = proxy_fn(url).map_err(wrap_rquest_error)?;
@@ -177,6 +189,11 @@ impl Proxy {
         // Convert the custom HTTP auth string to a header value.
         if let Some(Ok(custom_http_auth)) = custom_http_auth.map(HeaderValue::from_str) {
             proxy = proxy.custom_http_auth(custom_http_auth)
+        }
+
+        // Convert the custom HTTP headers to a HeaderMap instance.
+        if let Some(custom_httt_headers) = custom_httt_headers {
+            proxy = proxy.custom_http_headers(custom_httt_headers.0)
         }
 
         // Convert the exclusion list to a NoProxy instance.
