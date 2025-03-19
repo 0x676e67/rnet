@@ -25,11 +25,11 @@ impl From<FromPyBody> for rquest::Body {
 impl FromPyObject<'_> for FromPyBody {
     fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
         if let Ok(text) = ob.extract::<PyBackedStr>() {
-            return Ok(Self::Text(Bytes::from(text.as_bytes().to_vec())));
+            return Ok(Self::Text(Bytes::from_owner(text)));
         }
 
         if let Ok(bytes) = ob.extract::<PyBackedBytes>() {
-            return Ok(Self::Bytes(Bytes::from(bytes.as_ref().to_vec())));
+            return Ok(Self::Bytes(Bytes::from_owner(bytes)));
         }
 
         if ob.hasattr("asend")? {

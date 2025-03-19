@@ -3,7 +3,6 @@ use pyo3::{
     pybacked::{PyBackedBytes, PyBackedStr},
 };
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
-use rquest::Utf8Bytes;
 
 use crate::{
     buffer::{BytesBuffer, PyBufferProtocol},
@@ -242,7 +241,9 @@ impl Message {
     pub fn from_close(code: u16, reason: Option<String>) -> Self {
         let msg = rquest::Message::close(rquest::CloseFrame {
             code: rquest::CloseCode(code),
-            reason: Utf8Bytes::from(reason.as_deref().unwrap_or("Goodbye")),
+            reason: reason
+                .map(Into::into)
+                .unwrap_or_else(|| rquest::Utf8Bytes::from_static("Goodbye")),
         });
         Message(msg)
     }

@@ -106,7 +106,9 @@ impl WebSocket {
                         .map(rquest::CloseCode)
                         .unwrap_or(rquest::CloseCode::NORMAL),
 
-                    reason: rquest::Utf8Bytes::from(reason.as_deref().unwrap_or("Goodbye")),
+                    reason: reason
+                        .map(Into::into)
+                        .unwrap_or_else(|| rquest::Utf8Bytes::from_static("Goodbye")),
                 })))
                 .await
                 .map_err(wrap_rquest_error)?;
