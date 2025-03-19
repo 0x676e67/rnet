@@ -3,7 +3,7 @@ use crate::{
     error::py_stop_iteration_error,
     typing::{Cookie, HeaderMap, SocketAddr, StatusCode, Version},
 };
-use pyo3::prelude::*;
+use pyo3::{prelude::*, pybacked::PyBackedStr};
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 use std::ops::Deref;
 
@@ -159,7 +159,12 @@ impl BlockingWebSocket {
     /// A `PyResult` containing a `Bound` object.
     #[pyo3(signature = (code=None, reason=None))]
     #[inline(always)]
-    pub fn close(&self, py: Python, code: Option<u16>, reason: Option<String>) -> PyResult<()> {
+    pub fn close(
+        &self,
+        py: Python,
+        code: Option<u16>,
+        reason: Option<PyBackedStr>,
+    ) -> PyResult<()> {
         py.allow_threads(|| {
             pyo3_async_runtimes::tokio::get_runtime().block_on(async_impl::WebSocket::_close(
                 self.receiver(),

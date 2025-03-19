@@ -20,6 +20,7 @@ A blazing-fast Python HTTP client with TLS fingerprint, capable of mimicking `TL
 - Rotating Proxies
 - Connection Pooling
 - Streaming Transfers
+- Zero-Copy Transfers
 - WebSocket Upgrade
 - Async DNS Resolver
 - HTTPS via BoringSSL

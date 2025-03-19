@@ -1,3 +1,4 @@
+use bytes::Bytes;
 use pyo3::{
     prelude::*,
     pybacked::{PyBackedBytes, PyBackedStr},
@@ -239,10 +240,13 @@ impl Message {
     #[staticmethod]
     #[pyo3(signature = (code, reason=None))]
     #[inline(always)]
-    pub fn from_close(code: u16, reason: Option<String>) -> Self {
+    pub fn from_close(code: u16, reason: Option<PyBackedStr>) -> Self {
+        let reason = reason
+            .and_then(|r| Utf8Bytes::try_from(Bytes::from_owner(r)).ok())
+            .unwrap_or_else(|| rquest::Utf8Bytes::from_static("Goodbye"));
         let msg = rquest::Message::close(rquest::CloseFrame {
             code: rquest::CloseCode(code),
-            reason: Utf8Bytes::from(reason.as_deref().unwrap_or("Goodbye")),
+            reason,
         });
         Message(msg)
     }

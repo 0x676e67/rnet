@@ -4,15 +4,19 @@ use crate::{
     error::{py_stop_async_iteration_error, websocket_disconnect_error, wrap_rquest_error},
     typing::{Cookie, HeaderMap, SocketAddr, StatusCode, Version},
 };
+use bytes::Bytes;
 use futures_util::{
     SinkExt, StreamExt, TryStreamExt,
     stream::{SplitSink, SplitStream},
 };
 pub use message::Message;
-use pyo3::{IntoPyObjectExt, prelude::*};
+use pyo3::{IntoPyObjectExt, prelude::*, pybacked::PyBackedStr};
 use pyo3_async_runtimes::tokio::future_into_py;
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
-use rquest::header::{self, HeaderValue};
+use rquest::{
+    Utf8Bytes,
+    header::{self, HeaderValue},
+};
 use std::sync::Arc;
 use tokio::sync::Mutex;
 
@@ -88,7 +92,7 @@ impl WebSocket {
         receiver: Receiver,
         sender: Sender,
         code: Option<u16>,
-        reason: Option<String>,
+        reason: Option<PyBackedStr>,
     ) -> PyResult<()> {
         let mut lock = receiver.lock().await;
         let receiver = lock.take();
@@ -100,13 +104,16 @@ impl WebSocket {
         drop(lock);
 
         if let Some(mut sender) = sender {
+            let reason = reason
+                .and_then(|r| Utf8Bytes::try_from(Bytes::from_owner(r)).ok())
+                .unwrap_or_else(|| rquest::Utf8Bytes::from_static("Goodbye"));
             sender
                 .send(rquest::Message::Close(Some(rquest::CloseFrame {
                     code: code
                         .map(rquest::CloseCode)
                         .unwrap_or(rquest::CloseCode::NORMAL),
 
-                    reason: rquest::Utf8Bytes::from(reason.as_deref().unwrap_or("Goodbye")),
+                    reason,
                 })))
                 .await
                 .map_err(wrap_rquest_error)?;
@@ -278,7 +285,7 @@ impl WebSocket {
         &self,
         py: Python<'rt>,
         code: Option<u16>,
-        reason: Option<String>,
+        reason: Option<PyBackedStr>,
     ) -> PyResult<Bound<'rt, PyAny>> {
         let sender = self.sender.clone();
         let receiver = self.receiver.clone();

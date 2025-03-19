@@ -68,8 +68,7 @@ impl Stream for AsyncStream {
 fn downcast_bound_bytes(py: Python<'_>, ob: PyObject) -> PyResult<Bytes> {
     let bind = ob.bind(py);
     bind.extract::<PyBackedBytes>()
-        .map(move |b| b.as_ref().to_vec())
-        .map(Bytes::from)
+        .map(Bytes::from_owner)
         .map_err(|_| pyo3::exceptions::PyTypeError::new_err("Stream must yield bytes-like objects"))
 }
 
