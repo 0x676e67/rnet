@@ -17,6 +17,7 @@ use std::{net::IpAddr, ops::Deref};
 /// A client for making HTTP requests.
 #[gen_stub_pyclass]
 #[pyclass]
+#[pyo3(subclass)]
 pub struct Client(rquest::Client);
 
 impl Deref for Client {

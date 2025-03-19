@@ -1,6 +1,33 @@
 import pytest
 import rnet
-from rnet import Impersonate, ImpersonateOS, Cookie
+from rnet import Cookie, Impersonate, ImpersonateOS
+
+
+@pytest.mark.asyncio
+@pytest.mark.flaky(reruns=1, reruns_delay=2)
+async def test_inherit_client():
+    class SubClient(rnet.Client):
+        def __init__(self, **kwargs):
+            self.test_var = "test"
+            self.cookie_jar = None
+
+    client = SubClient(impersonate=Impersonate.Chrome133)
+    url = "https://google.com"
+    response = await client.get(url)
+    text = await response.text()
+    assert text is not None
+    assert client.cookie_jar is None
+    assert client.test_var == "test"
+    client.update(
+        impersonate=Impersonate.Firefox135,
+        impersonate_os=ImpersonateOS.Windows,
+        Impersonate_skip_headers=False,
+    )
+    assert (
+        client.user_agent
+        == "Mozilla/5.0 (Windows NT 10.0; rv:135.0) Gecko/20100101 Firefox/135.0"
+    )
+    assert client.test_var == "test"
 
 
 @pytest.mark.asyncio
