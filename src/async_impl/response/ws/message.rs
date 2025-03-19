@@ -1,8 +1,10 @@
+use bytes::Bytes;
 use pyo3::{
     prelude::*,
     pybacked::{PyBackedBytes, PyBackedStr},
 };
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
+use rquest::Utf8Bytes;
 
 use crate::{
     buffer::{BytesBuffer, PyBufferProtocol},
@@ -238,12 +240,13 @@ impl Message {
     #[staticmethod]
     #[pyo3(signature = (code, reason=None))]
     #[inline(always)]
-    pub fn from_close(code: u16, reason: Option<String>) -> Self {
+    pub fn from_close(code: u16, reason: Option<PyBackedStr>) -> Self {
+        let reason = reason
+            .and_then(|r| Utf8Bytes::try_from(Bytes::from_owner(r)).ok())
+            .unwrap_or_else(|| rquest::Utf8Bytes::from_static("Goodbye"));
         let msg = rquest::Message::close(rquest::CloseFrame {
             code: rquest::CloseCode(code),
-            reason: reason
-                .map(Into::into)
-                .unwrap_or_else(|| rquest::Utf8Bytes::from_static("Goodbye")),
+            reason,
         });
         Message(msg)
     }
