@@ -145,6 +145,7 @@ define_enum_with_conversion!(
     SafariIPad18,
     Safari18_2,
     Safari18_3,
+    Safari18_3_1,
     SafariIos18_1_1,
     OkHttp3_9,
     OkHttp3_11,
