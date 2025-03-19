@@ -57,11 +57,6 @@ pub fn websocket_disconnect_error() -> pyo3::PyErr {
 }
 
 #[inline(always)]
-pub fn stream_consumed_error() -> pyo3::PyErr {
-    BodyError::new_err("Stream is already consumed")
-}
-
-#[inline(always)]
 pub fn wrap_invali_header_name_error(error: header::InvalidHeaderName) -> pyo3::PyErr {
     PyRuntimeError::new_err(format!("Invalid header name: {:?}", error))
 }

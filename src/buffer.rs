@@ -82,7 +82,7 @@ impl_buffer!(HeaderNameBuffer, HeaderName);
 /// A helper function to fill buffer info
 unsafe fn fill_buffer_info(
     bytes: &[u8],
-    obj_ptr: *mut pyo3::ffi::PyObject,
+    obj_ptr: *mut ffi::PyObject,
     view: *mut ffi::Py_buffer,
     flags: c_int,
     py: Python,

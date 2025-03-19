@@ -1,8 +1,7 @@
 use crate::{
-    error::{MIMEParseError, stream_consumed_error, wrap_io_error},
+    error::{MIMEParseError, wrap_io_error},
     stream::{AsyncStream, SyncStream},
 };
-use arc_swap::ArcSwapOption;
 use bytes::Bytes;
 use pyo3::{
     prelude::*,
@@ -12,7 +11,7 @@ use pyo3_stub_gen::{
     PyStubType, TypeInfo,
     derive::{gen_stub_pyclass, gen_stub_pymethods},
 };
-use std::{fmt::Debug, path::PathBuf, sync::Arc};
+use std::path::PathBuf;
 
 /// A part of a multipart form.
 #[gen_stub_pyclass]
@@ -27,20 +26,8 @@ pub enum PartData {
     Text(Bytes),
     Bytes(Bytes),
     File(PathBuf),
-    Iterator(Arc<ArcSwapOption<SyncStream>>),
-    Stream(Arc<ArcSwapOption<AsyncStream>>),
-}
-
-impl Debug for PartData {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::Text(inner) => write!(f, "PartData::Text({:?})", inner),
-            Self::Bytes(inner) => write!(f, "PartData::Bytes({:?})", inner),
-            Self::File(inner) => write!(f, "PartData::File({:?})", inner),
-            Self::Iterator(_) => write!(f, "PartData::Iterator(...)"),
-            Self::Stream(_) => write!(f, "PartData::Stream(...)"),
-        }
-    }
+    SyncStream(SyncStream),
+    AsyncStream(AsyncStream),
 }
 
 impl PyStubType for PartData {
@@ -71,16 +58,8 @@ impl Part {
                 PartData::File(path) => pyo3_async_runtimes::tokio::get_runtime()
                     .block_on(rquest::multipart::Part::file(path))
                     .map_err(wrap_io_error)?,
-                PartData::Iterator(iterator) => iterator
-                    .swap(None)
-                    .and_then(Arc::into_inner)
-                    .map(Into::into)
-                    .ok_or_else(stream_consumed_error)?,
-                PartData::Stream(stream) => stream
-                    .swap(None)
-                    .and_then(Arc::into_inner)
-                    .map(Into::into)
-                    .ok_or_else(stream_consumed_error)?,
+                PartData::SyncStream(stream) => rquest::multipart::Part::stream(stream),
+                PartData::AsyncStream(stream) => rquest::multipart::Part::stream(stream),
             };
 
             // Set the filename and MIME type if provided
@@ -120,15 +99,11 @@ impl FromPyObject<'_> for PartData {
         if ob.hasattr("asend")? {
             pyo3_async_runtimes::tokio::into_stream_v2(ob.to_owned())
                 .map(AsyncStream::new)
-                .map(ArcSwapOption::from_pointee)
-                .map(Arc::new)
-                .map(Self::Stream)
+                .map(Self::AsyncStream)
         } else {
             ob.extract::<PyObject>()
                 .map(SyncStream::new)
-                .map(ArcSwapOption::from_pointee)
-                .map(Arc::new)
-                .map(Self::Iterator)
+                .map(Self::SyncStream)
         }
     }
 }
