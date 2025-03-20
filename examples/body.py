@@ -5,7 +5,10 @@ import rnet
 async def gen():
     for i in range(10):
         await asyncio.sleep(0.1)
-        yield i.to_bytes()
+        # bytes chunk
+        yield bytes(f"Hello {i}\n", "utf-8")
+        # str chunk
+        # yield str("Hello {}\n".format(i)).encode("utf-8")
 
 
 async def main():

@@ -1,6 +1,9 @@
 use bytes::Bytes;
 use futures_util::Stream;
-use pyo3::{PyObject, PyResult, Python, pybacked::PyBackedBytes, types::PyAnyMethods};
+use pyo3::{
+    PyObject, PyResult, Python,
+    pybacked::{PyBackedBytes, PyBackedStr},
+};
 use std::{pin::Pin, task::Context};
 
 pub struct SyncStream {
@@ -66,8 +69,13 @@ impl Stream for AsyncStream {
 
 #[inline]
 fn downcast_bound_bytes(py: Python<'_>, ob: PyObject) -> PyResult<Bytes> {
-    let bind = ob.bind(py);
-    bind.extract::<PyBackedBytes>()
+    if let Ok(str_chunk) = ob.extract::<PyBackedBytes>(py) {
+        return Ok(Bytes::from_owner(str_chunk));
+    }
+
+    ob.extract::<PyBackedStr>(py)
         .map(Bytes::from_owner)
-        .map_err(|_| pyo3::exceptions::PyTypeError::new_err("Stream must yield bytes-like objects"))
+        .map_err(|_| {
+            pyo3::exceptions::PyTypeError::new_err("Stream must yield bytes/str - like objects")
+        })
 }

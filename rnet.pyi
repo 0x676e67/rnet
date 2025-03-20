@@ -1759,7 +1759,7 @@ class Response:
     def text_with_charset(self, encoding:builtins.str) -> typing.Any:
         r"""
         Returns the text content of the response with a specific charset.
-        
+        c
         # Arguments
         
         * `default_encoding` - The default encoding to use if the charset is not specified.
