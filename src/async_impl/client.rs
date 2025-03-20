@@ -3,9 +3,11 @@ use crate::{
     apply_option,
     buffer::{HeaderValueBuffer, PyBufferProtocol},
     dns,
-    error::{wrap_rquest_error, wrap_url_parse_error},
-    typing::param::{ClientParams, RequestParams, UpdateClientParams, WebSocketParams},
-    typing::{Cookie, HeaderMap, ImpersonateOS, Method, SslVerify, TlsVersion},
+    error::Error,
+    typing::{
+        Cookie, HeaderMap, ImpersonateOS, Method, SslVerify, TlsVersion,
+        param::{ClientParams, RequestParams, UpdateClientParams, WebSocketParams},
+    },
 };
 use pyo3::{prelude::*, pybacked::PyBackedStr};
 use pyo3_async_runtimes::tokio::future_into_py;
@@ -591,7 +593,7 @@ impl Client {
                     }
                     SslVerify::RootCertificateFilepath(path_buf) => {
                         let store =
-                            RootCertStore::from_pem_file(path_buf).map_err(wrap_rquest_error)?;
+                            RootCertStore::from_pem_file(path_buf).map_err(Error::RquestError)?;
                         builder.root_cert_store(store)
                     }
                 }
@@ -635,7 +637,11 @@ impl Client {
             apply_option!(apply_if_some, builder, params.deflate, deflate);
             apply_option!(apply_if_some, builder, params.zstd, zstd);
 
-            builder.build().map(Client).map_err(wrap_rquest_error)
+            builder
+                .build()
+                .map(Client)
+                .map_err(Error::RquestError)
+                .map_err(Into::into)
         })
     }
 
@@ -709,7 +715,7 @@ impl Client {
         url: PyBackedStr,
     ) -> PyResult<Option<Bound<'py, PyAny>>> {
         let cookies = py.allow_threads(|| {
-            let url = Url::parse(url.as_ref()).map_err(wrap_url_parse_error)?;
+            let url = Url::parse(url.as_ref()).map_err(Error::UrlParseError)?;
             let cookies = self.0.get_cookies(&url);
             Ok::<_, PyErr>(cookies)
         })?;
@@ -737,7 +743,7 @@ impl Client {
     #[pyo3(signature = (url, cookie))]
     pub fn set_cookie(&self, py: Python, url: PyBackedStr, cookie: Cookie) -> PyResult<()> {
         py.allow_threads(|| {
-            let url = Url::parse(url.as_ref()).map_err(wrap_url_parse_error)?;
+            let url = Url::parse(url.as_ref()).map_err(Error::UrlParseError)?;
             self.0.set_cookie(&url, cookie.0);
             Ok(())
         })
@@ -759,7 +765,7 @@ impl Client {
     #[pyo3(signature = (url, name))]
     pub fn remove_cookie(&self, py: Python, url: PyBackedStr, name: PyBackedStr) -> PyResult<()> {
         py.allow_threads(|| {
-            let url = Url::parse(url.as_ref()).map_err(wrap_url_parse_error)?;
+            let url = Url::parse(url.as_ref()).map_err(Error::UrlParseError)?;
             self.0.remove_cookie(&url, &name);
             Ok(())
         })
@@ -857,7 +863,10 @@ impl Client {
             apply_option!(apply_if_some, update, params.interface, interface);
 
             // Apply the changes.
-            update.apply().map_err(wrap_rquest_error)
+            update
+                .apply()
+                .map_err(Error::RquestError)
+                .map_err(Into::into)
         })
     }
 }

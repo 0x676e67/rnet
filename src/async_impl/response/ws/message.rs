@@ -8,7 +8,7 @@ use rquest::Utf8Bytes;
 
 use crate::{
     buffer::{BytesBuffer, PyBufferProtocol},
-    error::wrap_rquest_error,
+    error::Error,
     typing::Json,
 };
 
@@ -27,7 +27,12 @@ impl Message {
     ///
     /// A `PyResult` containing the JSON representation of the message.
     pub fn json(&self, py: Python) -> PyResult<Json> {
-        py.allow_threads(|| self.0.json::<Json>().map_err(wrap_rquest_error))
+        py.allow_threads(|| {
+            self.0
+                .json::<Json>()
+                .map_err(Error::RquestError)
+                .map_err(Into::into)
+        })
     }
 
     /// Returns the data of the message as bytes.
@@ -136,7 +141,8 @@ impl Message {
         py.allow_threads(|| {
             rquest::Message::text_from_json(&json)
                 .map(Message)
-                .map_err(wrap_rquest_error)
+                .map_err(Error::RquestError)
+                .map_err(Into::into)
         })
     }
 
@@ -155,7 +161,8 @@ impl Message {
         py.allow_threads(|| {
             rquest::Message::binary_from_json(&json)
                 .map(Message)
-                .map_err(wrap_rquest_error)
+                .map_err(Error::RquestError)
+                .map_err(Into::into)
         })
     }
 

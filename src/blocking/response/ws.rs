@@ -1,6 +1,6 @@
 use crate::{
     async_impl::{self, Message},
-    error::py_stop_iteration_error,
+    error::Error,
     typing::{Cookie, HeaderMap, SocketAddr, StatusCode, Version},
 };
 use pyo3::{prelude::*, pybacked::PyBackedStr};
@@ -187,10 +187,10 @@ impl BlockingWebSocket {
     #[inline(always)]
     fn __next__(&self, py: Python) -> PyResult<Message> {
         py.allow_threads(|| {
-            pyo3_async_runtimes::tokio::get_runtime().block_on(async_impl::WebSocket::_anext(
-                self.receiver(),
-                py_stop_iteration_error,
-            ))
+            pyo3_async_runtimes::tokio::get_runtime()
+                .block_on(async_impl::WebSocket::_anext(self.receiver(), || {
+                    Error::StopIteration.into()
+                }))
         })
     }
 

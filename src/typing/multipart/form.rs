@@ -1,5 +1,5 @@
 use super::part::Part;
-use crate::error::memory_error;
+use crate::error::Error;
 use pyo3::{prelude::*, types::PyTuple};
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 use rquest::multipart::Form;
@@ -25,7 +25,7 @@ impl Multipart {
                 .take()
                 .zip(part.inner.take())
                 .map(|(name, inner)| new_form.part(name, inner))
-                .ok_or_else(memory_error)?;
+                .ok_or_else(|| Error::MemoryError)?;
         }
         Ok(Multipart(Some(new_form)))
     }

@@ -1,6 +1,6 @@
 use crate::{
     buffer::{Buffer, BytesBuffer, PyBufferProtocol},
-    error::{memory_error, py_stop_async_iteration_error, wrap_rquest_error},
+    error::Error,
     typing::{Cookie, HeaderMap, Json, SocketAddr, StatusCode, Version},
 };
 use arc_swap::ArcSwapOption;
@@ -69,7 +69,8 @@ impl Response {
         self.response
             .swap(None)
             .and_then(Arc::into_inner)
-            .ok_or_else(memory_error)
+            .ok_or_else(|| Error::MemoryError)
+            .map_err(Into::into)
     }
 }
 
@@ -223,14 +224,16 @@ impl Response {
     /// A Python object representing the text content of the response.
     pub fn text<'rt>(&self, py: Python<'rt>) -> PyResult<Bound<'rt, PyAny>> {
         let resp = self.inner()?;
-        future_into_py(
-            py,
-            async move { resp.text().await.map_err(wrap_rquest_error) },
-        )
+        future_into_py(py, async move {
+            resp.text()
+                .await
+                .map_err(Error::RquestError)
+                .map_err(Into::into)
+        })
     }
 
     /// Returns the text content of the response with a specific charset.
-    ///
+    ///c
     /// # Arguments
     ///
     /// * `default_encoding` - The default encoding to use if the charset is not specified.
@@ -247,7 +250,8 @@ impl Response {
         future_into_py(py, async move {
             resp.text_with_charset(&encoding)
                 .await
-                .map_err(wrap_rquest_error)
+                .map_err(Error::RquestError)
+                .map_err(Into::into)
         })
     }
 
@@ -259,7 +263,10 @@ impl Response {
     pub fn json<'rt>(&self, py: Python<'rt>) -> PyResult<Bound<'rt, PyAny>> {
         let resp = self.inner()?;
         future_into_py(py, async move {
-            resp.json::<Json>().await.map_err(wrap_rquest_error)
+            resp.json::<Json>()
+                .await
+                .map_err(Error::RquestError)
+                .map_err(Into::into)
         })
     }
 
@@ -275,7 +282,7 @@ impl Response {
                 .bytes()
                 .await
                 .map(BytesBuffer::new)
-                .map_err(wrap_rquest_error)?;
+                .map_err(Error::RquestError)?;
             Python::with_gil(|py| buffer.into_bytes(py))
         })
     }
@@ -383,21 +390,17 @@ impl Streamer {
 
     pub async fn _anext(
         streamer: Arc<Mutex<Option<InnerStreamer>>>,
-        py_stop_iteration_error: fn() -> PyErr,
+        error: fn() -> PyErr,
     ) -> PyResult<Py<PyAny>> {
         let mut lock = streamer.lock().await;
-        let val = lock
-            .as_mut()
-            .ok_or_else(py_stop_iteration_error)?
-            .try_next()
-            .await;
+        let val = lock.as_mut().ok_or_else(error)?.try_next().await;
 
         drop(lock);
 
         let buffer = val
-            .map_err(wrap_rquest_error)?
+            .map_err(Error::RquestError)?
             .map(BytesBuffer::new)
-            .ok_or_else(py_stop_iteration_error)?;
+            .ok_or_else(error)?;
 
         Python::with_gil(|py| buffer.into_bytes(py))
     }
@@ -415,7 +418,7 @@ impl Streamer {
     fn __anext__<'rt>(&self, py: Python<'rt>) -> PyResult<Bound<'rt, PyAny>> {
         future_into_py(
             py,
-            Streamer::_anext(self.0.clone(), py_stop_async_iteration_error),
+            Streamer::_anext(self.0.clone(), || Error::StopAsyncIteration.into()),
         )
     }
 

@@ -1,8 +1,8 @@
 use crate::apply_option;
+use crate::error::Error;
 use crate::{
     Result,
     async_impl::{Response, WebSocket},
-    error::wrap_rquest_error,
     typing::param::{RequestParams, WebSocketParams},
     typing::{Method, Version},
 };
@@ -130,7 +130,8 @@ where
         .send()
         .await
         .map(Response::new)
-        .map_err(wrap_rquest_error)
+        .map_err(Error::RquestError)
+        .map_err(Into::into)
 }
 
 /// Executes a WebSocket request.
@@ -250,5 +251,8 @@ where
     // Query options.
     apply_option!(apply_if_some_ref, builder, params.query, query);
 
-    WebSocket::new(builder).await.map_err(wrap_rquest_error)
+    WebSocket::new(builder)
+        .await
+        .map_err(Error::RquestError)
+        .map_err(Into::into)
 }

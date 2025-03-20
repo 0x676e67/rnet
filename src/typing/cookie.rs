@@ -1,4 +1,3 @@
-use crate::error::wrap_invali_header_value_error;
 use bytes::Bytes;
 use pyo3::FromPyObject;
 use pyo3::pybacked::PyBackedStr;
@@ -8,6 +7,8 @@ use pyo3_stub_gen::{PyStubType, TypeInfo};
 use rquest::cookie::{self, Expiration};
 use rquest::header::{self, HeaderMap, HeaderValue};
 use std::time::SystemTime;
+
+use crate::error::Error;
 
 /// A cookie.
 #[gen_stub_pyclass]
@@ -193,7 +194,8 @@ impl FromPyObject<'_> for CookieFromPyDict {
             .and_then(|cookies| {
                 HeaderValue::from_maybe_shared(Bytes::from(cookies))
                     .map(Self)
-                    .map_err(wrap_invali_header_value_error)
+                    .map_err(Error::InvalidHeaderValue)
+                    .map_err(Into::into)
             })
     }
 }

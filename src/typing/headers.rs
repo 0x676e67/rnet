@@ -1,6 +1,6 @@
 use crate::{
     buffer::{HeaderNameBuffer, HeaderValueBuffer, PyBufferProtocol},
-    error::{wrap_invali_header_name_error, wrap_invali_header_value_error},
+    error::Error,
 };
 use pyo3::{
     prelude::*,
@@ -149,11 +149,11 @@ impl FromPyObject<'_> for HeaderMapFromPyDict {
                 header::HeaderMap::with_capacity(dict.len()),
                 |mut headers, (key, value)| {
                     let key = key.extract::<PyBackedStr>()?;
-                    let name = HeaderName::from_bytes(key.as_bytes())
-                        .map_err(wrap_invali_header_name_error)?;
+                    let name =
+                        HeaderName::from_bytes(key.as_bytes()).map_err(Error::InvalidHeaderName)?;
                     let value = value.extract::<PyBackedStr>()?;
                     let value = HeaderValue::from_bytes(value.as_bytes())
-                        .map_err(wrap_invali_header_value_error)?;
+                        .map_err(Error::InvalidHeaderValue)?;
                     headers.insert(name, value);
                     Ok(headers)
                 },
@@ -186,7 +186,7 @@ impl<'py> FromPyObject<'py> for HeadersOrderFromPyList {
         list.iter()
             .try_fold(Vec::with_capacity(list.len()), |mut order, item| {
                 let name = HeaderName::from_str(item.extract::<&str>()?)
-                    .map_err(wrap_invali_header_name_error)?;
+                    .map_err(Error::InvalidHeaderName)?;
                 order.push(name);
                 Ok(order)
             })

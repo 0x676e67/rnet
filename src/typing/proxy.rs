@@ -1,5 +1,6 @@
+use crate::error::Error;
+
 use super::HeaderMapFromPyDict;
-use crate::error::wrap_rquest_error;
 use pyo3::prelude::*;
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 use rquest::header::HeaderValue;
@@ -180,7 +181,7 @@ impl Proxy {
         custom_httt_headers: Option<HeaderMapFromPyDict>,
         exclusion: Option<&'a str>,
     ) -> PyResult<Self> {
-        let mut proxy = proxy_fn(url).map_err(wrap_rquest_error)?;
+        let mut proxy = proxy_fn(url).map_err(Error::RquestError)?;
         // Convert the username and password to a basic auth header value.
         if let (Some(username), Some(password)) = (username, password) {
             proxy = proxy.basic_auth(username, password)

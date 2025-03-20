@@ -1,5 +1,5 @@
 use pyo3::{
-    create_exception,
+    PyErr, create_exception,
     exceptions::{PyException, PyRuntimeError, PyStopAsyncIteration, PyStopIteration},
 };
 use rquest::header;
@@ -36,46 +36,6 @@ create_exception!(exceptions, HTTPMethodParseError, PyException);
 create_exception!(exceptions, URLParseError, PyException);
 create_exception!(exceptions, MIMEParseError, PyException);
 
-#[inline(always)]
-pub fn memory_error() -> pyo3::PyErr {
-    PyRuntimeError::new_err(RACE_CONDITION_ERROR_MSG)
-}
-
-#[inline(always)]
-pub fn py_stop_iteration_error() -> pyo3::PyErr {
-    PyStopIteration::new_err("The iterator is exhausted")
-}
-
-#[inline(always)]
-pub fn py_stop_async_iteration_error() -> pyo3::PyErr {
-    PyStopAsyncIteration::new_err("The iterator is exhausted")
-}
-
-#[inline(always)]
-pub fn websocket_disconnect_error() -> pyo3::PyErr {
-    PyRuntimeError::new_err("The WebSocket has been disconnected")
-}
-
-#[inline(always)]
-pub fn wrap_invali_header_name_error(error: header::InvalidHeaderName) -> pyo3::PyErr {
-    PyRuntimeError::new_err(format!("Invalid header name: {:?}", error))
-}
-
-#[inline(always)]
-pub fn wrap_invali_header_value_error(error: header::InvalidHeaderValue) -> pyo3::PyErr {
-    PyRuntimeError::new_err(format!("Invalid header value: {:?}", error))
-}
-
-#[inline(always)]
-pub fn wrap_url_parse_error(error: url::ParseError) -> pyo3::PyErr {
-    URLParseError::new_err(format!("URL parse error: {:?}", error))
-}
-
-#[inline(always)]
-pub fn wrap_io_error(error: std::io::Error) -> pyo3::PyErr {
-    PyRuntimeError::new_err(format!("IO error: {:?}", error))
-}
-
 macro_rules! wrap_error {
     ($error:expr, $($variant:ident => $exception:ident),*) => {
         {
@@ -89,16 +49,80 @@ macro_rules! wrap_error {
     };
 }
 
-pub fn wrap_rquest_error(error: rquest::Error) -> pyo3::PyErr {
-    wrap_error!(error,
-        is_body => BodyError,
-        is_connect => ConnectionError,
-        is_connection_reset => ConnectionError,
-        is_decode => DecodingError,
-        is_redirect => RedirectError,
-        is_timeout => TimeoutError,
-        is_status => StatusError,
-        is_request => RequestError,
-        is_builder => BuilderError
-    )
+/// Unified error enum
+#[derive(Debug)]
+pub enum Error {
+    MemoryError,
+    StopIteration,
+    StopAsyncIteration,
+    WebSocketDisconnect,
+    InvalidHeaderName(header::InvalidHeaderName),
+    InvalidHeaderValue(header::InvalidHeaderValue),
+    UrlParseError(url::ParseError),
+    IoError(std::io::Error),
+    RquestError(rquest::Error),
+}
+
+impl From<Error> for PyErr {
+    fn from(err: Error) -> Self {
+        match err {
+            Error::MemoryError => PyRuntimeError::new_err(RACE_CONDITION_ERROR_MSG),
+            Error::StopIteration => PyStopIteration::new_err("The iterator is exhausted"),
+            Error::StopAsyncIteration => PyStopAsyncIteration::new_err("The iterator is exhausted"),
+            Error::WebSocketDisconnect => {
+                PyRuntimeError::new_err("The WebSocket has been disconnected")
+            }
+            Error::InvalidHeaderName(err) => {
+                PyRuntimeError::new_err(format!("Invalid header name: {:?}", err))
+            }
+            Error::InvalidHeaderValue(err) => {
+                PyRuntimeError::new_err(format!("Invalid header value: {:?}", err))
+            }
+            Error::UrlParseError(err) => {
+                URLParseError::new_err(format!("URL parse error: {:?}", err))
+            }
+            Error::IoError(err) => PyRuntimeError::new_err(format!("IO error: {:?}", err)),
+            Error::RquestError(err) => wrap_error!(err,
+                is_body => BodyError,
+                is_connect => ConnectionError,
+                is_connection_reset => ConnectionError,
+                is_decode => DecodingError,
+                is_redirect => RedirectError,
+                is_timeout => TimeoutError,
+                is_status => StatusError,
+                is_request => RequestError,
+                is_builder => BuilderError
+            ),
+        }
+    }
+}
+
+impl From<header::InvalidHeaderName> for Error {
+    fn from(err: header::InvalidHeaderName) -> Self {
+        Error::InvalidHeaderName(err)
+    }
+}
+
+impl From<header::InvalidHeaderValue> for Error {
+    fn from(err: header::InvalidHeaderValue) -> Self {
+        Error::InvalidHeaderValue(err)
+    }
+}
+
+impl From<url::ParseError> for Error {
+    fn from(err: url::ParseError) -> Self {
+        Error::UrlParseError(err)
+    }
+}
+
+impl From<std::io::Error> for Error {
+    fn from(err: std::io::Error) -> Self {
+        Error::IoError(err)
+    }
+}
+
+impl From<rquest::Error> for Error {
+    fn from(err: rquest::Error) -> Self {
+        Error::RquestError(err)
+    }
 }

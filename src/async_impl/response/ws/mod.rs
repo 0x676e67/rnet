@@ -1,7 +1,7 @@
 mod message;
 
 use crate::{
-    error::{py_stop_async_iteration_error, websocket_disconnect_error, wrap_rquest_error},
+    error::Error,
     typing::{Cookie, HeaderMap, SocketAddr, StatusCode, Version},
 };
 use bytes::Bytes;
@@ -72,20 +72,22 @@ impl WebSocket {
     pub async fn _recv(receiver: Receiver) -> PyResult<Option<Message>> {
         let mut lock = receiver.lock().await;
         lock.as_mut()
-            .ok_or_else(websocket_disconnect_error)?
+            .ok_or_else(|| Error::WebSocketDisconnect)?
             .try_next()
             .await
             .map(|val| val.map(Message))
-            .map_err(wrap_rquest_error)
+            .map_err(Error::RquestError)
+            .map_err(Into::into)
     }
 
     pub async fn _send(sender: Sender, message: Message) -> PyResult<()> {
         let mut lock = sender.lock().await;
         lock.as_mut()
-            .ok_or_else(websocket_disconnect_error)?
+            .ok_or_else(|| Error::WebSocketDisconnect)?
             .send(message.0)
             .await
-            .map_err(wrap_rquest_error)
+            .map_err(Error::RquestError)
+            .map_err(Into::into)
     }
 
     pub async fn _close(
@@ -116,9 +118,9 @@ impl WebSocket {
                     reason,
                 })))
                 .await
-                .map_err(wrap_rquest_error)?;
-            sender.flush().await.map_err(wrap_rquest_error)?;
-            sender.close().await.map_err(wrap_rquest_error)?;
+                .map_err(Error::RquestError)?;
+            sender.flush().await.map_err(Error::RquestError)?;
+            sender.close().await.map_err(Error::RquestError)?;
         }
 
         Ok(())
@@ -138,7 +140,7 @@ impl WebSocket {
         drop(lock);
 
         val.map(|val| val.map(Message))
-            .map_err(wrap_rquest_error)?
+            .map_err(Error::RquestError)?
             .ok_or_else(py_stop_iteration_error)
     }
 }
@@ -305,7 +307,7 @@ impl WebSocket {
     fn __anext__<'rt>(&self, py: Python<'rt>) -> PyResult<Bound<'rt, PyAny>> {
         future_into_py(
             py,
-            WebSocket::_anext(self.receiver.clone(), py_stop_async_iteration_error),
+            WebSocket::_anext(self.receiver.clone(), || Error::StopAsyncIteration.into()),
         )
     }
 

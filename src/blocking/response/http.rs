@@ -3,7 +3,7 @@ use std::ops::Deref;
 use crate::{
     async_impl::{self},
     buffer::{BytesBuffer, PyBufferProtocol},
-    error::{py_stop_iteration_error, wrap_rquest_error},
+    error::Error,
     typing::{Cookie, HeaderMap, Json, SocketAddr, StatusCode, Version},
 };
 use pyo3::prelude::*;
@@ -164,7 +164,8 @@ impl BlockingResponse {
             let resp = self.inner()?;
             pyo3_async_runtimes::tokio::get_runtime()
                 .block_on(resp.text())
-                .map_err(wrap_rquest_error)
+                .map_err(Error::RquestError)
+                .map_err(Into::into)
         })
     }
 
@@ -182,7 +183,8 @@ impl BlockingResponse {
             let resp = self.inner()?;
             pyo3_async_runtimes::tokio::get_runtime()
                 .block_on(resp.text_with_charset(&encoding))
-                .map_err(wrap_rquest_error)
+                .map_err(Error::RquestError)
+                .map_err(Into::into)
         })
     }
 
@@ -196,7 +198,8 @@ impl BlockingResponse {
             let resp = self.inner()?;
             pyo3_async_runtimes::tokio::get_runtime()
                 .block_on(resp.json::<Json>())
-                .map_err(wrap_rquest_error)
+                .map_err(Error::RquestError)
+                .map_err(Into::into)
         })
     }
 
@@ -211,7 +214,7 @@ impl BlockingResponse {
             let buffer = pyo3_async_runtimes::tokio::get_runtime()
                 .block_on(resp.bytes())
                 .map(BytesBuffer::new)
-                .map_err(wrap_rquest_error)?;
+                .map_err(Error::RquestError)?;
 
             Python::with_gil(|py| buffer.into_bytes(py))
         })
@@ -274,10 +277,10 @@ impl BlockingStreamer {
     #[inline(always)]
     fn __next__(&self, py: Python) -> PyResult<Py<PyAny>> {
         py.allow_threads(|| {
-            pyo3_async_runtimes::tokio::get_runtime().block_on(async_impl::Streamer::_anext(
-                self.0.deref().clone(),
-                py_stop_iteration_error,
-            ))
+            pyo3_async_runtimes::tokio::get_runtime()
+                .block_on(async_impl::Streamer::_anext(self.0.deref().clone(), || {
+                    Error::StopIteration.into()
+                }))
         })
     }
 

@@ -1,5 +1,5 @@
 use crate::{
-    error::{MIMEParseError, wrap_io_error},
+    error::{Error, MIMEParseError},
     stream::{AsyncStream, SyncStream},
 };
 use bytes::Bytes;
@@ -57,7 +57,7 @@ impl Part {
                 }
                 PartData::File(path) => pyo3_async_runtimes::tokio::get_runtime()
                     .block_on(rquest::multipart::Part::file(path))
-                    .map_err(wrap_io_error)?,
+                    .map_err(Error::IoError)?,
                 PartData::SyncStream(stream) => {
                     rquest::multipart::Part::stream(rquest::Body::wrap_stream(stream))
                 }
