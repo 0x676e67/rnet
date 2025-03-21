@@ -17,6 +17,6 @@ pub enum Json {
 
 impl PyStubType for Json {
     fn type_output() -> TypeInfo {
-        TypeInfo::any()
+        TypeInfo::with_module("typing.Dict[str, typing.Any]", "typing".into())
     }
 }
