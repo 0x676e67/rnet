@@ -649,7 +649,7 @@ class BlockingResponse:
         """
         ...
 
-    def json(self) -> typing.Any:
+    def json(self) -> typing.Dict[str, typing.Any]:
         r"""
         Returns the JSON content of the response.
         
@@ -1472,7 +1472,7 @@ class Message:
         ...
 
     @staticmethod
-    def text_from_json(json:typing.Any) -> Message:
+    def text_from_json(json:typing.Dict[str, typing.Any]) -> Message:
         r"""
         Creates a new text message from the JSON representation.
         
@@ -1486,7 +1486,7 @@ class Message:
         ...
 
     @staticmethod
-    def binary_from_json(json:typing.Any) -> Message:
+    def binary_from_json(json:typing.Dict[str, typing.Any]) -> Message:
         r"""
         Creates a new binary message from the JSON representation.
         
@@ -1575,7 +1575,7 @@ class Message:
         """
         ...
 
-    def json(self) -> typing.Any:
+    def json(self) -> typing.Dict[str, typing.Any]:
         r"""
         Returns the JSON representation of the message.
         

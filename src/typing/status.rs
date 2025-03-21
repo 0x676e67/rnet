@@ -56,8 +56,8 @@ impl StatusCode {
     }
 
     #[inline(always)]
-    fn __repr__(&self) -> String {
-        format!("StatusCode({})", self.0)
+    fn __repr__(&self) -> &str {
+        self.__str__()
     }
 }
 
