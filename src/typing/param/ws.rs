@@ -1,5 +1,6 @@
 use crate::typing::{CookieFromPyDict, HeaderMapFromPyDict, IpAddr, QueryOrForm};
 use pyo3::{prelude::*, pybacked::PyBackedStr};
+#[cfg(feature = "docs")]
 use pyo3_stub_gen::{PyStubType, TypeInfo};
 
 /// The parameters for a WebSocket request.
@@ -125,6 +126,7 @@ impl<'py> FromPyObject<'py> for WebSocketParams {
     }
 }
 
+#[cfg(feature = "docs")]
 impl PyStubType for WebSocketParams {
     fn type_output() -> TypeInfo {
         TypeInfo::with_module("typing.Dict[str, typing.Any]", "typing".into())

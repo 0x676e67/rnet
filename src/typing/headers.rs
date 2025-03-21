@@ -7,6 +7,7 @@ use pyo3::{
     pybacked::PyBackedStr,
     types::{PyDict, PyList},
 };
+#[cfg(feature = "docs")]
 use pyo3_stub_gen::{
     PyStubType, TypeInfo,
     derive::{gen_stub_pyclass, gen_stub_pymethods},
@@ -15,11 +16,11 @@ use rquest::header::{self, HeaderName, HeaderValue};
 use std::str::FromStr;
 
 /// A HTTP header map.
-#[gen_stub_pyclass]
+#[cfg_attr(feature = "docs", gen_stub_pyclass)]
 #[pyclass]
 pub struct HeaderMap(pub header::HeaderMap);
 
-#[gen_stub_pymethods]
+#[cfg_attr(feature = "docs", gen_stub_pymethods)]
 #[pymethods]
 impl HeaderMap {
     #[inline]
@@ -84,13 +85,13 @@ impl HeaderMap {
 }
 
 /// An iterator over the keys in a HeaderMap.
-#[gen_stub_pyclass]
+#[cfg_attr(feature = "docs", gen_stub_pyclass)]
 #[pyclass]
 pub struct HeaderMapKeysIter {
     inner: Vec<HeaderName>,
 }
 
-#[gen_stub_pymethods]
+#[cfg_attr(feature = "docs", gen_stub_pymethods)]
 #[pymethods]
 impl HeaderMapKeysIter {
     #[inline]
@@ -107,13 +108,13 @@ impl HeaderMapKeysIter {
 }
 
 /// An iterator over the items in a HeaderMap.
-#[gen_stub_pyclass]
+#[cfg_attr(feature = "docs", gen_stub_pyclass)]
 #[pyclass]
 pub struct HeaderMapItemsIter {
     inner: Vec<(HeaderName, HeaderValue)>,
 }
 
-#[gen_stub_pymethods]
+#[cfg_attr(feature = "docs", gen_stub_pymethods)]
 #[pymethods]
 impl HeaderMapItemsIter {
     #[inline]
@@ -172,6 +173,7 @@ impl<'py> IntoPyObject<'py> for HeaderMapFromPyDict {
     }
 }
 
+#[cfg(feature = "docs")]
 impl PyStubType for HeaderMapFromPyDict {
     fn type_output() -> TypeInfo {
         TypeInfo::with_module("typing.Dict[str, str]", "typing".into())

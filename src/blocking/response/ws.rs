@@ -4,11 +4,12 @@ use crate::{
     typing::{Cookie, HeaderMap, SocketAddr, StatusCode, Version},
 };
 use pyo3::{prelude::*, pybacked::PyBackedStr};
+#[cfg(feature = "docs")]
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 use std::ops::Deref;
 
 /// A blocking WebSocket response.
-#[gen_stub_pyclass]
+#[cfg_attr(feature = "docs", gen_stub_pyclass)]
 #[pyclass]
 pub struct BlockingWebSocket(async_impl::WebSocket);
 
@@ -26,7 +27,7 @@ impl Deref for BlockingWebSocket {
     }
 }
 
-#[gen_stub_pymethods]
+#[cfg_attr(feature = "docs", gen_stub_pymethods)]
 #[pymethods]
 impl BlockingWebSocket {
     /// Returns whether the response is successful.
@@ -176,7 +177,7 @@ impl BlockingWebSocket {
     }
 }
 
-#[gen_stub_pymethods]
+#[cfg_attr(feature = "docs", gen_stub_pymethods)]
 #[pymethods]
 impl BlockingWebSocket {
     #[inline(always)]

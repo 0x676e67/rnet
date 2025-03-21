@@ -8,6 +8,7 @@ use futures_util::{Stream, TryStreamExt};
 use mime::Mime;
 use pyo3::{IntoPyObjectExt, prelude::*};
 use pyo3_async_runtimes::tokio::future_into_py;
+#[cfg(feature = "docs")]
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 use rquest::{TlsInfo, Url, header};
 use std::{ops::Deref, pin::Pin, sync::Arc};
@@ -37,7 +38,7 @@ use tokio::sync::Mutex;
 /// if __name__ == "__main__":
 ///     asyncio.run(main())
 /// ```
-#[gen_stub_pyclass]
+#[cfg_attr(feature = "docs", gen_stub_pyclass)]
 #[pyclass]
 pub struct Response {
     url: Url,
@@ -74,7 +75,7 @@ impl Response {
     }
 }
 
-#[gen_stub_pymethods]
+#[cfg_attr(feature = "docs", gen_stub_pymethods)]
 #[pymethods]
 impl Response {
     /// Returns the URL of the response.
@@ -309,7 +310,7 @@ impl Response {
     }
 }
 
-#[gen_stub_pymethods]
+#[cfg_attr(feature = "docs", gen_stub_pymethods)]
 #[pymethods]
 impl Response {
     #[inline(always)]
@@ -365,7 +366,7 @@ type InnerStreamer =
 /// if __name__ == "__main__":
 ///     asyncio.run(main())
 /// ```
-#[gen_stub_pyclass]
+#[cfg_attr(feature = "docs", gen_stub_pyclass)]
 #[pyclass]
 #[derive(Clone)]
 pub struct Streamer(Arc<Mutex<Option<InnerStreamer>>>);
@@ -406,7 +407,7 @@ impl Streamer {
     }
 }
 
-#[gen_stub_pymethods]
+#[cfg_attr(feature = "docs", gen_stub_pymethods)]
 #[pymethods]
 impl Streamer {
     #[inline(always)]

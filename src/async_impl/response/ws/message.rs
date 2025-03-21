@@ -3,6 +3,7 @@ use pyo3::{
     prelude::*,
     pybacked::{PyBackedBytes, PyBackedStr},
 };
+#[cfg(feature = "docs")]
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 use rquest::Utf8Bytes;
 
@@ -13,12 +14,12 @@ use crate::{
 };
 
 /// A WebSocket message.
-#[gen_stub_pyclass]
+#[cfg_attr(feature = "docs", gen_stub_pyclass)]
 #[pyclass]
 #[derive(Clone)]
 pub struct Message(pub rquest::Message);
 
-#[gen_stub_pymethods]
+#[cfg_attr(feature = "docs", gen_stub_pymethods)]
 #[pymethods]
 impl Message {
     /// Returns the JSON representation of the message.
@@ -123,7 +124,7 @@ impl Message {
     }
 }
 
-#[gen_stub_pymethods]
+#[cfg_attr(feature = "docs", gen_stub_pymethods)]
 #[pymethods]
 impl Message {
     /// Creates a new text message from the JSON representation.
@@ -259,7 +260,7 @@ impl Message {
     }
 }
 
-#[gen_stub_pymethods]
+#[cfg_attr(feature = "docs", gen_stub_pymethods)]
 #[pymethods]
 impl Message {
     #[inline(always)]

@@ -1,7 +1,8 @@
-use pyo3_stub_gen::Result;
-
-fn main() -> Result<()> {
-    let stub = rnet::stub_info()?;
-    stub.generate()?;
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    #[cfg(feature = "docs")]
+    {
+        let stub = rnet::stub_info()?;
+        stub.generate()?;
+    }
     Ok(())
 }

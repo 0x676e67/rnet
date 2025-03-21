@@ -1,4 +1,5 @@
 use pyo3::{IntoPyObjectExt, prelude::*};
+#[cfg(feature = "docs")]
 use pyo3_stub_gen::{
     PyStubType, TypeInfo,
     derive::{gen_stub_pyclass, gen_stub_pymethods},
@@ -20,6 +21,7 @@ impl FromPyObject<'_> for IpAddr {
     }
 }
 
+#[cfg(feature = "docs")]
 impl PyStubType for IpAddr {
     fn type_output() -> TypeInfo {
         TypeInfo::with_module(
@@ -30,7 +32,7 @@ impl PyStubType for IpAddr {
 }
 
 /// A IP socket address.
-#[gen_stub_pyclass]
+#[cfg_attr(feature = "docs", gen_stub_pyclass)]
 #[pyclass(eq)]
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub struct SocketAddr(std::net::SocketAddr);
@@ -41,7 +43,7 @@ impl From<std::net::SocketAddr> for SocketAddr {
     }
 }
 
-#[gen_stub_pymethods]
+#[cfg_attr(feature = "docs", gen_stub_pymethods)]
 #[pymethods]
 impl SocketAddr {
     /// Returns the IP address of the socket address.
@@ -55,7 +57,7 @@ impl SocketAddr {
     }
 }
 
-#[gen_stub_pymethods]
+#[cfg_attr(feature = "docs", gen_stub_pymethods)]
 #[pymethods]
 impl SocketAddr {
     #[inline(always)]

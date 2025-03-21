@@ -12,6 +12,7 @@ use futures_util::{
 pub use message::Message;
 use pyo3::{IntoPyObjectExt, prelude::*, pybacked::PyBackedStr};
 use pyo3_async_runtimes::tokio::future_into_py;
+#[cfg(feature = "docs")]
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 use rquest::{
     Utf8Bytes,
@@ -24,7 +25,7 @@ type Sender = Arc<Mutex<Option<SplitSink<rquest::WebSocket, rquest::Message>>>>;
 type Receiver = Arc<Mutex<Option<SplitStream<rquest::WebSocket>>>>;
 
 /// A WebSocket response.
-#[gen_stub_pyclass]
+#[cfg_attr(feature = "docs", gen_stub_pyclass)]
 #[pyclass]
 pub struct WebSocket {
     version: Version,
@@ -145,7 +146,7 @@ impl WebSocket {
     }
 }
 
-#[gen_stub_pymethods]
+#[cfg_attr(feature = "docs", gen_stub_pymethods)]
 #[pymethods]
 impl WebSocket {
     /// Returns whether the response is successful.
@@ -295,7 +296,7 @@ impl WebSocket {
     }
 }
 
-#[gen_stub_pymethods]
+#[cfg_attr(feature = "docs", gen_stub_pymethods)]
 #[pymethods]
 impl WebSocket {
     #[inline(always)]

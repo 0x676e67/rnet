@@ -3,14 +3,16 @@ use bytes::Bytes;
 use pyo3::FromPyObject;
 use pyo3::pybacked::PyBackedStr;
 use pyo3::{prelude::*, types::PyDict};
+#[cfg(feature = "docs")]
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
+#[cfg(feature = "docs")]
 use pyo3_stub_gen::{PyStubType, TypeInfo};
 use rquest::cookie::{self, Expiration};
 use rquest::header::{self, HeaderMap, HeaderValue};
 use std::time::SystemTime;
 
 /// A cookie.
-#[gen_stub_pyclass]
+#[cfg_attr(feature = "docs", gen_stub_pyclass)]
 #[pyclass]
 #[derive(Clone)]
 pub struct Cookie(pub cookie::Cookie<'static>);
@@ -28,7 +30,7 @@ impl Cookie {
     }
 }
 
-#[gen_stub_pymethods]
+#[cfg_attr(feature = "docs", gen_stub_pymethods)]
 #[pymethods]
 impl Cookie {
     /// Create a new cookie.
@@ -199,6 +201,7 @@ impl FromPyObject<'_> for CookieFromPyDict {
     }
 }
 
+#[cfg(feature = "docs")]
 impl PyStubType for CookieFromPyDict {
     fn type_output() -> TypeInfo {
         TypeInfo::with_module("typing.Dict[str, str]", "typing".into())

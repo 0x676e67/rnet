@@ -3,6 +3,7 @@ use crate::typing::{
     LookupIpStrategy, Proxy, SslVerify, TlsVersion,
 };
 use pyo3::{prelude::*, pybacked::PyBackedStr, types::PyList};
+#[cfg(feature = "docs")]
 use pyo3_stub_gen::{PyStubType, TypeInfo};
 
 /// The parameters for a request.
@@ -248,12 +249,14 @@ impl<'py> FromPyObject<'py> for UpdateClientParams {
     }
 }
 
+#[cfg(feature = "docs")]
 impl PyStubType for ClientParams {
     fn type_output() -> TypeInfo {
         TypeInfo::with_module("typing.Dict[str, typing.Any]", "typing".into())
     }
 }
 
+#[cfg(feature = "docs")]
 impl PyStubType for UpdateClientParams {
     fn type_output() -> TypeInfo {
         TypeInfo::with_module("typing.Dict[str, typing.Any]", "typing".into())

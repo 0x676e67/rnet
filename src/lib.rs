@@ -10,6 +10,7 @@ use async_impl::{Client, Message, Response, Streamer, WebSocket};
 use blocking::{BlockingClient, BlockingResponse, BlockingStreamer, BlockingWebSocket};
 use pyo3::{prelude::*, pybacked::PyBackedStr};
 use pyo3_async_runtimes::tokio::future_into_py;
+#[cfg(feature = "docs")]
 use pyo3_stub_gen::{define_stub_info_gatherer, derive::*};
 use typing::param::{RequestParams, WebSocketParams};
 use typing::{
@@ -51,7 +52,7 @@ macro_rules! define_http_method {
         ///     multipart: typing.Optional[Multipart]
         ///
         $(#[$meta])*
-        #[gen_stub_pyfunction]
+        #[cfg_attr(feature = "docs", gen_stub_pyfunction)]
         #[pyfunction]
         #[pyo3(signature = (url, **kwds))]
         #[inline(always)]
@@ -247,7 +248,7 @@ define_http_method!(
 ///
 /// asyncio.run(run())
 /// ```
-#[gen_stub_pyfunction]
+#[cfg_attr(feature = "docs", gen_stub_pyfunction)]
 #[pyfunction]
 #[pyo3(signature = (method, url, **kwds))]
 #[inline(always)]
@@ -301,7 +302,7 @@ fn request(
 ///
 /// asyncio.run(run())
 /// ```
-#[gen_stub_pyfunction]
+#[cfg_attr(feature = "docs", gen_stub_pyfunction)]
 #[pyfunction]
 #[pyo3(signature = (url, **kwds))]
 #[inline(always)]
@@ -359,4 +360,5 @@ fn rnet(m: &Bound<'_, PyModule>) -> PyResult<()> {
     Ok(())
 }
 
+#[cfg(feature = "docs")]
 define_stub_info_gatherer!(stub_info);

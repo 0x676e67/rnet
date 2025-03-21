@@ -11,13 +11,14 @@ use crate::{
 };
 use pyo3::{prelude::*, pybacked::PyBackedStr};
 use pyo3_async_runtimes::tokio::future_into_py;
+#[cfg(feature = "docs")]
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 use rquest::{RootCertStore, Url, redirect::Policy};
 use std::time::Duration;
 use std::{net::IpAddr, ops::Deref};
 
 /// A client for making HTTP requests.
-#[gen_stub_pyclass]
+#[cfg_attr(feature = "docs", gen_stub_pyclass)]
 #[pyclass(subclass)]
 pub struct Client(rquest::Client);
 
@@ -32,7 +33,7 @@ impl Deref for Client {
 
 macro_rules! define_http_method {
     ($(#[$meta:meta])* $name:ident, $method:expr) => {
-        #[gen_stub_pymethods]
+        #[cfg_attr(feature = "docs", gen_stub_pymethods)]
         #[pymethods]
         impl Client {
             /// Sends a request with the given URL
@@ -232,7 +233,7 @@ define_http_method!(
     Method::TRACE
 );
 
-#[gen_stub_pymethods]
+#[cfg_attr(feature = "docs", gen_stub_pymethods)]
 #[pymethods]
 impl Client {
     /// Sends a request with the given method and URL.
@@ -351,7 +352,7 @@ impl Client {
     }
 }
 
-#[gen_stub_pymethods]
+#[cfg_attr(feature = "docs", gen_stub_pymethods)]
 #[pymethods]
 impl Client {
     /// Creates a new Client instance.

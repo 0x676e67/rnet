@@ -7,10 +7,11 @@ use crate::{
     typing::{Cookie, HeaderMap, Json, SocketAddr, StatusCode, Version},
 };
 use pyo3::prelude::*;
+#[cfg(feature = "docs")]
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 
 /// A bloking response from a request.
-#[gen_stub_pyclass]
+#[cfg_attr(feature = "docs", gen_stub_pyclass)]
 #[pyclass]
 pub struct BlockingResponse(async_impl::Response);
 
@@ -28,7 +29,7 @@ impl Deref for BlockingResponse {
     }
 }
 
-#[gen_stub_pymethods]
+#[cfg_attr(feature = "docs", gen_stub_pymethods)]
 #[pymethods]
 impl BlockingResponse {
     /// Returns the URL of the response.
@@ -237,7 +238,7 @@ impl BlockingResponse {
     }
 }
 
-#[gen_stub_pymethods]
+#[cfg_attr(feature = "docs", gen_stub_pymethods)]
 #[pymethods]
 impl BlockingResponse {
     #[inline(always)]
@@ -262,11 +263,11 @@ impl BlockingResponse {
 /// Used for streaming response content.
 /// Employed in the `stream` method of the `Response` class.
 /// Utilized in an asynchronous for loop in Python.
-#[gen_stub_pyclass]
+#[cfg_attr(feature = "docs", gen_stub_pyclass)]
 #[pyclass]
 pub struct BlockingStreamer(async_impl::Streamer);
 
-#[gen_stub_pymethods]
+#[cfg_attr(feature = "docs", gen_stub_pymethods)]
 #[pymethods]
 impl BlockingStreamer {
     #[inline(always)]

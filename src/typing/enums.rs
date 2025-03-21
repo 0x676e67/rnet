@@ -1,10 +1,11 @@
 use pyo3::prelude::*;
+#[cfg(feature = "docs")]
 use pyo3_stub_gen::derive::gen_stub_pyclass_enum;
 
 macro_rules! define_enum_with_conversion {
     ($(#[$meta:meta])* $enum_type:ident, $ffi_type:ty, $($variant:ident),* $(,)?) => {
         $(#[$meta])*
-        #[gen_stub_pyclass_enum]
+        #[cfg_attr(feature = "docs", gen_stub_pyclass_enum)]
         #[pyclass(eq, eq_int)]
         #[derive(Clone, Copy, PartialEq, Eq, Hash)]
         #[allow(non_camel_case_types)]
@@ -33,7 +34,7 @@ macro_rules! define_enum_with_conversion {
 
     ($(#[$meta:meta])* const, $enum_type:ident, $ffi_type:ty, $($variant:ident),* $(,)?) => {
         $(#[$meta])*
-        #[gen_stub_pyclass_enum]
+        #[cfg_attr(feature = "docs", gen_stub_pyclass_enum)]
         #[pyclass(eq, eq_int)]
         #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
         #[allow(non_camel_case_types)]
