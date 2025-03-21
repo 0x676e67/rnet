@@ -45,7 +45,17 @@ jobs:
 
       - name: Clippy check
         run: cargo clippy --all-targets --all-features
-
+  docs:
+    name: docs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+      - name: Build docs
+        run: cargo run --bin stubgen --all-features
   tests:
     runs-on: ubuntu-latest
     steps:
