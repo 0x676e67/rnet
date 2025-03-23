@@ -13,7 +13,7 @@ use pyo3::{prelude::*, pybacked::PyBackedStr};
 use pyo3_async_runtimes::tokio::future_into_py;
 #[cfg(feature = "docs")]
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
-use rquest::{RootCertStore, Url, redirect::Policy};
+use rquest::{CertStore, Url, redirect::Policy};
 use std::time::Duration;
 use std::{net::IpAddr, ops::Deref};
 
@@ -589,13 +589,11 @@ impl Client {
             // SSL Verification options.
             if let Some(verify) = params.verify.take() {
                 builder = match verify {
-                    SslVerify::DisableSslVerification(verify) => {
-                        builder.danger_accept_invalid_certs(!verify)
-                    }
+                    SslVerify::DisableSslVerification(verify) => builder.cert_verification(verify),
                     SslVerify::RootCertificateFilepath(path_buf) => {
                         let store =
-                            RootCertStore::from_pem_file(path_buf).map_err(Error::RquestError)?;
-                        builder.root_cert_store(store)
+                            CertStore::from_pem_file(path_buf).map_err(Error::RquestError)?;
+                        builder.cert_store(store)
                     }
                 }
             }

@@ -41,14 +41,14 @@ arc-swap = "1.7.1"
 url = "2.5"
 bytes = "1.10.1"
 futures-util = { version = "0.3.31", default-features = false }
-rquest = { version = "4.2.0", features = [
+rquest = { version = "5.0.0", features = [
     "full",
     "multipart",
     "websocket",
     "hickory-dns",
     "apple-network-device-binding",
 ] }
-rquest-util = { version = "1.2.0" }
+rquest-util = { version = "2.0.0" }
 
 [target.'cfg(not(target_env = "msvc"))'.dependencies]
 jemallocator = { package = "tikv-jemallocator", version = "0.6", features = [
@@ -62,3 +62,6 @@ opt-level = 3
 codegen-units = 1
 strip = true
 panic = "abort"
+
+[patch.crates-io]
+rquest = { git = "https://github.com/0x676e67/rquest" }
