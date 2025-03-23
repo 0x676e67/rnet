@@ -180,7 +180,7 @@ impl Message {
     #[pyo3(signature = (text))]
     #[inline(always)]
     pub fn from_text(text: PyBackedStr) -> Self {
-        let msg = rquest::Message::text(text.as_ref() as &str);
+        let msg = rquest::Message::text(Utf8Bytes::from_bytes_unchecked(Bytes::from_owner(text)));
         Message(msg)
     }
 
@@ -197,7 +197,7 @@ impl Message {
     #[pyo3(signature = (data))]
     #[inline(always)]
     pub fn from_binary(data: PyBackedBytes) -> Self {
-        let msg = rquest::Message::binary(data.as_ref().to_owned());
+        let msg = rquest::Message::binary(Bytes::from_owner(data));
         Message(msg)
     }
 
@@ -214,7 +214,7 @@ impl Message {
     #[pyo3(signature = (data))]
     #[inline(always)]
     pub fn from_ping(data: PyBackedBytes) -> Self {
-        let msg = rquest::Message::ping(data.as_ref().to_owned());
+        let msg = rquest::Message::ping(Bytes::from_owner(data));
         Message(msg)
     }
 
@@ -231,7 +231,7 @@ impl Message {
     #[pyo3(signature = (data))]
     #[inline(always)]
     pub fn from_pong(data: PyBackedBytes) -> Self {
-        let msg = rquest::Message::pong(data.as_ref().to_owned());
+        let msg = rquest::Message::pong(Bytes::from_owner(data));
         Message(msg)
     }
 
