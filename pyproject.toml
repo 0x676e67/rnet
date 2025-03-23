@@ -42,4 +42,9 @@ Homepage = "https://github.com/0x676e67/rnet"
 Repository = "https://github.com/0x676e67/rnet"
 
 [dependency-groups]
-dev = ["pytest>=8.3.4", "pytest-asyncio>=0.25.3", "pytest-rerunfailures>=15.0"]
+dev = [
+  "pytest>=8.3.5; python_version >= '3.8'",
+  "pytest>=7.4.4; python_version == '3.7'",
+  "pytest-asyncio>=0.25.3; python_version >= '3.9'",
+  "pytest-rerunfailures>=15.0; python_version >= '3.9'",
+]
