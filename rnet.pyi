@@ -1412,9 +1412,6 @@ class HeaderMap:
     def __setitem__(self, key:str, value:str) -> None:
         ...
 
-    def __append__(self, key:str, value:str) -> None:
-        ...
-
     def __delitem__(self, key:str) -> None:
         ...
 

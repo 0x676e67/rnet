@@ -60,18 +60,6 @@ impl HeaderMap {
                 HeaderName::from_bytes(key.as_bytes()),
                 HeaderValue::from_bytes(value.as_bytes()),
             ) {
-                self.0.insert(name, value);
-            }
-        })
-    }
-
-    #[inline]
-    fn __append__(&mut self, py: Python, key: PyBackedStr, value: PyBackedStr) {
-        py.allow_threads(|| {
-            if let (Ok(name), Ok(value)) = (
-                HeaderName::from_bytes(key.as_bytes()),
-                HeaderValue::from_bytes(value.as_bytes()),
-            ) {
                 self.0.append(name, value);
             }
         })
