@@ -1,6 +1,6 @@
 import pytest
 import rnet
-from rnet import Cookie, Impersonate, ImpersonateOS
+from rnet import Cookie, Impersonate, ImpersonateOS, HeaderMap
 
 
 @pytest.mark.asyncio
@@ -36,6 +36,9 @@ async def test_update_headers():
     client = rnet.Client()
     headers = {"user-agent": "rnet"}
     client.update(headers=headers)
+    assert client.headers["user-agent"] == b"rnet"
+
+    client.update(headers=HeaderMap(headers))
     assert client.headers["user-agent"] == b"rnet"
 
 

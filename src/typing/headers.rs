@@ -22,6 +22,30 @@ pub struct HeaderMap(pub header::HeaderMap);
 #[cfg_attr(feature = "docs", gen_stub_pymethods)]
 #[pymethods]
 impl HeaderMap {
+    #[new]
+    #[inline]
+    fn new(init: Option<&Bound<'_, PyDict>>) -> Self {
+        let mut headers = header::HeaderMap::new();
+
+        // This section of memory might be retained by the Rust object,
+        // and we want to prevent Python's garbage collector from managing it.
+        if let Some(dict) = init {
+            for (name, value) in dict.iter() {
+                if let (Ok(Ok(name)), Ok(Ok(value))) = (
+                    name.extract::<PyBackedStr>()
+                        .map(|n| HeaderName::from_bytes(n.as_bytes())),
+                    value
+                        .extract::<PyBackedStr>()
+                        .map(|v| HeaderValue::from_bytes(v.as_bytes())),
+                ) {
+                    headers.insert(name, value);
+                }
+            }
+        }
+
+        Self(headers)
+    }
+
     #[inline]
     fn __getitem__<'py>(&self, py: Python<'py>, key: PyBackedStr) -> Option<Bound<'py, PyAny>> {
         let value = self.0.get(key.as_ref() as &str)?;
@@ -37,6 +61,18 @@ impl HeaderMap {
                 HeaderValue::from_bytes(value.as_bytes()),
             ) {
                 self.0.insert(name, value);
+            }
+        })
+    }
+
+    #[inline]
+    fn __append__(&mut self, py: Python, key: PyBackedStr, value: PyBackedStr) {
+        py.allow_threads(|| {
+            if let (Ok(name), Ok(value)) = (
+                HeaderName::from_bytes(key.as_bytes()),
+                HeaderValue::from_bytes(value.as_bytes()),
+            ) {
+                self.0.append(name, value);
             }
         })
     }
@@ -135,15 +171,18 @@ impl HeaderMapItemsIter {
 }
 
 /// A HTTP header map.
-pub struct HeaderMapFromPyDict(pub header::HeaderMap);
+pub struct HeaderMapFromPy(pub header::HeaderMap);
 
 /// A list of header names in order.
 pub struct HeadersOrderFromPyList(pub Vec<HeaderName>);
 
-impl FromPyObject<'_> for HeaderMapFromPyDict {
+impl FromPyObject<'_> for HeaderMapFromPy {
     fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
-        let dict = ob.downcast::<PyDict>()?;
+        if let Ok(headers) = ob.downcast::<HeaderMap>() {
+            return Ok(Self(headers.borrow().0.clone()));
+        }
 
+        let dict = ob.downcast::<PyDict>()?;
         dict.iter()
             .try_fold(
                 header::HeaderMap::with_capacity(dict.len()),
@@ -160,7 +199,8 @@ impl FromPyObject<'_> for HeaderMapFromPyDict {
     }
 }
 
-impl<'py> IntoPyObject<'py> for HeaderMapFromPyDict {
+#[cfg(feature = "docs")]
+impl<'py> IntoPyObject<'py> for HeaderMapFromPy {
     type Target = HeaderMap;
 
     type Output = Bound<'py, Self::Target>;
@@ -173,9 +213,12 @@ impl<'py> IntoPyObject<'py> for HeaderMapFromPyDict {
 }
 
 #[cfg(feature = "docs")]
-impl PyStubType for HeaderMapFromPyDict {
+impl PyStubType for HeaderMapFromPy {
     fn type_output() -> TypeInfo {
-        TypeInfo::with_module("typing.Dict[str, str]", "typing".into())
+        TypeInfo::with_module(
+            "typing.Union[typing.Dict[str, str], HeaderMap]",
+            "typing".into(),
+        )
     }
 }
 

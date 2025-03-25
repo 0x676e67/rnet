@@ -1,5 +1,5 @@
 use crate::typing::{
-    CookieFromPyDict, FromPyBody, HeaderMapFromPyDict, IpAddr, Json, Multipart, Proxy, QueryOrForm,
+    CookieFromPyDict, FromPyBody, HeaderMapFromPy, IpAddr, Json, Multipart, Proxy, QueryOrForm,
     Version,
 };
 use pyo3::{prelude::*, pybacked::PyBackedStr};
@@ -28,7 +28,7 @@ pub struct RequestParams {
     pub version: Option<Version>,
 
     /// The headers to use for the request.
-    pub headers: Option<HeaderMapFromPyDict>,
+    pub headers: Option<HeaderMapFromPy>,
 
     /// The cookies to use for the request.
     pub cookies: Option<CookieFromPyDict>,

@@ -1,6 +1,6 @@
 import pytest
 import rnet
-from rnet import Version
+from rnet import Version, HeaderMap
 
 client = rnet.Client(tls_info=True)
 
@@ -20,7 +20,12 @@ async def test_send_with_version():
 @pytest.mark.flaky(reruns=3, reruns_delay=2)
 async def test_send_headers():
     url = "https://httpbin.org/headers"
-    response = await client.get(url, headers={"foo": "bar"})
+    headers = {"foo": "bar"}
+    response = await client.get(url, headers=headers)
+    json = await response.json()
+    assert json["headers"]["Foo"] == "bar"
+
+    response = await client.get(url, headers=HeaderMap(headers))
     json = await response.json()
     assert json["headers"]["Foo"] == "bar"
 

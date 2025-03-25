@@ -1,6 +1,6 @@
 use crate::typing::{
-    HeaderMapFromPyDict, HeadersOrderFromPyList, Impersonate, ImpersonateOS, IpAddr,
-    LookupIpStrategy, Proxy, SslVerify, TlsVersion,
+    HeaderMapFromPy, HeadersOrderFromPyList, Impersonate, ImpersonateOS, IpAddr, LookupIpStrategy,
+    Proxy, SslVerify, TlsVersion,
 };
 use pyo3::{prelude::*, pybacked::PyBackedStr, types::PyList};
 #[cfg(feature = "docs")]
@@ -25,7 +25,7 @@ pub struct ClientParams {
     pub user_agent: Option<PyBackedStr>,
 
     /// The headers to use for the request.
-    pub default_headers: Option<HeaderMapFromPyDict>,
+    pub default_headers: Option<HeaderMapFromPy>,
 
     /// The order of the headers to use for the request.
     pub headers_order: Option<HeadersOrderFromPyList>,
@@ -142,7 +142,7 @@ pub struct UpdateClientParams {
     pub impersonate_skip_headers: Option<bool>,
 
     /// The headers to use for the request.
-    pub headers: Option<HeaderMapFromPyDict>,
+    pub headers: Option<HeaderMapFromPy>,
 
     /// The order of the headers to use for the request.
     pub headers_order: Option<HeadersOrderFromPyList>,

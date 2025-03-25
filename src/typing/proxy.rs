@@ -1,6 +1,6 @@
 use crate::error::Error;
 
-use super::HeaderMapFromPyDict;
+use super::HeaderMapFromPy;
 use pyo3::prelude::*;
 #[cfg(feature = "docs")]
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
@@ -53,7 +53,7 @@ impl Proxy {
         username: Option<&str>,
         password: Option<&str>,
         custom_http_auth: Option<&str>,
-        custom_httt_headers: Option<HeaderMapFromPyDict>,
+        custom_httt_headers: Option<HeaderMapFromPy>,
         exclusion: Option<&str>,
     ) -> PyResult<Self> {
         Self::create_proxy(
@@ -105,7 +105,7 @@ impl Proxy {
         username: Option<&str>,
         password: Option<&str>,
         custom_http_auth: Option<&str>,
-        custom_httt_headers: Option<HeaderMapFromPyDict>,
+        custom_httt_headers: Option<HeaderMapFromPy>,
         exclusion: Option<&str>,
     ) -> PyResult<Self> {
         Self::create_proxy(
@@ -157,7 +157,7 @@ impl Proxy {
         username: Option<&str>,
         password: Option<&str>,
         custom_http_auth: Option<&str>,
-        custom_httt_headers: Option<HeaderMapFromPyDict>,
+        custom_httt_headers: Option<HeaderMapFromPy>,
         exclusion: Option<&str>,
     ) -> PyResult<Self> {
         Self::create_proxy(
@@ -179,7 +179,7 @@ impl Proxy {
         username: Option<&'a str>,
         password: Option<&str>,
         custom_http_auth: Option<&'a str>,
-        custom_httt_headers: Option<HeaderMapFromPyDict>,
+        custom_httt_headers: Option<HeaderMapFromPy>,
         exclusion: Option<&'a str>,
     ) -> PyResult<Self> {
         let mut proxy = proxy_fn(url).map_err(Error::RquestError)?;
