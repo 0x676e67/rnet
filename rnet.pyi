@@ -1615,7 +1615,8 @@ class Proxy:
         * `url` - The URL of the proxy server.
         * `username` - Optional username for proxy authentication.
         * `password` - Optional password for proxy authentication.
-        * `custom_http_auth` - Optional custom HTTP authentication header value.
+        * `custom_http_auth` - Optional custom HTTP proxy authentication header value.
+        * `custom_http_headers` - Optional custom HTTP proxy headers.
         * `exclusion` - Optional list of domains to exclude from proxying.
 
         # Returns
@@ -1653,7 +1654,8 @@ class Proxy:
         * `url` - The URL of the proxy server.
         * `username` - Optional username for proxy authentication.
         * `password` - Optional password for proxy authentication.
-        * `custom_http_auth` - Optional custom HTTP authentication header value.
+        * `custom_http_auth` - Optional custom HTTP proxy authentication header value.
+        * `custom_http_headers` - Optional custom HTTP proxy headers.
         * `exclusion` - Optional list of domains to exclude from proxying.
 
         # Returns
@@ -1691,7 +1693,8 @@ class Proxy:
         * `url` - The URL of the proxy server.
         * `username` - Optional username for proxy authentication.
         * `password` - Optional password for proxy authentication.
-        * `custom_http_auth` - Optional custom HTTP authentication header value.
+        * `custom_http_auth` - Optional custom HTTP proxy authentication header value.
+        * `custom_http_headers` - Optional custom HTTP proxy headers.
         * `exclusion` - Optional list of domains to exclude from proxying.
 
         # Returns

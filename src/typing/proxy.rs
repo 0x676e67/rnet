@@ -6,172 +6,139 @@ use pyo3::prelude::*;
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 use rquest::header::HeaderValue;
 
+macro_rules! proxy_method {
+    ( $( { $(#[$meta:meta])* $name:ident, $proxy_fn:path} ),* ) => {
+        #[cfg_attr(feature = "docs", gen_stub_pymethods)]
+        #[pymethods]
+        impl Proxy {
+            $(
+                $(#[$meta])*
+                #[staticmethod]
+                #[pyo3(signature = (
+                    url,
+                    username = None,
+                    password = None,
+                    custom_http_auth = None,
+                    custom_http_headers = None,
+                    exclusion = None,
+                ))]
+                #[inline]
+                fn $name(
+                    py: Python,
+                    url: &str,
+                    username: Option<&str>,
+                    password: Option<&str>,
+                    custom_http_auth: Option<&str>,
+                    custom_http_headers: Option<HeaderMapFromPy>,
+                    exclusion: Option<&str>,
+                ) -> PyResult<Self> {
+                    py.allow_threads(|| {
+                        Self::create_proxy(
+                            $proxy_fn,
+                            url,
+                            username,
+                            password,
+                            custom_http_auth,
+                            custom_http_headers,
+                            exclusion,
+                        )
+                    })
+                }
+            )*
+        }
+    };
+}
+
 /// A proxy server for a request.
 /// Supports HTTP, HTTPS, SOCKS4, SOCKS4a, SOCKS5, and SOCKS5h protocols.
 #[cfg_attr(feature = "docs", gen_stub_pyclass)]
 #[pyclass]
 pub struct Proxy(pub Option<rquest::Proxy>);
 
-#[cfg_attr(feature = "docs", gen_stub_pymethods)]
-#[pymethods]
-impl Proxy {
-    /// Creates a new HTTP proxy.
-    ///
-    /// This method sets up a proxy server for HTTP requests.
-    ///
-    /// # Arguments
-    ///
-    /// * `url` - The URL of the proxy server.
-    /// * `username` - Optional username for proxy authentication.
-    /// * `password` - Optional password for proxy authentication.
-    /// * `custom_http_auth` - Optional custom HTTP proxy authentication header value.
-    /// * `custom_http_headers` - Optional custom HTTP proxy headers.
-    /// * `exclusion` - Optional list of domains to exclude from proxying.
-    ///
-    /// # Returns
-    ///
-    /// A new `Proxy` instance.
-    ///
-    /// # Examples
-    ///
-    /// ```python
-    /// import rnet
-    ///
-    /// proxy = rnet.Proxy.http("http://proxy.example.com")
-    /// ```
-    #[staticmethod]
-    #[pyo3(signature = (
-        url,
-        username = None,
-        password = None,
-        custom_http_auth = None,
-        custom_http_headers = None,
-        exclusion = None,
-    ))]
-    #[inline]
-    fn http(
-        url: &str,
-        username: Option<&str>,
-        password: Option<&str>,
-        custom_http_auth: Option<&str>,
-        custom_http_headers: Option<HeaderMapFromPy>,
-        exclusion: Option<&str>,
-    ) -> PyResult<Self> {
-        Self::create_proxy(
-            rquest::Proxy::http,
-            url,
-            username,
-            password,
-            custom_http_auth,
-            custom_http_headers,
-            exclusion,
-        )
-    }
-
-    /// Creates a new HTTPS proxy.
-    ///
-    /// This method sets up a proxy server for HTTPS requests.
-    ///
-    /// # Arguments
-    ///
-    /// * `url` - The URL of the proxy server.
-    /// * `username` - Optional username for proxy authentication.
-    /// * `password` - Optional password for proxy authentication.
-    /// * `custom_http_auth` - Optional custom HTTP proxy authentication header value.
-    /// * `custom_http_headers` - Optional custom HTTP proxy headers.
-    /// * `exclusion` - Optional list of domains to exclude from proxying.
-    ///
-    /// # Returns
-    ///
-    /// A new `Proxy` instance.
-    ///
-    /// # Examples
-    ///
-    /// ```python
-    /// import rnet
-    ///
-    /// proxy = rnet.Proxy.https("https://proxy.example.com")
-    /// ```
-    #[staticmethod]
-    #[pyo3(signature = (
-        url,
-        username = None,
-        password = None,
-        custom_http_auth = None,
-        custom_http_headers = None,
-        exclusion = None,
-    ))]
-    #[inline]
-    fn https(
-        url: &str,
-        username: Option<&str>,
-        password: Option<&str>,
-        custom_http_auth: Option<&str>,
-        custom_http_headers: Option<HeaderMapFromPy>,
-        exclusion: Option<&str>,
-    ) -> PyResult<Self> {
-        Self::create_proxy(
-            rquest::Proxy::https,
-            url,
-            username,
-            password,
-            custom_http_auth,
-            custom_http_headers,
-            exclusion,
-        )
-    }
-
-    /// Creates a new proxy for all protocols.
-    ///
-    /// This method sets up a proxy server for all types of requests (HTTP, HTTPS, etc.).
-    ///
-    /// # Arguments
-    ///
-    /// * `url` - The URL of the proxy server.
-    /// * `username` - Optional username for proxy authentication.
-    /// * `password` - Optional password for proxy authentication.
-    /// * `custom_http_auth` - Optional custom HTTP proxy authentication header value.
-    /// * `custom_http_headers` - Optional custom HTTP proxy headers.
-    /// * `exclusion` - Optional list of domains to exclude from proxying.
-    ///
-    /// # Returns
-    ///
-    /// A new `Proxy` instance.
-    ///
-    /// # Examples
-    ///
-    /// ```python
-    /// import rnet
-    ///
-    /// proxy = rnet.Proxy.all("https://proxy.example.com")
-    /// ```
-    #[staticmethod]
-    #[pyo3(signature = (
-        url,
-        username = None,
-        password = None,
-        custom_http_auth = None,
-        custom_http_headers = None,
-        exclusion = None,
-    ))]
-    #[inline]
-    fn all(
-        url: &str,
-        username: Option<&str>,
-        password: Option<&str>,
-        custom_http_auth: Option<&str>,
-        custom_http_headers: Option<HeaderMapFromPy>,
-        exclusion: Option<&str>,
-    ) -> PyResult<Self> {
-        Self::create_proxy(
-            rquest::Proxy::all,
-            url,
-            username,
-            password,
-            custom_http_auth,
-            custom_http_headers,
-            exclusion,
-        )
+proxy_method! {
+    {
+        /// Creates a new HTTP proxy.
+        ///
+        /// This method sets up a proxy server for HTTP requests.
+        ///
+        /// # Arguments
+        ///
+        /// * `url` - The URL of the proxy server.
+        /// * `username` - Optional username for proxy authentication.
+        /// * `password` - Optional password for proxy authentication.
+        /// * `custom_http_auth` - Optional custom HTTP proxy authentication header value.
+        /// * `custom_http_headers` - Optional custom HTTP proxy headers.
+        /// * `exclusion` - Optional list of domains to exclude from proxying.
+        ///
+        /// # Returns
+        ///
+        /// A new `Proxy` instance.
+        ///
+        /// # Examples
+        ///
+        /// ```python
+        /// import rnet
+        ///
+        /// proxy = rnet.Proxy.http("http://proxy.example.com")
+        /// ```
+        http,
+        rquest::Proxy::http
+    },
+    {
+        /// Creates a new HTTPS proxy.
+        ///
+        /// This method sets up a proxy server for HTTPS requests.
+        ///
+        /// # Arguments
+        ///
+        /// * `url` - The URL of the proxy server.
+        /// * `username` - Optional username for proxy authentication.
+        /// * `password` - Optional password for proxy authentication.
+        /// * `custom_http_auth` - Optional custom HTTP proxy authentication header value.
+        /// * `custom_http_headers` - Optional custom HTTP proxy headers.
+        /// * `exclusion` - Optional list of domains to exclude from proxying.
+        ///
+        /// # Returns
+        ///
+        /// A new `Proxy` instance.
+        ///
+        /// # Examples
+        ///
+        /// ```python
+        /// import rnet
+        ///
+        /// proxy = rnet.Proxy.https("https://proxy.example.com")
+        /// ```
+        https,
+        rquest::Proxy::https
+    },
+    {
+        /// Creates a new proxy for all protocols.
+        ///
+        /// This method sets up a proxy server for all types of requests (HTTP, HTTPS, etc.).
+        ///
+        /// # Arguments
+        ///
+        /// * `url` - The URL of the proxy server.
+        /// * `username` - Optional username for proxy authentication.
+        /// * `password` - Optional password for proxy authentication.
+        /// * `custom_http_auth` - Optional custom HTTP proxy authentication header value.
+        /// * `custom_http_headers` - Optional custom HTTP proxy headers.
+        /// * `exclusion` - Optional list of domains to exclude from proxying.
+        ///
+        /// # Returns
+        ///
+        /// A new `Proxy` instance.
+        ///
+        /// # Examples
+        ///
+        /// ```python
+        /// import rnet
+        ///
+        /// proxy = rnet.Proxy.all("https://proxy.example.com")
+        /// ```
+        all,
+        rquest::Proxy::all
     }
 }
 
