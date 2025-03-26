@@ -24,7 +24,8 @@ impl Proxy {
     /// * `url` - The URL of the proxy server.
     /// * `username` - Optional username for proxy authentication.
     /// * `password` - Optional password for proxy authentication.
-    /// * `custom_http_auth` - Optional custom HTTP authentication header value.
+    /// * `custom_http_auth` - Optional custom HTTP proxy authentication header value.
+    /// * `custom_http_headers` - Optional custom HTTP proxy headers.
     /// * `exclusion` - Optional list of domains to exclude from proxying.
     ///
     /// # Returns
@@ -44,7 +45,7 @@ impl Proxy {
         username = None,
         password = None,
         custom_http_auth = None,
-        custom_httt_headers = None,
+        custom_http_headers = None,
         exclusion = None,
     ))]
     #[inline]
@@ -53,7 +54,7 @@ impl Proxy {
         username: Option<&str>,
         password: Option<&str>,
         custom_http_auth: Option<&str>,
-        custom_httt_headers: Option<HeaderMapFromPy>,
+        custom_http_headers: Option<HeaderMapFromPy>,
         exclusion: Option<&str>,
     ) -> PyResult<Self> {
         Self::create_proxy(
@@ -62,7 +63,7 @@ impl Proxy {
             username,
             password,
             custom_http_auth,
-            custom_httt_headers,
+            custom_http_headers,
             exclusion,
         )
     }
@@ -76,7 +77,8 @@ impl Proxy {
     /// * `url` - The URL of the proxy server.
     /// * `username` - Optional username for proxy authentication.
     /// * `password` - Optional password for proxy authentication.
-    /// * `custom_http_auth` - Optional custom HTTP authentication header value.
+    /// * `custom_http_auth` - Optional custom HTTP proxy authentication header value.
+    /// * `custom_http_headers` - Optional custom HTTP proxy headers.
     /// * `exclusion` - Optional list of domains to exclude from proxying.
     ///
     /// # Returns
@@ -96,7 +98,7 @@ impl Proxy {
         username = None,
         password = None,
         custom_http_auth = None,
-        custom_httt_headers = None,
+        custom_http_headers = None,
         exclusion = None,
     ))]
     #[inline]
@@ -105,7 +107,7 @@ impl Proxy {
         username: Option<&str>,
         password: Option<&str>,
         custom_http_auth: Option<&str>,
-        custom_httt_headers: Option<HeaderMapFromPy>,
+        custom_http_headers: Option<HeaderMapFromPy>,
         exclusion: Option<&str>,
     ) -> PyResult<Self> {
         Self::create_proxy(
@@ -114,7 +116,7 @@ impl Proxy {
             username,
             password,
             custom_http_auth,
-            custom_httt_headers,
+            custom_http_headers,
             exclusion,
         )
     }
@@ -128,7 +130,8 @@ impl Proxy {
     /// * `url` - The URL of the proxy server.
     /// * `username` - Optional username for proxy authentication.
     /// * `password` - Optional password for proxy authentication.
-    /// * `custom_http_auth` - Optional custom HTTP authentication header value.
+    /// * `custom_http_auth` - Optional custom HTTP proxy authentication header value.
+    /// * `custom_http_headers` - Optional custom HTTP proxy headers.
     /// * `exclusion` - Optional list of domains to exclude from proxying.
     ///
     /// # Returns
@@ -148,7 +151,7 @@ impl Proxy {
         username = None,
         password = None,
         custom_http_auth = None,
-        custom_httt_headers = None,
+        custom_http_headers = None,
         exclusion = None,
     ))]
     #[inline]
@@ -157,7 +160,7 @@ impl Proxy {
         username: Option<&str>,
         password: Option<&str>,
         custom_http_auth: Option<&str>,
-        custom_httt_headers: Option<HeaderMapFromPy>,
+        custom_http_headers: Option<HeaderMapFromPy>,
         exclusion: Option<&str>,
     ) -> PyResult<Self> {
         Self::create_proxy(
@@ -166,7 +169,7 @@ impl Proxy {
             username,
             password,
             custom_http_auth,
-            custom_httt_headers,
+            custom_http_headers,
             exclusion,
         )
     }
@@ -179,7 +182,7 @@ impl Proxy {
         username: Option<&'a str>,
         password: Option<&str>,
         custom_http_auth: Option<&'a str>,
-        custom_httt_headers: Option<HeaderMapFromPy>,
+        custom_http_headers: Option<HeaderMapFromPy>,
         exclusion: Option<&'a str>,
     ) -> PyResult<Self> {
         let mut proxy = proxy_fn(url).map_err(Error::RquestError)?;
@@ -194,8 +197,8 @@ impl Proxy {
         }
 
         // Convert the custom HTTP headers to a HeaderMap instance.
-        if let Some(custom_httt_headers) = custom_httt_headers {
-            proxy = proxy.custom_http_headers(custom_httt_headers.0)
+        if let Some(custom_http_headers) = custom_http_headers {
+            proxy = proxy.custom_http_headers(custom_http_headers.0)
         }
 
         // Convert the exclusion list to a NoProxy instance.

@@ -8,7 +8,7 @@ async def main():
         "https://httpbin.org/anything",
         proxy=Proxy.all(
             url="http://127.0.0.1:6152",
-            custom_httt_headers={
+            custom_http_headers={
                 "user-agent": "rnet",
                 "accept": "*/*",
                 "accept-encoding": "gzip, deflate, br",

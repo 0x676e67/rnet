@@ -1607,7 +1607,7 @@ class Proxy:
     Supports HTTP, HTTPS, SOCKS4, SOCKS4a, SOCKS5, and SOCKS5h protocols.
     """
     @staticmethod
-    def http(url:builtins.str, username:typing.Optional[builtins.str]=None, password:typing.Optional[builtins.str]=None, custom_http_auth:typing.Optional[builtins.str]=None, custom_httt_headers:typing.Optional[typing.Union[typing.Dict[str, str], HeaderMap]]=None, exclusion:typing.Optional[builtins.str]=None) -> Proxy:
+    def http(url:builtins.str, username:typing.Optional[builtins.str]=None, password:typing.Optional[builtins.str]=None, custom_http_auth:typing.Optional[builtins.str]=None, custom_http_headers:typing.Optional[typing.Union[typing.Dict[str, str], HeaderMap]]=None, exclusion:typing.Optional[builtins.str]=None) -> Proxy:
         r"""
         Creates a new HTTP proxy.
         
@@ -1636,7 +1636,7 @@ class Proxy:
         ...
 
     @staticmethod
-    def https(url:builtins.str, username:typing.Optional[builtins.str]=None, password:typing.Optional[builtins.str]=None, custom_http_auth:typing.Optional[builtins.str]=None, custom_httt_headers:typing.Optional[typing.Union[typing.Dict[str, str], HeaderMap]]=None, exclusion:typing.Optional[builtins.str]=None) -> Proxy:
+    def https(url:builtins.str, username:typing.Optional[builtins.str]=None, password:typing.Optional[builtins.str]=None, custom_http_auth:typing.Optional[builtins.str]=None, custom_http_headers:typing.Optional[typing.Union[typing.Dict[str, str], HeaderMap]]=None, exclusion:typing.Optional[builtins.str]=None) -> Proxy:
         r"""
         Creates a new HTTPS proxy.
         
@@ -1665,7 +1665,7 @@ class Proxy:
         ...
 
     @staticmethod
-    def all(url:builtins.str, username:typing.Optional[builtins.str]=None, password:typing.Optional[builtins.str]=None, custom_http_auth:typing.Optional[builtins.str]=None, custom_httt_headers:typing.Optional[typing.Union[typing.Dict[str, str], HeaderMap]]=None, exclusion:typing.Optional[builtins.str]=None) -> Proxy:
+    def all(url:builtins.str, username:typing.Optional[builtins.str]=None, password:typing.Optional[builtins.str]=None, custom_http_auth:typing.Optional[builtins.str]=None, custom_http_headers:typing.Optional[typing.Union[typing.Dict[str, str], HeaderMap]]=None, exclusion:typing.Optional[builtins.str]=None) -> Proxy:
         r"""
         Creates a new proxy for all protocols.
         
