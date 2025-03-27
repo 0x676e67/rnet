@@ -1,6 +1,6 @@
 import pytest
 import rnet
-from rnet import Cookie, Impersonate, ImpersonateOS, HeaderMap
+from rnet import Cookie, Impersonate, ImpersonateOS, ImpersonateOption, HeaderMap
 
 
 @pytest.mark.asyncio
@@ -19,9 +19,11 @@ async def test_inherit_client():
     assert client.cookie_jar is None
     assert client.test_var == "test"
     client.update(
-        impersonate=Impersonate.Firefox135,
-        impersonate_os=ImpersonateOS.Windows,
-        Impersonate_skip_headers=False,
+        impersonate=ImpersonateOption(
+            impersonate=Impersonate.Firefox135,
+            impersonate_os=ImpersonateOS.Windows,
+            skip_headers=False,
+        )
     )
     assert (
         client.user_agent
@@ -66,9 +68,11 @@ async def test_update_impersonate():
         == "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:133.0) Gecko/20100101 Firefox/133.0"
     )
     client.update(
-        impersonate=Impersonate.Firefox135,
-        impersonate_os=ImpersonateOS.Windows,
-        Impersonate_skip_headers=False,
+        impersonate=ImpersonateOption(
+            impersonate=Impersonate.Firefox135,
+            impersonate_os=ImpersonateOS.Windows,
+            skip_headers=False,
+        )
     )
     assert (
         client.user_agent
