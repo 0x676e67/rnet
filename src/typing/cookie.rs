@@ -173,10 +173,9 @@ impl Cookie {
     }
 }
 
-/// Parse a cookie header from a Python dictionary.
-pub struct CookieFromPyDict(pub HeaderValue);
+pub struct CookieExtractor(pub HeaderValue);
 
-impl FromPyObject<'_> for CookieFromPyDict {
+impl FromPyObject<'_> for CookieExtractor {
     fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
         let dict = ob.downcast::<PyDict>()?;
         dict.iter()
@@ -202,7 +201,7 @@ impl FromPyObject<'_> for CookieFromPyDict {
 }
 
 #[cfg(feature = "docs")]
-impl PyStubType for CookieFromPyDict {
+impl PyStubType for CookieExtractor {
     fn type_output() -> TypeInfo {
         TypeInfo::with_module("typing.Dict[str, str]", "typing".into())
     }

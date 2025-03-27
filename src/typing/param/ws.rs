@@ -1,4 +1,7 @@
-use crate::typing::{CookieFromPyDict, HeaderMapFromPy, IpAddr, QueryOrForm};
+use crate::{
+    extract_option,
+    typing::{CookieExtractor, HeaderMapExtractor, IpAddr, UrlEncodedValuesExtractor},
+};
 use pyo3::{prelude::*, pybacked::PyBackedStr};
 #[cfg(feature = "docs")]
 use pyo3_stub_gen::{PyStubType, TypeInfo};
@@ -16,10 +19,10 @@ pub struct WebSocketParams {
     pub interface: Option<String>,
 
     /// The headers to use for the request.
-    pub headers: Option<HeaderMapFromPy>,
+    pub headers: Option<HeaderMapExtractor>,
 
     /// The cookies to use for the request.
-    pub cookies: Option<CookieFromPyDict>,
+    pub cookies: Option<CookieExtractor>,
 
     /// The protocols to use for the request.
     pub protocols: Option<Vec<String>>,
@@ -37,7 +40,7 @@ pub struct WebSocketParams {
     pub basic_auth: Option<(PyBackedStr, Option<PyBackedStr>)>,
 
     /// The query parameters to use for the request.
-    pub query: Option<QueryOrForm>,
+    pub query: Option<UrlEncodedValuesExtractor>,
 
     /// Read buffer capacity. This buffer is eagerly allocated and used for receiving
     /// messages.
@@ -90,14 +93,6 @@ pub struct WebSocketParams {
     /// some popular libraries that are sending unmasked frames, ignoring the RFC.
     /// By default this option is set to `false`, i.e. according to RFC 6455.
     pub accept_unmasked_frames: Option<bool>,
-}
-
-macro_rules! extract_option {
-    ($ob:expr, $params:expr, $field:ident) => {
-        if let Ok(value) = $ob.get_item(stringify!($field)) {
-            $params.$field = value.extract()?;
-        }
-    };
 }
 
 impl<'py> FromPyObject<'py> for WebSocketParams {

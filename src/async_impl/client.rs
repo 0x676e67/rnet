@@ -5,7 +5,7 @@ use crate::{
     dns,
     error::Error,
     typing::{
-        Cookie, HeaderMap, ImpersonateOS, Method, SslVerify, TlsVersion,
+        Cookie, HeaderMap, Method, SslVerify, TlsVersion,
         param::{ClientParams, RequestParams, UpdateClientParams, WebSocketParams},
     },
 };
@@ -361,10 +361,7 @@ impl Client {
     ///
     /// * `**kwds` - Optional request parameters as a dictionary.
     ///
-    ///     impersonate: typing.Optional[Impersonate]
-    ///     impersonate_os: typing.Optional[ImpersonateOS]
-    ///     impersonate_skip_http2: typing.Optional[builtins.bool]
-    ///     impersonate_skip_headers: typing.Optional[builtins.bool]
+    ///     impersonate: typing.Optional[typing.Union[Impersonate, ImpersonateOption]]
     ///     base_url: typing.Optional[str]
     ///     user_agent: typing.Optional[str]
     ///     default_headers: typing.Optional[typing.Dict[str, bytes]]
@@ -426,19 +423,7 @@ impl Client {
 
             // Impersonation options.
             if let Some(impersonate) = params.impersonate.take() {
-                builder = builder.emulation(
-                    rquest_util::EmulationOption::builder()
-                        .emulation(impersonate.into_ffi())
-                        .emulation_os(
-                            params
-                                .impersonate_os
-                                .map(ImpersonateOS::into_ffi)
-                                .unwrap_or_default(),
-                        )
-                        .skip_http2(params.impersonate_skip_http2.unwrap_or(false))
-                        .skip_headers(params.impersonate_skip_headers.unwrap_or(false))
-                        .build(),
-                );
+                builder = builder.emulation(impersonate.0);
             }
 
             // User agent options.
@@ -600,7 +585,7 @@ impl Client {
 
             // Network options.
             if let Some(proxies) = params.proxies.take() {
-                for proxy in proxies {
+                for proxy in proxies.0 {
                     builder = builder.proxy(proxy);
                 }
             }
@@ -779,10 +764,7 @@ impl Client {
     /// # Arguments
     /// * `**kwds` - The parameters to update the client with.
     ///
-    ///     impersonate: typing.Optional[Impersonate]
-    ///     impersonate_os: typing.Optional[ImpersonateOS]
-    ///     impersonate_skip_http2: typing.Optional[builtins.bool]
-    ///     impersonate_skip_headers: typing.Optional[builtins.bool]
+    ///     impersonate: typing.Optional[typing.Union[Impersonate, ImpersonateOption]]
     ///     headers: typing.Optional[typing.Dict[str, bytes]]
     ///     headers_order: typing.Optional[typing.List[str]]
     ///     proxies: typing.Optional[builtins.list[Proxy]]
@@ -809,19 +791,7 @@ impl Client {
 
             // Impersonation options.
             if let Some(impersonate) = params.impersonate.take() {
-                update = update.emulation(
-                    rquest_util::EmulationOption::builder()
-                        .emulation(impersonate.into_ffi())
-                        .emulation_os(
-                            params
-                                .impersonate_os
-                                .map(ImpersonateOS::into_ffi)
-                                .unwrap_or_default(),
-                        )
-                        .skip_http2(params.impersonate_skip_http2.unwrap_or(false))
-                        .skip_headers(params.impersonate_skip_headers.unwrap_or(false))
-                        .build(),
-                );
+                update = update.emulation(impersonate.0);
             }
 
             // Default headers options.
@@ -838,7 +808,7 @@ impl Client {
             );
 
             // Network options.
-            apply_option!(apply_if_some, update, params.proxies, proxies);
+            apply_option!(apply_if_some_inner, update, params.proxies, proxies);
             apply_option!(
                 apply_transformed_option,
                 update,

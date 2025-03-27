@@ -1,7 +1,7 @@
 use crate::error::Error;
 
-use super::HeaderMapFromPy;
-use pyo3::prelude::*;
+use super::HeaderMapExtractor;
+use pyo3::{prelude::*, types::PyList};
 #[cfg(feature = "docs")]
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 use rquest::header::HeaderValue;
@@ -29,7 +29,7 @@ macro_rules! proxy_method {
                     username: Option<&str>,
                     password: Option<&str>,
                     custom_http_auth: Option<&str>,
-                    custom_http_headers: Option<HeaderMapFromPy>,
+                    custom_http_headers: Option<HeaderMapExtractor>,
                     exclusion: Option<&str>,
                 ) -> PyResult<Self> {
                     py.allow_threads(|| {
@@ -149,7 +149,7 @@ impl Proxy {
         username: Option<&'a str>,
         password: Option<&str>,
         custom_http_auth: Option<&'a str>,
-        custom_http_headers: Option<HeaderMapFromPy>,
+        custom_http_headers: Option<HeaderMapExtractor>,
         exclusion: Option<&'a str>,
     ) -> PyResult<Self> {
         let mut proxy = proxy_fn(url).map_err(Error::RquestError)?;
@@ -174,5 +174,38 @@ impl Proxy {
         }
 
         Ok(Proxy(Some(proxy)))
+    }
+}
+
+pub struct ProxyExtractor(pub rquest::Proxy);
+
+impl FromPyObject<'_> for ProxyExtractor {
+    fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
+        let proxy = ob.downcast::<Proxy>()?;
+        proxy
+            .borrow_mut()
+            .0
+            .take()
+            .map(ProxyExtractor)
+            .ok_or_else(|| Error::MemoryError)
+            .map_err(Into::into)
+    }
+}
+
+pub struct ProxyListExtractor(pub Vec<rquest::Proxy>);
+impl FromPyObject<'_> for ProxyListExtractor {
+    fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
+        let proxies = ob.downcast::<PyList>()?;
+        let len = proxies.len();
+        proxies
+            .into_iter()
+            .try_fold(Vec::with_capacity(len), |mut list, proxy| {
+                let proxy = proxy.downcast::<Proxy>()?;
+                if let Some(proxy) = proxy.borrow_mut().0.take() {
+                    list.push(proxy);
+                }
+                Ok::<_, PyErr>(list)
+            })
+            .map(Self)
     }
 }

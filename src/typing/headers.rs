@@ -159,12 +159,12 @@ impl HeaderMapItemsIter {
 }
 
 /// A HTTP header map.
-pub struct HeaderMapFromPy(pub header::HeaderMap);
+pub struct HeaderMapExtractor(pub header::HeaderMap);
 
 /// A list of header names in order.
-pub struct HeadersOrderFromPyList(pub Vec<HeaderName>);
+pub struct HeadersOrderExtractor(pub Vec<HeaderName>);
 
-impl FromPyObject<'_> for HeaderMapFromPy {
+impl FromPyObject<'_> for HeaderMapExtractor {
     fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
         if let Ok(headers) = ob.downcast::<HeaderMap>() {
             return Ok(Self(headers.borrow().0.clone()));
@@ -188,7 +188,7 @@ impl FromPyObject<'_> for HeaderMapFromPy {
 }
 
 #[cfg(feature = "docs")]
-impl<'py> IntoPyObject<'py> for HeaderMapFromPy {
+impl<'py> IntoPyObject<'py> for HeaderMapExtractor {
     type Target = HeaderMap;
 
     type Output = Bound<'py, Self::Target>;
@@ -201,7 +201,7 @@ impl<'py> IntoPyObject<'py> for HeaderMapFromPy {
 }
 
 #[cfg(feature = "docs")]
-impl PyStubType for HeaderMapFromPy {
+impl PyStubType for HeaderMapExtractor {
     fn type_output() -> TypeInfo {
         TypeInfo::with_module(
             "typing.Union[typing.Dict[str, str], HeaderMap]",
@@ -210,7 +210,7 @@ impl PyStubType for HeaderMapFromPy {
     }
 }
 
-impl<'py> FromPyObject<'py> for HeadersOrderFromPyList {
+impl<'py> FromPyObject<'py> for HeadersOrderExtractor {
     fn extract_bound(ob: &Bound<'py, PyAny>) -> PyResult<Self> {
         let list = ob.downcast::<PyList>()?;
         list.iter()

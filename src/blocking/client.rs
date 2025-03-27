@@ -351,10 +351,7 @@ impl BlockingClient {
     ///
     /// * `**kwds` - Optional request parameters as a dictionary.
     ///
-    ///     impersonate: typing.Optional[Impersonate]
-    ///     impersonate_os: typing.Optional[ImpersonateOS]
-    ///     impersonate_skip_http2: typing.Optional[builtins.bool]
-    ///     impersonate_skip_headers: typing.Optional[builtins.bool]
+    ///     impersonate: typing.Optional[typing.Union[Impersonate, ImpersonateOption]]
     ///     user_agent: typing.Optional[str]
     ///     default_headers: typing.Optional[typing.Dict[str, bytes]]
     ///     headers_order: typing.Optional[typing.List[str]]
@@ -504,10 +501,7 @@ impl BlockingClient {
     /// # Arguments
     /// * `**kwds` - The parameters to update the client with.
     ///
-    ///     impersonate: typing.Optional[Impersonate]
-    ///     impersonate_os: typing.Optional[ImpersonateOS]
-    ///     impersonate_skip_http2: typing.Optional[builtins.bool]
-    ///     impersonate_skip_headers: typing.Optional[builtins.bool]
+    ///     impersonate: typing.Optional[typing.Union[Impersonate, ImpersonateOption]]
     ///     headers: typing.Optional[typing.Dict[str, bytes]]
     ///     headers_order: typing.Optional[typing.List[str]]
     ///     proxies: typing.Optional[builtins.list[Proxy]]

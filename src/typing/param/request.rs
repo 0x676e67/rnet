@@ -1,6 +1,9 @@
-use crate::typing::{
-    CookieFromPyDict, FromPyBody, HeaderMapFromPy, IpAddr, Json, Multipart, Proxy, QueryOrForm,
-    Version,
+use crate::{
+    extract_option,
+    typing::{
+        BodyExtractor, CookieExtractor, HeaderMapExtractor, IpAddr, Json, ProxyExtractor,
+        UrlEncodedValuesExtractor, Version, multipart::MultipartExtractor,
+    },
 };
 use pyo3::{prelude::*, pybacked::PyBackedStr};
 #[cfg(feature = "docs")]
@@ -10,7 +13,7 @@ use pyo3_stub_gen::{PyStubType, TypeInfo};
 #[derive(Default)]
 pub struct RequestParams {
     /// The proxy to use for the request.
-    pub proxy: Option<rquest::Proxy>,
+    pub proxy: Option<ProxyExtractor>,
 
     /// Bind to a local IP Address.
     pub local_address: Option<IpAddr>,
@@ -28,10 +31,10 @@ pub struct RequestParams {
     pub version: Option<Version>,
 
     /// The headers to use for the request.
-    pub headers: Option<HeaderMapFromPy>,
+    pub headers: Option<HeaderMapExtractor>,
 
     /// The cookies to use for the request.
-    pub cookies: Option<CookieFromPyDict>,
+    pub cookies: Option<CookieExtractor>,
 
     /// Whether to allow redirects.
     pub allow_redirects: Option<bool>,
@@ -49,36 +52,25 @@ pub struct RequestParams {
     pub basic_auth: Option<(PyBackedStr, Option<PyBackedStr>)>,
 
     /// The query parameters to use for the request.
-    pub query: Option<QueryOrForm>,
+    pub query: Option<UrlEncodedValuesExtractor>,
 
     /// The form parameters to use for the request.
-    pub form: Option<QueryOrForm>,
+    pub form: Option<UrlEncodedValuesExtractor>,
 
     /// The JSON body to use for the request.
     pub json: Option<Json>,
 
     /// The body to use for the request.
-    pub body: Option<FromPyBody>,
+    pub body: Option<BodyExtractor>,
 
     /// The multipart form to use for the request.
-    pub multipart: Option<rquest::multipart::Form>,
-}
-
-macro_rules! extract_option {
-    ($ob:expr, $params:expr, $field:ident) => {
-        if let Ok(value) = $ob.get_item(stringify!($field)) {
-            $params.$field = value.extract()?;
-        }
-    };
+    pub multipart: Option<MultipartExtractor>,
 }
 
 impl<'py> FromPyObject<'py> for RequestParams {
     fn extract_bound(ob: &Bound<'py, PyAny>) -> PyResult<RequestParams> {
         let mut params = Self::default();
-        if let Ok(ob) = ob.get_item("proxy") {
-            let proxy = ob.downcast::<Proxy>()?;
-            params.proxy = proxy.borrow_mut().0.take();
-        }
+        extract_option!(ob, params, proxy);
         extract_option!(ob, params, local_address);
         extract_option!(ob, params, interface);
         extract_option!(ob, params, timeout);
@@ -96,10 +88,7 @@ impl<'py> FromPyObject<'py> for RequestParams {
         extract_option!(ob, params, form);
         extract_option!(ob, params, json);
         extract_option!(ob, params, body);
-        if let Ok(value) = ob.get_item("multipart") {
-            let form = value.downcast::<Multipart>()?;
-            params.multipart = form.borrow_mut().0.take();
-        }
+        extract_option!(ob, params, multipart);
 
         Ok(params)
     }

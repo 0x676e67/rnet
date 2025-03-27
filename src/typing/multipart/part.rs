@@ -24,7 +24,7 @@ pub struct Part {
 }
 
 /// The data for a part of a multipart form.
-pub enum PartData {
+pub enum PartExtractor {
     Text(Bytes),
     Bytes(Bytes),
     File(PathBuf),
@@ -33,7 +33,7 @@ pub enum PartData {
 }
 
 #[cfg(feature = "docs")]
-impl PyStubType for PartData {
+impl PyStubType for PartExtractor {
     fn type_output() -> TypeInfo {
         TypeInfo::any()
     }
@@ -43,28 +43,34 @@ impl PyStubType for PartData {
 #[pymethods]
 impl Part {
     /// Creates a new part.
+    ///
+    /// # Arguments
+    /// - `name` - The name of the part.
+    /// - `value` - The value of the part, either text, bytes, a file path, or a async or sync stream.
+    /// - `filename` - The filename of the part.
+    /// - `mime` - The MIME type of the part.
     #[new]
     #[pyo3(signature = (name, value, filename = None, mime = None))]
     pub fn new(
         py: Python,
         name: String,
-        value: PartData,
+        value: PartExtractor,
         filename: Option<String>,
         mime: Option<&str>,
     ) -> PyResult<Part> {
         py.allow_threads(|| {
             // Create the inner part
             let mut inner = match value {
-                PartData::Text(bytes) | PartData::Bytes(bytes) => {
+                PartExtractor::Text(bytes) | PartExtractor::Bytes(bytes) => {
                     rquest::multipart::Part::stream(Body::from(bytes))
                 }
-                PartData::File(path) => pyo3_async_runtimes::tokio::get_runtime()
+                PartExtractor::File(path) => pyo3_async_runtimes::tokio::get_runtime()
                     .block_on(rquest::multipart::Part::file(path))
                     .map_err(Error::from)?,
-                PartData::SyncStream(stream) => {
+                PartExtractor::SyncStream(stream) => {
                     rquest::multipart::Part::stream(Body::wrap_stream(stream))
                 }
-                PartData::AsyncStream(stream) => {
+                PartExtractor::AsyncStream(stream) => {
                     rquest::multipart::Part::stream(Body::wrap_stream(stream))
                 }
             };
@@ -89,7 +95,7 @@ impl Part {
     }
 }
 
-impl FromPyObject<'_> for PartData {
+impl FromPyObject<'_> for PartExtractor {
     fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
         if let Ok(text) = ob.extract::<PyBackedStr>() {
             return Ok(Self::Text(Bytes::from_owner(text)));

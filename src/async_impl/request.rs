@@ -65,7 +65,7 @@ where
     );
 
     // Network options.
-    apply_option!(apply_if_some, builder, params.proxy, proxy);
+    apply_option!(apply_if_some_inner, builder, params.proxy, proxy);
     apply_option!(
         apply_transformed_option,
         builder,
@@ -123,7 +123,7 @@ where
     apply_option!(apply_if_some, builder, params.body, body);
 
     // Multipart options.
-    apply_option!(apply_if_some, builder, params.multipart, multipart);
+    apply_option!(apply_if_some_inner, builder, params.multipart, multipart);
 
     // Send the request.
     builder

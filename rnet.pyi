@@ -78,10 +78,7 @@ class BlockingClient:
         # Arguments
         * `**kwds` - The parameters to update the client with.
 
-            impersonate: typing.Optional[Impersonate]
-            impersonate_os: typing.Optional[ImpersonateOS]
-            impersonate_skip_http2: typing.Optional[builtins.bool]
-            impersonate_skip_headers: typing.Optional[builtins.bool]
+            impersonate: typing.Optional[typing.Union[Impersonate, ImpersonateOption]]
             headers: typing.Optional[typing.Dict[str, bytes]]
             headers_order: typing.Optional[typing.List[str]]
             proxies: typing.Optional[builtins.list[Proxy]]
@@ -858,10 +855,7 @@ class Client:
         # Arguments
         * `**kwds` - The parameters to update the client with.
 
-            impersonate: typing.Optional[Impersonate]
-            impersonate_os: typing.Optional[ImpersonateOS]
-            impersonate_skip_http2: typing.Optional[builtins.bool]
-            impersonate_skip_headers: typing.Optional[builtins.bool]
+            impersonate: typing.Optional[typing.Union[Impersonate, ImpersonateOption]]
             headers: typing.Optional[typing.Dict[str, bytes]]
             headers_order: typing.Optional[typing.List[str]]
             proxies: typing.Optional[builtins.list[Proxy]]
@@ -1438,6 +1432,20 @@ class HeaderMapKeysIter:
 
     def __iter__(self) -> HeaderMapKeysIter: ...
     def __next__(self) -> typing.Optional[typing.Any]: ...
+
+class ImpersonateOption:
+    r"""
+    A struct to represent the `ImpersonateOption` class.
+    """
+
+    def __new__(
+        cls,
+        impersonate: Impersonate,
+        impersonate_os: typing.Optional[ImpersonateOS] = None,
+        skip_http2: typing.Optional[builtins.bool] = None,
+        skip_headers: typing.Optional[builtins.bool] = None,
+    ): ...
+    ...
 
 class Message:
     r"""

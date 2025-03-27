@@ -15,8 +15,8 @@ use pyo3_stub_gen::{define_stub_info_gatherer, derive::*};
 use typing::param::{RequestParams, WebSocketParams};
 use typing::{
     Cookie, HeaderMap, HeaderMapItemsIter, HeaderMapKeysIter, Impersonate, ImpersonateOS,
-    LookupIpStrategy, Method, Multipart, Part, Proxy, SameSite, SocketAddr, StatusCode, TlsVersion,
-    Version,
+    ImpersonateOption, LookupIpStrategy, Method, Multipart, Part, Proxy, SameSite, SocketAddr,
+    StatusCode, TlsVersion, Version,
 };
 
 #[cfg(not(target_env = "msvc"))]
@@ -325,6 +325,7 @@ fn rnet(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<HeaderMapKeysIter>()?;
     m.add_class::<Impersonate>()?;
     m.add_class::<ImpersonateOS>()?;
+    m.add_class::<ImpersonateOption>()?;
     m.add_class::<TlsVersion>()?;
     m.add_class::<SocketAddr>()?;
     m.add_class::<Proxy>()?;

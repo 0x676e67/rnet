@@ -1,8 +1,11 @@
-use crate::typing::{
-    HeaderMapFromPy, HeadersOrderFromPyList, Impersonate, ImpersonateOS, IpAddr, LookupIpStrategy,
-    Proxy, SslVerify, TlsVersion,
+use crate::{
+    extract_option,
+    typing::{
+        HeaderMapExtractor, HeadersOrderExtractor, ImpersonateExtractor, IpAddr, LookupIpStrategy,
+        SslVerify, TlsVersion, proxy::ProxyListExtractor,
+    },
 };
-use pyo3::{prelude::*, pybacked::PyBackedStr, types::PyList};
+use pyo3::{prelude::*, pybacked::PyBackedStr};
 #[cfg(feature = "docs")]
 use pyo3_stub_gen::{PyStubType, TypeInfo};
 
@@ -10,25 +13,16 @@ use pyo3_stub_gen::{PyStubType, TypeInfo};
 #[derive(Default)]
 pub struct ClientParams {
     /// The impersonation settings for the request.
-    pub impersonate: Option<Impersonate>,
-
-    /// The impersonation settings for the operating system.
-    pub impersonate_os: Option<ImpersonateOS>,
-
-    /// Whether to skip impersonate HTTP/2.
-    pub impersonate_skip_http2: Option<bool>,
-
-    /// Whether to skip impersonate headers.
-    pub impersonate_skip_headers: Option<bool>,
+    pub impersonate: Option<ImpersonateExtractor>,
 
     /// The user agent to use for the request.
     pub user_agent: Option<PyBackedStr>,
 
     /// The headers to use for the request.
-    pub default_headers: Option<HeaderMapFromPy>,
+    pub default_headers: Option<HeaderMapExtractor>,
 
     /// The order of the headers to use for the request.
-    pub headers_order: Option<HeadersOrderFromPyList>,
+    pub headers_order: Option<HeadersOrderExtractor>,
 
     /// Whether to use referer.
     pub referer: Option<bool>,
@@ -104,7 +98,7 @@ pub struct ClientParams {
     pub no_proxy: Option<bool>,
 
     /// The proxy to use for the request.
-    pub proxies: Option<Vec<rquest::Proxy>>,
+    pub proxies: Option<ProxyListExtractor>,
 
     /// Bind to a local IP Address.
     pub local_address: Option<IpAddr>,
@@ -130,26 +124,17 @@ pub struct ClientParams {
 #[derive(Default)]
 pub struct UpdateClientParams {
     /// The impersonation settings for the request.
-    pub impersonate: Option<Impersonate>,
-
-    /// The impersonation settings for the operating system.
-    pub impersonate_os: Option<ImpersonateOS>,
-
-    /// Whether to skip impersonate HTTP/2.
-    pub impersonate_skip_http2: Option<bool>,
-
-    /// Whether to skip impersonate headers.
-    pub impersonate_skip_headers: Option<bool>,
+    pub impersonate: Option<ImpersonateExtractor>,
 
     /// The headers to use for the request.
-    pub headers: Option<HeaderMapFromPy>,
+    pub headers: Option<HeaderMapExtractor>,
 
     /// The order of the headers to use for the request.
-    pub headers_order: Option<HeadersOrderFromPyList>,
+    pub headers_order: Option<HeadersOrderExtractor>,
 
     // ========= Network options =========
     /// The proxy to use for the request.
-    pub proxies: Option<Vec<rquest::Proxy>>,
+    pub proxies: Option<ProxyListExtractor>,
 
     /// Bind to a local IP Address.
     pub local_address: Option<IpAddr>,
@@ -158,40 +143,10 @@ pub struct UpdateClientParams {
     pub interface: Option<String>,
 }
 
-macro_rules! extract_option {
-    ($ob:expr, $params:expr, $field:ident) => {
-        if let Ok(value) = $ob.get_item(stringify!($field)) {
-            $params.$field = value.extract()?;
-        }
-    };
-}
-
-fn extract_proxies(ob: &Bound<'_, PyAny>) -> PyResult<Option<Vec<rquest::Proxy>>> {
-    if let Ok(proxies) = ob.get_item("proxies") {
-        let proxies = proxies.downcast::<PyList>()?;
-        let len = proxies.len();
-        proxies
-            .into_iter()
-            .try_fold(Vec::with_capacity(len), |mut list, proxy| {
-                let proxy = proxy.downcast::<Proxy>()?;
-                if let Some(proxy) = proxy.borrow_mut().0.take() {
-                    list.push(proxy);
-                }
-                Ok::<_, PyErr>(list)
-            })
-            .map(Some)
-    } else {
-        Ok(None)
-    }
-}
-
 impl<'py> FromPyObject<'py> for ClientParams {
     fn extract_bound(ob: &Bound<'py, PyAny>) -> PyResult<Self> {
         let mut params = Self::default();
         extract_option!(ob, params, impersonate);
-        extract_option!(ob, params, impersonate_os);
-        extract_option!(ob, params, impersonate_skip_http2);
-        extract_option!(ob, params, impersonate_skip_headers);
 
         extract_option!(ob, params, user_agent);
         extract_option!(ob, params, default_headers);
@@ -211,7 +166,7 @@ impl<'py> FromPyObject<'py> for ClientParams {
         extract_option!(ob, params, tcp_keepalive);
 
         extract_option!(ob, params, no_proxy);
-        params.proxies = extract_proxies(ob)?;
+        extract_option!(ob, params, proxies);
         extract_option!(ob, params, local_address);
         extract_option!(ob, params, interface);
 
@@ -237,12 +192,9 @@ impl<'py> FromPyObject<'py> for UpdateClientParams {
     fn extract_bound(ob: &Bound<'py, PyAny>) -> PyResult<Self> {
         let mut params = Self::default();
         extract_option!(ob, params, impersonate);
-        extract_option!(ob, params, impersonate_os);
-        extract_option!(ob, params, impersonate_skip_http2);
-        extract_option!(ob, params, impersonate_skip_headers);
         extract_option!(ob, params, headers);
         extract_option!(ob, params, headers_order);
-        params.proxies = extract_proxies(ob)?;
+        extract_option!(ob, params, proxies);
         extract_option!(ob, params, local_address);
         extract_option!(ob, params, interface);
         Ok(params)
