@@ -2116,7 +2116,7 @@ class SameSite(Enum):
 
     Strict = auto()
     Lax = auto()
-    None = auto()
+    Empty = auto()
 
 class TlsVersion(Enum):
     r"""
