@@ -197,13 +197,7 @@ where
     );
 
     // Network options.
-    apply_option!(
-        apply_transformed_option_ref,
-        builder,
-        params.proxy,
-        proxy,
-        AsRef::<str>::as_ref
-    );
+    apply_option!(apply_if_some_inner, builder, params.proxy, proxy);
     apply_option!(
         apply_transformed_option,
         builder,

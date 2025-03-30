@@ -41,12 +41,14 @@ arc-swap = "1.7.1"
 url = "2.5"
 bytes = "1.10.1"
 futures-util = { version = "0.3.31", default-features = false }
-rquest = { version = "5.0.0", features = [
+rquest = { version = "5.1.0", features = [
     "full",
     "multipart",
     "websocket",
     "hickory-dns",
     "apple-network-device-binding",
+    "cookies-preserve-order",
+    "cookies-multiple",
 ] }
 rquest-util = { version = "2.1.0" }
 

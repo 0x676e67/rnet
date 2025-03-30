@@ -1,6 +1,8 @@
 use crate::{
     extract_option,
-    typing::{CookieExtractor, HeaderMapExtractor, IpAddr, UrlEncodedValuesExtractor},
+    typing::{
+        CookieExtractor, HeaderMapExtractor, IpAddr, ProxyExtractor, UrlEncodedValuesExtractor,
+    },
 };
 use pyo3::{prelude::*, pybacked::PyBackedStr};
 #[cfg(feature = "docs")]
@@ -10,7 +12,7 @@ use pyo3_stub_gen::{PyStubType, TypeInfo};
 #[derive(Default)]
 pub struct WebSocketParams {
     /// The proxy to use for the request.
-    pub proxy: Option<PyBackedStr>,
+    pub proxy: Option<ProxyExtractor>,
 
     /// Bind to a local IP Address.
     pub local_address: Option<IpAddr>,
