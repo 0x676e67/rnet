@@ -25,7 +25,7 @@ macro_rules! define_http_method {
             /// * `url` - The URL to send the request to.
             /// * `**kwds` - Additional request parameters.
             ///
-            ///     proxy: typing.Optional[builtins.str]
+            ///     proxy: typing.Optional[Proxy]
             ///     local_address: typing.Optional[typing.Optional[typing.Union[str, ipaddress.IPv4Address, ipaddress.IPv6Address]]]
             ///     interface: typing.Optional[builtins.str]
             ///     timeout: typing.Optional[builtins.int]
@@ -226,7 +226,7 @@ impl BlockingClient {
     /// * `url` - The URL to send the request to.
     /// * `**kwds` - Additional request parameters.
     ///
-    ///     proxy: typing.Optional[builtins.str]
+    ///     proxy: typing.Optional[Proxy]
     ///     local_address: typing.Optional[typing.Optional[typing.Union[str, ipaddress.IPv4Address, ipaddress.IPv6Address]]]
     ///     interface: typing.Optional[builtins.str]
     ///     timeout: typing.Optional[builtins.int]
@@ -287,7 +287,7 @@ impl BlockingClient {
     /// * `url` - The URL to send the WebSocket request to.
     /// * `**kwds` - Additional WebSocket request parameters.
     ///
-    ///     proxy: typing.Optional[builtins.str]
+    ///     proxy: typing.Optional[Proxy]
     ///     local_address: typing.Optional[typing.Optional[typing.Union[str, ipaddress.IPv4Address, ipaddress.IPv6Address]]]
     ///     interface: typing.Optional[builtins.str]
     ///     headers: typing.Optional[typing.Dict[str, bytes]]
