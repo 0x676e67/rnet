@@ -53,7 +53,7 @@ macro_rules! proxy_method {
 /// Supports HTTP, HTTPS, SOCKS4, SOCKS4a, SOCKS5, and SOCKS5h protocols.
 #[cfg_attr(feature = "docs", gen_stub_pyclass)]
 #[pyclass]
-pub struct Proxy(pub Option<rquest::Proxy>);
+pub struct Proxy(pub rquest::Proxy);
 
 proxy_method! {
     {
@@ -173,7 +173,7 @@ impl Proxy {
             proxy = proxy.no_proxy(rquest::NoProxy::from_string(exclusion))
         }
 
-        Ok(Proxy(Some(proxy)))
+        Ok(Proxy(proxy))
     }
 }
 
@@ -182,13 +182,8 @@ pub struct ProxyExtractor(pub rquest::Proxy);
 impl FromPyObject<'_> for ProxyExtractor {
     fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
         let proxy = ob.downcast::<Proxy>()?;
-        proxy
-            .borrow_mut()
-            .0
-            .take()
-            .map(ProxyExtractor)
-            .ok_or_else(|| Error::MemoryError)
-            .map_err(Into::into)
+        let proxy = proxy.borrow().0.clone();
+        Ok(Self(proxy))
     }
 }
 
@@ -201,9 +196,7 @@ impl FromPyObject<'_> for ProxyListExtractor {
             .into_iter()
             .try_fold(Vec::with_capacity(len), |mut list, proxy| {
                 let proxy = proxy.downcast::<Proxy>()?;
-                if let Some(proxy) = proxy.borrow_mut().0.take() {
-                    list.push(proxy);
-                }
+                list.push(proxy.borrow().0.clone());
                 Ok::<_, PyErr>(list)
             })
             .map(Self)
