@@ -15,7 +15,8 @@ pub use self::{
     cookie::{Cookie, CookieExtractor},
     enums::{Impersonate, ImpersonateOS, LookupIpStrategy, Method, SameSite, TlsVersion, Version},
     headers::{
-        HeaderMap, HeaderMapExtractor, HeaderMapItemsIter, HeaderMapKeysIter, HeadersOrderExtractor,
+        HeaderMap, HeaderMapExtractor, HeaderMapItemsIter, HeaderMapKeysIter, HeaderMapValuesIter,
+        HeadersOrderExtractor,
     },
     ipaddr::{IpAddr, SocketAddr},
     json::Json,

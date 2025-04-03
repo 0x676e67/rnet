@@ -46,6 +46,30 @@ impl HeaderMap {
         Self(headers)
     }
 
+    /// Returns multiple value sequences of key mapping
+    fn get_all(&self, key: PyBackedStr) -> HeaderMapValuesIter {
+        HeaderMapValuesIter {
+            inner: self
+                .0
+                .get_all(key.as_ref() as &str)
+                .iter()
+                .cloned()
+                .collect(),
+        }
+    }
+
+    /// Returns key-value pairs in the order they were added.
+    #[inline]
+    fn items(&self) -> HeaderMapItemsIter {
+        HeaderMapItemsIter {
+            inner: self.0.iter().map(|(k, v)| (k.clone(), v.clone())).collect(),
+        }
+    }
+}
+
+#[cfg_attr(feature = "docs", gen_stub_pymethods)]
+#[pymethods]
+impl HeaderMap {
     #[inline]
     fn __getitem__<'py>(&self, py: Python<'py>, key: PyBackedStr) -> Option<Bound<'py, PyAny>> {
         let value = self.0.get(key.as_ref() as &str)?;
@@ -90,13 +114,6 @@ impl HeaderMap {
     }
 
     #[inline]
-    fn items(&self) -> HeaderMapItemsIter {
-        HeaderMapItemsIter {
-            inner: self.0.iter().map(|(k, v)| (k.clone(), v.clone())).collect(),
-        }
-    }
-
-    #[inline]
     fn __str__(&self) -> String {
         format!("{:?}", self.0)
     }
@@ -127,6 +144,28 @@ impl HeaderMapKeysIter {
         slf.inner
             .pop()
             .and_then(|k| HeaderNameBuffer::new(k).into_bytes_ref(slf.py()).ok())
+    }
+}
+
+/// An iterator over the values in a HeaderMap.
+#[cfg_attr(feature = "docs", gen_stub_pyclass)]
+#[pyclass]
+pub struct HeaderMapValuesIter {
+    inner: Vec<HeaderValue>,
+}
+#[cfg_attr(feature = "docs", gen_stub_pymethods)]
+#[pymethods]
+impl HeaderMapValuesIter {
+    #[inline]
+    fn __iter__(slf: PyRefMut<'_, Self>) -> PyRefMut<'_, Self> {
+        slf
+    }
+
+    #[inline]
+    fn __next__(mut slf: PyRefMut<Self>) -> Option<Bound<'_, PyAny>> {
+        slf.inner
+            .pop()
+            .and_then(|v| HeaderValueBuffer::new(v).into_bytes_ref(slf.py()).ok())
     }
 }
 
