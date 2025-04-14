@@ -1,8 +1,8 @@
 use crate::{
     extract_option,
     typing::{
-        HeaderMapExtractor, HeadersOrderExtractor, ImpersonateExtractor, IpAddr, LookupIpStrategy,
-        SslVerify, TlsVersion, proxy::ProxyListExtractor,
+        HeaderMapExtractor, HeadersOrderExtractor, ImpersonateExtractor, IpAddrExtractor,
+        LookupIpStrategy, SslVerify, TlsVersion, proxy::ProxyListExtractor,
     },
 };
 use pyo3::{prelude::*, pybacked::PyBackedStr};
@@ -101,7 +101,7 @@ pub struct ClientParams {
     pub proxies: Option<ProxyListExtractor>,
 
     /// Bind to a local IP Address.
-    pub local_address: Option<IpAddr>,
+    pub local_address: Option<IpAddrExtractor>,
 
     /// Bind to an interface by `SO_BINDTODEVICE`.
     pub interface: Option<String>,
@@ -137,7 +137,7 @@ pub struct UpdateClientParams {
     pub proxies: Option<ProxyListExtractor>,
 
     /// Bind to a local IP Address.
-    pub local_address: Option<IpAddr>,
+    pub local_address: Option<IpAddrExtractor>,
 
     /// Bind to an interface by `SO_BINDTODEVICE`.
     pub interface: Option<String>,

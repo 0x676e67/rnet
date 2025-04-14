@@ -1,7 +1,8 @@
 use crate::{
     extract_option,
     typing::{
-        CookieExtractor, HeaderMapExtractor, IpAddr, ProxyExtractor, UrlEncodedValuesExtractor,
+        CookieExtractor, HeaderMapExtractor, IpAddrExtractor, ProxyExtractor,
+        UrlEncodedValuesExtractor,
     },
 };
 use pyo3::{prelude::*, pybacked::PyBackedStr};
@@ -15,7 +16,7 @@ pub struct WebSocketParams {
     pub proxy: Option<ProxyExtractor>,
 
     /// Bind to a local IP Address.
-    pub local_address: Option<IpAddr>,
+    pub local_address: Option<IpAddrExtractor>,
 
     /// Bind to an interface by `SO_BINDTODEVICE`.
     pub interface: Option<String>,

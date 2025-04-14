@@ -19,7 +19,7 @@ name = "stubgen"
 path = "src/stubgen.rs"
 
 [features]
-default = []
+default = ["docs"]
 docs = ["dep:pyo3-stub-gen"]
 
 [dependencies]

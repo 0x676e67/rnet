@@ -1,8 +1,11 @@
 use super::{BlockingResponse, BlockingWebSocket};
 use crate::{
     async_impl::{self, execute_request, execute_websocket_request},
-    typing::param::{ClientParams, RequestParams, UpdateClientParams, WebSocketParams},
-    typing::{Cookie, HeaderMap, Method},
+    typing::{
+        Cookie, HeaderMap, HeaderMapExtractor, HeadersOrderExtractor, ImpersonateExtractor,
+        IpAddrExtractor, Method, ProxyListExtractor,
+        param::{ClientParams, RequestParams, WebSocketParams},
+    },
 };
 use pyo3::{prelude::*, pybacked::PyBackedStr};
 #[cfg(feature = "docs")]
@@ -520,9 +523,33 @@ impl BlockingClient {
     ///    proxies=[rnet.Proxy.all("http://proxy.example.com:8080")],
     /// )
     /// ```
-    #[pyo3(signature = (**kwds))]
+    #[pyo3(signature = (
+        impersonate=None,
+        headers=None,
+        headers_order=None,
+        proxies=None,
+        local_address=None,
+        interface=None,
+    ))]
     #[inline(always)]
-    fn update(&self, py: Python, kwds: Option<UpdateClientParams>) -> PyResult<()> {
-        self.0.update(py, kwds)
+    fn update(
+        &self,
+        py: Python,
+        impersonate: Option<ImpersonateExtractor>,
+        headers: Option<HeaderMapExtractor>,
+        headers_order: Option<HeadersOrderExtractor>,
+        proxies: Option<ProxyListExtractor>,
+        local_address: Option<IpAddrExtractor>,
+        interface: Option<String>,
+    ) -> PyResult<()> {
+        self.0.update(
+            py,
+            impersonate,
+            headers,
+            headers_order,
+            proxies,
+            local_address,
+            interface,
+        )
     }
 }

@@ -18,10 +18,10 @@ pub use self::{
         HeaderMap, HeaderMapExtractor, HeaderMapItemsIter, HeaderMapKeysIter, HeaderMapValuesIter,
         HeadersOrderExtractor,
     },
-    ipaddr::{IpAddr, SocketAddr},
+    ipaddr::{IpAddrExtractor, SocketAddr},
     json::Json,
     multipart::{Multipart, Part},
-    proxy::{Proxy, ProxyExtractor},
+    proxy::{Proxy, ProxyExtractor, ProxyListExtractor},
     ssl::SslVerify,
     status::StatusCode,
 };
@@ -79,6 +79,28 @@ impl FromPyObject<'_> for ImpersonateExtractor {
                 .skip_headers(option.skip_headers.unwrap_or(false))
                 .build(),
         ))
+    }
+}
+
+impl<'py> IntoPyObject<'py> for ImpersonateExtractor {
+    type Target = EmulationOption;
+
+    type Output = Bound<'py, Self::Target>;
+
+    type Error = PyErr;
+
+    fn into_pyobject(self, _: Python<'_>) -> Result<Self::Output, Self::Error> {
+        todo!("ImpersonateExtractor::into_pyobject is not implemented yet");
+    }
+}
+
+#[cfg(feature = "docs")]
+impl pyo3_stub_gen::PyStubType for ImpersonateExtractor {
+    fn type_output() -> pyo3_stub_gen::TypeInfo {
+        pyo3_stub_gen::TypeInfo::with_module(
+            "typing.Optional[Impersonate | ImpersonateOption]",
+            "typing".into(),
+        )
     }
 }
 

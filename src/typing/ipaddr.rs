@@ -7,22 +7,28 @@ use pyo3_stub_gen::{
 
 /// An IP address.
 #[derive(Clone, Copy, PartialEq, Eq, Hash)]
-pub struct IpAddr(std::net::IpAddr);
+pub struct IpAddrExtractor(pub std::net::IpAddr);
 
-impl From<IpAddr> for std::net::IpAddr {
-    fn from(ip: IpAddr) -> Self {
-        ip.0
+impl FromPyObject<'_> for IpAddrExtractor {
+    fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
+        ob.extract().map(IpAddrExtractor)
     }
 }
 
-impl FromPyObject<'_> for IpAddr {
-    fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
-        ob.extract().map(IpAddr)
+impl<'py> IntoPyObject<'py> for IpAddrExtractor {
+    type Target = IpAddrExtractor;
+
+    type Output = Bound<'py, Self::Target>;
+
+    type Error = PyErr;
+
+    fn into_pyobject(self, _: Python<'py>) -> Result<Self::Output, Self::Error> {
+        todo!("IpAddrExtractor::into_pyobject is not implemented yet");
     }
 }
 
 #[cfg(feature = "docs")]
-impl PyStubType for IpAddr {
+impl PyStubType for IpAddrExtractor {
     fn type_output() -> TypeInfo {
         TypeInfo::with_module(
             "typing.Optional[typing.Union[str, ipaddress.IPv4Address, ipaddress.IPv6Address]]",

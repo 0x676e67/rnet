@@ -1,7 +1,7 @@
 use crate::{
     extract_option,
     typing::{
-        BodyExtractor, CookieExtractor, HeaderMapExtractor, IpAddr, Json, ProxyExtractor,
+        BodyExtractor, CookieExtractor, HeaderMapExtractor, IpAddrExtractor, Json, ProxyExtractor,
         UrlEncodedValuesExtractor, Version, multipart::MultipartExtractor,
     },
 };
@@ -16,7 +16,7 @@ pub struct RequestParams {
     pub proxy: Option<ProxyExtractor>,
 
     /// Bind to a local IP Address.
-    pub local_address: Option<IpAddr>,
+    pub local_address: Option<IpAddrExtractor>,
 
     /// Bind to an interface by `SO_BINDTODEVICE`.
     pub interface: Option<String>,

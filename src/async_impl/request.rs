@@ -9,7 +9,6 @@ use crate::{
 use pyo3::PyResult;
 use rquest::redirect::Policy;
 use rquest::{Client, header};
-use std::net::IpAddr;
 use std::time::Duration;
 
 /// Executes an HTTP request.
@@ -67,11 +66,10 @@ where
     // Network options.
     apply_option!(apply_if_some_inner, builder, params.proxy, proxy);
     apply_option!(
-        apply_transformed_option,
+        apply_if_some_inner,
         builder,
         params.local_address,
-        local_address,
-        IpAddr::from
+        local_address
     );
     #[cfg(any(
         target_os = "android",
@@ -199,11 +197,10 @@ where
     // Network options.
     apply_option!(apply_if_some_inner, builder, params.proxy, proxy);
     apply_option!(
-        apply_transformed_option,
+        apply_if_some_inner,
         builder,
         params.local_address,
-        local_address,
-        IpAddr::from
+        local_address
     );
     #[cfg(any(
         target_os = "android",

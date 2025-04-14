@@ -5,7 +5,8 @@ use crate::{
     dns,
     error::Error,
     typing::{
-        Cookie, HeaderMap, Method, SslVerify, TlsVersion,
+        Cookie, HeaderMap, HeaderMapExtractor, HeadersOrderExtractor, ImpersonateExtractor,
+        IpAddrExtractor, Method, ProxyListExtractor, SslVerify, TlsVersion,
         param::{ClientParams, RequestParams, UpdateClientParams, WebSocketParams},
     },
 };
@@ -14,8 +15,8 @@ use pyo3_async_runtimes::tokio::future_into_py;
 #[cfg(feature = "docs")]
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 use rquest::{CertStore, Url, redirect::Policy};
+use std::ops::Deref;
 use std::time::Duration;
-use std::{net::IpAddr, ops::Deref};
 
 /// A client for making HTTP requests.
 #[cfg_attr(feature = "docs", gen_stub_pyclass)]
@@ -597,11 +598,10 @@ impl Client {
                 false
             );
             apply_option!(
-                apply_transformed_option,
+                apply_if_some_inner,
                 builder,
                 params.local_address,
-                local_address,
-                IpAddr::from
+                local_address
             );
             #[cfg(any(
                 target_os = "android",
@@ -783,10 +783,35 @@ impl Client {
     ///    proxies=[rnet.Proxy.all("http://proxy.example.com:8080")],
     /// )
     /// ```
-    #[pyo3(signature = (**kwds))]
-    pub fn update(&self, py: Python, mut kwds: Option<UpdateClientParams>) -> PyResult<()> {
+    #[pyo3(signature = (
+        impersonate=None,
+        headers=None,
+        headers_order=None,
+        proxies=None,
+        local_address=None,
+        interface=None,
+    ))]
+    pub fn update(
+        &self,
+        py: Python,
+        impersonate: Option<ImpersonateExtractor>,
+        headers: Option<HeaderMapExtractor>,
+        headers_order: Option<HeadersOrderExtractor>,
+        proxies: Option<ProxyListExtractor>,
+        local_address: Option<IpAddrExtractor>,
+        interface: Option<String>,
+    ) -> PyResult<()> {
         py.allow_threads(|| {
-            let params = kwds.get_or_insert_default();
+            // Create a new client with the current configuration.
+            let mut params = UpdateClientParams {
+                impersonate,
+                headers,
+                headers_order,
+                proxies,
+                local_address,
+                interface,
+            };
+
             let mut update = self.0.update();
 
             // Impersonation options.
@@ -810,11 +835,10 @@ impl Client {
             // Network options.
             apply_option!(apply_if_some_inner, update, params.proxies, proxies);
             apply_option!(
-                apply_transformed_option,
+                apply_if_some_inner,
                 update,
                 params.local_address,
-                local_address,
-                IpAddr::from
+                local_address
             );
             #[cfg(any(
                 target_os = "android",

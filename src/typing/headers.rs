@@ -226,7 +226,20 @@ impl FromPyObject<'_> for HeaderMapExtractor {
     }
 }
 
-#[cfg(feature = "docs")]
+impl<'py> FromPyObject<'py> for HeadersOrderExtractor {
+    fn extract_bound(ob: &Bound<'py, PyAny>) -> PyResult<Self> {
+        let list = ob.downcast::<PyList>()?;
+        list.iter()
+            .try_fold(Vec::with_capacity(list.len()), |mut order, name| {
+                let name = name.extract::<PyBackedStr>()?;
+                let name = HeaderName::from_bytes(name.as_bytes()).map_err(Error::from)?;
+                order.push(name);
+                Ok(order)
+            })
+            .map(Self)
+    }
+}
+
 impl<'py> IntoPyObject<'py> for HeaderMapExtractor {
     type Target = HeaderMap;
 
@@ -234,8 +247,20 @@ impl<'py> IntoPyObject<'py> for HeaderMapExtractor {
 
     type Error = PyErr;
 
-    fn into_pyobject(self, py: Python<'py>) -> Result<Self::Output, Self::Error> {
-        HeaderMap(self.0).into_pyobject(py)
+    fn into_pyobject(self, _: Python<'py>) -> Result<Self::Output, Self::Error> {
+        todo!("HeaderMapExtractor::into_pyobject is not implemented yet");
+    }
+}
+
+impl<'py> IntoPyObject<'py> for HeadersOrderExtractor {
+    type Target = Vec<HeaderName>;
+
+    type Output = Bound<'py, Self::Target>;
+
+    type Error = PyErr;
+
+    fn into_pyobject(self, _: Python<'py>) -> Result<Self::Output, Self::Error> {
+        todo!("HeadersOrderExtractor::into_pyobject is not implemented yet");
     }
 }
 
@@ -249,16 +274,9 @@ impl PyStubType for HeaderMapExtractor {
     }
 }
 
-impl<'py> FromPyObject<'py> for HeadersOrderExtractor {
-    fn extract_bound(ob: &Bound<'py, PyAny>) -> PyResult<Self> {
-        let list = ob.downcast::<PyList>()?;
-        list.iter()
-            .try_fold(Vec::with_capacity(list.len()), |mut order, name| {
-                let name = name.extract::<PyBackedStr>()?;
-                let name = HeaderName::from_bytes(name.as_bytes()).map_err(Error::from)?;
-                order.push(name);
-                Ok(order)
-            })
-            .map(Self)
+#[cfg(feature = "docs")]
+impl pyo3_stub_gen::PyStubType for HeadersOrderExtractor {
+    fn type_output() -> pyo3_stub_gen::TypeInfo {
+        pyo3_stub_gen::TypeInfo::with_module("typing.Optional[typing.List[str]]", "typing".into())
     }
 }
