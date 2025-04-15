@@ -3,6 +3,7 @@
 
 import builtins
 import datetime
+import ipaddress
 import typing
 from enum import Enum, auto
 
@@ -71,7 +72,19 @@ class BlockingClient:
         """
         ...
 
-    def update(self, **kwds) -> None:
+    def update(
+        self,
+        impersonate: typing.Optional[
+            typing.Union[Impersonate, ImpersonateOption]
+        ] = None,
+        headers: typing.Optional[typing.Union[typing.Dict[str, str], HeaderMap]] = None,
+        headers_order: typing.Optional[typing.List[str]] = None,
+        proxies: typing.Optional[typing.List[Proxy]] = None,
+        local_address: typing.Optional[
+            typing.Union[str, ipaddress.IPv4Address, ipaddress.IPv6Address]
+        ] = None,
+        interface: typing.Optional[builtins.str] = None,
+    ) -> None:
         r"""
         Updates the client with the given parameters.
 
@@ -836,7 +849,19 @@ class Client:
         """
         ...
 
-    def update(self, **kwds) -> None:
+    def update(
+        self,
+        impersonate: typing.Optional[
+            typing.Union[Impersonate, ImpersonateOption]
+        ] = None,
+        headers: typing.Optional[typing.Union[typing.Dict[str, str], HeaderMap]] = None,
+        headers_order: typing.Optional[typing.List[str]] = None,
+        proxies: typing.Optional[typing.List[Proxy]] = None,
+        local_address: typing.Optional[
+            typing.Union[str, ipaddress.IPv4Address, ipaddress.IPv6Address]
+        ] = None,
+        interface: typing.Optional[builtins.str] = None,
+    ) -> None:
         r"""
         Updates the client with the given parameters.
 

@@ -1,5 +1,6 @@
 use crate::{
     buffer::{HeaderNameBuffer, HeaderValueBuffer, PyBufferProtocol},
+    define_into_pyobject_todo, define_py_stub_gen,
     error::Error,
 };
 use pyo3::{
@@ -8,10 +9,7 @@ use pyo3::{
     types::{PyDict, PyList},
 };
 #[cfg(feature = "docs")]
-use pyo3_stub_gen::{
-    PyStubType, TypeInfo,
-    derive::{gen_stub_pyclass, gen_stub_pymethods},
-};
+use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 use rquest::header::{self, HeaderName, HeaderValue};
 
 /// A HTTP header map.
@@ -240,43 +238,14 @@ impl<'py> FromPyObject<'py> for HeadersOrderExtractor {
     }
 }
 
-impl<'py> IntoPyObject<'py> for HeaderMapExtractor {
-    type Target = HeaderMap;
+define_into_pyobject_todo!(HeaderMapExtractor);
 
-    type Output = Bound<'py, Self::Target>;
+define_into_pyobject_todo!(HeadersOrderExtractor);
 
-    type Error = PyErr;
+define_py_stub_gen!(
+    HeaderMapExtractor,
+    "typing.Union[typing.Dict[str, str], HeaderMap]",
+    "typing"
+);
 
-    fn into_pyobject(self, _: Python<'py>) -> Result<Self::Output, Self::Error> {
-        todo!("HeaderMapExtractor::into_pyobject is not implemented yet");
-    }
-}
-
-impl<'py> IntoPyObject<'py> for HeadersOrderExtractor {
-    type Target = Vec<HeaderName>;
-
-    type Output = Bound<'py, Self::Target>;
-
-    type Error = PyErr;
-
-    fn into_pyobject(self, _: Python<'py>) -> Result<Self::Output, Self::Error> {
-        todo!("HeadersOrderExtractor::into_pyobject is not implemented yet");
-    }
-}
-
-#[cfg(feature = "docs")]
-impl PyStubType for HeaderMapExtractor {
-    fn type_output() -> TypeInfo {
-        TypeInfo::with_module(
-            "typing.Union[typing.Dict[str, str], HeaderMap]",
-            "typing".into(),
-        )
-    }
-}
-
-#[cfg(feature = "docs")]
-impl pyo3_stub_gen::PyStubType for HeadersOrderExtractor {
-    fn type_output() -> pyo3_stub_gen::TypeInfo {
-        pyo3_stub_gen::TypeInfo::with_module("typing.Optional[typing.List[str]]", "typing".into())
-    }
-}
+define_py_stub_gen!(HeadersOrderExtractor, "typing.List[str]", "typing");

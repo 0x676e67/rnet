@@ -762,14 +762,13 @@ impl Client {
     /// Updates the client with the given parameters.
     ///
     /// # Arguments
-    /// * `**kwds` - The parameters to update the client with.
     ///
-    ///     impersonate: typing.Optional[typing.Union[Impersonate, ImpersonateOption]]
-    ///     headers: typing.Optional[typing.Dict[str, bytes]]
-    ///     headers_order: typing.Optional[typing.List[str]]
-    ///     proxies: typing.Optional[builtins.list[Proxy]]
-    ///     local_address: typing.Optional[typing.Optional[typing.Union[str, ipaddress.IPv4Address, ipaddress.IPv6Address]]]
-    ///     interface: typing.Optional[builtins.str]
+    /// * `impersonate` - The impersonation settings for the request.
+    /// * `headers` - The headers to use for the request.
+    /// * `headers_order` - The order of the headers to use for the request.
+    /// * `proxies` - The proxy to use for the request.
+    /// * `local_address` - The local IP address to bind to.
+    /// * `interface` - The interface to bind to.
     ///
     /// # Examples
     ///

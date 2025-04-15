@@ -1,7 +1,7 @@
-use crate::error::Error;
+use crate::{define_into_pyobject_todo, define_py_stub_gen, error::Error};
 
 use super::HeaderMapExtractor;
-use pyo3::{prelude::*, types::PyList};
+use pyo3::{prelude::*, pybacked::PyBackedStr, types::PyList};
 #[cfg(feature = "docs")]
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 use rquest::header::HeaderValue;
@@ -181,6 +181,14 @@ pub struct ProxyExtractor(pub rquest::Proxy);
 
 impl FromPyObject<'_> for ProxyExtractor {
     fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
+        if let Ok(proxy_str) = ob.extract::<PyBackedStr>() {
+            let proxy = rquest::Proxy::all(proxy_str.as_ref() as &str)
+                .map(Self)
+                .map_err(Error::RquestError)?;
+
+            return Ok(proxy);
+        }
+
         let proxy = ob.downcast::<Proxy>()?;
         let proxy = proxy.borrow().0.clone();
         Ok(Self(proxy))
@@ -204,21 +212,10 @@ impl FromPyObject<'_> for ProxyListExtractor {
     }
 }
 
-impl<'py> IntoPyObject<'py> for ProxyListExtractor {
-    type Target = ProxyListExtractor;
+define_into_pyobject_todo!(ProxyExtractor);
 
-    type Output = Bound<'py, Self::Target>;
+define_into_pyobject_todo!(ProxyListExtractor);
 
-    type Error = PyErr;
+define_py_stub_gen!(ProxyExtractor, "typing.Union[Proxy, str]", "typing");
 
-    fn into_pyobject(self, _: Python<'py>) -> Result<Self::Output, Self::Error> {
-        todo!("ProxyListExtractor::into_pyobject is not implemented yet");
-    }
-}
-
-#[cfg(feature = "docs")]
-impl pyo3_stub_gen::PyStubType for ProxyListExtractor {
-    fn type_output() -> pyo3_stub_gen::TypeInfo {
-        pyo3_stub_gen::TypeInfo::with_module("typing.Optional[typing.List[Proxy]]", "typing".into())
-    }
-}
+define_py_stub_gen!(ProxyListExtractor, "typing.List[Proxy]", "typing");

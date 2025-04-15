@@ -4,11 +4,14 @@ mod enums;
 mod headers;
 mod ipaddr;
 mod json;
+mod macros;
 mod multipart;
 pub mod param;
 mod proxy;
 mod ssl;
 mod status;
+
+use crate::{define_into_pyobject_todo, define_py_stub_gen};
 
 pub use self::{
     body::BodyExtractor,
@@ -82,27 +85,13 @@ impl FromPyObject<'_> for ImpersonateExtractor {
     }
 }
 
-impl<'py> IntoPyObject<'py> for ImpersonateExtractor {
-    type Target = EmulationOption;
+define_into_pyobject_todo!(ImpersonateExtractor);
 
-    type Output = Bound<'py, Self::Target>;
-
-    type Error = PyErr;
-
-    fn into_pyobject(self, _: Python<'_>) -> Result<Self::Output, Self::Error> {
-        todo!("ImpersonateExtractor::into_pyobject is not implemented yet");
-    }
-}
-
-#[cfg(feature = "docs")]
-impl pyo3_stub_gen::PyStubType for ImpersonateExtractor {
-    fn type_output() -> pyo3_stub_gen::TypeInfo {
-        pyo3_stub_gen::TypeInfo::with_module(
-            "typing.Optional[Impersonate | ImpersonateOption]",
-            "typing".into(),
-        )
-    }
-}
+define_py_stub_gen!(
+    ImpersonateExtractor,
+    "typing.Union[Impersonate, ImpersonateOption]",
+    "typing"
+);
 
 /// A struct to represent the `ImpersonateOption` class.
 #[cfg_attr(feature = "docs", gen_stub_pyclass)]

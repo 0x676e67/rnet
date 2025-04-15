@@ -30,17 +30,18 @@ async def main():
     client = Client(
         impersonate=Impersonate.Firefox133,
         user_agent="rnet",
-        proxies=[
-            Proxy.http("socks5h://abc:def@127.0.0.1:6152"),
-            Proxy.https(url="socks5h://127.0.0.1:6153", username="abc", password="def"),
-            Proxy.http(url="http://abc:def@127.0.0.1:6152", custom_http_auth="abcedf"),
-            Proxy.all(
-                url="socks5h://abc:def@127.0.0.1:6153",
-                exclusion="google.com, facebook.com, twitter.com",
-            ),
-        ],
+        allow_redirects=True,
+        # proxies=[
+        #     Proxy.http("socks5h://abc:def@127.0.0.1:6152"),
+        #     Proxy.https(url="socks5h://127.0.0.1:6153", username="abc", password="def"),
+        #     Proxy.http(url="http://abc:def@127.0.0.1:6152", custom_http_auth="abcedf"),
+        #     Proxy.all(
+        #         url="socks5h://abc:def@127.0.0.1:6153",
+        #         exclusion="google.com, facebook.com, twitter.com",
+        #     ),
+        # ],
     )
-    resp = await client.get("https://api.ip.sb/ip")
+    resp = await client.get("https://money-tourism.gr/en")
     print("Status Code: ", resp.status_code)
     print("Version: ", resp.version)
     print("Response URL: ", resp.url)
