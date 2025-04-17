@@ -71,8 +71,7 @@ Additional learning resources include:
 
 1. Linux
 
-- **glibc >= 2.17**: `x86_64`
-- **glibc >= 2.31**: `aarch64`, `armv7`, `i686`
+- **glibc >= 2.34**: `x86_64`, `aarch64`, `armv7`, `i686`
 - **musl**: `x86_64`, `aarch64`, `armv7`, `i686`
 
 2. macOS: `x86_64`,`aarch64`

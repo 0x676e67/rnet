@@ -87,25 +87,25 @@ jobs:
       fail-fast: false
       matrix:
         platform:
-          - runner: ubuntu-20.04
+          - runner: ubuntu-latest
             target: x86_64
             apt_packages: ''
             custom_env: {}
-          - runner: ubuntu-20.04
+          - runner: ubuntu-latest
             target: x86
             apt_packages: crossbuild-essential-i386
             custom_env:
               CC: i686-linux-gnu-gcc
               CXX: i686-linux-gnu-g++
               CARGO_TARGET_I686_UNKNOWN_LINUX_GNU_LINKER: i686-linux-gnu-g++
-          - runner: ubuntu-20.04
+          - runner: ubuntu-latest
             target: aarch64
             apt_packages: crossbuild-essential-arm64
             custom_env:
               CC: aarch64-linux-gnu-gcc
               CXX: aarch64-linux-gnu-g++
               CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER: aarch64-linux-gnu-g++
-          - runner: ubuntu-20.04
+          - runner: ubuntu-latest
             target: armv7
             apt_packages: crossbuild-essential-armhf
             custom_env:
