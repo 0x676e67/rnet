@@ -14,7 +14,11 @@ use pyo3::{prelude::*, pybacked::PyBackedStr};
 use pyo3_async_runtimes::tokio::future_into_py;
 #[cfg(feature = "docs")]
 use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
-use rquest::{CertStore, Url, redirect::Policy};
+use rquest::{
+    CertStore, Url,
+    header::{Entry, OccupiedEntry},
+    redirect::Policy,
+};
 use std::ops::Deref;
 use std::time::Duration;
 
@@ -814,16 +818,35 @@ impl Client {
             let mut update = self.0.update();
 
             // Impersonation options.
-            if let Some(impersonate) = params.impersonate.take() {
-                update = update.emulation(impersonate.0);
-            }
+            apply_option!(apply_if_some_inner, update, params.impersonate, emulation);
 
             // Updated headers options.
-            if let Some(mut updated_headers) = params.headers.take() {
-                update = update.headers(|default_headers| {
-                    for (name, value) in updated_headers.0.drain() {
-                        if let Some(name) = name {
-                            default_headers.insert(name, value);
+            if let Some(src) = params.headers.take() {
+                update = update.headers(|dst| {
+                    // IntoIter of HeaderMap yields (Option<HeaderName>, HeaderValue).
+                    // The first time a name is yielded, it will be Some(name), and if
+                    // there are more values with the same name, the next yield will be
+                    // None.
+
+                    let mut prev_entry: Option<OccupiedEntry<_>> = None;
+                    for (key, value) in src.0 {
+                        match key {
+                            Some(key) => match dst.entry(key) {
+                                Entry::Occupied(mut e) => {
+                                    e.insert(value);
+                                    prev_entry = Some(e);
+                                }
+                                Entry::Vacant(e) => {
+                                    let e = e.insert_entry(value);
+                                    prev_entry = Some(e);
+                                }
+                            },
+                            None => match prev_entry {
+                                Some(ref mut entry) => {
+                                    entry.append(value);
+                                }
+                                None => unreachable!("HeaderMap::into_iter yielded None first"),
+                            },
                         }
                     }
                 });
