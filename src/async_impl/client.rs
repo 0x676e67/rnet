@@ -794,9 +794,15 @@ impl Client {
                 update = update.emulation(impersonate.0);
             }
 
-            // Default headers options.
-            if let Some(mut default_headers) = params.headers.take() {
-                update = update.headers(|headers| std::mem::swap(headers, &mut default_headers.0));
+            // Updated headers options.
+            if let Some(mut updated_headers) = params.headers.take() {
+                update = update.headers(|default_headers| {
+                    for (name, value) in updated_headers.0.drain() {
+                        if let Some(name) = name {
+                            default_headers.insert(name, value);
+                        }
+                    }
+                });
             }
 
             // Headers order options.
