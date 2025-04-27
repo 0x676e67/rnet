@@ -79,10 +79,6 @@ impl Response {
 #[pymethods]
 impl Response {
     /// Returns the URL of the response.
-    ///
-    /// # Returns
-    ///
-    /// A string representing the URL of the response.
     #[getter]
     #[inline(always)]
     pub fn url(&self) -> &str {
@@ -90,10 +86,6 @@ impl Response {
     }
 
     /// Returns whether the response is successful.
-    ///
-    /// # Returns
-    ///
-    /// A boolean indicating whether the response is successful.
     #[getter]
     #[inline(always)]
     pub fn ok(&self) -> bool {
@@ -101,10 +93,6 @@ impl Response {
     }
 
     /// Returns the status code as integer of the response.
-    ///
-    /// # Returns
-    ///
-    /// An integer representing the HTTP status code.
     #[getter]
     #[inline(always)]
     pub fn status(&self) -> u16 {
@@ -112,10 +100,6 @@ impl Response {
     }
 
     /// Returns the status code of the response.
-    ///
-    /// # Returns
-    ///
-    /// A Python object representing the HTTP status code.
     #[getter]
     #[inline(always)]
     pub fn status_code(&self) -> StatusCode {
@@ -123,10 +107,6 @@ impl Response {
     }
 
     /// Returns the HTTP version of the response.
-    ///
-    /// # Returns
-    ///
-    /// A `Version` object representing the HTTP version of the response.
     #[getter]
     #[inline(always)]
     pub fn version(&self) -> Version {
@@ -134,10 +114,6 @@ impl Response {
     }
 
     /// Returns the headers of the response.
-    ///
-    /// # Returns
-    ///
-    /// A `HeaderMap` object representing the headers of the response.
     #[getter]
     #[inline(always)]
     pub fn headers(&self) -> HeaderMap {
@@ -145,10 +121,6 @@ impl Response {
     }
 
     /// Returns the cookies of the response.
-    ///
-    /// # Returns
-    ///
-    /// A Python cookies object representing the cookies of the response.
     #[getter]
     #[inline(always)]
     pub fn cookies<'py>(&'py self, py: Python<'py>) -> Vec<Cookie> {
@@ -156,10 +128,6 @@ impl Response {
     }
 
     /// Returns the content length of the response.
-    ///
-    /// # Returns
-    ///
-    /// An integer representing the content length of the response.
     #[getter]
     #[inline(always)]
     pub fn content_length(&self) -> u64 {
@@ -167,10 +135,6 @@ impl Response {
     }
 
     /// Returns the remote address of the response.
-    ///
-    /// # Returns
-    ///
-    /// An `IpAddr` object representing the remote address of the response.
     #[getter]
     #[inline(always)]
     pub fn remote_addr(&self) -> Option<SocketAddr> {
@@ -178,10 +142,6 @@ impl Response {
     }
 
     /// Encoding to decode with when accessing text.
-    ///
-    /// # Returns
-    ///
-    /// A string representing the encoding to decode with when accessing text.
     #[getter]
     pub fn encoding(&self, py: Python) -> String {
         py.allow_threads(|| {
@@ -198,10 +158,6 @@ impl Response {
     }
 
     /// Returns the TLS peer certificate of the response.
-    ///
-    /// # Returns
-    ///
-    /// A Python object representing the TLS peer certificate of the response.
     pub fn peer_certificate<'rt>(
         &'rt self,
         py: Python<'rt>,
@@ -219,10 +175,6 @@ impl Response {
     }
 
     /// Returns the text content of the response.
-    ///
-    /// # Returns
-    ///
-    /// A Python object representing the text content of the response.
     pub fn text<'rt>(&self, py: Python<'rt>) -> PyResult<Bound<'rt, PyAny>> {
         let resp = self.inner()?;
         future_into_py(py, async move {
@@ -234,14 +186,10 @@ impl Response {
     }
 
     /// Returns the text content of the response with a specific charset.
-    ///c
+    ///
     /// # Arguments
     ///
-    /// * `default_encoding` - The default encoding to use if the charset is not specified.
-    ///
-    /// # Returns
-    ///
-    /// A Python object representing the text content of the response.
+    /// * `encoding` - The default encoding to use if the charset is not specified.
     pub fn text_with_charset<'rt>(
         &self,
         py: Python<'rt>,
@@ -257,10 +205,6 @@ impl Response {
     }
 
     /// Returns the JSON content of the response.
-    ///
-    /// # Returns
-    ///
-    /// A Python object representing the JSON content of the response.
     pub fn json<'rt>(&self, py: Python<'rt>) -> PyResult<Bound<'rt, PyAny>> {
         let resp = self.inner()?;
         future_into_py(py, async move {
@@ -272,10 +216,6 @@ impl Response {
     }
 
     /// Returns the bytes content of the response.
-    ///
-    /// # Returns
-    ///
-    /// A Python object representing the bytes content of the response.
     pub fn bytes<'rt>(&self, py: Python<'rt>) -> PyResult<Bound<'rt, PyAny>> {
         let resp = self.inner()?;
         future_into_py(py, async move {
@@ -289,10 +229,6 @@ impl Response {
     }
 
     /// Convert the response into a `Stream` of `Bytes` from the body.
-    ///
-    /// # Returns
-    ///
-    /// A Python object representing the stream content of the response.
     pub fn stream(&self, py: Python) -> PyResult<Streamer> {
         py.allow_threads(|| {
             self.inner()

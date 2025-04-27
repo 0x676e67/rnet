@@ -15,18 +15,10 @@ class BlockingClient:
     user_agent: typing.Optional[builtins.str]
     r"""
     Returns the user agent of the client.
-    
-    # Returns
-    
-    An optional string containing the user agent of the client.
     """
     headers: HeaderMap
     r"""
     Returns the headers of the client.
-    
-    # Returns
-    
-    A `HeaderMap` object containing the headers of the client.
     """
     def __new__(cls, **kwds) -> BlockingClient:
         r"""
@@ -71,10 +63,6 @@ class BlockingClient:
             deflate: typing.Optional[builtins.bool]
             zstd: typing.Optional[builtins.bool]
 
-        # Returns
-
-        A new `BlockingClient` instance.
-
         # Examples
 
         ```python
@@ -97,10 +85,6 @@ class BlockingClient:
         # Arguments
 
         * `url` - The URL to get the cookies for.
-
-        # Returns
-
-        A list of cookie strings.
         """
 
     def set_cookie(self, url: str, cookie: Cookie) -> None:
@@ -217,10 +201,6 @@ class BlockingClient:
             body: typing.Optional[typing.Any]
             multipart: typing.Optional[Multipart]
 
-        # Returns
-
-        A `Response` object.
-
         # Examples
 
         ```python
@@ -263,10 +243,6 @@ class BlockingClient:
             max_message_size: typing.Optional[builtins.int]
             max_frame_size: typing.Optional[builtins.int]
             accept_unmasked_frames: typing.Optional[builtins.bool]
-
-        # Returns
-
-        A `WebSocket` object representing the WebSocket connection.
 
         # Examples
 
@@ -313,11 +289,6 @@ class BlockingClient:
             json: typing.Optional[typing.Any]
             body: typing.Optional[typing.Any]
             multipart: typing.Optional[Multipart]
-
-        # Returns
-
-        A `Response` object.
-
         # Examples
 
         ```python
@@ -361,11 +332,6 @@ class BlockingClient:
             json: typing.Optional[typing.Any]
             body: typing.Optional[typing.Any]
             multipart: typing.Optional[Multipart]
-
-        # Returns
-
-        A `Response` object.
-
         # Examples
 
         ```python
@@ -409,11 +375,6 @@ class BlockingClient:
             json: typing.Optional[typing.Any]
             body: typing.Optional[typing.Any]
             multipart: typing.Optional[Multipart]
-
-        # Returns
-
-        A `Response` object.
-
         # Examples
 
         ```python
@@ -457,11 +418,6 @@ class BlockingClient:
             json: typing.Optional[typing.Any]
             body: typing.Optional[typing.Any]
             multipart: typing.Optional[Multipart]
-
-        # Returns
-
-        A `Response` object.
-
         # Examples
 
         ```python
@@ -505,11 +461,6 @@ class BlockingClient:
             json: typing.Optional[typing.Any]
             body: typing.Optional[typing.Any]
             multipart: typing.Optional[Multipart]
-
-        # Returns
-
-        A `Response` object.
-
         # Examples
 
         ```python
@@ -553,11 +504,6 @@ class BlockingClient:
             json: typing.Optional[typing.Any]
             body: typing.Optional[typing.Any]
             multipart: typing.Optional[Multipart]
-
-        # Returns
-
-        A `Response` object.
-
         # Examples
 
         ```python
@@ -601,11 +547,6 @@ class BlockingClient:
             json: typing.Optional[typing.Any]
             body: typing.Optional[typing.Any]
             multipart: typing.Optional[Multipart]
-
-        # Returns
-
-        A `Response` object.
-
         # Examples
 
         ```python
@@ -649,11 +590,6 @@ class BlockingClient:
             json: typing.Optional[typing.Any]
             body: typing.Optional[typing.Any]
             multipart: typing.Optional[Multipart]
-
-        # Returns
-
-        A `Response` object.
-
         # Examples
 
         ```python
@@ -678,82 +614,42 @@ class BlockingResponse:
     url: builtins.str
     r"""
     Returns the URL of the response.
-    
-    # Returns
-    
-    A string representing the URL of the response.
     """
     ok: builtins.bool
     r"""
     Returns whether the response is successful.
-    
-    # Returns
-    
-    A boolean indicating whether the response is successful.
     """
     status: builtins.int
     r"""
     Returns the status code as integer of the response.
-    
-    # Returns
-    
-    An integer representing the HTTP status code.
     """
     status_code: StatusCode
     r"""
     Returns the status code of the response.
-    
-    # Returns
-    
-    A Python object representing the HTTP status code.
     """
     version: Version
     r"""
     Returns the HTTP version of the response.
-    
-    # Returns
-    
-    A `Version` object representing the HTTP version of the response.
     """
     headers: HeaderMap
     r"""
     Returns the headers of the response.
-    
-    # Returns
-    
-    A `HeaderMap` object representing the headers of the response.
     """
     cookies: builtins.list[Cookie]
     r"""
     Returns the cookies of the response.
-    
-    # Returns
-    
-    A Python cookies object representing the cookies of the response.
     """
     content_length: builtins.int
     r"""
     Returns the content length of the response.
-    
-    # Returns
-    
-    An integer representing the content length of the response.
     """
     remote_addr: typing.Optional[SocketAddr]
     r"""
     Returns the remote address of the response.
-    
-    # Returns
-    
-    An `IpAddr` object representing the remote address of the response.
     """
     encoding: builtins.str
     r"""
     Encoding to decode with when accessing text.
-    
-    # Returns
-    
-    A string representing the encoding to decode with when accessing text.
     """
     def __enter__(self) -> BlockingResponse: ...
     def __exit__(
@@ -762,19 +658,11 @@ class BlockingResponse:
     def peer_certificate(self) -> typing.Optional[typing.Any]:
         r"""
         Returns the TLS peer certificate of the response.
-
-        # Returns
-
-        A Python object representing the TLS peer certificate of the response.
         """
 
     def text(self) -> builtins.str:
         r"""
         Returns the text content of the response.
-
-        # Returns
-
-        A Python object representing the text content of the response.
         """
 
     def text_with_charset(self, encoding: builtins.str) -> builtins.str:
@@ -783,38 +671,22 @@ class BlockingResponse:
 
         # Arguments
 
-        * `default_encoding` - The default encoding to use if the charset is not specified.
-
-        # Returns
-
-        A Python object representing the text content of the response.
+        * `encoding` - The default encoding to use if the charset is not specified.
         """
 
     def json(self) -> typing.Dict[str, typing.Any]:
         r"""
         Returns the JSON content of the response.
-
-        # Returns
-
-        A Python object representing the JSON content of the response.
         """
 
     def bytes(self) -> typing.Any:
         r"""
         Returns the bytes content of the response.
-
-        # Returns
-
-        A Python object representing the bytes content of the response.
         """
 
     def stream(self) -> BlockingStreamer:
         r"""
         Convert the response into a `Stream` of `Bytes` from the body.
-
-        # Returns
-
-        A Python object representing the stream content of the response.
         """
 
     def close(self) -> None:
@@ -846,58 +718,30 @@ class BlockingWebSocket:
     ok: builtins.bool
     r"""
     Returns whether the response is successful.
-    
-    # Returns
-    
-    A boolean indicating whether the response is successful.
     """
     status: builtins.int
     r"""
     Returns the status code as integer of the response.
-    
-    # Returns
-    
-    An integer representing the HTTP status code.
     """
     status_code: StatusCode
     r"""
     Returns the status code of the response.
-    
-    # Returns
-    
-    A Python object representing the HTTP status code.
     """
     version: Version
     r"""
     Returns the HTTP version of the response.
-    
-    # Returns
-    
-    A `Version` object representing the HTTP version of the response.
     """
     headers: HeaderMap
     r"""
     Returns the headers of the response.
-    
-    # Returns
-    
-    A `HeaderMap` object representing the headers of the response.
     """
     cookies: builtins.list[Cookie]
     r"""
     Returns the cookies of the response.
-    
-    # Returns
-    
-    A Python cookies object representing the cookies of the response.
     """
     remote_addr: typing.Optional[SocketAddr]
     r"""
     Returns the remote address of the response.
-    
-    # Returns
-    
-    An `IpAddr` object representing the remote address of the response.
     """
     def __iter__(self) -> BlockingWebSocket: ...
     def __next__(self) -> Message: ...
@@ -908,10 +752,6 @@ class BlockingWebSocket:
     def protocol(self) -> typing.Optional[builtins.str]:
         r"""
         Returns the WebSocket protocol.
-
-        # Returns
-
-        An optional string representing the WebSocket protocol.
         """
 
     def recv(self) -> typing.Optional[Message]:
@@ -951,10 +791,6 @@ class Client:
     r"""
     Returns the user agent of the client.
     
-    # Returns
-    
-    An optional string containing the user agent of the client.
-    
     # Examples
     
     ```python
@@ -968,10 +804,6 @@ class Client:
     headers: HeaderMap
     r"""
     Returns the headers of the client.
-    
-    # Returns
-    
-    A `HeaderMap` object containing the headers of the client.
     
     # Examples
     
@@ -1026,10 +858,6 @@ class Client:
             brotli: typing.Optional[builtins.bool]
             deflate: typing.Optional[builtins.bool]
             zstd: typing.Optional[builtins.bool]
-
-        # Returns
-
-        A new `Client` instance.
 
         # Examples
 
@@ -1177,10 +1005,6 @@ class Client:
             body: typing.Optional[typing.Any]
             multipart: typing.Optional[Multipart]
 
-        # Returns
-
-        A `Response` object.
-
         # Examples
 
         ```python
@@ -1223,10 +1047,6 @@ class Client:
             max_message_size: typing.Optional[builtins.int]
             max_frame_size: typing.Optional[builtins.int]
             accept_unmasked_frames: typing.Optional[builtins.bool]
-
-        # Returns
-
-        A `WebSocket` object representing the WebSocket connection.
 
         # Examples
 
@@ -1273,11 +1093,6 @@ class Client:
             json: typing.Optional[typing.Any]
             body: typing.Optional[typing.Any]
             multipart: typing.Optional[Multipart]
-
-        # Returns
-
-        A `Response` object.
-
         # Examples
 
         ```python
@@ -1321,11 +1136,6 @@ class Client:
             json: typing.Optional[typing.Any]
             body: typing.Optional[typing.Any]
             multipart: typing.Optional[Multipart]
-
-        # Returns
-
-        A `Response` object.
-
         # Examples
 
         ```python
@@ -1369,11 +1179,6 @@ class Client:
             json: typing.Optional[typing.Any]
             body: typing.Optional[typing.Any]
             multipart: typing.Optional[Multipart]
-
-        # Returns
-
-        A `Response` object.
-
         # Examples
 
         ```python
@@ -1417,11 +1222,6 @@ class Client:
             json: typing.Optional[typing.Any]
             body: typing.Optional[typing.Any]
             multipart: typing.Optional[Multipart]
-
-        # Returns
-
-        A `Response` object.
-
         # Examples
 
         ```python
@@ -1465,11 +1265,6 @@ class Client:
             json: typing.Optional[typing.Any]
             body: typing.Optional[typing.Any]
             multipart: typing.Optional[Multipart]
-
-        # Returns
-
-        A `Response` object.
-
         # Examples
 
         ```python
@@ -1513,11 +1308,6 @@ class Client:
             json: typing.Optional[typing.Any]
             body: typing.Optional[typing.Any]
             multipart: typing.Optional[Multipart]
-
-        # Returns
-
-        A `Response` object.
-
         # Examples
 
         ```python
@@ -1561,11 +1351,6 @@ class Client:
             json: typing.Optional[typing.Any]
             body: typing.Optional[typing.Any]
             multipart: typing.Optional[Multipart]
-
-        # Returns
-
-        A `Response` object.
-
         # Examples
 
         ```python
@@ -1609,11 +1394,6 @@ class Client:
             json: typing.Optional[typing.Any]
             body: typing.Optional[typing.Any]
             multipart: typing.Optional[Multipart]
-
-        # Returns
-
-        A `Response` object.
-
         # Examples
 
         ```python
@@ -1796,50 +1576,26 @@ class Message:
     data: typing.Optional[typing.Any]
     r"""
     Returns the data of the message as bytes.
-    
-    # Returns
-    
-    A byte slice representing the data of the message.
     """
     text: typing.Optional[builtins.str]
     r"""
     Returns the text content of the message if it is a text message.
-    
-    # Returns
-    
-    An optional string representing the text content of the message.
     """
     binary: typing.Optional[typing.Any]
     r"""
     Returns the binary data of the message if it is a binary message.
-    
-    # Returns
-    
-    An optional byte slice representing the binary data of the message.
     """
     ping: typing.Optional[typing.Any]
     r"""
     Returns the ping data of the message if it is a ping message.
-    
-    # Returns
-    
-    An optional byte slice representing the ping data of the message.
     """
     pong: typing.Optional[typing.Any]
     r"""
     Returns the pong data of the message if it is a pong message.
-    
-    # Returns
-    
-    An optional byte slice representing the pong data of the message.
     """
     close: typing.Optional[tuple[builtins.int, typing.Optional[builtins.str]]]
     r"""
     Returns the close code and reason of the message if it is a close message.
-    
-    # Returns
-    
-    An optional tuple containing the close code and reason.
     """
     def __str__(self) -> builtins.str: ...
     def __repr__(self) -> builtins.str: ...
@@ -1850,10 +1606,6 @@ class Message:
 
         # Arguments
         * `json` - The JSON representation of the message.
-
-        # Returns
-
-        A new `Message` instance containing the message.
         """
 
     @staticmethod
@@ -1863,10 +1615,6 @@ class Message:
 
         # Arguments
         * `json` - The JSON representation of the message.
-
-        # Returns
-
-        A new `Message` instance containing the message.
         """
 
     @staticmethod
@@ -1877,10 +1625,6 @@ class Message:
         # Arguments
 
         * `text` - The text content of the message.
-
-        # Returns
-
-        A new `Message` instance containing the text message.
         """
 
     @staticmethod
@@ -1891,10 +1635,6 @@ class Message:
         # Arguments
 
         * `data` - The binary data of the message.
-
-        # Returns
-
-        A new `Message` instance containing the binary message.
         """
 
     @staticmethod
@@ -1905,10 +1645,6 @@ class Message:
         # Arguments
 
         * `data` - The ping data of the message.
-
-        # Returns
-
-        A new `Message` instance containing the ping message.
         """
 
     @staticmethod
@@ -1919,10 +1655,6 @@ class Message:
         # Arguments
 
         * `data` - The pong data of the message.
-
-        # Returns
-
-        A new `Message` instance containing the pong message.
         """
 
     @staticmethod
@@ -1934,10 +1666,6 @@ class Message:
 
         * `code` - The close code.
         * `reason` - An optional reason for closing.
-
-        # Returns
-
-        A new `Message` instance containing the close message.
         """
 
     def json(self) -> typing.Dict[str, typing.Any]:
@@ -2008,10 +1736,6 @@ class Proxy:
         * `custom_http_headers` - Optional custom HTTP proxy headers.
         * `exclusion` - Optional list of domains to exclude from proxying.
 
-        # Returns
-
-        A new `Proxy` instance.
-
         # Examples
 
         ```python
@@ -2046,10 +1770,6 @@ class Proxy:
         * `custom_http_headers` - Optional custom HTTP proxy headers.
         * `exclusion` - Optional list of domains to exclude from proxying.
 
-        # Returns
-
-        A new `Proxy` instance.
-
         # Examples
 
         ```python
@@ -2083,10 +1803,6 @@ class Proxy:
         * `custom_http_auth` - Optional custom HTTP proxy authentication header value.
         * `custom_http_headers` - Optional custom HTTP proxy headers.
         * `exclusion` - Optional list of domains to exclude from proxying.
-
-        # Returns
-
-        A new `Proxy` instance.
 
         # Examples
 
@@ -2128,82 +1844,42 @@ class Response:
     url: builtins.str
     r"""
     Returns the URL of the response.
-    
-    # Returns
-    
-    A string representing the URL of the response.
     """
     ok: builtins.bool
     r"""
     Returns whether the response is successful.
-    
-    # Returns
-    
-    A boolean indicating whether the response is successful.
     """
     status: builtins.int
     r"""
     Returns the status code as integer of the response.
-    
-    # Returns
-    
-    An integer representing the HTTP status code.
     """
     status_code: StatusCode
     r"""
     Returns the status code of the response.
-    
-    # Returns
-    
-    A Python object representing the HTTP status code.
     """
     version: Version
     r"""
     Returns the HTTP version of the response.
-    
-    # Returns
-    
-    A `Version` object representing the HTTP version of the response.
     """
     headers: HeaderMap
     r"""
     Returns the headers of the response.
-    
-    # Returns
-    
-    A `HeaderMap` object representing the headers of the response.
     """
     cookies: builtins.list[Cookie]
     r"""
     Returns the cookies of the response.
-    
-    # Returns
-    
-    A Python cookies object representing the cookies of the response.
     """
     content_length: builtins.int
     r"""
     Returns the content length of the response.
-    
-    # Returns
-    
-    An integer representing the content length of the response.
     """
     remote_addr: typing.Optional[SocketAddr]
     r"""
     Returns the remote address of the response.
-    
-    # Returns
-    
-    An `IpAddr` object representing the remote address of the response.
     """
     encoding: builtins.str
     r"""
     Encoding to decode with when accessing text.
-    
-    # Returns
-    
-    A string representing the encoding to decode with when accessing text.
     """
     def __aenter__(self) -> typing.Any: ...
     def __aexit__(
@@ -2212,59 +1888,35 @@ class Response:
     def peer_certificate(self) -> typing.Optional[typing.Any]:
         r"""
         Returns the TLS peer certificate of the response.
-
-        # Returns
-
-        A Python object representing the TLS peer certificate of the response.
         """
 
     def text(self) -> typing.Any:
         r"""
         Returns the text content of the response.
-
-        # Returns
-
-        A Python object representing the text content of the response.
         """
 
     def text_with_charset(self, encoding: builtins.str) -> typing.Any:
         r"""
         Returns the text content of the response with a specific charset.
-        c
+
         # Arguments
 
-        * `default_encoding` - The default encoding to use if the charset is not specified.
-
-        # Returns
-
-        A Python object representing the text content of the response.
+        * `encoding` - The default encoding to use if the charset is not specified.
         """
 
     def json(self) -> typing.Any:
         r"""
         Returns the JSON content of the response.
-
-        # Returns
-
-        A Python object representing the JSON content of the response.
         """
 
     def bytes(self) -> typing.Any:
         r"""
         Returns the bytes content of the response.
-
-        # Returns
-
-        A Python object representing the bytes content of the response.
         """
 
     def stream(self) -> Streamer:
         r"""
         Convert the response into a `Stream` of `Bytes` from the body.
-
-        # Returns
-
-        A Python object representing the stream content of the response.
         """
 
     def close(self) -> None:
@@ -2375,58 +2027,30 @@ class WebSocket:
     ok: builtins.bool
     r"""
     Returns whether the response is successful.
-    
-    # Returns
-    
-    A boolean indicating whether the response is successful.
     """
     status: builtins.int
     r"""
     Returns the status code as integer of the response.
-    
-    # Returns
-    
-    An integer representing the HTTP status code.
     """
     status_code: StatusCode
     r"""
     Returns the status code of the response.
-    
-    # Returns
-    
-    A Python object representing the HTTP status code.
     """
     version: Version
     r"""
     Returns the HTTP version of the response.
-    
-    # Returns
-    
-    A `Version` object representing the HTTP version of the response.
     """
     headers: HeaderMap
     r"""
     Returns the headers of the response.
-    
-    # Returns
-    
-    A `HeaderMap` object representing the headers of the response.
     """
     cookies: builtins.list[Cookie]
     r"""
     Returns the cookies of the response.
-    
-    # Returns
-    
-    A Python cookies object representing the cookies of the response.
     """
     remote_addr: typing.Optional[SocketAddr]
     r"""
     Returns the remote address of the response.
-    
-    # Returns
-    
-    An `IpAddr` object representing the remote address of the response.
     """
     def __aiter__(self) -> WebSocket: ...
     def __anext__(self) -> typing.Any: ...
@@ -2437,10 +2061,6 @@ class WebSocket:
     def protocol(self) -> typing.Optional[builtins.str]:
         r"""
         Returns the WebSocket protocol.
-
-        # Returns
-
-        An optional string representing the WebSocket protocol.
         """
 
     def recv(self) -> typing.Any:

@@ -70,10 +70,6 @@ proxy_method! {
         /// * `custom_http_headers` - Optional custom HTTP proxy headers.
         /// * `exclusion` - Optional list of domains to exclude from proxying.
         ///
-        /// # Returns
-        ///
-        /// A new `Proxy` instance.
-        ///
         /// # Examples
         ///
         /// ```python
@@ -98,10 +94,6 @@ proxy_method! {
         /// * `custom_http_headers` - Optional custom HTTP proxy headers.
         /// * `exclusion` - Optional list of domains to exclude from proxying.
         ///
-        /// # Returns
-        ///
-        /// A new `Proxy` instance.
-        ///
         /// # Examples
         ///
         /// ```python
@@ -125,10 +117,6 @@ proxy_method! {
         /// * `custom_http_auth` - Optional custom HTTP proxy authentication header value.
         /// * `custom_http_headers` - Optional custom HTTP proxy headers.
         /// * `exclusion` - Optional list of domains to exclude from proxying.
-        ///
-        /// # Returns
-        ///
-        /// A new `Proxy` instance.
         ///
         /// # Examples
         ///

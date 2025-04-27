@@ -46,11 +46,6 @@ macro_rules! define_http_method {
             ///     json: typing.Optional[typing.Any]
             ///     body: typing.Optional[typing.Any]
             ///     multipart: typing.Optional[Multipart]
-            ///
-            /// # Returns
-            ///
-            /// A `Response` object.
-            ///
             $(#[$meta])*
             #[pyo3(signature = (url, **kwds))]
             #[inline(always)]
@@ -248,10 +243,6 @@ impl BlockingClient {
     ///     body: typing.Optional[typing.Any]
     ///     multipart: typing.Optional[Multipart]
     ///
-    /// # Returns
-    ///
-    /// A `Response` object.
-    ///
     /// # Examples
     ///
     /// ```python
@@ -307,10 +298,6 @@ impl BlockingClient {
     ///     max_message_size: typing.Optional[builtins.int]
     ///     max_frame_size: typing.Optional[builtins.int]
     ///     accept_unmasked_frames: typing.Optional[builtins.bool]
-    ///
-    /// # Returns
-    ///
-    /// A `WebSocket` object representing the WebSocket connection.
     ///
     /// # Examples
     ///
@@ -389,10 +376,6 @@ impl BlockingClient {
     ///     deflate: typing.Optional[builtins.bool]
     ///     zstd: typing.Optional[builtins.bool]
     ///
-    /// # Returns
-    ///
-    /// A new `BlockingClient` instance.
-    ///
     /// # Examples
     ///
     /// ```python
@@ -414,10 +397,6 @@ impl BlockingClient {
     }
 
     /// Returns the user agent of the client.
-    ///
-    /// # Returns
-    ///
-    /// An optional string containing the user agent of the client.
     #[getter]
     #[inline(always)]
     fn user_agent(&self, py: Python) -> Option<String> {
@@ -425,10 +404,6 @@ impl BlockingClient {
     }
 
     /// Returns the headers of the client.
-    ///
-    /// # Returns
-    ///
-    /// A `HeaderMap` object containing the headers of the client.
     #[getter]
     #[inline(always)]
     fn headers(&self) -> HeaderMap {
@@ -440,10 +415,6 @@ impl BlockingClient {
     /// # Arguments
     ///
     /// * `url` - The URL to get the cookies for.
-    ///
-    /// # Returns
-    ///
-    /// A list of cookie strings.
     #[pyo3(signature = (url))]
     #[inline(always)]
     pub fn get_cookies<'py>(

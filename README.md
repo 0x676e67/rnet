@@ -8,7 +8,7 @@
 
 > 🚀 Help me work seamlessly with open source sharing by [sponsoring me on GitHub](https://github.com/0x676e67/0x676e67/blob/main/SPONSOR.md)
 
-A blazing-fast Python HTTP client with advanced browser fingerprinting. Precisely emulates Chrome, Firefox, Safari, and OkHttp, accurately replicating TLS/HTTP2 signatures. Built on [rquest](https://github.com/0x676e67/rquest) for exceptional speed and a clean, intuitive API.
+A blazing-fast Python HTTP Client with advanced browser fingerprinting. Precisely emulates **Chrome**, **Firefox**, **Safari**, and **OkHttp**, accurately replicating **TLS/HTTP2** signatures. Built on [rquest](https://github.com/0x676e67/rquest) for exceptional speed and a clean, intuitive API.
 
 ## Features
 
@@ -43,16 +43,11 @@ from rnet import Impersonate, Client
 
 
 async def main():
+    # Build a client
     client = Client(impersonate=Impersonate.Firefox136)
-    resp = await client.get("https://tls.browserleaks.com")
-    print("Status Code: ", resp.status_code)
-    print("Version: ", resp.version)
-    print("Response URL: ", resp.url)
-    print("Headers: ", resp.headers)
-    print("Cookies: ", resp.cookies)
-    print("Encoding: ", resp.encoding)
-    print("Content-Length: ", resp.content_length)
-    print("Remote Address: ", resp.remote_addr)
+    # Use the API you're already familiar with
+    resp = await client.get("https://tls.peet.ws/api/all")
+    # Print the response
     print(await resp.text())
 
 

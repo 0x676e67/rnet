@@ -66,11 +66,6 @@ macro_rules! define_http_method {
             ///     json: typing.Optional[typing.Any]
             ///     body: typing.Optional[typing.Any]
             ///     multipart: typing.Optional[Multipart]
-            ///
-            /// # Returns
-            ///
-            /// A `Response` object.
-            ///
             $(#[$meta])*
             #[pyo3(signature = (url, **kwds))]
             #[inline(always)]
@@ -268,10 +263,6 @@ impl Client {
     ///     body: typing.Optional[typing.Any]
     ///     multipart: typing.Optional[Multipart]
     ///
-    /// # Returns
-    ///
-    /// A `Response` object.
-    ///
     /// # Examples
     ///
     /// ```python
@@ -323,10 +314,6 @@ impl Client {
     ///     max_message_size: typing.Optional[builtins.int]
     ///     max_frame_size: typing.Optional[builtins.int]
     ///     accept_unmasked_frames: typing.Optional[builtins.bool]
-    ///
-    /// # Returns
-    ///
-    /// A `WebSocket` object representing the WebSocket connection.
     ///
     /// # Examples
     ///
@@ -401,10 +388,6 @@ impl Client {
     ///     brotli: typing.Optional[builtins.bool]
     ///     deflate: typing.Optional[builtins.bool]
     ///     zstd: typing.Optional[builtins.bool]
-    ///
-    /// # Returns
-    ///
-    /// A new `Client` instance.
     ///
     /// # Examples
     ///
@@ -635,10 +618,6 @@ impl Client {
 
     /// Returns the user agent of the client.
     ///
-    /// # Returns
-    ///
-    /// An optional string containing the user agent of the client.
-    ///
     /// # Examples
     ///
     /// ```python
@@ -658,10 +637,6 @@ impl Client {
     }
 
     /// Returns the headers of the client.
-    ///
-    /// # Returns
-    ///
-    /// A `HeaderMap` object containing the headers of the client.
     ///
     /// # Examples
     ///

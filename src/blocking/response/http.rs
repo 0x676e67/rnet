@@ -33,10 +33,6 @@ impl Deref for BlockingResponse {
 #[pymethods]
 impl BlockingResponse {
     /// Returns the URL of the response.
-    ///
-    /// # Returns
-    ///
-    /// A string representing the URL of the response.
     #[getter]
     #[inline(always)]
     pub fn url(&self) -> &str {
@@ -44,10 +40,6 @@ impl BlockingResponse {
     }
 
     /// Returns whether the response is successful.
-    ///
-    /// # Returns
-    ///
-    /// A boolean indicating whether the response is successful.
     #[getter]
     #[inline(always)]
     pub fn ok(&self) -> bool {
@@ -55,10 +47,6 @@ impl BlockingResponse {
     }
 
     /// Returns the status code as integer of the response.
-    ///
-    /// # Returns
-    ///
-    /// An integer representing the HTTP status code.
     #[getter]
     #[inline(always)]
     pub fn status(&self) -> u16 {
@@ -66,10 +54,6 @@ impl BlockingResponse {
     }
 
     /// Returns the status code of the response.
-    ///
-    /// # Returns
-    ///
-    /// A Python object representing the HTTP status code.
     #[getter]
     #[inline(always)]
     pub fn status_code(&self) -> StatusCode {
@@ -77,10 +61,6 @@ impl BlockingResponse {
     }
 
     /// Returns the HTTP version of the response.
-    ///
-    /// # Returns
-    ///
-    /// A `Version` object representing the HTTP version of the response.
     #[getter]
     #[inline(always)]
     pub fn version(&self) -> Version {
@@ -88,10 +68,6 @@ impl BlockingResponse {
     }
 
     /// Returns the headers of the response.
-    ///
-    /// # Returns
-    ///
-    /// A `HeaderMap` object representing the headers of the response.
     #[getter]
     #[inline(always)]
     pub fn headers(&self) -> HeaderMap {
@@ -99,10 +75,6 @@ impl BlockingResponse {
     }
 
     /// Returns the cookies of the response.
-    ///
-    /// # Returns
-    ///
-    /// A Python cookies object representing the cookies of the response.
     #[getter]
     #[inline(always)]
     pub fn cookies<'py>(&'py self, py: Python<'py>) -> Vec<Cookie> {
@@ -110,10 +82,6 @@ impl BlockingResponse {
     }
 
     /// Returns the content length of the response.
-    ///
-    /// # Returns
-    ///
-    /// An integer representing the content length of the response.
     #[getter]
     #[inline(always)]
     pub fn content_length(&self) -> u64 {
@@ -121,10 +89,6 @@ impl BlockingResponse {
     }
 
     /// Returns the remote address of the response.
-    ///
-    /// # Returns
-    ///
-    /// An `IpAddr` object representing the remote address of the response.
     #[getter]
     #[inline(always)]
     pub fn remote_addr(&self) -> Option<SocketAddr> {
@@ -132,10 +96,6 @@ impl BlockingResponse {
     }
 
     /// Encoding to decode with when accessing text.
-    ///
-    /// # Returns
-    ///
-    /// A string representing the encoding to decode with when accessing text.
     #[getter]
     #[inline(always)]
     pub fn encoding(&self, py: Python) -> String {
@@ -143,10 +103,6 @@ impl BlockingResponse {
     }
 
     /// Returns the TLS peer certificate of the response.
-    ///
-    /// # Returns
-    ///
-    /// A Python object representing the TLS peer certificate of the response.
     #[inline(always)]
     pub fn peer_certificate<'rt>(
         &'rt self,
@@ -156,10 +112,6 @@ impl BlockingResponse {
     }
 
     /// Returns the text content of the response.
-    ///
-    /// # Returns
-    ///
-    /// A Python object representing the text content of the response.
     pub fn text(&self, py: Python) -> PyResult<String> {
         py.allow_threads(|| {
             let resp = self.inner()?;
@@ -174,11 +126,7 @@ impl BlockingResponse {
     ///
     /// # Arguments
     ///
-    /// * `default_encoding` - The default encoding to use if the charset is not specified.
-    ///
-    /// # Returns
-    ///
-    /// A Python object representing the text content of the response.
+    /// * `encoding` - The default encoding to use if the charset is not specified.
     pub fn text_with_charset(&self, py: Python, encoding: String) -> PyResult<String> {
         py.allow_threads(|| {
             let resp = self.inner()?;
@@ -190,10 +138,6 @@ impl BlockingResponse {
     }
 
     /// Returns the JSON content of the response.
-    ///
-    /// # Returns
-    ///
-    /// A Python object representing the JSON content of the response.
     pub fn json(&self, py: Python) -> PyResult<Json> {
         py.allow_threads(|| {
             let resp = self.inner()?;
@@ -205,10 +149,6 @@ impl BlockingResponse {
     }
 
     /// Returns the bytes content of the response.
-    ///
-    /// # Returns
-    ///
-    /// A Python object representing the bytes content of the response.
     pub fn bytes(&self, py: Python) -> PyResult<Py<PyAny>> {
         py.allow_threads(|| {
             let resp = self.inner()?;
@@ -222,10 +162,6 @@ impl BlockingResponse {
     }
 
     /// Convert the response into a `Stream` of `Bytes` from the body.
-    ///
-    /// # Returns
-    ///
-    /// A Python object representing the stream content of the response.
     #[inline(always)]
     pub fn stream(&self, py: Python) -> PyResult<BlockingStreamer> {
         self.0.stream(py).map(BlockingStreamer)

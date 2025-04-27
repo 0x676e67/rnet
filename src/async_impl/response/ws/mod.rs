@@ -151,10 +151,6 @@ impl WebSocket {
 #[pymethods]
 impl WebSocket {
     /// Returns whether the response is successful.
-    ///
-    /// # Returns
-    ///
-    /// A boolean indicating whether the response is successful.
     #[getter]
     #[inline(always)]
     pub fn ok(&self) -> bool {
@@ -162,10 +158,6 @@ impl WebSocket {
     }
 
     /// Returns the status code as integer of the response.
-    ///
-    /// # Returns
-    ///
-    /// An integer representing the HTTP status code.
     #[getter]
     #[inline(always)]
     pub fn status(&self) -> u16 {
@@ -173,10 +165,6 @@ impl WebSocket {
     }
 
     /// Returns the status code of the response.
-    ///
-    /// # Returns
-    ///
-    /// A Python object representing the HTTP status code.
     #[getter]
     #[inline(always)]
     pub fn status_code(&self) -> StatusCode {
@@ -184,10 +172,6 @@ impl WebSocket {
     }
 
     /// Returns the HTTP version of the response.
-    ///
-    /// # Returns
-    ///
-    /// A `Version` object representing the HTTP version of the response.
     #[getter]
     #[inline(always)]
     pub fn version(&self) -> Version {
@@ -195,10 +179,6 @@ impl WebSocket {
     }
 
     /// Returns the headers of the response.
-    ///
-    /// # Returns
-    ///
-    /// A `HeaderMap` object representing the headers of the response.
     #[getter]
     #[inline(always)]
     pub fn headers(&self) -> HeaderMap {
@@ -206,10 +186,6 @@ impl WebSocket {
     }
 
     /// Returns the cookies of the response.
-    ///
-    /// # Returns
-    ///
-    /// A Python cookies object representing the cookies of the response.
     #[getter]
     #[inline(always)]
     pub fn cookies<'py>(&'py self, py: Python<'py>) -> Vec<Cookie> {
@@ -217,10 +193,6 @@ impl WebSocket {
     }
 
     /// Returns the remote address of the response.
-    ///
-    /// # Returns
-    ///
-    /// An `IpAddr` object representing the remote address of the response.
     #[getter]
     #[inline(always)]
     pub fn remote_addr(&self) -> Option<SocketAddr> {
@@ -228,10 +200,6 @@ impl WebSocket {
     }
 
     /// Returns the WebSocket protocol.
-    ///
-    /// # Returns
-    ///
-    /// An optional string representing the WebSocket protocol.
     #[inline(always)]
     pub fn protocol(&self) -> Option<&str> {
         self.protocol
