@@ -23,7 +23,7 @@ pub use self::{
     },
     ipaddr::{IpAddrExtractor, SocketAddr},
     json::Json,
-    multipart::{Multipart, Part},
+    multipart::{Multipart, MultipartExtractor, Part},
     proxy::{Proxy, ProxyExtractor, ProxyListExtractor},
     ssl::SslVerify,
     status::StatusCode,
