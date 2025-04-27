@@ -103,7 +103,7 @@ impl BlockingClient {
     }
 
     /// Make a rqeuest with the specified method and URL.
-    #[pyo3(signature = (method, url, kwds))]
+    #[pyo3(signature = (method, url, **kwds))]
     pub fn request(
         &self,
         py: Python,
@@ -141,28 +141,24 @@ impl BlockingClient {
     /// Creates a new BlockingClient instance.
     #[new]
     #[pyo3(signature = (**kwds))]
-    #[inline(always)]
     fn new(py: Python, kwds: Option<ClientParams>) -> PyResult<BlockingClient> {
         async_impl::Client::new(py, kwds).map(BlockingClient)
     }
 
     /// Returns the user agent of the client.
     #[getter]
-    #[inline(always)]
     fn user_agent(&self, py: Python) -> Option<String> {
         self.0.user_agent(py)
     }
 
     /// Returns the headers of the client.
     #[getter]
-    #[inline(always)]
     fn headers(&self) -> HeaderMap {
         self.0.headers()
     }
 
     /// Returns the cookies for the given URL.
     #[pyo3(signature = (url))]
-    #[inline(always)]
     pub fn get_cookies<'py>(
         &self,
         py: Python<'py>,
@@ -173,20 +169,17 @@ impl BlockingClient {
 
     /// Sets the cookies for the given URL.
     #[pyo3(signature = (url, cookie))]
-    #[inline(always)]
     pub fn set_cookie(&self, py: Python, url: PyBackedStr, cookie: Cookie) -> PyResult<()> {
         self.0.set_cookie(py, url, cookie)
     }
 
     /// Removes the cookie with the given name for the given URL.
     #[pyo3(signature = (url, name))]
-    #[inline(always)]
     pub fn remove_cookie(&self, py: Python, url: PyBackedStr, name: PyBackedStr) -> PyResult<()> {
         self.0.remove_cookie(py, url, name)
     }
 
     /// Clears the cookies for the given URL.
-    #[inline(always)]
     pub fn clear_cookies(&self, py: Python) {
         self.0.clear_cookies(py);
     }
