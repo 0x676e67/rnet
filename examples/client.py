@@ -20,6 +20,7 @@ async def main():
             ),
         ],
     )
+
     resp = await client.get("https://money-tourism.gr/en")
     print("Status Code: ", resp.status_code)
     print("Version: ", resp.version)
