@@ -2484,6 +2484,7 @@ class Impersonate(Enum):
     Chrome107 = auto()
     Chrome108 = auto()
     Chrome109 = auto()
+    Chrome110 = auto()
     Chrome114 = auto()
     Chrome116 = auto()
     Chrome117 = auto()

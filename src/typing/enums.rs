@@ -40,6 +40,7 @@ define_enum_with_conversion!(
     Chrome107,
     Chrome108,
     Chrome109,
+    Chrome110,
     Chrome114,
     Chrome116,
     Chrome117,
