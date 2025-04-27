@@ -108,10 +108,6 @@ impl BlockingResponse {
     }
 
     /// Returns the text content of the response with a specific charset.
-    ///
-    /// # Arguments
-    ///
-    /// * `encoding` - The default encoding to use if the charset is not specified.
     pub fn text_with_charset(&self, py: Python, encoding: String) -> PyResult<String> {
         py.allow_threads(|| {
             let resp = self.inner()?;

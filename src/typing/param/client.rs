@@ -119,6 +119,7 @@ pub struct ClientParams {
 }
 
 /// The parameters for updating a client.
+#[derive(Default)]
 pub struct UpdateClientParams {
     /// The impersonation settings for the request.
     pub impersonate: Option<ImpersonateExtractor>,
@@ -181,6 +182,19 @@ impl<'py> FromPyObject<'py> for ClientParams {
         extract_option!(ob, params, brotli);
         extract_option!(ob, params, deflate);
         extract_option!(ob, params, zstd);
+        Ok(params)
+    }
+}
+
+impl<'py> FromPyObject<'py> for UpdateClientParams {
+    fn extract_bound(ob: &Bound<'py, PyAny>) -> PyResult<Self> {
+        let mut params = Self::default();
+        extract_option!(ob, params, impersonate);
+        extract_option!(ob, params, headers);
+        extract_option!(ob, params, headers_order);
+        extract_option!(ob, params, proxies);
+        extract_option!(ob, params, local_address);
+        extract_option!(ob, params, interface);
         Ok(params)
     }
 }

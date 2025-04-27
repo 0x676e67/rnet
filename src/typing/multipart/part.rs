@@ -29,12 +29,6 @@ pub enum PartExtractor {
 #[pymethods]
 impl Part {
     /// Creates a new part.
-    ///
-    /// # Arguments
-    /// - `name` - The name of the part.
-    /// - `value` - The value of the part, either text, bytes, a file path, or a async or sync stream.
-    /// - `filename` - The filename of the part.
-    /// - `mime` - The MIME type of the part.
     #[new]
     #[pyo3(signature = (name, value, filename = None, mime = None))]
     pub fn new(

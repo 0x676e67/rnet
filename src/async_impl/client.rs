@@ -5,8 +5,7 @@ use crate::{
     dns,
     error::Error,
     typing::{
-        Cookie, HeaderMap, HeaderMapExtractor, HeadersOrderExtractor, ImpersonateExtractor,
-        IpAddrExtractor, Method, ProxyListExtractor, SslVerify, TlsVersion,
+        Cookie, HeaderMap, Method, SslVerify, TlsVersion,
         param::{ClientParams, RequestParams, UpdateClientParams, WebSocketParams},
     },
 };
@@ -426,35 +425,12 @@ impl Client {
     }
 
     /// Updates the client with the given parameters.
-    #[pyo3(signature = (
-        impersonate=None,
-        headers=None,
-        headers_order=None,
-        proxies=None,
-        local_address=None,
-        interface=None,
-    ))]
-    pub fn update(
-        &self,
-        py: Python,
-        impersonate: Option<ImpersonateExtractor>,
-        headers: Option<HeaderMapExtractor>,
-        headers_order: Option<HeadersOrderExtractor>,
-        proxies: Option<ProxyListExtractor>,
-        local_address: Option<IpAddrExtractor>,
-        interface: Option<String>,
-    ) -> PyResult<()> {
+    #[pyo3(signature = (**kwds))]
+    pub fn update(&self, py: Python, mut kwds: Option<UpdateClientParams>) -> PyResult<()> {
         py.allow_threads(|| {
-            // Create a new client with the current configuration.
-            let mut params = UpdateClientParams {
-                impersonate,
-                headers,
-                headers_order,
-                proxies,
-                local_address,
-                interface,
-            };
+            let params = kwds.get_or_insert_default();
 
+            // Create a new client with the current configuration.
             let mut update = self.0.update();
 
             // Impersonation options.

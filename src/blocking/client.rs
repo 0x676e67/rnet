@@ -2,9 +2,8 @@ use super::{BlockingResponse, BlockingWebSocket};
 use crate::{
     async_impl::{self, execute_request, execute_websocket_request},
     typing::{
-        Cookie, HeaderMap, HeaderMapExtractor, HeadersOrderExtractor, ImpersonateExtractor,
-        IpAddrExtractor, Method, ProxyListExtractor,
-        param::{ClientParams, RequestParams, WebSocketParams},
+        Cookie, HeaderMap, Method,
+        param::{ClientParams, RequestParams, UpdateClientParams, WebSocketParams},
     },
 };
 use pyo3::{prelude::*, pybacked::PyBackedStr};
@@ -193,33 +192,8 @@ impl BlockingClient {
     }
 
     /// Updates the client with the given parameters.
-    #[pyo3(signature = (
-        impersonate=None,
-        headers=None,
-        headers_order=None,
-        proxies=None,
-        local_address=None,
-        interface=None,
-    ))]
-    #[inline(always)]
-    fn update(
-        &self,
-        py: Python,
-        impersonate: Option<ImpersonateExtractor>,
-        headers: Option<HeaderMapExtractor>,
-        headers_order: Option<HeadersOrderExtractor>,
-        proxies: Option<ProxyListExtractor>,
-        local_address: Option<IpAddrExtractor>,
-        interface: Option<String>,
-    ) -> PyResult<()> {
-        self.0.update(
-            py,
-            impersonate,
-            headers,
-            headers_order,
-            proxies,
-            local_address,
-            interface,
-        )
+    #[pyo3(signature = (**kwds))]
+    pub fn update(&self, py: Python, kwds: Option<UpdateClientParams>) -> PyResult<()> {
+        self.0.update(py, kwds)
     }
 }

@@ -83,10 +83,6 @@ impl BlockingWebSocket {
     }
 
     /// Sends a message to the WebSocket.
-    ///
-    /// # Arguments
-    ///
-    /// * `message` - The message to send.
     #[pyo3(signature = (message))]
     pub fn send(&self, py: Python, message: Message) -> PyResult<()> {
         py.allow_threads(|| {
@@ -96,11 +92,6 @@ impl BlockingWebSocket {
     }
 
     /// Closes the WebSocket connection.
-    ///
-    /// # Arguments
-    ///
-    /// * `code` - An optional close code.
-    /// * `reason` - An optional reason for closing.
     #[pyo3(signature = (code=None, reason=None))]
     pub fn close(
         &self,

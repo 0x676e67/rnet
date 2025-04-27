@@ -13,29 +13,6 @@ use std::{ops::Deref, pin::Pin, sync::Arc};
 use tokio::sync::Mutex;
 
 /// A response from a request.
-///
-/// # Examples
-///
-/// ```python
-/// import asyncio
-/// import rnet
-///
-/// async def main():
-///     response = await rnet.get("https://www.rust-lang.org")
-///     print("Status Code: ", response.status_code)
-///     print("Version: ", response.version)
-///     print("Response URL: ", response.url)
-///     print("Headers: ", response.headers)
-///     print("Content-Length: ", response.content_length)
-///     print("Encoding: ", response.encoding)
-///     print("Remote Address: ", response.remote_addr)
-///
-///     text_content = await response.text()
-///     print("Text: ", text_content)
-///
-/// if __name__ == "__main__":
-///     asyncio.run(main())
-/// ```
 #[pyclass]
 pub struct Response {
     url: Url,
@@ -172,10 +149,6 @@ impl Response {
     }
 
     /// Returns the text content of the response with a specific charset.
-    ///
-    /// # Arguments
-    ///
-    /// * `encoding` - The default encoding to use if the charset is not specified.
     pub fn text_with_charset<'rt>(
         &self,
         py: Python<'rt>,
@@ -259,32 +232,6 @@ type InnerStreamer =
 /// Used to stream response content.
 /// Implemented in the `stream` method of the `Response` class.
 /// Can be used in an asynchronous for loop in Python.
-///
-/// # Examples
-///
-/// ```python
-/// import asyncio
-/// import rnet
-/// from rnet import Method, Impersonate
-///
-/// async def main():
-///     resp = await rnet.get("https://httpbin.org/stream/20")
-///     print("Status Code: ", resp.status_code)
-///     print("Version: ", resp.version)
-///     print("Response URL: ", resp.url)
-///     print("Headers: ", resp.headers)
-///     print("Content-Length: ", resp.content_length)
-///     print("Encoding: ", resp.encoding)
-///     print("Remote Address: ", resp.remote_addr)
-///
-///     async with resp.stream() as streamer:
-///         async for chunk in streamer:
-///             print("Chunk: ", chunk)
-///             await asyncio.sleep(0.1)
-///
-/// if __name__ == "__main__":
-///     asyncio.run(main())
-/// ```
 #[pyclass]
 #[derive(Clone)]
 pub struct Streamer(Arc<Mutex<Option<InnerStreamer>>>);

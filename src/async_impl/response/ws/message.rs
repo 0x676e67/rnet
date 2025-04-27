@@ -95,9 +95,6 @@ impl Message {
 #[pymethods]
 impl Message {
     /// Creates a new text message from the JSON representation.
-    ///
-    /// # Arguments
-    /// * `json` - The JSON representation of the message.
     #[staticmethod]
     #[pyo3(signature = (json))]
     pub fn text_from_json(py: Python, json: Json) -> PyResult<Self> {
@@ -110,9 +107,6 @@ impl Message {
     }
 
     /// Creates a new binary message from the JSON representation.
-    ///
-    /// # Arguments
-    /// * `json` - The JSON representation of the message.
     #[staticmethod]
     #[pyo3(signature = (json))]
     pub fn binary_from_json(py: Python, json: Json) -> PyResult<Self> {
@@ -125,10 +119,6 @@ impl Message {
     }
 
     /// Creates a new text message.
-    ///
-    /// # Arguments
-    ///
-    /// * `text` - The text content of the message.
     #[staticmethod]
     #[pyo3(signature = (text))]
     pub fn from_text(text: PyBackedStr) -> Self {
@@ -137,10 +127,6 @@ impl Message {
     }
 
     /// Creates a new binary message.
-    ///
-    /// # Arguments
-    ///
-    /// * `data` - The binary data of the message.
     #[staticmethod]
     #[pyo3(signature = (data))]
     pub fn from_binary(data: PyBackedBytes) -> Self {
@@ -149,10 +135,6 @@ impl Message {
     }
 
     /// Creates a new ping message.
-    ///
-    /// # Arguments
-    ///
-    /// * `data` - The ping data of the message.
     #[staticmethod]
     #[pyo3(signature = (data))]
     pub fn from_ping(data: PyBackedBytes) -> Self {
@@ -161,10 +143,6 @@ impl Message {
     }
 
     /// Creates a new pong message.
-    ///
-    /// # Arguments
-    ///
-    /// * `data` - The pong data of the message.
     #[staticmethod]
     #[pyo3(signature = (data))]
     pub fn from_pong(data: PyBackedBytes) -> Self {
@@ -173,11 +151,6 @@ impl Message {
     }
 
     /// Creates a new close message.
-    ///
-    /// # Arguments
-    ///
-    /// * `code` - The close code.
-    /// * `reason` - An optional reason for closing.
     #[staticmethod]
     #[pyo3(signature = (code, reason=None))]
     pub fn from_close(code: u16, reason: Option<PyBackedStr>) -> Self {
@@ -191,10 +164,7 @@ impl Message {
         });
         Message(msg)
     }
-}
 
-#[pymethods]
-impl Message {
     fn __str__(&self) -> String {
         format!("{:?}", self.0)
     }

@@ -203,21 +203,12 @@ impl WebSocket {
     }
 
     /// Sends a message to the WebSocket.
-    ///
-    /// # Arguments
-    ///
-    /// * `message` - The message to send.
     #[pyo3(signature = (message))]
     pub fn send<'rt>(&self, py: Python<'rt>, message: Message) -> PyResult<Bound<'rt, PyAny>> {
         future_into_py(py, Self::_send(self.sender.clone(), message))
     }
 
     /// Closes the WebSocket connection.
-    ///
-    /// # Arguments
-    ///
-    /// * `code` - An optional close code.
-    /// * `reason` - An optional reason for closing.
     #[pyo3(signature = (code=None, reason=None))]
     pub fn close<'rt>(
         &self,

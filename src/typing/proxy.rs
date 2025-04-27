@@ -55,23 +55,6 @@ proxy_method! {
         /// Creates a new HTTP proxy.
         ///
         /// This method sets up a proxy server for HTTP requests.
-        ///
-        /// # Arguments
-        ///
-        /// * `url` - The URL of the proxy server.
-        /// * `username` - Optional username for proxy authentication.
-        /// * `password` - Optional password for proxy authentication.
-        /// * `custom_http_auth` - Optional custom HTTP proxy authentication header value.
-        /// * `custom_http_headers` - Optional custom HTTP proxy headers.
-        /// * `exclusion` - Optional list of domains to exclude from proxying.
-        ///
-        /// # Examples
-        ///
-        /// ```python
-        /// import rnet
-        ///
-        /// proxy = rnet.Proxy.http("http://proxy.example.com")
-        /// ```
         http,
         rquest::Proxy::http
     },
@@ -79,23 +62,6 @@ proxy_method! {
         /// Creates a new HTTPS proxy.
         ///
         /// This method sets up a proxy server for HTTPS requests.
-        ///
-        /// # Arguments
-        ///
-        /// * `url` - The URL of the proxy server.
-        /// * `username` - Optional username for proxy authentication.
-        /// * `password` - Optional password for proxy authentication.
-        /// * `custom_http_auth` - Optional custom HTTP proxy authentication header value.
-        /// * `custom_http_headers` - Optional custom HTTP proxy headers.
-        /// * `exclusion` - Optional list of domains to exclude from proxying.
-        ///
-        /// # Examples
-        ///
-        /// ```python
-        /// import rnet
-        ///
-        /// proxy = rnet.Proxy.https("https://proxy.example.com")
-        /// ```
         https,
         rquest::Proxy::https
     },
@@ -103,23 +69,6 @@ proxy_method! {
         /// Creates a new proxy for all protocols.
         ///
         /// This method sets up a proxy server for all types of requests (HTTP, HTTPS, etc.).
-        ///
-        /// # Arguments
-        ///
-        /// * `url` - The URL of the proxy server.
-        /// * `username` - Optional username for proxy authentication.
-        /// * `password` - Optional password for proxy authentication.
-        /// * `custom_http_auth` - Optional custom HTTP proxy authentication header value.
-        /// * `custom_http_headers` - Optional custom HTTP proxy headers.
-        /// * `exclusion` - Optional list of domains to exclude from proxying.
-        ///
-        /// # Examples
-        ///
-        /// ```python
-        /// import rnet
-        ///
-        /// proxy = rnet.Proxy.all("https://proxy.example.com")
-        /// ```
         all,
         rquest::Proxy::all
     }
