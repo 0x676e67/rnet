@@ -11,16 +11,8 @@ authors = ["0x676e67 <gngppz@gmail.com>"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [lib]
 name = "rnet"
-crate-type = ["cdylib", "rlib"]
+crate-type = ["cdylib"]
 doctest = false
-
-[[bin]]
-name = "stubgen"
-path = "src/stubgen.rs"
-
-[features]
-default = []
-docs = ["dep:pyo3-stub-gen"]
 
 [dependencies]
 tokio = { version = "1.44.1", features = ["sync"] }
@@ -33,7 +25,6 @@ pyo3-async-runtimes = { version = "0.24.0", features = [
     "tokio-runtime",
     "unstable-streams",
 ] }
-pyo3-stub-gen = { version = "0.8.1", optional = true }
 serde = { version = "1.0.219", features = ["derive"] }
 mime = "0.3.17"
 indexmap = { version = "2.8.0", features = ["serde"] }

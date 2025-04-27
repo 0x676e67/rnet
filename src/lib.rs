@@ -10,8 +10,6 @@ use async_impl::{Client, Message, Response, Streamer, WebSocket};
 use blocking::{BlockingClient, BlockingResponse, BlockingStreamer, BlockingWebSocket};
 use pyo3::{prelude::*, pybacked::PyBackedStr};
 use pyo3_async_runtimes::tokio::future_into_py;
-#[cfg(feature = "docs")]
-use pyo3_stub_gen::{define_stub_info_gatherer, derive::*};
 use typing::param::{RequestParams, WebSocketParams};
 use typing::{
     Cookie, HeaderMap, HeaderMapItemsIter, HeaderMapKeysIter, HeaderMapValuesIter, Impersonate,
@@ -23,235 +21,97 @@ use typing::{
 #[global_allocator]
 static ALLOC: jemallocator::Jemalloc = jemallocator::Jemalloc;
 
-macro_rules! define_http_method {
-    ($(#[$meta:meta])* $name:ident, $method:expr) => {
-        /// Shortcut method to quickly make a request.
-        ///
-        /// # Arguments
-        ///
-        /// * `url` - The URL to send the request to.
-        /// * `**kwds` - Additional request parameters.
-        ///
-        ///     proxy: typing.Optional[Proxy]
-        ///     local_address: typing.Optional[typing.Optional[typing.Union[str, ipaddress.IPv4Address, ipaddress.IPv6Address]]]
-        ///     interface: typing.Optional[builtins.str]
-        ///     timeout: typing.Optional[builtins.int]
-        ///     read_timeout: typing.Optional[builtins.int]
-        ///     version: typing.Optional[Version]
-        ///     headers: typing.Optional[typing.Dict[str, bytes]]
-        ///     cookies: typing.Optional[typing.Dict[str, str]]
-        ///     allow_redirects: typing.Optional[builtins.bool]
-        ///     max_redirects: typing.Optional[builtins.int]
-        ///     auth: typing.Optional[str]
-        ///     bearer_auth: typing.Optional[str]
-        ///     basic_auth: typing.Optional[tuple[str, typing.Optional[str]]]
-        ///     query: typing.Optional[typing.List[typing.Tuple[str, str]]]
-        ///     form: typing.Optional[typing.List[typing.Tuple[str, str]]]
-        ///     json: typing.Optional[typing.Any]
-        ///     body: typing.Optional[typing.Any]
-        ///     multipart: typing.Optional[Multipart]
-        ///
-        $(#[$meta])*
-        #[cfg_attr(feature = "docs", gen_stub_pyfunction)]
-        #[pyfunction]
-        #[pyo3(signature = (url, **kwds))]
-        #[inline(always)]
-        fn $name(
-            py: Python<'_>,
-            url: PyBackedStr,
-            kwds: Option<RequestParams>,
-        ) -> PyResult<Bound<'_, PyAny>> {
-            future_into_py(py, async_impl::shortcut_request(url, $method, kwds))
-        }
-    };
+/// Make a GET request with the given parameters.
+#[pyfunction]
+#[pyo3(signature = (url, **kwds))]
+fn get(
+    py: Python<'_>,
+    url: PyBackedStr,
+    kwds: Option<RequestParams>,
+) -> PyResult<Bound<'_, PyAny>> {
+    future_into_py(py, async_impl::shortcut_request(url, Method::GET, kwds))
 }
 
-define_http_method!(
-    /// # Examples
-    ///
-    /// ```python
-    /// import rnet
-    /// import asyncio
-    ///
-    /// async def run():
-    ///     response = await rnet.get("https://httpbin.org/anything")
-    ///     body = await response.text()
-    ///     print(body)
-    ///
-    /// asyncio.run(run())
-    /// ```
-    get,
-    Method::GET
-);
+/// Make a POST request with the given parameters.
+#[pyfunction]
+#[pyo3(signature = (url, **kwds))]
+fn post(
+    py: Python<'_>,
+    url: PyBackedStr,
+    kwds: Option<RequestParams>,
+) -> PyResult<Bound<'_, PyAny>> {
+    future_into_py(py, async_impl::shortcut_request(url, Method::POST, kwds))
+}
 
-define_http_method!(
-    /// # Examples
-    ///
-    /// ```python
-    /// import rnet
-    /// import asyncio
-    ///
-    /// async def run():
-    ///     response = await rnet.post("https://httpbin.org/anything")
-    ///     body = await response.text()
-    ///     print(body)
-    ///
-    /// asyncio.run(run())
-    /// ```
-    post,
-    Method::POST
-);
+/// Make a PUT request with the given parameters.
+#[pyfunction]
+#[pyo3(signature = (url, **kwds))]
+fn put(
+    py: Python<'_>,
+    url: PyBackedStr,
+    kwds: Option<RequestParams>,
+) -> PyResult<Bound<'_, PyAny>> {
+    future_into_py(py, async_impl::shortcut_request(url, Method::PUT, kwds))
+}
 
-define_http_method!(
-    /// # Examples
-    ///
-    /// ```python
-    /// import rnet
-    /// import asyncio
-    ///
-    /// async def run():
-    ///     response = await rnet.put("https://httpbin.org/anything")
-    ///     body = await response.text()
-    ///     print(body)
-    ///
-    /// asyncio.run(run())
-    /// ```
-    put,
-    Method::PUT
-);
+/// Make a PATCH request with the given parameters.
+#[pyfunction]
+#[pyo3(signature = (url, **kwds))]
+fn patch(
+    py: Python<'_>,
+    url: PyBackedStr,
+    kwds: Option<RequestParams>,
+) -> PyResult<Bound<'_, PyAny>> {
+    future_into_py(py, async_impl::shortcut_request(url, Method::PATCH, kwds))
+}
 
-define_http_method!(
-    /// # Examples
-    ///
-    /// ```python
-    /// import rnet
-    /// import asyncio
-    ///
-    /// async def run():
-    ///     response = await rnet.patch("https://httpbin.org/anything")
-    ///     body = await response.text()
-    ///     print(body)
-    ///
-    /// asyncio.run(run())
-    /// ```
-    patch,
-    Method::PATCH
-);
+/// Make a DELETE request with the given parameters.
+#[pyfunction]
+#[pyo3(signature = (url, **kwds))]
+fn delete(
+    py: Python<'_>,
+    url: PyBackedStr,
+    kwds: Option<RequestParams>,
+) -> PyResult<Bound<'_, PyAny>> {
+    future_into_py(py, async_impl::shortcut_request(url, Method::DELETE, kwds))
+}
 
-define_http_method!(
-    /// # Examples
-    ///
-    /// ```python
-    /// import rnet
-    /// import asyncio
-    ///
-    /// async def run():
-    ///     response = await rnet.delete("https://httpbin.org/anything")
-    ///     body = await response.text()
-    ///     print(body)
-    ///
-    /// asyncio.run(run())
-    /// ```
-    delete,
-    Method::DELETE
-);
+/// Make a HEAD request with the given parameters.
+#[pyfunction]
+#[pyo3(signature = (url, **kwds))]
+fn head(
+    py: Python<'_>,
+    url: PyBackedStr,
+    kwds: Option<RequestParams>,
+) -> PyResult<Bound<'_, PyAny>> {
+    future_into_py(py, async_impl::shortcut_request(url, Method::HEAD, kwds))
+}
 
-define_http_method!(
-    /// # Examples
-    ///
-    /// ```python
-    /// import rnet
-    /// import asyncio
-    ///
-    /// async def run():
-    ///     response = await rnet.head("https://httpbin.org/anything")
-    ///     print(response.status)
-    ///
-    /// asyncio.run(run())
-    /// ```
-    head,
-    Method::HEAD
-);
+/// Make an OPTIONS request with the given parameters.
+#[pyfunction]
+#[pyo3(signature = (url, **kwds))]
+fn options(
+    py: Python<'_>,
+    url: PyBackedStr,
+    kwds: Option<RequestParams>,
+) -> PyResult<Bound<'_, PyAny>> {
+    future_into_py(py, async_impl::shortcut_request(url, Method::OPTIONS, kwds))
+}
 
-define_http_method!(
-    /// # Examples
-    ///
-    /// ```python
-    /// import rnet
-    /// import asyncio
-    ///
-    /// async def run():
-    ///     response = await rnet.options("https://httpbin.org/anything")
-    ///     print(response.status)
-    ///
-    /// asyncio.run(run())
-    /// ```
-    options,
-    Method::OPTIONS
-);
-
-define_http_method!(
-    /// # Examples
-    ///
-    /// ```python
-    /// import rnet
-    /// import asyncio
-    ///
-    /// async def run():
-    ///     response = await rnet.trace("https://httpbin.org/anything")
-    ///     print(response.status)
-    ///
-    /// asyncio.run(run())
-    /// ```
-    trace,
-    Method::TRACE
-);
+/// Make a TRACE request with the given parameters.
+#[pyfunction]
+#[pyo3(signature = (url, **kwds))]
+fn trace(
+    py: Python<'_>,
+    url: PyBackedStr,
+    kwds: Option<RequestParams>,
+) -> PyResult<Bound<'_, PyAny>> {
+    future_into_py(py, async_impl::shortcut_request(url, Method::TRACE, kwds))
+}
 
 /// Make a request with the given parameters.
-///
-/// # Arguments
-///
-/// * `method` - The method to use for the request.
-/// * `url` - The URL to send the request to.
-/// * `**kwds` - Additional request parameters.
-///
-///     proxy: typing.Optional[Proxy]
-///     local_address: typing.Optional[typing.Optional[typing.Union[str, ipaddress.IPv4Address, ipaddress.IPv6Address]]]
-///     interface: typing.Optional[builtins.str]
-///     timeout: typing.Optional[builtins.int]
-///     read_timeout: typing.Optional[builtins.int]
-///     version: typing.Optional[Version]
-///     headers: typing.Optional[typing.Dict[str, bytes]]
-///     cookies: typing.Optional[typing.Dict[str, str]]
-///     allow_redirects: typing.Optional[builtins.bool]
-///     max_redirects: typing.Optional[builtins.int]
-///     auth: typing.Optional[str]
-///     bearer_auth: typing.Optional[str]
-///     basic_auth: typing.Optional[tuple[str, typing.Optional[str]]]
-///     query: typing.Optional[typing.List[typing.Tuple[str, str]]]
-///     form: typing.Optional[typing.List[typing.Tuple[str, str]]]
-///     json: typing.Optional[typing.Any]
-///     body: typing.Optional[typing.Any]
-///     multipart: typing.Optional[Multipart]
-///
-/// # Examples
-///
-/// ```python
-/// import rnet
-/// import asyncio
-/// from rnet import Method
-///
-/// async def run():
-///     response = await rnet.request(Method.GET, "https://www.rust-lang.org")
-///     body = await response.text()
-///     print(body)
-///
-/// asyncio.run(run())
-/// ```
-#[cfg_attr(feature = "docs", gen_stub_pyfunction)]
 #[pyfunction]
 #[pyo3(signature = (method, url, **kwds))]
-#[inline(always)]
 fn request(
     py: Python<'_>,
     method: Method,
@@ -262,50 +122,8 @@ fn request(
 }
 
 /// Make a WebSocket connection with the given parameters.
-///
-/// # Arguments
-///
-/// * `url` - The URL to send the WebSocket request to.
-/// * `**kwds` - Additional WebSocket request parameters.
-///
-///     proxy: typing.Optional[Proxy]
-///     local_address: typing.Optional[typing.Optional[typing.Union[str, ipaddress.IPv4Address, ipaddress.IPv6Address]]]
-///     interface: typing.Optional[builtins.str]
-///     headers: typing.Optional[typing.Dict[str, bytes]]
-///     cookies: typing.Optional[typing.Dict[str, str]]
-///     protocols: typing.Optional[builtins.list[builtins.str]]
-///     use_http2: typing.Optional[builtins.bool]
-///     auth: typing.Optional[builtins.str]
-///     bearer_auth: typing.Optional[builtins.str]
-///     basic_auth: typing.Optional[tuple[builtins.str, typing.Optional[builtins.str]]]
-///     query: typing.Optional[builtins.list[tuple[builtins.str, builtins.str]]]
-///     read_buffer_size: typing.Optional[builtins.int]
-///     write_buffer_size: typing.Optional[builtins.int]
-///     max_write_buffer_size: typing.Optional[builtins.int]
-///     max_message_size: typing.Optional[builtins.int]
-///     max_frame_size: typing.Optional[builtins.int]
-///     accept_unmasked_frames: typing.Optional[builtins.bool]
-///
-/// # Examples
-///
-/// ```python
-/// import rnet
-/// import asyncio
-/// from rnet import Message
-///
-/// async def run():
-///     ws = await rnet.websocket("wss://echo.websocket.org")
-///     await ws.send(Message.from_text("Hello, World!"))
-///     message = await ws.recv()
-///     print("Received:", message.data)
-///     await ws.close()
-///
-/// asyncio.run(run())
-/// ```
-#[cfg_attr(feature = "docs", gen_stub_pyfunction)]
 #[pyfunction]
 #[pyo3(signature = (url, **kwds))]
-#[inline(always)]
 fn websocket(
     py: Python<'_>,
     url: PyBackedStr,
@@ -361,6 +179,3 @@ fn rnet(m: &Bound<'_, PyModule>) -> PyResult<()> {
 
     Ok(())
 }
-
-#[cfg(feature = "docs")]
-define_stub_info_gatherer!(stub_info);

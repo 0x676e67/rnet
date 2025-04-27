@@ -6,8 +6,6 @@ use crate::{
     },
 };
 use pyo3::{prelude::*, pybacked::PyBackedStr};
-#[cfg(feature = "docs")]
-use pyo3_stub_gen::{PyStubType, TypeInfo};
 
 /// The parameters for a request.
 #[derive(Default)]
@@ -91,12 +89,5 @@ impl<'py> FromPyObject<'py> for RequestParams {
         extract_option!(ob, params, multipart);
 
         Ok(params)
-    }
-}
-
-#[cfg(feature = "docs")]
-impl PyStubType for RequestParams {
-    fn type_output() -> TypeInfo {
-        TypeInfo::with_module("typing.Dict[str, typing.Any]", "typing".into())
     }
 }

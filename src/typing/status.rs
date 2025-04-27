@@ -1,14 +1,10 @@
 use pyo3::prelude::*;
-#[cfg(feature = "docs")]
-use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 
 /// HTTP status code.
-#[cfg_attr(feature = "docs", gen_stub_pyclass)]
 #[pyclass(eq)]
 #[derive(Clone, Copy, PartialEq, Eq, Hash)]
 pub struct StatusCode(rquest::StatusCode);
 
-#[cfg_attr(feature = "docs", gen_stub_pymethods)]
 #[pymethods]
 impl StatusCode {
     /// Return the status code as an integer.
@@ -48,15 +44,12 @@ impl StatusCode {
     }
 }
 
-#[cfg_attr(feature = "docs", gen_stub_pymethods)]
 #[pymethods]
 impl StatusCode {
-    #[inline(always)]
     fn __str__(&self) -> &str {
         self.0.as_str()
     }
 
-    #[inline(always)]
     fn __repr__(&self) -> &str {
         self.__str__()
     }

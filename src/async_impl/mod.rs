@@ -30,7 +30,6 @@ static DEFAULT_CLIENT: LazyLock<rquest::Client> = LazyLock::new(|| {
 });
 
 /// Send a shortcut HTTP request.
-#[inline(always)]
 pub async fn shortcut_request<U>(
     url: U,
     method: Method,

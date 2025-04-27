@@ -8,8 +8,6 @@ use futures_util::{Stream, TryStreamExt};
 use mime::Mime;
 use pyo3::{IntoPyObjectExt, prelude::*};
 use pyo3_async_runtimes::tokio::future_into_py;
-#[cfg(feature = "docs")]
-use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 use rquest::{TlsInfo, Url, header};
 use std::{ops::Deref, pin::Pin, sync::Arc};
 use tokio::sync::Mutex;
@@ -38,7 +36,6 @@ use tokio::sync::Mutex;
 /// if __name__ == "__main__":
 ///     asyncio.run(main())
 /// ```
-#[cfg_attr(feature = "docs", gen_stub_pyclass)]
 #[pyclass]
 pub struct Response {
     url: Url,
@@ -57,7 +54,7 @@ impl Response {
             url: response.url().clone(),
             version: Version::from_ffi(response.version()),
             status_code: StatusCode::from(response.status()),
-            remote_addr: response.remote_addr().map(SocketAddr::from),
+            remote_addr: response.remote_addr().map(SocketAddr),
             content_length: response.content_length(),
             headers: std::mem::take(response.headers_mut()),
             response: ArcSwapOption::from_pointee(response),
@@ -65,7 +62,6 @@ impl Response {
     }
 
     /// Consumes the `Response` and returns the inner `rquest::Response`.
-    #[inline(always)]
     pub fn inner(&self) -> PyResult<rquest::Response> {
         self.response
             .swap(None)
@@ -75,68 +71,58 @@ impl Response {
     }
 }
 
-#[cfg_attr(feature = "docs", gen_stub_pymethods)]
 #[pymethods]
 impl Response {
     /// Returns the URL of the response.
     #[getter]
-    #[inline(always)]
     pub fn url(&self) -> &str {
         self.url.as_str()
     }
 
     /// Returns whether the response is successful.
     #[getter]
-    #[inline(always)]
     pub fn ok(&self) -> bool {
         self.status_code.is_success()
     }
 
     /// Returns the status code as integer of the response.
     #[getter]
-    #[inline(always)]
     pub fn status(&self) -> u16 {
         self.status_code.as_int()
     }
 
     /// Returns the status code of the response.
     #[getter]
-    #[inline(always)]
     pub fn status_code(&self) -> StatusCode {
         self.status_code
     }
 
     /// Returns the HTTP version of the response.
     #[getter]
-    #[inline(always)]
     pub fn version(&self) -> Version {
         self.version
     }
 
     /// Returns the headers of the response.
     #[getter]
-    #[inline(always)]
     pub fn headers(&self) -> HeaderMap {
         HeaderMap(self.headers.clone())
     }
 
     /// Returns the cookies of the response.
     #[getter]
-    #[inline(always)]
     pub fn cookies<'py>(&'py self, py: Python<'py>) -> Vec<Cookie> {
         py.allow_threads(|| Cookie::extract_cookies(&self.headers))
     }
 
     /// Returns the content length of the response.
     #[getter]
-    #[inline(always)]
     pub fn content_length(&self) -> u64 {
         self.content_length.unwrap_or_default()
     }
 
     /// Returns the remote address of the response.
     #[getter]
-    #[inline(always)]
     pub fn remote_addr(&self) -> Option<SocketAddr> {
         self.remote_addr
     }
@@ -246,16 +232,13 @@ impl Response {
     }
 }
 
-#[cfg_attr(feature = "docs", gen_stub_pymethods)]
 #[pymethods]
 impl Response {
-    #[inline(always)]
     fn __aenter__<'a>(slf: PyRef<'a, Self>, py: Python<'a>) -> PyResult<Bound<'a, PyAny>> {
         let slf = slf.into_py_any(py)?;
         future_into_py(py, async move { Ok(slf) })
     }
 
-    #[inline(always)]
     fn __aexit__<'a>(
         &self,
         py: Python<'a>,
@@ -302,7 +285,6 @@ type InnerStreamer =
 /// if __name__ == "__main__":
 ///     asyncio.run(main())
 /// ```
-#[cfg_attr(feature = "docs", gen_stub_pyclass)]
 #[pyclass]
 #[derive(Clone)]
 pub struct Streamer(Arc<Mutex<Option<InnerStreamer>>>);
@@ -318,7 +300,6 @@ impl Deref for Streamer {
 
 impl Streamer {
     /// Create a new `Streamer` instance.
-    #[inline(always)]
     pub fn new(
         stream: impl Stream<Item = Result<bytes::Bytes, rquest::Error>> + Send + 'static,
     ) -> Streamer {
@@ -343,15 +324,12 @@ impl Streamer {
     }
 }
 
-#[cfg_attr(feature = "docs", gen_stub_pymethods)]
 #[pymethods]
 impl Streamer {
-    #[inline(always)]
     fn __aiter__(slf: PyRef<Self>) -> PyRef<Self> {
         slf
     }
 
-    #[inline(always)]
     fn __anext__<'rt>(&self, py: Python<'rt>) -> PyResult<Bound<'rt, PyAny>> {
         future_into_py(
             py,
@@ -359,13 +337,11 @@ impl Streamer {
         )
     }
 
-    #[inline(always)]
     fn __aenter__<'a>(slf: PyRef<'a, Self>, py: Python<'a>) -> PyResult<Bound<'a, PyAny>> {
         let slf = slf.into_py_any(py)?;
         future_into_py(py, async move { Ok(slf) })
     }
 
-    #[inline(always)]
     fn __aexit__<'a>(
         &self,
         py: Python<'a>,

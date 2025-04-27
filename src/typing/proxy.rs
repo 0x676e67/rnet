@@ -1,14 +1,10 @@
-use crate::{define_into_pyobject_todo, define_py_stub_gen, error::Error};
-
 use super::HeaderMapExtractor;
+use crate::error::Error;
 use pyo3::{prelude::*, pybacked::PyBackedStr, types::PyList};
-#[cfg(feature = "docs")]
-use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 use rquest::header::HeaderValue;
 
 macro_rules! proxy_method {
     ( $( { $(#[$meta:meta])* $name:ident, $proxy_fn:path} ),* ) => {
-        #[cfg_attr(feature = "docs", gen_stub_pymethods)]
         #[pymethods]
         impl Proxy {
             $(
@@ -51,7 +47,6 @@ macro_rules! proxy_method {
 
 /// A proxy server for a request.
 /// Supports HTTP, HTTPS, SOCKS4, SOCKS4a, SOCKS5, and SOCKS5h protocols.
-#[cfg_attr(feature = "docs", gen_stub_pyclass)]
 #[pyclass]
 pub struct Proxy(pub rquest::Proxy);
 
@@ -199,11 +194,3 @@ impl FromPyObject<'_> for ProxyListExtractor {
             .map(Self)
     }
 }
-
-define_into_pyobject_todo!(ProxyExtractor);
-
-define_into_pyobject_todo!(ProxyListExtractor);
-
-define_py_stub_gen!(ProxyExtractor, "typing.Union[Proxy, str]", "typing");
-
-define_py_stub_gen!(ProxyListExtractor, "typing.List[Proxy]", "typing");

@@ -1,6 +1,5 @@
 use crate::{
     buffer::{HeaderNameBuffer, HeaderValueBuffer, PyBufferProtocol},
-    define_into_pyobject_todo, define_py_stub_gen,
     error::Error,
 };
 use pyo3::{
@@ -8,16 +7,12 @@ use pyo3::{
     pybacked::PyBackedStr,
     types::{PyDict, PyList},
 };
-#[cfg(feature = "docs")]
-use pyo3_stub_gen::derive::{gen_stub_pyclass, gen_stub_pymethods};
 use rquest::header::{self, HeaderName, HeaderValue};
 
 /// A HTTP header map.
-#[cfg_attr(feature = "docs", gen_stub_pyclass)]
 #[pyclass]
 pub struct HeaderMap(pub header::HeaderMap);
 
-#[cfg_attr(feature = "docs", gen_stub_pymethods)]
 #[pymethods]
 impl HeaderMap {
     #[new]
@@ -65,7 +60,6 @@ impl HeaderMap {
     }
 }
 
-#[cfg_attr(feature = "docs", gen_stub_pymethods)]
 #[pymethods]
 impl HeaderMap {
     #[inline]
@@ -123,13 +117,11 @@ impl HeaderMap {
 }
 
 /// An iterator over the keys in a HeaderMap.
-#[cfg_attr(feature = "docs", gen_stub_pyclass)]
 #[pyclass]
 pub struct HeaderMapKeysIter {
     inner: Vec<HeaderName>,
 }
 
-#[cfg_attr(feature = "docs", gen_stub_pymethods)]
 #[pymethods]
 impl HeaderMapKeysIter {
     #[inline]
@@ -146,12 +138,10 @@ impl HeaderMapKeysIter {
 }
 
 /// An iterator over the values in a HeaderMap.
-#[cfg_attr(feature = "docs", gen_stub_pyclass)]
 #[pyclass]
 pub struct HeaderMapValuesIter {
     inner: Vec<HeaderValue>,
 }
-#[cfg_attr(feature = "docs", gen_stub_pymethods)]
 #[pymethods]
 impl HeaderMapValuesIter {
     #[inline]
@@ -168,13 +158,11 @@ impl HeaderMapValuesIter {
 }
 
 /// An iterator over the items in a HeaderMap.
-#[cfg_attr(feature = "docs", gen_stub_pyclass)]
 #[pyclass]
 pub struct HeaderMapItemsIter {
     inner: Vec<(HeaderName, HeaderValue)>,
 }
 
-#[cfg_attr(feature = "docs", gen_stub_pymethods)]
 #[pymethods]
 impl HeaderMapItemsIter {
     #[inline]
@@ -237,15 +225,3 @@ impl<'py> FromPyObject<'py> for HeadersOrderExtractor {
             .map(Self)
     }
 }
-
-define_into_pyobject_todo!(HeaderMapExtractor);
-
-define_into_pyobject_todo!(HeadersOrderExtractor);
-
-define_py_stub_gen!(
-    HeaderMapExtractor,
-    "typing.Union[typing.Dict[str, str], HeaderMap]",
-    "typing"
-);
-
-define_py_stub_gen!(HeadersOrderExtractor, "typing.List[str]", "typing");
