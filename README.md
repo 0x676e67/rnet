@@ -45,8 +45,10 @@ from rnet import Impersonate, Client
 async def main():
     # Build a client
     client = Client(impersonate=Impersonate.Firefox136)
+
     # Use the API you're already familiar with
     resp = await client.get("https://tls.peet.ws/api/all")
+    
     # Print the response
     print(await resp.text())
 
@@ -129,10 +131,6 @@ In fact, most device models share the same `TLS`/`HTTP2` configuration, with the
 | **Safari**    | `SafariIos17_2`, `SafariIos17_4_1`, `SafariIos16_5`, `Safari15_3`, `Safari15_5`, `Safari15_6_1`, `Safari16`, `Safari16_5`, `Safari17_0`, `Safari17_2_1`, `Safari17_4_1`, `Safari17_5`, `Safari18`, `SafariIPad18`, `Safari18_2`, `Safari18_1_1`, `Safari18_3`, `Safari18_3_1` |
 | **OkHttp**    | `OkHttp3_9`, `OkHttp3_11`, `OkHttp3_13`, `OkHttp3_14`, `OkHttp4_9`, `OkHttp4_10`, `OkHttp4_12`, `OkHttp5`         |
 | **Firefox**   | `Firefox109`, `Firefox117`, `Firefox128`, `Firefox133`, `Firefox135`, `FirefoxPrivate135`, `FirefoxAndroid135`, `Firefox136`, `FirefoxPrivate136`|
-
-## Documentation
-
-The python documentation is automatically supported by [pyo3-stub-gen](https://github.com/Jij-Inc/pyo3-stub-gen). It is not perfect. If you have any suggestions, you can submit a PR to improve it.
 
 ## Contributing
 
