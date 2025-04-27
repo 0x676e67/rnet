@@ -69,6 +69,7 @@ impl BlockingWebSocket {
     }
 
     /// Returns the WebSocket protocol.
+    #[getter]
     pub fn protocol(&self) -> Option<&str> {
         self.0.protocol()
     }

@@ -746,17 +746,16 @@ class BlockingWebSocket:
     r"""
     Returns the remote address of the response.
     """
+    protocol: typing.Optional[builtins.str]
+    r"""
+    Returns the WebSocket protocol.
+    """
     def __iter__(self) -> BlockingWebSocket: ...
     def __next__(self) -> Message: ...
     def __enter__(self) -> BlockingWebSocket: ...
     def __exit__(
         self, _exc_type: typing.Any, _exc_value: typing.Any, _traceback: typing.Any
     ) -> None: ...
-    def protocol(self) -> typing.Optional[builtins.str]:
-        r"""
-        Returns the WebSocket protocol.
-        """
-
     def recv(self) -> typing.Optional[Message]:
         r"""
         Receives a message from the WebSocket.
@@ -2055,23 +2054,22 @@ class WebSocket:
     r"""
     Returns the remote address of the response.
     """
+    protocol: typing.Optional[builtins.str]
+    r"""
+    Returns the WebSocket protocol.
+    """
     def __aiter__(self) -> WebSocket: ...
     def __anext__(self) -> typing.Any: ...
     def __aenter__(self) -> typing.Any: ...
     def __aexit__(
         self, _exc_type: typing.Any, _exc_value: typing.Any, _traceback: typing.Any
     ) -> typing.Any: ...
-    def protocol(self) -> typing.Optional[builtins.str]:
-        r"""
-        Returns the WebSocket protocol.
-        """
-
-    def recv(self) -> typing.Any:
+    async def recv(self) -> typing.Optional[Message]:
         r"""
         Receives a message from the WebSocket.
         """
 
-    def send(self, message: Message) -> typing.Any:
+    async def send(self, message: Message):
         r"""
         Sends a message to the WebSocket.
 
@@ -2080,11 +2078,11 @@ class WebSocket:
         * `message` - The message to send.
         """
 
-    def close(
+    async def close(
         self,
         code: typing.Optional[builtins.int] = None,
         reason: typing.Optional[str] = None,
-    ) -> typing.Any:
+    ):
         r"""
         Closes the WebSocket connection.
 
@@ -2626,7 +2624,7 @@ async def websocket(
     max_message_size: typing.Optional[builtins.int],
     max_frame_size: typing.Optional[builtins.int],
     accept_unmasked_frames: typing.Optional[builtins.bool],
-) -> Response:
+) -> WebSocket:
     r"""
     Make a WebSocket connection with the given parameters.
 

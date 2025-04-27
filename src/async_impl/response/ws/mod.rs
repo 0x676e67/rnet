@@ -187,6 +187,7 @@ impl WebSocket {
     }
 
     /// Returns the WebSocket protocol.
+    #[getter]
     pub fn protocol(&self) -> Option<&str> {
         self.protocol
             .as_ref()
