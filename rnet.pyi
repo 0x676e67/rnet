@@ -86,7 +86,7 @@ class BlockingClient:
         ```
         """
 
-    def get_cookies(self, url: str) -> typing.Optional[typing.Any]:
+    def get_cookies(self, url: str) -> typing.Optional[bytes]:
         r"""
         Returns the cookies for the given URL.
 
@@ -658,7 +658,7 @@ class BlockingResponse:
     def __exit__(
         self, _exc_type: typing.Any, _exc_value: typing.Any, _traceback: typing.Any
     ) -> None: ...
-    def peer_certificate(self) -> typing.Optional[typing.Any]:
+    def peer_certificate(self) -> typing.Optional[bytes]:
         r"""
         Returns the TLS peer certificate of the response.
         """
@@ -682,7 +682,7 @@ class BlockingResponse:
         Returns the JSON content of the response.
         """
 
-    def bytes(self) -> typing.Any:
+    def bytes(self) -> bytes:
         r"""
         Returns the bytes content of the response.
         """
@@ -876,7 +876,7 @@ class Client:
         ```
         """
 
-    def get_cookies(self, url: str) -> typing.Optional[typing.Any]:
+    def get_cookies(self, url: str) -> typing.Optional[bytes]:
         r"""
         Returns the cookies for the given URL.
 
@@ -1887,17 +1887,17 @@ class Response:
     def __aexit__(
         self, _exc_type: typing.Any, _exc_value: typing.Any, _traceback: typing.Any
     ) -> typing.Any: ...
-    def peer_certificate(self) -> typing.Optional[typing.Any]:
+    def peer_certificate(self) -> typing.Optional[bytes]:
         r"""
         Returns the TLS peer certificate of the response.
         """
 
-    def text(self) -> typing.Any:
+    async def text(self) -> builtins.str:
         r"""
         Returns the text content of the response.
         """
 
-    def text_with_charset(self, encoding: builtins.str) -> typing.Any:
+    async def text_with_charset(self, encoding: builtins.str) -> builtins.str:
         r"""
         Returns the text content of the response with a specific charset.
 
@@ -1906,12 +1906,12 @@ class Response:
         * `encoding` - The default encoding to use if the charset is not specified.
         """
 
-    def json(self) -> typing.Any:
+    async def json(self) -> typing.Dict[str, typing.Any]:
         r"""
         Returns the JSON content of the response.
         """
 
-    def bytes(self) -> typing.Any:
+    async def bytes(self) -> bytes:
         r"""
         Returns the bytes content of the response.
         """
@@ -2069,7 +2069,7 @@ class WebSocket:
         Receives a message from the WebSocket.
         """
 
-    async def send(self, message: Message):
+    async def send(self, message: Message) -> None:
         r"""
         Sends a message to the WebSocket.
 
@@ -2082,7 +2082,7 @@ class WebSocket:
         self,
         code: typing.Optional[builtins.int] = None,
         reason: typing.Optional[str] = None,
-    ):
+    ) -> None:
         r"""
         Closes the WebSocket connection.
 
