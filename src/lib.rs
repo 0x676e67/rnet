@@ -11,6 +11,7 @@ mod typing;
 
 use async_impl::{Client, Message, Response, Streamer, WebSocket};
 use blocking::{BlockingClient, BlockingResponse, BlockingStreamer, BlockingWebSocket};
+use error::*;
 use pyo3::{prelude::*, pybacked::PyBackedStr};
 use pyo3_async_runtimes::tokio::future_into_py;
 use typing::param::{RequestParams, WebSocketParams};
@@ -168,6 +169,30 @@ fn rnet(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<BlockingResponse>()?;
     m.add_class::<BlockingWebSocket>()?;
     m.add_class::<BlockingStreamer>()?;
+
+    let py = m.py();
+    let exception_module = PyModule::new(py, "exceptions")?;
+    exception_module.add("DNSResolverError", py.get_type::<DNSResolverError>())?;
+    exception_module.add("BodyError", py.get_type::<BodyError>())?;
+    exception_module.add("BuilderError", py.get_type::<BuilderError>())?;
+    exception_module.add("ConnectionError", py.get_type::<ConnectionError>())?;
+    exception_module.add(
+        "ConnectionResetError",
+        py.get_type::<ConnectionResetError>(),
+    )?;
+    exception_module.add("DecodingError", py.get_type::<DecodingError>())?;
+    exception_module.add("RedirectError", py.get_type::<RedirectError>())?;
+    exception_module.add("TimeoutError", py.get_type::<TimeoutError>())?;
+    exception_module.add("StatusError", py.get_type::<StatusError>())?;
+    exception_module.add("RequestError", py.get_type::<RequestError>())?;
+    exception_module.add("UpgradeError", py.get_type::<UpgradeError>())?;
+    exception_module.add("URLParseError", py.get_type::<URLParseError>())?;
+    exception_module.add("MIMEParseError", py.get_type::<MIMEParseError>())?;
+    m.add_submodule(&exception_module)?;
+    m.py()
+        .import("sys")?
+        .getattr("modules")?
+        .set_item("rnet", exception_module)?;
 
     m.add_function(wrap_pyfunction!(get, m)?)?;
     m.add_function(wrap_pyfunction!(post, m)?)?;

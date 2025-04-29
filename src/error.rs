@@ -18,22 +18,19 @@ Potential solutions:
 3) Change the order of operations to reference the instance before borrowing it.
 "#;
 
-create_exception!(exceptions, BorrowingError, PyRuntimeError);
 create_exception!(exceptions, DNSResolverError, PyRuntimeError);
 
-create_exception!(exceptions, BaseError, PyException);
-create_exception!(exceptions, BodyError, BaseError);
-create_exception!(exceptions, BuilderError, BaseError);
-create_exception!(exceptions, ConnectionError, BaseError);
-create_exception!(exceptions, ConnectionResetError, BaseError);
-create_exception!(exceptions, DecodingError, BaseError);
-create_exception!(exceptions, RedirectError, BaseError);
-create_exception!(exceptions, TimeoutError, BaseError);
-create_exception!(exceptions, StatusError, BaseError);
-create_exception!(exceptions, RequestError, BaseError);
-create_exception!(exceptions, UpgradeError, BaseError);
+create_exception!(exceptions, BodyError, PyException);
+create_exception!(exceptions, BuilderError, PyException);
+create_exception!(exceptions, ConnectionError, PyException);
+create_exception!(exceptions, ConnectionResetError, PyException);
+create_exception!(exceptions, DecodingError, PyException);
+create_exception!(exceptions, RedirectError, PyException);
+create_exception!(exceptions, TimeoutError, PyException);
+create_exception!(exceptions, StatusError, PyException);
+create_exception!(exceptions, RequestError, PyException);
+create_exception!(exceptions, UpgradeError, PyException);
 
-create_exception!(exceptions, HTTPMethodParseError, PyException);
 create_exception!(exceptions, URLParseError, PyException);
 create_exception!(exceptions, MIMEParseError, PyException);
 
@@ -45,7 +42,7 @@ macro_rules! wrap_error {
                     return $exception::new_err(format!(concat!(stringify!($variant), " error: {:?}"), $error));
                 }
             )*
-            UpgradeError::new_err(format!("Unknown error occurred: {:?}", $error))
+            UpgradeError::new_err(format!("error: {:?}", $error))
         }
     };
 }
