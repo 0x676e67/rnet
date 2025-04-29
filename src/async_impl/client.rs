@@ -357,6 +357,9 @@ impl Client {
             apply_option!(apply_if_some, builder, params.zstd, zstd);
 
             builder
+                .http1(|mut http1| {
+                    http1.title_case_headers(true);
+                })
                 .build()
                 .map(Client)
                 .map_err(Error::RquestError)
