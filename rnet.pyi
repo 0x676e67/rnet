@@ -2030,6 +2030,7 @@ class SocketAddr:
     """
 
     def __str__(self) -> builtins.str: ...
+    def __repr__(self) -> builtins.str: ...
     def ip(self) -> Union[ipaddress.IPv4Address, ipaddress.IPv6Address]:
         r"""
         Returns the IP address of the socket address.
