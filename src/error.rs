@@ -25,12 +25,13 @@ create_exception!(exceptions, BaseError, PyException);
 create_exception!(exceptions, BodyError, BaseError);
 create_exception!(exceptions, BuilderError, BaseError);
 create_exception!(exceptions, ConnectionError, BaseError);
+create_exception!(exceptions, ConnectionResetError, BaseError);
 create_exception!(exceptions, DecodingError, BaseError);
 create_exception!(exceptions, RedirectError, BaseError);
 create_exception!(exceptions, TimeoutError, BaseError);
 create_exception!(exceptions, StatusError, BaseError);
 create_exception!(exceptions, RequestError, BaseError);
-create_exception!(exceptions, UnknownError, BaseError);
+create_exception!(exceptions, UpgradeError, BaseError);
 
 create_exception!(exceptions, HTTPMethodParseError, PyException);
 create_exception!(exceptions, URLParseError, PyException);
@@ -44,7 +45,7 @@ macro_rules! wrap_error {
                     return $exception::new_err(format!(concat!(stringify!($variant), " error: {:?}"), $error));
                 }
             )*
-            UnknownError::new_err(format!("Unknown error occurred: {:?}", $error))
+            UpgradeError::new_err(format!("Unknown error occurred: {:?}", $error))
         }
     };
 }
@@ -85,7 +86,7 @@ impl From<Error> for PyErr {
             Error::RquestError(err) => wrap_error!(err,
                 is_body => BodyError,
                 is_connect => ConnectionError,
-                is_connection_reset => ConnectionError,
+                is_connection_reset => ConnectionResetError,
                 is_decode => DecodingError,
                 is_redirect => RedirectError,
                 is_timeout => TimeoutError,
