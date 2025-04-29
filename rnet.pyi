@@ -2786,7 +2786,7 @@ async def websocket(
     ```
     """
 
-class DNSResolverError(Exception):
+class DNSResolverError(RuntimeError):
     r"""
     An error occurred while resolving a DNS name.
     """
