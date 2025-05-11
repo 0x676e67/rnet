@@ -1581,7 +1581,7 @@ class HeaderMap:
     A HTTP header map.
     """
 
-    def __getitem__(self, key: str) -> Optional[Any]: ...
+    def __getitem__(self, key: str) -> Optional[builtins.bytes]: ...
     def __setitem__(self, key: str, value: str) -> None: ...
     def __delitem__(self, key: str) -> None: ...
     def __contains__(self, key: str) -> builtins.bool: ...
@@ -1590,9 +1590,38 @@ class HeaderMap:
     def __str__(self) -> builtins.str: ...
     def __repr__(self) -> builtins.str: ...
     def __new__(cls, init: Optional[dict]) -> HeaderMap: ...
+    def contains_key(self, key: str) -> builtins.bool:
+        r"""
+        Returns true if the header map contains the given key.
+        """
+
+    def insert(self, key: str, value: str) -> None:
+        r"""
+        Insert a key-value pair into the header map.
+        """
+
+    def append(self, key: str, value: str) -> None:
+        r"""
+        Append a key-value pair to the header map.
+        """
+
+    def remove(self, key: str) -> None:
+        r"""
+        Remove a key-value pair from the header map.
+        """
+
+    def get(self, key: str) -> Optional[builtins.bytes]:
+        r"""
+        Returns a reference to the value associated with the key.
+
+        If there are multiple values associated with the key, then the first one
+        is returned. Use `get_all` to get all values associated with a given
+        key. Returns `None` if there are no values associated with the key.
+        """
+
     def get_all(self, key: str) -> HeaderMapValuesIter:
         r"""
-        Returns multiple value sequences of key mapping
+        Returns a view of all values associated with a key.
         """
 
     def items(self) -> HeaderMapItemsIter:
@@ -2795,12 +2824,12 @@ class BodyError(Exception):
     r"""
     An error occurred while processing the body of a request or response.
     """
-    
+
 class BuilderError(Exception):
     r"""
     An error occurred while building a request or response.
     """
-    
+
 class ConnectionError(Exception):
     r"""
     An error occurred while establishing a connection.

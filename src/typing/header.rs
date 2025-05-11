@@ -39,12 +39,65 @@ impl HeaderMap {
         Self(headers)
     }
 
-    /// Returns multiple value sequences of key mapping
+    /// Returns a reference to the value associated with the key.
+    ///
+    /// If there are multiple values associated with the key, then the first one
+    /// is returned. Use `get_all` to get all values associated with a given
+    /// key. Returns `None` if there are no values associated with the key.
+    #[inline]
+    fn get<'py>(&self, py: Python<'py>, key: PyBackedStr) -> Option<Bound<'py, PyAny>> {
+        let value = self.0.get::<&str>(key.as_ref())?;
+        let buffer = HeaderValueBuffer::new(value.clone());
+        buffer.into_bytes_ref(py).ok()
+    }
+
+    /// Insert a key-value pair into the header map.
+    #[inline]
+    fn insert(&mut self, py: Python, key: PyBackedStr, value: PyBackedStr) {
+        py.allow_threads(|| {
+            if let (Ok(name), Ok(value)) = (
+                HeaderName::from_bytes(key.as_bytes()),
+                HeaderValue::from_bytes(value.as_bytes()),
+            ) {
+                self.0.insert(name, value);
+            }
+        })
+    }
+
+    /// Append a key-value pair to the header map.
+    #[inline]
+    fn append(&mut self, py: Python, key: PyBackedStr, value: PyBackedStr) {
+        py.allow_threads(|| {
+            if let (Ok(name), Ok(value)) = (
+                HeaderName::from_bytes(key.as_bytes()),
+                HeaderValue::from_bytes(value.as_bytes()),
+            ) {
+                self.0.insert(name, value);
+            }
+        })
+    }
+
+    /// Remove a key-value pair from the header map.
+    #[inline]
+    fn remove(&mut self, py: Python, key: PyBackedStr) {
+        py.allow_threads(|| {
+            self.0.remove::<&str>(key.as_ref());
+        })
+    }
+
+    /// Returns true if the map contains a value for the specified key.
+    #[inline]
+    fn contains_key(&self, py: Python, key: PyBackedStr) -> bool {
+        py.allow_threads(|| self.0.contains_key::<&str>(key.as_ref()))
+    }
+
+    /// Returns a view of all values associated with a key.
+    #[inline]
     fn get_all(&self, key: PyBackedStr) -> HeaderMapValuesIter {
         HeaderMapValuesIter {
             inner: self
                 .0
-                .get_all(key.as_ref() as &str)
+                .get_all::<&str>(key.as_ref())
                 .iter()
                 .cloned()
                 .collect(),
@@ -64,33 +117,22 @@ impl HeaderMap {
 impl HeaderMap {
     #[inline]
     fn __getitem__<'py>(&self, py: Python<'py>, key: PyBackedStr) -> Option<Bound<'py, PyAny>> {
-        let value = self.0.get(key.as_ref() as &str)?;
-        let buffer = HeaderValueBuffer::new(value.clone());
-        buffer.into_bytes_ref(py).ok()
+        self.get(py, key)
     }
 
     #[inline]
     fn __setitem__(&mut self, py: Python, key: PyBackedStr, value: PyBackedStr) {
-        py.allow_threads(|| {
-            if let (Ok(name), Ok(value)) = (
-                HeaderName::from_bytes(key.as_bytes()),
-                HeaderValue::from_bytes(value.as_bytes()),
-            ) {
-                self.0.append(name, value);
-            }
-        })
+        self.insert(py, key, value);
     }
 
     #[inline]
     fn __delitem__(&mut self, py: Python, key: PyBackedStr) {
-        py.allow_threads(|| {
-            self.0.remove(key.as_ref() as &str);
-        })
+        self.remove(py, key);
     }
 
     #[inline]
     fn __contains__(&self, py: Python, key: PyBackedStr) -> bool {
-        py.allow_threads(|| self.0.contains_key(key.as_ref() as &str))
+        self.contains_key(py, key)
     }
 
     #[inline]
