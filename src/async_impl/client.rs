@@ -312,8 +312,7 @@ impl Client {
                 builder = match verify {
                     SslVerify::DisableSslVerification(verify) => builder.cert_verification(verify),
                     SslVerify::RootCertificateFilepath(path_buf) => {
-                        let store =
-                            CertStore::from_pem_file(path_buf).map_err(Error::Request)?;
+                        let store = CertStore::from_pem_file(path_buf).map_err(Error::Request)?;
                         builder.cert_store(store)
                     }
                 }
@@ -499,10 +498,7 @@ impl Client {
             apply_option!(apply_if_some, update, params.interface, interface);
 
             // Apply the changes.
-            update
-                .apply()
-                .map_err(Error::Request)
-                .map_err(Into::into)
+            update.apply().map_err(Error::Request).map_err(Into::into)
         })
     }
 }
