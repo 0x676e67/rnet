@@ -72,7 +72,7 @@ impl WebSocket {
             .try_next()
             .await
             .map(|val| val.map(Message))
-            .map_err(Error::RquestError)
+            .map_err(Error::Request)
             .map_err(Into::into)
     }
 
@@ -82,7 +82,7 @@ impl WebSocket {
             .ok_or_else(|| Error::WebSocketDisconnect)?
             .send(message.0)
             .await
-            .map_err(Error::RquestError)
+            .map_err(Error::Request)
             .map_err(Into::into)
     }
 
@@ -115,9 +115,9 @@ impl WebSocket {
                     reason,
                 })))
                 .await
-                .map_err(Error::RquestError)?;
-            sender.flush().await.map_err(Error::RquestError)?;
-            sender.close().await.map_err(Error::RquestError)?;
+                .map_err(Error::Request)?;
+            sender.flush().await.map_err(Error::Request)?;
+            sender.close().await.map_err(Error::Request)?;
         }
 
         Ok(())
@@ -137,7 +137,7 @@ impl WebSocket {
         drop(lock);
 
         val.map(|val| val.map(Message))
-            .map_err(Error::RquestError)?
+            .map_err(Error::Request)?
             .ok_or_else(py_stop_iteration_error)
     }
 }

@@ -22,7 +22,7 @@ impl Multipart {
                 .take()
                 .zip(part.inner.take())
                 .map(|(name, inner)| new_form.part(name, inner))
-                .ok_or_else(|| Error::MemoryError)?;
+                .ok_or_else(|| Error::Memory)?;
         }
         Ok(Multipart(Some(new_form)))
     }
@@ -37,7 +37,7 @@ impl FromPyObject<'_> for MultipartExtractor {
             .0
             .take()
             .map(Self)
-            .ok_or_else(|| Error::MemoryError)
+            .ok_or_else(|| Error::Memory)
             .map_err(Into::into)
     }
 }

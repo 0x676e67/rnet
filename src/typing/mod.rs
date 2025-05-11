@@ -97,7 +97,7 @@ impl FromPyObject<'_> for ImpersonateExtractor {
     fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
         if let Ok(impersonate) = ob.downcast::<Impersonate>() {
             let emulation = EmulationOption::builder()
-                .emulation(impersonate.borrow().clone().into_ffi())
+                .emulation(impersonate.borrow().into_ffi())
                 .build();
 
             return Ok(Self(emulation));

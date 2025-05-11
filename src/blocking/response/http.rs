@@ -102,7 +102,7 @@ impl BlockingResponse {
             let resp = self.inner()?;
             pyo3_async_runtimes::tokio::get_runtime()
                 .block_on(resp.text())
-                .map_err(Error::RquestError)
+                .map_err(Error::Request)
                 .map_err(Into::into)
         })
     }
@@ -113,7 +113,7 @@ impl BlockingResponse {
             let resp = self.inner()?;
             pyo3_async_runtimes::tokio::get_runtime()
                 .block_on(resp.text_with_charset(&encoding))
-                .map_err(Error::RquestError)
+                .map_err(Error::Request)
                 .map_err(Into::into)
         })
     }
@@ -124,7 +124,7 @@ impl BlockingResponse {
             let resp = self.inner()?;
             pyo3_async_runtimes::tokio::get_runtime()
                 .block_on(resp.json::<Json>())
-                .map_err(Error::RquestError)
+                .map_err(Error::Request)
                 .map_err(Into::into)
         })
     }
@@ -136,7 +136,7 @@ impl BlockingResponse {
             let buffer = pyo3_async_runtimes::tokio::get_runtime()
                 .block_on(resp.bytes())
                 .map(BytesBuffer::new)
-                .map_err(Error::RquestError)?;
+                .map_err(Error::Request)?;
 
             Python::with_gil(|py| buffer.into_bytes(py))
         })

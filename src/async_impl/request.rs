@@ -126,7 +126,7 @@ where
         .send()
         .await
         .map(Response::new)
-        .map_err(Error::RquestError)
+        .map_err(Error::Request)
         .map_err(Into::into)
 }
 
@@ -242,6 +242,6 @@ where
 
     WebSocket::new(builder)
         .await
-        .map_err(Error::RquestError)
+        .map_err(Error::Request)
         .map_err(Into::into)
 }

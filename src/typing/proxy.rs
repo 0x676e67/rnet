@@ -84,7 +84,7 @@ impl Proxy {
         custom_http_headers: Option<HeaderMapExtractor>,
         exclusion: Option<&'a str>,
     ) -> PyResult<Self> {
-        let mut proxy = proxy_fn(url).map_err(Error::RquestError)?;
+        let mut proxy = proxy_fn(url).map_err(Error::Request)?;
         // Convert the username and password to a basic auth header value.
         if let (Some(username), Some(password)) = (username, password) {
             proxy = proxy.basic_auth(username, password)
@@ -116,7 +116,7 @@ impl FromPyObject<'_> for ProxyExtractor {
         if let Ok(proxy_str) = ob.extract::<PyBackedStr>() {
             let proxy = rquest::Proxy::all(proxy_str.as_ref() as &str)
                 .map(Self)
-                .map_err(Error::RquestError)?;
+                .map_err(Error::Request)?;
 
             return Ok(proxy);
         }

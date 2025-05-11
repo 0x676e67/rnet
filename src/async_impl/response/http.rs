@@ -43,7 +43,7 @@ impl Response {
         self.response
             .swap(None)
             .and_then(Arc::into_inner)
-            .ok_or_else(|| Error::MemoryError)
+            .ok_or_else(|| Error::Memory)
             .map_err(Into::into)
     }
 }
@@ -143,7 +143,7 @@ impl Response {
         future_into_py(py, async move {
             resp.text()
                 .await
-                .map_err(Error::RquestError)
+                .map_err(Error::Request)
                 .map_err(Into::into)
         })
     }
@@ -158,7 +158,7 @@ impl Response {
         future_into_py(py, async move {
             resp.text_with_charset(&encoding)
                 .await
-                .map_err(Error::RquestError)
+                .map_err(Error::Request)
                 .map_err(Into::into)
         })
     }
@@ -169,7 +169,7 @@ impl Response {
         future_into_py(py, async move {
             resp.json::<Json>()
                 .await
-                .map_err(Error::RquestError)
+                .map_err(Error::Request)
                 .map_err(Into::into)
         })
     }
@@ -182,7 +182,7 @@ impl Response {
                 .bytes()
                 .await
                 .map(BytesBuffer::new)
-                .map_err(Error::RquestError)?;
+                .map_err(Error::Request)?;
             Python::with_gil(|py| buffer.into_bytes(py))
         })
     }
@@ -263,7 +263,7 @@ impl Streamer {
         drop(lock);
 
         let buffer = val
-            .map_err(Error::RquestError)?
+            .map_err(Error::Request)?
             .map(BytesBuffer::new)
             .ok_or_else(error)?;
 
