@@ -50,21 +50,21 @@ macro_rules! wrap_error {
 /// Unified error enum
 #[derive(Debug)]
 pub enum Error {
-    MemoryError,
+    Memory,
     StopIteration,
     StopAsyncIteration,
     WebSocketDisconnect,
     InvalidHeaderName(header::InvalidHeaderName),
     InvalidHeaderValue(header::InvalidHeaderValue),
-    UrlParseError(url::ParseError),
-    IoError(std::io::Error),
-    RquestError(rquest::Error),
+    UrlParse(url::ParseError),
+    IO(std::io::Error),
+    Request(rquest::Error),
 }
 
 impl From<Error> for PyErr {
     fn from(err: Error) -> Self {
         match err {
-            Error::MemoryError => PyRuntimeError::new_err(RACE_CONDITION_ERROR_MSG),
+            Error::Memory => PyRuntimeError::new_err(RACE_CONDITION_ERROR_MSG),
             Error::StopIteration => PyStopIteration::new_err("The iterator is exhausted"),
             Error::StopAsyncIteration => PyStopAsyncIteration::new_err("The iterator is exhausted"),
             Error::WebSocketDisconnect => {
@@ -76,11 +76,11 @@ impl From<Error> for PyErr {
             Error::InvalidHeaderValue(err) => {
                 PyRuntimeError::new_err(format!("Invalid header value: {:?}", err))
             }
-            Error::UrlParseError(err) => {
+            Error::UrlParse(err) => {
                 URLParseError::new_err(format!("URL parse error: {:?}", err))
             }
-            Error::IoError(err) => PyRuntimeError::new_err(format!("IO error: {:?}", err)),
-            Error::RquestError(err) => wrap_error!(err,
+            Error::IO(err) => PyRuntimeError::new_err(format!("IO error: {:?}", err)),
+            Error::Request(err) => wrap_error!(err,
                 is_body => BodyError,
                 is_connect => ConnectionError,
                 is_connection_reset => ConnectionResetError,
@@ -109,18 +109,18 @@ impl From<header::InvalidHeaderValue> for Error {
 
 impl From<url::ParseError> for Error {
     fn from(err: url::ParseError) -> Self {
-        Error::UrlParseError(err)
+        Error::UrlParse(err)
     }
 }
 
 impl From<std::io::Error> for Error {
     fn from(err: std::io::Error) -> Self {
-        Error::IoError(err)
+        Error::IO(err)
     }
 }
 
 impl From<rquest::Error> for Error {
     fn from(err: rquest::Error) -> Self {
-        Error::RquestError(err)
+        Error::Request(err)
     }
 }
