@@ -16,7 +16,7 @@ doctest = false
 
 [dependencies]
 tokio = { version = "1.45.0", features = ["sync"] }
-pyo3 = { version = "0.24.2", features = [
+pyo3 = { version = "0.25.0", features = [
     "indexmap",
     "multiple-pymethods",
     "generate-import-lib",
