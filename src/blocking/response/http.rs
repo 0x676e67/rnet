@@ -18,14 +18,6 @@ impl From<async_impl::Response> for BlockingResponse {
     }
 }
 
-impl Deref for BlockingResponse {
-    type Target = async_impl::Response;
-
-    fn deref(&self) -> &Self::Target {
-        &self.0
-    }
-}
-
 #[pymethods]
 impl BlockingResponse {
     /// Returns the URL of the response.
@@ -99,7 +91,7 @@ impl BlockingResponse {
     /// Returns the text content of the response.
     pub fn text(&self, py: Python) -> PyResult<String> {
         py.allow_threads(|| {
-            let resp = self.inner()?;
+            let resp = self.0.inner()?;
             pyo3_async_runtimes::tokio::get_runtime()
                 .block_on(resp.text())
                 .map_err(Error::Request)
@@ -110,7 +102,7 @@ impl BlockingResponse {
     /// Returns the text content of the response with a specific charset.
     pub fn text_with_charset(&self, py: Python, encoding: String) -> PyResult<String> {
         py.allow_threads(|| {
-            let resp = self.inner()?;
+            let resp = self.0.inner()?;
             pyo3_async_runtimes::tokio::get_runtime()
                 .block_on(resp.text_with_charset(&encoding))
                 .map_err(Error::Request)
@@ -121,7 +113,7 @@ impl BlockingResponse {
     /// Returns the JSON content of the response.
     pub fn json(&self, py: Python) -> PyResult<Json> {
         py.allow_threads(|| {
-            let resp = self.inner()?;
+            let resp = self.0.inner()?;
             pyo3_async_runtimes::tokio::get_runtime()
                 .block_on(resp.json::<Json>())
                 .map_err(Error::Request)
@@ -132,7 +124,7 @@ impl BlockingResponse {
     /// Returns the bytes content of the response.
     pub fn bytes(&self, py: Python) -> PyResult<Py<PyAny>> {
         py.allow_threads(|| {
-            let resp = self.inner()?;
+            let resp = self.0.inner()?;
             let buffer = pyo3_async_runtimes::tokio::get_runtime()
                 .block_on(resp.bytes())
                 .map(BytesBuffer::new)
@@ -149,7 +141,10 @@ impl BlockingResponse {
 
     /// Closes the response connection.
     pub fn close(&self, py: Python) -> PyResult<()> {
-        self.0.close(py)
+        py.allow_threads(|| {
+            let _ = self.0.inner().map(drop);
+            Ok(())
+        })
     }
 }
 

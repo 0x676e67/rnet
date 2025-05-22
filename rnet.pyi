@@ -2048,7 +2048,7 @@ class Response:
         Convert the response into a `Stream` of `Bytes` from the body.
         """
 
-    def close(self) -> None:
+    async def close(self) -> None:
         r"""
         Closes the response connection.
         """

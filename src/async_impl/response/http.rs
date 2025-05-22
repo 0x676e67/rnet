@@ -197,9 +197,10 @@ impl Response {
     }
 
     /// Closes the response connection.
-    pub fn close(&self, py: Python) -> PyResult<()> {
-        py.allow_threads(|| {
-            let _ = self.inner().map(drop);
+    pub fn close<'py>(&'py self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
+        let res = py.allow_threads(|| self.inner());
+        future_into_py(py, async move {
+            let _ = res.map(drop);
             Ok(())
         })
     }
@@ -213,14 +214,13 @@ impl Response {
     }
 
     fn __aexit__<'py>(
-        &self,
+        &'py self,
         py: Python<'py>,
         _exc_type: &Bound<'py, PyAny>,
         _exc_value: &Bound<'py, PyAny>,
         _traceback: &Bound<'py, PyAny>,
     ) -> PyResult<Bound<'py, PyAny>> {
-        let res = self.close(py);
-        future_into_py(py, async move { res })
+        self.close(py)
     }
 }
 

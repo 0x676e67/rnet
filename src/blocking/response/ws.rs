@@ -4,7 +4,6 @@ use crate::{
     typing::{Cookie, HeaderMap, SocketAddr, StatusCode, Version},
 };
 use pyo3::{prelude::*, pybacked::PyBackedStr};
-use std::ops::Deref;
 
 /// A blocking WebSocket response.
 #[pyclass]
@@ -13,14 +12,6 @@ pub struct BlockingWebSocket(async_impl::WebSocket);
 impl From<async_impl::WebSocket> for BlockingWebSocket {
     fn from(inner: async_impl::WebSocket) -> Self {
         Self(inner)
-    }
-}
-
-impl Deref for BlockingWebSocket {
-    type Target = async_impl::WebSocket;
-
-    fn deref(&self) -> &Self::Target {
-        &self.0
     }
 }
 
@@ -78,7 +69,7 @@ impl BlockingWebSocket {
     pub fn recv(&self, py: Python) -> PyResult<Option<Message>> {
         py.allow_threads(|| {
             pyo3_async_runtimes::tokio::get_runtime()
-                .block_on(async_impl::WebSocket::_recv(self.receiver()))
+                .block_on(async_impl::WebSocket::_recv(self.0.receiver()))
         })
     }
 
@@ -87,7 +78,7 @@ impl BlockingWebSocket {
     pub fn send(&self, py: Python, message: Message) -> PyResult<()> {
         py.allow_threads(|| {
             pyo3_async_runtimes::tokio::get_runtime()
-                .block_on(async_impl::WebSocket::_send(self.sender(), message))
+                .block_on(async_impl::WebSocket::_send(self.0.sender(), message))
         })
     }
 
@@ -101,8 +92,8 @@ impl BlockingWebSocket {
     ) -> PyResult<()> {
         py.allow_threads(|| {
             pyo3_async_runtimes::tokio::get_runtime().block_on(async_impl::WebSocket::_close(
-                self.receiver(),
-                self.sender(),
+                self.0.receiver(),
+                self.0.sender(),
                 code,
                 reason,
             ))
@@ -119,7 +110,7 @@ impl BlockingWebSocket {
     fn __next__(&self, py: Python) -> PyResult<Message> {
         py.allow_threads(|| {
             pyo3_async_runtimes::tokio::get_runtime()
-                .block_on(async_impl::WebSocket::_anext(self.receiver(), || {
+                .block_on(async_impl::WebSocket::_anext(self.0.receiver(), || {
                     Error::StopIteration.into()
                 }))
         })
