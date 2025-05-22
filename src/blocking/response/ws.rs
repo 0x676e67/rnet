@@ -58,7 +58,7 @@ impl BlockingWebSocket {
 
     /// Returns the cookies of the response.
     #[getter]
-    pub fn cookies<'py>(&'py self, py: Python<'py>) -> Vec<Cookie> {
+    pub fn cookies(&self, py: Python) -> Vec<Cookie> {
         self.0.cookies(py)
     }
 

@@ -176,7 +176,7 @@ impl WebSocket {
 
     /// Returns the cookies of the response.
     #[getter]
-    pub fn cookies<'py>(&'py self, py: Python<'py>) -> Vec<Cookie> {
+    pub fn cookies(&self, py: Python) -> Vec<Cookie> {
         py.allow_threads(|| Cookie::extract_cookies(&self.headers))
     }
 
