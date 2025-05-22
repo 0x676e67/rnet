@@ -75,14 +75,14 @@ proxy_method! {
 }
 
 impl Proxy {
-    fn create_proxy<'a>(
-        proxy_fn: impl Fn(&'a str) -> Result<rquest::Proxy, rquest::Error>,
-        url: &'a str,
-        username: Option<&'a str>,
-        password: Option<&str>,
-        custom_http_auth: Option<&'a str>,
+    fn create_proxy<'py>(
+        proxy_fn: impl Fn(&'py str) -> rquest::Result<rquest::Proxy>,
+        url: &'py str,
+        username: Option<&'py str>,
+        password: Option<&'py str>,
+        custom_http_auth: Option<&'py str>,
         custom_http_headers: Option<HeaderMapExtractor>,
-        exclusion: Option<&'a str>,
+        exclusion: Option<&'py str>,
     ) -> PyResult<Self> {
         let mut proxy = proxy_fn(url).map_err(Error::Request)?;
         // Convert the username and password to a basic auth header value.

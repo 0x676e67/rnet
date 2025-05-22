@@ -121,10 +121,10 @@ impl Response {
     }
 
     /// Returns the TLS peer certificate of the response.
-    pub fn peer_certificate<'rt>(
-        &'rt self,
-        py: Python<'rt>,
-    ) -> PyResult<Option<Bound<'rt, PyAny>>> {
+    pub fn peer_certificate<'py>(
+        &'py self,
+        py: Python<'py>,
+    ) -> PyResult<Option<Bound<'py, PyAny>>> {
         let s = py.allow_threads(|| {
             let resp_ref = self.response.load();
             let resp = resp_ref.as_ref()?;
@@ -138,7 +138,7 @@ impl Response {
     }
 
     /// Returns the text content of the response.
-    pub fn text<'rt>(&self, py: Python<'rt>) -> PyResult<Bound<'rt, PyAny>> {
+    pub fn text<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
         let resp = self.inner()?;
         future_into_py(py, async move {
             resp.text()
@@ -149,11 +149,11 @@ impl Response {
     }
 
     /// Returns the text content of the response with a specific charset.
-    pub fn text_with_charset<'rt>(
+    pub fn text_with_charset<'py>(
         &self,
-        py: Python<'rt>,
+        py: Python<'py>,
         encoding: String,
-    ) -> PyResult<Bound<'rt, PyAny>> {
+    ) -> PyResult<Bound<'py, PyAny>> {
         let resp = self.inner()?;
         future_into_py(py, async move {
             resp.text_with_charset(&encoding)
@@ -164,7 +164,7 @@ impl Response {
     }
 
     /// Returns the JSON content of the response.
-    pub fn json<'rt>(&self, py: Python<'rt>) -> PyResult<Bound<'rt, PyAny>> {
+    pub fn json<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
         let resp = self.inner()?;
         future_into_py(py, async move {
             resp.json::<Json>()
@@ -175,7 +175,7 @@ impl Response {
     }
 
     /// Returns the bytes content of the response.
-    pub fn bytes<'rt>(&self, py: Python<'rt>) -> PyResult<Bound<'rt, PyAny>> {
+    pub fn bytes<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
         let resp = self.inner()?;
         future_into_py(py, async move {
             let buffer = resp
@@ -207,25 +207,24 @@ impl Response {
 
 #[pymethods]
 impl Response {
-    fn __aenter__<'a>(slf: PyRef<'a, Self>, py: Python<'a>) -> PyResult<Bound<'a, PyAny>> {
+    fn __aenter__<'py>(slf: PyRef<'py, Self>, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
         let slf = slf.into_py_any(py)?;
         future_into_py(py, async move { Ok(slf) })
     }
 
-    fn __aexit__<'a>(
+    fn __aexit__<'py>(
         &self,
-        py: Python<'a>,
-        _exc_type: &Bound<'a, PyAny>,
-        _exc_value: &Bound<'a, PyAny>,
-        _traceback: &Bound<'a, PyAny>,
-    ) -> PyResult<Bound<'a, PyAny>> {
+        py: Python<'py>,
+        _exc_type: &Bound<'py, PyAny>,
+        _exc_value: &Bound<'py, PyAny>,
+        _traceback: &Bound<'py, PyAny>,
+    ) -> PyResult<Bound<'py, PyAny>> {
         let res = self.close(py);
         future_into_py(py, async move { res })
     }
 }
 
-type InnerStreamer =
-    Pin<Box<dyn Stream<Item = Result<bytes::Bytes, rquest::Error>> + Send + 'static>>;
+type InnerStreamer = Pin<Box<dyn Stream<Item = rquest::Result<bytes::Bytes>> + Send + 'static>>;
 
 /// A byte stream response.
 /// An asynchronous iterator yielding data chunks from the response stream.
@@ -248,7 +247,7 @@ impl Deref for Streamer {
 impl Streamer {
     /// Create a new `Streamer` instance.
     pub fn new(
-        stream: impl Stream<Item = Result<bytes::Bytes, rquest::Error>> + Send + 'static,
+        stream: impl Stream<Item = rquest::Result<bytes::Bytes>> + Send + 'static,
     ) -> Streamer {
         Streamer(Arc::new(Mutex::new(Some(Box::pin(stream)))))
     }
@@ -277,25 +276,25 @@ impl Streamer {
         slf
     }
 
-    fn __anext__<'rt>(&self, py: Python<'rt>) -> PyResult<Bound<'rt, PyAny>> {
+    fn __anext__<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
         future_into_py(
             py,
             Streamer::_anext(self.0.clone(), || Error::StopAsyncIteration.into()),
         )
     }
 
-    fn __aenter__<'a>(slf: PyRef<'a, Self>, py: Python<'a>) -> PyResult<Bound<'a, PyAny>> {
+    fn __aenter__<'py>(slf: PyRef<'py, Self>, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
         let slf = slf.into_py_any(py)?;
         future_into_py(py, async move { Ok(slf) })
     }
 
-    fn __aexit__<'a>(
+    fn __aexit__<'py>(
         &self,
-        py: Python<'a>,
-        _exc_type: &Bound<'a, PyAny>,
-        _exc_value: &Bound<'a, PyAny>,
-        _traceback: &Bound<'a, PyAny>,
-    ) -> PyResult<Bound<'a, PyAny>> {
+        py: Python<'py>,
+        _exc_type: &Bound<'py, PyAny>,
+        _exc_value: &Bound<'py, PyAny>,
+        _traceback: &Bound<'py, PyAny>,
+    ) -> PyResult<Bound<'py, PyAny>> {
         let streamer = self.0.clone();
         future_into_py(py, async move {
             drop(streamer.lock().await.take());

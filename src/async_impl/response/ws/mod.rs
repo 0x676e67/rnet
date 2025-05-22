@@ -35,7 +35,7 @@ pub struct WebSocket {
 }
 
 impl WebSocket {
-    pub async fn new(builder: rquest::WebSocketRequestBuilder) -> Result<WebSocket, rquest::Error> {
+    pub async fn new(builder: rquest::WebSocketRequestBuilder) -> rquest::Result<WebSocket> {
         let response = builder.send().await?;
 
         let version = Version::from_ffi(response.version());
@@ -198,24 +198,24 @@ impl WebSocket {
     }
 
     /// Receives a message from the WebSocket.
-    pub fn recv<'rt>(&self, py: Python<'rt>) -> PyResult<Bound<'rt, PyAny>> {
+    pub fn recv<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
         future_into_py(py, Self::_recv(self.receiver.clone()))
     }
 
     /// Sends a message to the WebSocket.
     #[pyo3(signature = (message))]
-    pub fn send<'rt>(&self, py: Python<'rt>, message: Message) -> PyResult<Bound<'rt, PyAny>> {
+    pub fn send<'py>(&self, py: Python<'py>, message: Message) -> PyResult<Bound<'py, PyAny>> {
         future_into_py(py, Self::_send(self.sender.clone(), message))
     }
 
     /// Closes the WebSocket connection.
     #[pyo3(signature = (code=None, reason=None))]
-    pub fn close<'rt>(
+    pub fn close<'py>(
         &self,
-        py: Python<'rt>,
+        py: Python<'py>,
         code: Option<u16>,
         reason: Option<PyBackedStr>,
-    ) -> PyResult<Bound<'rt, PyAny>> {
+    ) -> PyResult<Bound<'py, PyAny>> {
         let sender = self.sender.clone();
         let receiver = self.receiver.clone();
         future_into_py(py, Self::_close(receiver, sender, code, reason))
@@ -228,25 +228,25 @@ impl WebSocket {
         slf
     }
 
-    fn __anext__<'rt>(&self, py: Python<'rt>) -> PyResult<Bound<'rt, PyAny>> {
+    fn __anext__<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
         future_into_py(
             py,
             WebSocket::_anext(self.receiver.clone(), || Error::StopAsyncIteration.into()),
         )
     }
 
-    fn __aenter__<'a>(slf: PyRef<'a, Self>, py: Python<'a>) -> PyResult<Bound<'a, PyAny>> {
+    fn __aenter__<'py>(slf: PyRef<'py, Self>, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
         let slf = slf.into_py_any(py)?;
         future_into_py(py, async move { Ok(slf) })
     }
 
-    fn __aexit__<'a>(
+    fn __aexit__<'py>(
         &self,
-        py: Python<'a>,
-        _exc_type: &Bound<'a, PyAny>,
-        _exc_value: &Bound<'a, PyAny>,
-        _traceback: &Bound<'a, PyAny>,
-    ) -> PyResult<Bound<'a, PyAny>> {
+        py: Python<'py>,
+        _exc_type: &Bound<'py, PyAny>,
+        _exc_value: &Bound<'py, PyAny>,
+        _traceback: &Bound<'py, PyAny>,
+    ) -> PyResult<Bound<'py, PyAny>> {
         self.close(py, None, None)
     }
 }
