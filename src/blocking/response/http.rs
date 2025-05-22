@@ -89,10 +89,10 @@ impl BlockingResponse {
     }
 
     /// Returns the TLS peer certificate of the response.
-    pub fn peer_certificate<'rt>(
-        &'rt self,
-        py: Python<'rt>,
-    ) -> PyResult<Option<Bound<'rt, PyAny>>> {
+    pub fn peer_certificate<'py>(
+        &'py self,
+        py: Python<'py>,
+    ) -> PyResult<Option<Bound<'py, PyAny>>> {
         self.0.peer_certificate(py)
     }
 
@@ -159,12 +159,12 @@ impl BlockingResponse {
         slf
     }
 
-    fn __exit__<'a>(
+    fn __exit__<'py>(
         &self,
-        py: Python<'a>,
-        _exc_type: &Bound<'a, PyAny>,
-        _exc_value: &Bound<'a, PyAny>,
-        _traceback: &Bound<'a, PyAny>,
+        py: Python<'py>,
+        _exc_type: &Bound<'py, PyAny>,
+        _exc_value: &Bound<'py, PyAny>,
+        _traceback: &Bound<'py, PyAny>,
     ) -> PyResult<()> {
         self.close(py)
     }
@@ -197,12 +197,12 @@ impl BlockingStreamer {
         slf
     }
 
-    fn __exit__<'a>(
+    fn __exit__<'py>(
         &self,
-        py: Python<'a>,
-        _exc_type: &Bound<'a, PyAny>,
-        _exc_value: &Bound<'a, PyAny>,
-        _traceback: &Bound<'a, PyAny>,
+        py: Python<'py>,
+        _exc_type: &Bound<'py, PyAny>,
+        _exc_value: &Bound<'py, PyAny>,
+        _traceback: &Bound<'py, PyAny>,
     ) -> PyResult<()> {
         py.allow_threads(|| {
             let streamer = self.0.clone();

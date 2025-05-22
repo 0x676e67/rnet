@@ -35,113 +35,113 @@ impl Deref for Client {
 impl Client {
     /// Make a GET request to the given URL.
     #[pyo3(signature = (url, **kwds))]
-    pub fn get<'rt>(
+    pub fn get<'py>(
         &self,
-        py: Python<'rt>,
+        py: Python<'py>,
         url: PyBackedStr,
         kwds: Option<RequestParams>,
-    ) -> PyResult<Bound<'rt, PyAny>> {
+    ) -> PyResult<Bound<'py, PyAny>> {
         self.request(py, Method::GET, url, kwds)
     }
 
     /// Make a HEAD request to the given URL.
     #[pyo3(signature = (url, **kwds))]
-    pub fn head<'rt>(
+    pub fn head<'py>(
         &self,
-        py: Python<'rt>,
+        py: Python<'py>,
         url: PyBackedStr,
         kwds: Option<RequestParams>,
-    ) -> PyResult<Bound<'rt, PyAny>> {
+    ) -> PyResult<Bound<'py, PyAny>> {
         self.request(py, Method::HEAD, url, kwds)
     }
 
     /// Make a POST request to the given URL.
     #[pyo3(signature = (url, **kwds))]
-    pub fn post<'rt>(
+    pub fn post<'py>(
         &self,
-        py: Python<'rt>,
+        py: Python<'py>,
         url: PyBackedStr,
         kwds: Option<RequestParams>,
-    ) -> PyResult<Bound<'rt, PyAny>> {
+    ) -> PyResult<Bound<'py, PyAny>> {
         self.request(py, Method::POST, url, kwds)
     }
 
     /// Make a PUT request to the given URL.
     #[pyo3(signature = (url, **kwds))]
-    pub fn put<'rt>(
+    pub fn put<'py>(
         &self,
-        py: Python<'rt>,
+        py: Python<'py>,
         url: PyBackedStr,
         kwds: Option<RequestParams>,
-    ) -> PyResult<Bound<'rt, PyAny>> {
+    ) -> PyResult<Bound<'py, PyAny>> {
         self.request(py, Method::PUT, url, kwds)
     }
 
     /// Make a DELETE request to the given URL.
     #[pyo3(signature = (url, **kwds))]
-    pub fn delete<'rt>(
+    pub fn delete<'py>(
         &self,
-        py: Python<'rt>,
+        py: Python<'py>,
         url: PyBackedStr,
         kwds: Option<RequestParams>,
-    ) -> PyResult<Bound<'rt, PyAny>> {
+    ) -> PyResult<Bound<'py, PyAny>> {
         self.request(py, Method::DELETE, url, kwds)
     }
 
     /// Make a PATCH request to the given URL.
     #[pyo3(signature = (url, **kwds))]
-    pub fn patch<'rt>(
+    pub fn patch<'py>(
         &self,
-        py: Python<'rt>,
+        py: Python<'py>,
         url: PyBackedStr,
         kwds: Option<RequestParams>,
-    ) -> PyResult<Bound<'rt, PyAny>> {
+    ) -> PyResult<Bound<'py, PyAny>> {
         self.request(py, Method::PATCH, url, kwds)
     }
 
     /// Make a OPTIONS request to the given URL.
     #[pyo3(signature = (url, **kwds))]
-    pub fn options<'rt>(
+    pub fn options<'py>(
         &self,
-        py: Python<'rt>,
+        py: Python<'py>,
         url: PyBackedStr,
         kwds: Option<RequestParams>,
-    ) -> PyResult<Bound<'rt, PyAny>> {
+    ) -> PyResult<Bound<'py, PyAny>> {
         self.request(py, Method::OPTIONS, url, kwds)
     }
 
     /// Make a TRACE request to the given URL.
     #[pyo3(signature = (url, **kwds))]
-    pub fn trace<'rt>(
+    pub fn trace<'py>(
         &self,
-        py: Python<'rt>,
+        py: Python<'py>,
         url: PyBackedStr,
         kwds: Option<RequestParams>,
-    ) -> PyResult<Bound<'rt, PyAny>> {
+    ) -> PyResult<Bound<'py, PyAny>> {
         self.request(py, Method::TRACE, url, kwds)
     }
 
     /// Make a request with the given method and URL.
     #[pyo3(signature = (method, url, **kwds))]
-    pub fn request<'rt>(
+    pub fn request<'py>(
         &self,
-        py: Python<'rt>,
+        py: Python<'py>,
         method: Method,
         url: PyBackedStr,
         kwds: Option<RequestParams>,
-    ) -> PyResult<Bound<'rt, PyAny>> {
+    ) -> PyResult<Bound<'py, PyAny>> {
         let client = self.0.clone();
         future_into_py(py, execute_request(client, method, url, kwds))
     }
 
     /// Make a WebSocket request to the given URL.
     #[pyo3(signature = (url, **kwds))]
-    pub fn websocket<'rt>(
+    pub fn websocket<'py>(
         &self,
-        py: Python<'rt>,
+        py: Python<'py>,
         url: PyBackedStr,
         kwds: Option<WebSocketParams>,
-    ) -> PyResult<Bound<'rt, PyAny>> {
+    ) -> PyResult<Bound<'py, PyAny>> {
         let client = self.0.clone();
         future_into_py(py, execute_websocket_request(client, url, kwds))
     }

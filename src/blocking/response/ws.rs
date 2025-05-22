@@ -129,12 +129,12 @@ impl BlockingWebSocket {
         slf
     }
 
-    fn __exit__<'a>(
+    fn __exit__<'py>(
         &self,
-        py: Python<'a>,
-        _exc_type: &Bound<'a, PyAny>,
-        _exc_value: &Bound<'a, PyAny>,
-        _traceback: &Bound<'a, PyAny>,
+        py: Python<'py>,
+        _exc_type: &Bound<'py, PyAny>,
+        _exc_value: &Bound<'py, PyAny>,
+        _traceback: &Bound<'py, PyAny>,
     ) -> PyResult<()> {
         self.close(py, None, None)
     }
