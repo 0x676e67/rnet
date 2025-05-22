@@ -198,7 +198,7 @@ impl Response {
 
     /// Closes the response connection.
     pub fn close<'py>(&'py self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
-        let res = py.allow_threads(|| self.inner());
+        let res = self.inner();
         future_into_py(py, async move {
             let _ = res.map(drop);
             Ok(())
