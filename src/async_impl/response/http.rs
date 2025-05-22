@@ -224,8 +224,7 @@ impl Response {
     }
 }
 
-type InnerStreamer =
-    Pin<Box<dyn Stream<Item = Result<bytes::Bytes, rquest::Error>> + Send + 'static>>;
+type InnerStreamer = Pin<Box<dyn Stream<Item = rquest::Result<bytes::Bytes>> + Send + 'static>>;
 
 /// A byte stream response.
 /// An asynchronous iterator yielding data chunks from the response stream.
@@ -248,7 +247,7 @@ impl Deref for Streamer {
 impl Streamer {
     /// Create a new `Streamer` instance.
     pub fn new(
-        stream: impl Stream<Item = Result<bytes::Bytes, rquest::Error>> + Send + 'static,
+        stream: impl Stream<Item = rquest::Result<bytes::Bytes>> + Send + 'static,
     ) -> Streamer {
         Streamer(Arc::new(Mutex::new(Some(Box::pin(stream)))))
     }

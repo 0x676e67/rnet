@@ -35,7 +35,7 @@ pub struct WebSocket {
 }
 
 impl WebSocket {
-    pub async fn new(builder: rquest::WebSocketRequestBuilder) -> Result<WebSocket, rquest::Error> {
+    pub async fn new(builder: rquest::WebSocketRequestBuilder) -> rquest::Result<WebSocket> {
         let response = builder.send().await?;
 
         let version = Version::from_ffi(response.version());
