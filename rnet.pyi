@@ -15,7 +15,7 @@ class BlockingClient:
     A blocking client for making HTTP requests.
     """
 
-    user_agent: Optional[builtins.str]
+    user_agent: Optional[str]
     r"""
     Returns the user agent of the client.
     """
@@ -29,38 +29,38 @@ class BlockingClient:
         user_agent: Optional[str] = None,
         default_headers: Optional[Dict[str, bytes]] = None,
         headers_order: Optional[List[str]] = None,
-        referer: Optional[builtins.bool] = None,
-        allow_redirects: Optional[builtins.bool] = None,
-        max_redirects: Optional[builtins.int] = None,
-        cookie_store: Optional[builtins.bool] = None,
+        referer: Optional[bool] = None,
+        allow_redirects: Optional[bool] = None,
+        max_redirects: Optional[int] = None,
+        cookie_store: Optional[bool] = None,
         lookup_ip_strategy: Optional[LookupIpStrategy] = None,
-        timeout: Optional[builtins.int] = None,
-        connect_timeout: Optional[builtins.int] = None,
-        read_timeout: Optional[builtins.int] = None,
-        no_keepalive: Optional[builtins.bool] = None,
-        tcp_keepalive: Optional[builtins.int] = None,
-        pool_idle_timeout: Optional[builtins.int] = None,
-        pool_max_idle_per_host: Optional[builtins.int] = None,
-        pool_max_size: Optional[builtins.int] = None,
-        http1_only: Optional[builtins.bool] = None,
-        http2_only: Optional[builtins.bool] = None,
-        https_only: Optional[builtins.bool] = None,
-        tcp_nodelay: Optional[builtins.bool] = None,
-        http2_max_retry_count: Optional[builtins.int] = None,
+        timeout: Optional[int] = None,
+        connect_timeout: Optional[int] = None,
+        read_timeout: Optional[int] = None,
+        no_keepalive: Optional[bool] = None,
+        tcp_keepalive: Optional[int] = None,
+        pool_idle_timeout: Optional[int] = None,
+        pool_max_idle_per_host: Optional[int] = None,
+        pool_max_size: Optional[int] = None,
+        http1_only: Optional[bool] = None,
+        http2_only: Optional[bool] = None,
+        https_only: Optional[bool] = None,
+        tcp_nodelay: Optional[bool] = None,
+        http2_max_retry_count: Optional[int] = None,
         verify: Optional[Union[bool, Path]] = None,
-        tls_info: Optional[builtins.bool] = None,
+        tls_info: Optional[bool] = None,
         min_tls_version: Optional[TlsVersion] = None,
         max_tls_version: Optional[TlsVersion] = None,
-        no_proxy: Optional[builtins.bool] = None,
-        proxies: Optional[builtins.list[Proxy]] = None,
+        no_proxy: Optional[bool] = None,
+        proxies: Optional[List[Proxy]] = None,
         local_address: Optional[
             Union[str, ipaddress.IPv4Address, ipaddress.IPv6Address]
         ] = None,
-        interface: Optional[builtins.str] = None,
-        gzip: Optional[builtins.bool] = None,
-        brotli: Optional[builtins.bool] = None,
-        deflate: Optional[builtins.bool] = None,
-        zstd: Optional[builtins.bool] = None,
+        interface: Optional[str] = None,
+        gzip: Optional[bool] = None,
+        brotli: Optional[bool] = None,
+        deflate: Optional[bool] = None,
+        zstd: Optional[bool] = None,
     ) -> BlockingClient:
         r"""
         Creates a new BlockingClient instance.
@@ -144,7 +144,7 @@ class BlockingClient:
         local_address: Optional[
             Union[ipaddress.IPv4Address, ipaddress.IPv6Address]
         ] = None,
-        interface: Optional[builtins.str] = None,
+        interface: Optional[str] = None,
     ) -> None:
         r"""
         Updates the client with the given parameters.
@@ -171,14 +171,14 @@ class BlockingClient:
         local_address: Optional[
             Union[ipaddress.IPv4Address, ipaddress.IPv6Address]
         ] = None,
-        interface: Optional[builtins.str] = None,
-        timeout: Optional[builtins.int] = None,
-        read_timeout: Optional[builtins.int] = None,
+        interface: Optional[str] = None,
+        timeout: Optional[int] = None,
+        read_timeout: Optional[int] = None,
         version: Optional[Version] = None,
         headers: Optional[Union[Dict[str, str], HeaderMap]] = None,
         cookies: Optional[Dict[str, str]] = None,
-        allow_redirects: Optional[builtins.bool] = None,
-        max_redirects: Optional[builtins.int] = None,
+        allow_redirects: Optional[bool] = None,
+        max_redirects: Optional[int] = None,
         auth: Optional[str] = None,
         bearer_auth: Optional[str] = None,
         basic_auth: Optional[tuple[str, Optional[str]]] = None,
@@ -221,21 +221,21 @@ class BlockingClient:
         local_address: Optional[
             Union[str, ipaddress.IPv4Address, ipaddress.IPv6Address]
         ] = None,
-        interface: Optional[builtins.str] = None,
+        interface: Optional[str] = None,
         headers: Optional[Dict[str, bytes]] = None,
         cookies: Optional[Dict[str, str]] = None,
-        protocols: Optional[builtins.list[builtins.str]] = None,
-        use_http2: Optional[builtins.bool] = None,
-        auth: Optional[builtins.str] = None,
-        bearer_auth: Optional[builtins.str] = None,
-        basic_auth: Optional[tuple[builtins.str, Optional[builtins.str]]] = None,
-        query: Optional[builtins.list[tuple[builtins.str, builtins.str]]] = None,
-        read_buffer_size: Optional[builtins.int] = None,
-        write_buffer_size: Optional[builtins.int] = None,
-        max_write_buffer_size: Optional[builtins.int] = None,
-        max_message_size: Optional[builtins.int] = None,
-        max_frame_size: Optional[builtins.int] = None,
-        accept_unmasked_frames: Optional[builtins.bool] = None,
+        protocols: Optional[List[str]] = None,
+        use_http2: Optional[bool] = None,
+        auth: Optional[str] = None,
+        bearer_auth: Optional[str] = None,
+        basic_auth: Optional[tuple[str, Optional[str]]] = None,
+        query: Optional[List[tuple[str, str]]] = None,
+        read_buffer_size: Optional[int] = None,
+        write_buffer_size: Optional[int] = None,
+        max_write_buffer_size: Optional[int] = None,
+        max_message_size: Optional[int] = None,
+        max_frame_size: Optional[int] = None,
+        accept_unmasked_frames: Optional[bool] = None,
     ) -> BlockingWebSocket:
         r"""
         Sends a WebSocket request.
@@ -265,14 +265,14 @@ class BlockingClient:
         local_address: Optional[
             Union[ipaddress.IPv4Address, ipaddress.IPv6Address]
         ] = None,
-        interface: Optional[builtins.str] = None,
-        timeout: Optional[builtins.int] = None,
-        read_timeout: Optional[builtins.int] = None,
+        interface: Optional[str] = None,
+        timeout: Optional[int] = None,
+        read_timeout: Optional[int] = None,
         version: Optional[Version] = None,
         headers: Optional[Union[Dict[str, str], HeaderMap]] = None,
         cookies: Optional[Dict[str, str]] = None,
-        allow_redirects: Optional[builtins.bool] = None,
-        max_redirects: Optional[builtins.int] = None,
+        allow_redirects: Optional[bool] = None,
+        max_redirects: Optional[int] = None,
         auth: Optional[str] = None,
         bearer_auth: Optional[str] = None,
         basic_auth: Optional[tuple[str, Optional[str]]] = None,
@@ -315,14 +315,14 @@ class BlockingClient:
         local_address: Optional[
             Union[ipaddress.IPv4Address, ipaddress.IPv6Address]
         ] = None,
-        interface: Optional[builtins.str] = None,
-        timeout: Optional[builtins.int] = None,
-        read_timeout: Optional[builtins.int] = None,
+        interface: Optional[str] = None,
+        timeout: Optional[int] = None,
+        read_timeout: Optional[int] = None,
         version: Optional[Version] = None,
         headers: Optional[Union[Dict[str, str], HeaderMap]] = None,
         cookies: Optional[Dict[str, str]] = None,
-        allow_redirects: Optional[builtins.bool] = None,
-        max_redirects: Optional[builtins.int] = None,
+        allow_redirects: Optional[bool] = None,
+        max_redirects: Optional[int] = None,
         auth: Optional[str] = None,
         bearer_auth: Optional[str] = None,
         basic_auth: Optional[tuple[str, Optional[str]]] = None,
@@ -365,14 +365,14 @@ class BlockingClient:
         local_address: Optional[
             Union[ipaddress.IPv4Address, ipaddress.IPv6Address]
         ] = None,
-        interface: Optional[builtins.str] = None,
-        timeout: Optional[builtins.int] = None,
-        read_timeout: Optional[builtins.int] = None,
+        interface: Optional[str] = None,
+        timeout: Optional[int] = None,
+        read_timeout: Optional[int] = None,
         version: Optional[Version] = None,
         headers: Optional[Union[Dict[str, str], HeaderMap]] = None,
         cookies: Optional[Dict[str, str]] = None,
-        allow_redirects: Optional[builtins.bool] = None,
-        max_redirects: Optional[builtins.int] = None,
+        allow_redirects: Optional[bool] = None,
+        max_redirects: Optional[int] = None,
         auth: Optional[str] = None,
         bearer_auth: Optional[str] = None,
         basic_auth: Optional[tuple[str, Optional[str]]] = None,
@@ -415,14 +415,14 @@ class BlockingClient:
         local_address: Optional[
             Union[ipaddress.IPv4Address, ipaddress.IPv6Address]
         ] = None,
-        interface: Optional[builtins.str] = None,
-        timeout: Optional[builtins.int] = None,
-        read_timeout: Optional[builtins.int] = None,
+        interface: Optional[str] = None,
+        timeout: Optional[int] = None,
+        read_timeout: Optional[int] = None,
         version: Optional[Version] = None,
         headers: Optional[Union[Dict[str, str], HeaderMap]] = None,
         cookies: Optional[Dict[str, str]] = None,
-        allow_redirects: Optional[builtins.bool] = None,
-        max_redirects: Optional[builtins.int] = None,
+        allow_redirects: Optional[bool] = None,
+        max_redirects: Optional[int] = None,
         auth: Optional[str] = None,
         bearer_auth: Optional[str] = None,
         basic_auth: Optional[tuple[str, Optional[str]]] = None,
@@ -465,14 +465,14 @@ class BlockingClient:
         local_address: Optional[
             Union[ipaddress.IPv4Address, ipaddress.IPv6Address]
         ] = None,
-        interface: Optional[builtins.str] = None,
-        timeout: Optional[builtins.int] = None,
-        read_timeout: Optional[builtins.int] = None,
+        interface: Optional[str] = None,
+        timeout: Optional[int] = None,
+        read_timeout: Optional[int] = None,
         version: Optional[Version] = None,
         headers: Optional[Union[Dict[str, str], HeaderMap]] = None,
         cookies: Optional[Dict[str, str]] = None,
-        allow_redirects: Optional[builtins.bool] = None,
-        max_redirects: Optional[builtins.int] = None,
+        allow_redirects: Optional[bool] = None,
+        max_redirects: Optional[int] = None,
         auth: Optional[str] = None,
         bearer_auth: Optional[str] = None,
         basic_auth: Optional[tuple[str, Optional[str]]] = None,
@@ -515,14 +515,14 @@ class BlockingClient:
         local_address: Optional[
             Union[ipaddress.IPv4Address, ipaddress.IPv6Address]
         ] = None,
-        interface: Optional[builtins.str] = None,
-        timeout: Optional[builtins.int] = None,
-        read_timeout: Optional[builtins.int] = None,
+        interface: Optional[str] = None,
+        timeout: Optional[int] = None,
+        read_timeout: Optional[int] = None,
         version: Optional[Version] = None,
         headers: Optional[Union[Dict[str, str], HeaderMap]] = None,
         cookies: Optional[Dict[str, str]] = None,
-        allow_redirects: Optional[builtins.bool] = None,
-        max_redirects: Optional[builtins.int] = None,
+        allow_redirects: Optional[bool] = None,
+        max_redirects: Optional[int] = None,
         auth: Optional[str] = None,
         bearer_auth: Optional[str] = None,
         basic_auth: Optional[tuple[str, Optional[str]]] = None,
@@ -565,14 +565,14 @@ class BlockingClient:
         local_address: Optional[
             Union[ipaddress.IPv4Address, ipaddress.IPv6Address]
         ] = None,
-        interface: Optional[builtins.str] = None,
-        timeout: Optional[builtins.int] = None,
-        read_timeout: Optional[builtins.int] = None,
+        interface: Optional[str] = None,
+        timeout: Optional[int] = None,
+        read_timeout: Optional[int] = None,
         version: Optional[Version] = None,
         headers: Optional[Union[Dict[str, str], HeaderMap]] = None,
         cookies: Optional[Dict[str, str]] = None,
-        allow_redirects: Optional[builtins.bool] = None,
-        max_redirects: Optional[builtins.int] = None,
+        allow_redirects: Optional[bool] = None,
+        max_redirects: Optional[int] = None,
         auth: Optional[str] = None,
         bearer_auth: Optional[str] = None,
         basic_auth: Optional[tuple[str, Optional[str]]] = None,
@@ -615,14 +615,14 @@ class BlockingClient:
         local_address: Optional[
             Union[ipaddress.IPv4Address, ipaddress.IPv6Address]
         ] = None,
-        interface: Optional[builtins.str] = None,
-        timeout: Optional[builtins.int] = None,
-        read_timeout: Optional[builtins.int] = None,
+        interface: Optional[str] = None,
+        timeout: Optional[int] = None,
+        read_timeout: Optional[int] = None,
         version: Optional[Version] = None,
         headers: Optional[Union[Dict[str, str], HeaderMap]] = None,
         cookies: Optional[Dict[str, str]] = None,
-        allow_redirects: Optional[builtins.bool] = None,
-        max_redirects: Optional[builtins.int] = None,
+        allow_redirects: Optional[bool] = None,
+        max_redirects: Optional[int] = None,
         auth: Optional[str] = None,
         bearer_auth: Optional[str] = None,
         basic_auth: Optional[tuple[str, Optional[str]]] = None,
@@ -663,15 +663,15 @@ class BlockingResponse:
     A bloking response from a request.
     """
 
-    url: builtins.str
+    url: str
     r"""
     Returns the URL of the response.
     """
-    ok: builtins.bool
+    ok: bool
     r"""
     Returns whether the response is successful.
     """
-    status: builtins.int
+    status: int
     r"""
     Returns the status code as integer of the response.
     """
@@ -687,11 +687,11 @@ class BlockingResponse:
     r"""
     Returns the headers of the response.
     """
-    cookies: builtins.list[Cookie]
+    cookies: List[Cookie]
     r"""
     Returns the cookies of the response.
     """
-    content_length: builtins.int
+    content_length: int
     r"""
     Returns the content length of the response.
     """
@@ -699,7 +699,7 @@ class BlockingResponse:
     r"""
     Returns the remote address of the response.
     """
-    encoding: builtins.str
+    encoding: str
     r"""
     Encoding to decode with when accessing text.
     """
@@ -710,12 +710,12 @@ class BlockingResponse:
         Returns the TLS peer certificate of the response.
         """
 
-    def text(self) -> builtins.str:
+    def text(self) -> str:
         r"""
         Returns the text content of the response.
         """
 
-    def text_with_charset(self, encoding: builtins.str) -> builtins.str:
+    def text_with_charset(self, encoding: str) -> str:
         r"""
         Returns the text content of the response with a specific charset.
 
@@ -763,11 +763,11 @@ class BlockingWebSocket:
     A blocking WebSocket response.
     """
 
-    ok: builtins.bool
+    ok: bool
     r"""
     Returns whether the response is successful.
     """
-    status: builtins.int
+    status: int
     r"""
     Returns the status code as integer of the response.
     """
@@ -783,7 +783,7 @@ class BlockingWebSocket:
     r"""
     Returns the headers of the response.
     """
-    cookies: builtins.list[Cookie]
+    cookies: List[Cookie]
     r"""
     Returns the cookies of the response.
     """
@@ -791,7 +791,7 @@ class BlockingWebSocket:
     r"""
     Returns the remote address of the response.
     """
-    protocol: Optional[builtins.str]
+    protocol: Optional[str]
     r"""
     Returns the WebSocket protocol.
     """
@@ -815,7 +815,7 @@ class BlockingWebSocket:
 
     def close(
         self,
-        code: Optional[builtins.int] = None,
+        code: Optional[int] = None,
         reason: Optional[str] = None,
     ) -> None:
         r"""
@@ -832,7 +832,7 @@ class Client:
     A client for making HTTP requests.
     """
 
-    user_agent: Optional[builtins.str]
+    user_agent: Optional[str]
     r"""
     Returns the user agent of the client.
     
@@ -866,38 +866,38 @@ class Client:
         user_agent: Optional[str] = None,
         default_headers: Optional[Dict[str, bytes]] = None,
         headers_order: Optional[List[str]] = None,
-        referer: Optional[builtins.bool] = None,
-        allow_redirects: Optional[builtins.bool] = None,
-        max_redirects: Optional[builtins.int] = None,
-        cookie_store: Optional[builtins.bool] = None,
+        referer: Optional[bool] = None,
+        allow_redirects: Optional[bool] = None,
+        max_redirects: Optional[int] = None,
+        cookie_store: Optional[bool] = None,
         lookup_ip_strategy: Optional[LookupIpStrategy] = None,
-        timeout: Optional[builtins.int] = None,
-        connect_timeout: Optional[builtins.int] = None,
-        read_timeout: Optional[builtins.int] = None,
-        no_keepalive: Optional[builtins.bool] = None,
-        tcp_keepalive: Optional[builtins.int] = None,
-        pool_idle_timeout: Optional[builtins.int] = None,
-        pool_max_idle_per_host: Optional[builtins.int] = None,
-        pool_max_size: Optional[builtins.int] = None,
-        http1_only: Optional[builtins.bool] = None,
-        http2_only: Optional[builtins.bool] = None,
-        https_only: Optional[builtins.bool] = None,
-        tcp_nodelay: Optional[builtins.bool] = None,
-        http2_max_retry_count: Optional[builtins.int] = None,
+        timeout: Optional[int] = None,
+        connect_timeout: Optional[int] = None,
+        read_timeout: Optional[int] = None,
+        no_keepalive: Optional[bool] = None,
+        tcp_keepalive: Optional[int] = None,
+        pool_idle_timeout: Optional[int] = None,
+        pool_max_idle_per_host: Optional[int] = None,
+        pool_max_size: Optional[int] = None,
+        http1_only: Optional[bool] = None,
+        http2_only: Optional[bool] = None,
+        https_only: Optional[bool] = None,
+        tcp_nodelay: Optional[bool] = None,
+        http2_max_retry_count: Optional[int] = None,
         verify: Optional[Union[bool, Path]] = None,
-        tls_info: Optional[builtins.bool] = None,
+        tls_info: Optional[bool] = None,
         min_tls_version: Optional[TlsVersion] = None,
         max_tls_version: Optional[TlsVersion] = None,
-        no_proxy: Optional[builtins.bool] = None,
-        proxies: Optional[builtins.list[Proxy]] = None,
+        no_proxy: Optional[bool] = None,
+        proxies: Optional[List[Proxy]] = None,
         local_address: Optional[
             Union[str, ipaddress.IPv4Address, ipaddress.IPv6Address]
         ] = None,
-        interface: Optional[builtins.str] = None,
-        gzip: Optional[builtins.bool] = None,
-        brotli: Optional[builtins.bool] = None,
-        deflate: Optional[builtins.bool] = None,
-        zstd: Optional[builtins.bool] = None,
+        interface: Optional[str] = None,
+        gzip: Optional[bool] = None,
+        brotli: Optional[bool] = None,
+        deflate: Optional[bool] = None,
+        zstd: Optional[bool] = None,
     ) -> Client:
         r"""
         Creates a new Client instance.
@@ -927,7 +927,7 @@ class Client:
 
         # Returns
 
-        A list of cookie strings.
+        A List of cookie strings.
 
         # Examples
 
@@ -989,7 +989,7 @@ class Client:
         local_address: Optional[
             Union[ipaddress.IPv4Address, ipaddress.IPv6Address]
         ] = None,
-        interface: Optional[builtins.str] = None,
+        interface: Optional[str] = None,
     ) -> None:
         r"""
         Updates the client with the given parameters.
@@ -1025,14 +1025,14 @@ class Client:
         local_address: Optional[
             Union[ipaddress.IPv4Address, ipaddress.IPv6Address]
         ] = None,
-        interface: Optional[builtins.str] = None,
-        timeout: Optional[builtins.int] = None,
-        read_timeout: Optional[builtins.int] = None,
+        interface: Optional[str] = None,
+        timeout: Optional[int] = None,
+        read_timeout: Optional[int] = None,
         version: Optional[Version] = None,
         headers: Optional[Union[Dict[str, str], HeaderMap]] = None,
         cookies: Optional[Dict[str, str]] = None,
-        allow_redirects: Optional[builtins.bool] = None,
-        max_redirects: Optional[builtins.int] = None,
+        allow_redirects: Optional[bool] = None,
+        max_redirects: Optional[int] = None,
         auth: Optional[str] = None,
         bearer_auth: Optional[str] = None,
         basic_auth: Optional[tuple[str, Optional[str]]] = None,
@@ -1075,21 +1075,21 @@ class Client:
         local_address: Optional[
             Union[str, ipaddress.IPv4Address, ipaddress.IPv6Address]
         ] = None,
-        interface: Optional[builtins.str] = None,
+        interface: Optional[str] = None,
         headers: Optional[Dict[str, bytes]] = None,
         cookies: Optional[Dict[str, str]] = None,
-        protocols: Optional[builtins.list[builtins.str]] = None,
-        use_http2: Optional[builtins.bool] = None,
-        auth: Optional[builtins.str] = None,
-        bearer_auth: Optional[builtins.str] = None,
-        basic_auth: Optional[tuple[builtins.str, Optional[builtins.str]]] = None,
-        query: Optional[builtins.list[tuple[builtins.str, builtins.str]]] = None,
-        read_buffer_size: Optional[builtins.int] = None,
-        write_buffer_size: Optional[builtins.int] = None,
-        max_write_buffer_size: Optional[builtins.int] = None,
-        max_message_size: Optional[builtins.int] = None,
-        max_frame_size: Optional[builtins.int] = None,
-        accept_unmasked_frames: Optional[builtins.bool] = None,
+        protocols: Optional[List[str]] = None,
+        use_http2: Optional[bool] = None,
+        auth: Optional[str] = None,
+        bearer_auth: Optional[str] = None,
+        basic_auth: Optional[tuple[str, Optional[str]]] = None,
+        query: Optional[List[tuple[str, str]]] = None,
+        read_buffer_size: Optional[int] = None,
+        write_buffer_size: Optional[int] = None,
+        max_write_buffer_size: Optional[int] = None,
+        max_message_size: Optional[int] = None,
+        max_frame_size: Optional[int] = None,
+        accept_unmasked_frames: Optional[bool] = None,
     ) -> WebSocket:
         r"""
         Sends a WebSocket request.
@@ -1119,14 +1119,14 @@ class Client:
         local_address: Optional[
             Union[ipaddress.IPv4Address, ipaddress.IPv6Address]
         ] = None,
-        interface: Optional[builtins.str] = None,
-        timeout: Optional[builtins.int] = None,
-        read_timeout: Optional[builtins.int] = None,
+        interface: Optional[str] = None,
+        timeout: Optional[int] = None,
+        read_timeout: Optional[int] = None,
         version: Optional[Version] = None,
         headers: Optional[Union[Dict[str, str], HeaderMap]] = None,
         cookies: Optional[Dict[str, str]] = None,
-        allow_redirects: Optional[builtins.bool] = None,
-        max_redirects: Optional[builtins.int] = None,
+        allow_redirects: Optional[bool] = None,
+        max_redirects: Optional[int] = None,
         auth: Optional[str] = None,
         bearer_auth: Optional[str] = None,
         basic_auth: Optional[tuple[str, Optional[str]]] = None,
@@ -1169,14 +1169,14 @@ class Client:
         local_address: Optional[
             Union[ipaddress.IPv4Address, ipaddress.IPv6Address]
         ] = None,
-        interface: Optional[builtins.str] = None,
-        timeout: Optional[builtins.int] = None,
-        read_timeout: Optional[builtins.int] = None,
+        interface: Optional[str] = None,
+        timeout: Optional[int] = None,
+        read_timeout: Optional[int] = None,
         version: Optional[Version] = None,
         headers: Optional[Union[Dict[str, str], HeaderMap]] = None,
         cookies: Optional[Dict[str, str]] = None,
-        allow_redirects: Optional[builtins.bool] = None,
-        max_redirects: Optional[builtins.int] = None,
+        allow_redirects: Optional[bool] = None,
+        max_redirects: Optional[int] = None,
         auth: Optional[str] = None,
         bearer_auth: Optional[str] = None,
         basic_auth: Optional[tuple[str, Optional[str]]] = None,
@@ -1219,14 +1219,14 @@ class Client:
         local_address: Optional[
             Union[ipaddress.IPv4Address, ipaddress.IPv6Address]
         ] = None,
-        interface: Optional[builtins.str] = None,
-        timeout: Optional[builtins.int] = None,
-        read_timeout: Optional[builtins.int] = None,
+        interface: Optional[str] = None,
+        timeout: Optional[int] = None,
+        read_timeout: Optional[int] = None,
         version: Optional[Version] = None,
         headers: Optional[Union[Dict[str, str], HeaderMap]] = None,
         cookies: Optional[Dict[str, str]] = None,
-        allow_redirects: Optional[builtins.bool] = None,
-        max_redirects: Optional[builtins.int] = None,
+        allow_redirects: Optional[bool] = None,
+        max_redirects: Optional[int] = None,
         auth: Optional[str] = None,
         bearer_auth: Optional[str] = None,
         basic_auth: Optional[tuple[str, Optional[str]]] = None,
@@ -1269,14 +1269,14 @@ class Client:
         local_address: Optional[
             Union[ipaddress.IPv4Address, ipaddress.IPv6Address]
         ] = None,
-        interface: Optional[builtins.str] = None,
-        timeout: Optional[builtins.int] = None,
-        read_timeout: Optional[builtins.int] = None,
+        interface: Optional[str] = None,
+        timeout: Optional[int] = None,
+        read_timeout: Optional[int] = None,
         version: Optional[Version] = None,
         headers: Optional[Union[Dict[str, str], HeaderMap]] = None,
         cookies: Optional[Dict[str, str]] = None,
-        allow_redirects: Optional[builtins.bool] = None,
-        max_redirects: Optional[builtins.int] = None,
+        allow_redirects: Optional[bool] = None,
+        max_redirects: Optional[int] = None,
         auth: Optional[str] = None,
         bearer_auth: Optional[str] = None,
         basic_auth: Optional[tuple[str, Optional[str]]] = None,
@@ -1319,14 +1319,14 @@ class Client:
         local_address: Optional[
             Union[ipaddress.IPv4Address, ipaddress.IPv6Address]
         ] = None,
-        interface: Optional[builtins.str] = None,
-        timeout: Optional[builtins.int] = None,
-        read_timeout: Optional[builtins.int] = None,
+        interface: Optional[str] = None,
+        timeout: Optional[int] = None,
+        read_timeout: Optional[int] = None,
         version: Optional[Version] = None,
         headers: Optional[Union[Dict[str, str], HeaderMap]] = None,
         cookies: Optional[Dict[str, str]] = None,
-        allow_redirects: Optional[builtins.bool] = None,
-        max_redirects: Optional[builtins.int] = None,
+        allow_redirects: Optional[bool] = None,
+        max_redirects: Optional[int] = None,
         auth: Optional[str] = None,
         bearer_auth: Optional[str] = None,
         basic_auth: Optional[tuple[str, Optional[str]]] = None,
@@ -1369,14 +1369,14 @@ class Client:
         local_address: Optional[
             Union[ipaddress.IPv4Address, ipaddress.IPv6Address]
         ] = None,
-        interface: Optional[builtins.str] = None,
-        timeout: Optional[builtins.int] = None,
-        read_timeout: Optional[builtins.int] = None,
+        interface: Optional[str] = None,
+        timeout: Optional[int] = None,
+        read_timeout: Optional[int] = None,
         version: Optional[Version] = None,
         headers: Optional[Union[Dict[str, str], HeaderMap]] = None,
         cookies: Optional[Dict[str, str]] = None,
-        allow_redirects: Optional[builtins.bool] = None,
-        max_redirects: Optional[builtins.int] = None,
+        allow_redirects: Optional[bool] = None,
+        max_redirects: Optional[int] = None,
         auth: Optional[str] = None,
         bearer_auth: Optional[str] = None,
         basic_auth: Optional[tuple[str, Optional[str]]] = None,
@@ -1419,14 +1419,14 @@ class Client:
         local_address: Optional[
             Union[ipaddress.IPv4Address, ipaddress.IPv6Address]
         ] = None,
-        interface: Optional[builtins.str] = None,
-        timeout: Optional[builtins.int] = None,
-        read_timeout: Optional[builtins.int] = None,
+        interface: Optional[str] = None,
+        timeout: Optional[int] = None,
+        read_timeout: Optional[int] = None,
         version: Optional[Version] = None,
         headers: Optional[Union[Dict[str, str], HeaderMap]] = None,
         cookies: Optional[Dict[str, str]] = None,
-        allow_redirects: Optional[builtins.bool] = None,
-        max_redirects: Optional[builtins.int] = None,
+        allow_redirects: Optional[bool] = None,
+        max_redirects: Optional[int] = None,
         auth: Optional[str] = None,
         bearer_auth: Optional[str] = None,
         basic_auth: Optional[tuple[str, Optional[str]]] = None,
@@ -1469,14 +1469,14 @@ class Client:
         local_address: Optional[
             Union[ipaddress.IPv4Address, ipaddress.IPv6Address]
         ] = None,
-        interface: Optional[builtins.str] = None,
-        timeout: Optional[builtins.int] = None,
-        read_timeout: Optional[builtins.int] = None,
+        interface: Optional[str] = None,
+        timeout: Optional[int] = None,
+        read_timeout: Optional[int] = None,
         version: Optional[Version] = None,
         headers: Optional[Union[Dict[str, str], HeaderMap]] = None,
         cookies: Optional[Dict[str, str]] = None,
-        allow_redirects: Optional[builtins.bool] = None,
-        max_redirects: Optional[builtins.int] = None,
+        allow_redirects: Optional[bool] = None,
+        max_redirects: Optional[int] = None,
         auth: Optional[str] = None,
         bearer_auth: Optional[str] = None,
         basic_auth: Optional[tuple[str, Optional[str]]] = None,
@@ -1517,35 +1517,35 @@ class Cookie:
     A cookie.
     """
 
-    name: builtins.str
+    name: str
     r"""
     The name of the cookie.
     """
-    value: builtins.str
+    value: str
     r"""
     The value of the cookie.
     """
-    http_only: builtins.bool
+    http_only: bool
     r"""
     Returns true if the 'HttpOnly' directive is enabled.
     """
-    secure: builtins.bool
+    secure: bool
     r"""
     Returns true if the 'Secure' directive is enabled.
     """
-    same_site_lax: builtins.bool
+    same_site_lax: bool
     r"""
     Returns true if  'SameSite' directive is 'Lax'.
     """
-    same_site_strict: builtins.bool
+    same_site_strict: bool
     r"""
     Returns true if  'SameSite' directive is 'Strict'.
     """
-    path: Optional[builtins.str]
+    path: Optional[str]
     r"""
     Returns the path directive of the cookie, if set.
     """
-    domain: Optional[builtins.str]
+    domain: Optional[str]
     r"""
     Returns the domain directive of the cookie, if set.
     """
@@ -1559,38 +1559,38 @@ class Cookie:
     """
     def __new__(
         cls,
-        name: builtins.str,
-        value: builtins.str,
-        domain: Optional[builtins.str] = None,
-        path: Optional[builtins.str] = None,
+        name: str,
+        value: str,
+        domain: Optional[str] = None,
+        path: Optional[str] = None,
         max_age: Optional[datetime.timedelta] = None,
         expires: Optional[datetime.datetime] = None,
-        http_only: builtins.bool = False,
-        secure: builtins.bool = False,
+        http_only: bool = False,
+        secure: bool = False,
         same_site: Optional[SameSite] = None,
     ) -> Cookie:
         r"""
         Create a new cookie.
         """
 
-    def __str__(self) -> builtins.str: ...
-    def __repr__(self) -> builtins.str: ...
+    def __str__(self) -> str: ...
+    def __repr__(self) -> str: ...
 
 class HeaderMap:
     r"""
     A HTTP header map.
     """
 
-    def __getitem__(self, key: str) -> Optional[builtins.bytes]: ...
+    def __getitem__(self, key: str) -> Optional[bytes]: ...
     def __setitem__(self, key: str, value: str) -> None: ...
     def __delitem__(self, key: str) -> None: ...
-    def __contains__(self, key: str) -> builtins.bool: ...
-    def __len__(self) -> builtins.int: ...
+    def __contains__(self, key: str) -> bool: ...
+    def __len__(self) -> int: ...
     def __iter__(self) -> HeaderMapKeysIter: ...
-    def __str__(self) -> builtins.str: ...
-    def __repr__(self) -> builtins.str: ...
+    def __str__(self) -> str: ...
+    def __repr__(self) -> str: ...
     def __new__(cls, init: Optional[dict]) -> HeaderMap: ...
-    def contains_key(self, key: str) -> builtins.bool:
+    def contains_key(self, key: str) -> bool:
         r"""
         Returns true if the header map contains the given key.
         """
@@ -1610,7 +1610,7 @@ class HeaderMap:
         Remove a key-value pair from the header map.
         """
 
-    def get(self, key: str) -> Optional[builtins.bytes]:
+    def get(self, key: str) -> Optional[bytes]:
         r"""
         Returns a reference to the value associated with the key.
 
@@ -1637,7 +1637,7 @@ class HeaderMapItemsIter:
     def __iter__(self) -> HeaderMapItemsIter: ...
     def __next__(
         self,
-    ) -> Optional[tuple[Any, Optional[Any]]]: ...
+    ) -> Optional[tuple[bytes, Optional[bytes]]]: ...
 
 class HeaderMapKeysIter:
     r"""
@@ -1645,7 +1645,7 @@ class HeaderMapKeysIter:
     """
 
     def __iter__(self) -> HeaderMapKeysIter: ...
-    def __next__(self) -> Optional[Any]: ...
+    def __next__(self) -> Optional[bytes]: ...
 
 class HeaderMapValuesIter:
     r"""
@@ -1653,7 +1653,7 @@ class HeaderMapValuesIter:
     """
 
     def __iter__(self) -> HeaderMapValuesIter: ...
-    def __next__(self) -> Optional[Any]: ...
+    def __next__(self) -> Optional[bytes]: ...
 
 class ImpersonateOption:
     r"""
@@ -1664,8 +1664,8 @@ class ImpersonateOption:
         cls,
         impersonate: Impersonate,
         impersonate_os: Optional[ImpersonateOS] = None,
-        skip_http2: Optional[builtins.bool] = None,
-        skip_headers: Optional[builtins.bool] = None,
+        skip_http2: Optional[bool] = None,
+        skip_headers: Optional[bool] = None,
     ) -> ImpersonateOption:
         r"""
         Create a new impersonation option instance.
@@ -1704,32 +1704,32 @@ class Message:
     A WebSocket message.
     """
 
-    data: Optional[Any]
+    data: Optional[bytes]
     r"""
     Returns the data of the message as bytes.
     """
-    text: Optional[builtins.str]
+    text: Optional[str]
     r"""
     Returns the text content of the message if it is a text message.
     """
-    binary: Optional[Any]
+    binary: Optional[bytes]
     r"""
     Returns the binary data of the message if it is a binary message.
     """
-    ping: Optional[Any]
+    ping: Optional[bytes]
     r"""
     Returns the ping data of the message if it is a ping message.
     """
-    pong: Optional[Any]
+    pong: Optional[bytes]
     r"""
     Returns the pong data of the message if it is a pong message.
     """
-    close: Optional[tuple[builtins.int, Optional[builtins.str]]]
+    close: Optional[tuple[int, Optional[str]]]
     r"""
     Returns the close code and reason of the message if it is a close message.
     """
-    def __str__(self) -> builtins.str: ...
-    def __repr__(self) -> builtins.str: ...
+    def __str__(self) -> str: ...
+    def __repr__(self) -> str: ...
     @staticmethod
     def text_from_json(json: Dict[str, Any]) -> Message:
         r"""
@@ -1789,7 +1789,7 @@ class Message:
         """
 
     @staticmethod
-    def from_close(code: builtins.int, reason: Optional[str] = None) -> Message:
+    def from_close(code: int, reason: Optional[str] = None) -> Message:
         r"""
         Creates a new close message.
 
@@ -1821,7 +1821,7 @@ class Part:
 
     def __new__(
         cls,
-        name: builtins.str,
+        name: str,
         value: Union[
             str,
             bytes,
@@ -1829,8 +1829,8 @@ class Part:
             typing.AsyncGenerator[bytes, str],
             typing.Generator[bytes, str],
         ],
-        filename: Optional[builtins.str] = None,
-        mime: Optional[builtins.str] = None,
+        filename: Optional[str] = None,
+        mime: Optional[str] = None,
     ) -> Part:
         r"""
         Creates a new part.
@@ -1850,12 +1850,12 @@ class Proxy:
 
     @staticmethod
     def http(
-        url: builtins.str,
-        username: Optional[builtins.str] = None,
-        password: Optional[builtins.str] = None,
-        custom_http_auth: Optional[builtins.str] = None,
+        url: str,
+        username: Optional[str] = None,
+        password: Optional[str] = None,
+        custom_http_auth: Optional[str] = None,
         custom_http_headers: Optional[Union[Dict[str, str], HeaderMap]] = None,
-        exclusion: Optional[builtins.str] = None,
+        exclusion: Optional[str] = None,
     ) -> Proxy:
         r"""
         Creates a new HTTP proxy.
@@ -1869,7 +1869,7 @@ class Proxy:
         * `password` - Optional password for proxy authentication.
         * `custom_http_auth` - Optional custom HTTP proxy authentication header value.
         * `custom_http_headers` - Optional custom HTTP proxy headers.
-        * `exclusion` - Optional list of domains to exclude from proxying.
+        * `exclusion` - Optional List of domains to exclude from proxying.
 
         # Examples
 
@@ -1882,12 +1882,12 @@ class Proxy:
 
     @staticmethod
     def https(
-        url: builtins.str,
-        username: Optional[builtins.str] = None,
-        password: Optional[builtins.str] = None,
-        custom_http_auth: Optional[builtins.str] = None,
+        url: str,
+        username: Optional[str] = None,
+        password: Optional[str] = None,
+        custom_http_auth: Optional[str] = None,
         custom_http_headers: Optional[Union[Dict[str, str], HeaderMap]] = None,
-        exclusion: Optional[builtins.str] = None,
+        exclusion: Optional[str] = None,
     ) -> Proxy:
         r"""
         Creates a new HTTPS proxy.
@@ -1901,7 +1901,7 @@ class Proxy:
         * `password` - Optional password for proxy authentication.
         * `custom_http_auth` - Optional custom HTTP proxy authentication header value.
         * `custom_http_headers` - Optional custom HTTP proxy headers.
-        * `exclusion` - Optional list of domains to exclude from proxying.
+        * `exclusion` - Optional List of domains to exclude from proxying.
 
         # Examples
 
@@ -1914,12 +1914,12 @@ class Proxy:
 
     @staticmethod
     def all(
-        url: builtins.str,
-        username: Optional[builtins.str] = None,
-        password: Optional[builtins.str] = None,
-        custom_http_auth: Optional[builtins.str] = None,
+        url: str,
+        username: Optional[str] = None,
+        password: Optional[str] = None,
+        custom_http_auth: Optional[str] = None,
         custom_http_headers: Optional[Union[Dict[str, str], HeaderMap]] = None,
-        exclusion: Optional[builtins.str] = None,
+        exclusion: Optional[str] = None,
     ) -> Proxy:
         r"""
         Creates a new proxy for all protocols.
@@ -1933,7 +1933,7 @@ class Proxy:
         * `password` - Optional password for proxy authentication.
         * `custom_http_auth` - Optional custom HTTP proxy authentication header value.
         * `custom_http_headers` - Optional custom HTTP proxy headers.
-        * `exclusion` - Optional list of domains to exclude from proxying.
+        * `exclusion` - Optional List of domains to exclude from proxying.
 
         # Examples
 
@@ -1972,15 +1972,15 @@ class Response:
     ```
     """
 
-    url: builtins.str
+    url: str
     r"""
     Returns the URL of the response.
     """
-    ok: builtins.bool
+    ok: bool
     r"""
     Returns whether the response is successful.
     """
-    status: builtins.int
+    status: int
     r"""
     Returns the status code as integer of the response.
     """
@@ -1996,11 +1996,11 @@ class Response:
     r"""
     Returns the headers of the response.
     """
-    cookies: builtins.list[Cookie]
+    cookies: List[Cookie]
     r"""
     Returns the cookies of the response.
     """
-    content_length: builtins.int
+    content_length: int
     r"""
     Returns the content length of the response.
     """
@@ -2008,7 +2008,7 @@ class Response:
     r"""
     Returns the remote address of the response.
     """
-    encoding: builtins.str
+    encoding: str
     r"""
     Encoding to decode with when accessing text.
     """
@@ -2019,12 +2019,12 @@ class Response:
         Returns the TLS peer certificate of the response.
         """
 
-    async def text(self) -> builtins.str:
+    async def text(self) -> str:
         r"""
         Returns the text content of the response.
         """
 
-    async def text_with_charset(self, encoding: builtins.str) -> builtins.str:
+    async def text_with_charset(self, encoding: str) -> str:
         r"""
         Returns the text content of the response with a specific charset.
 
@@ -2058,14 +2058,14 @@ class SocketAddr:
     A IP socket address.
     """
 
-    def __str__(self) -> builtins.str: ...
-    def __repr__(self) -> builtins.str: ...
+    def __str__(self) -> str: ...
+    def __repr__(self) -> str: ...
     def ip(self) -> Union[ipaddress.IPv4Address, ipaddress.IPv6Address]:
         r"""
         Returns the IP address of the socket address.
         """
 
-    def port(self) -> builtins.int:
+    def port(self) -> int:
         r"""
         Returns the port number of the socket address.
         """
@@ -2075,34 +2075,34 @@ class StatusCode:
     HTTP status code.
     """
 
-    def __str__(self) -> builtins.str: ...
-    def __repr__(self) -> builtins.str: ...
-    def as_int(self) -> builtins.int:
+    def __str__(self) -> str: ...
+    def __repr__(self) -> str: ...
+    def as_int(self) -> int:
         r"""
         Return the status code as an integer.
         """
 
-    def is_informational(self) -> builtins.bool:
+    def is_informational(self) -> bool:
         r"""
         Check if status is within 100-199.
         """
 
-    def is_success(self) -> builtins.bool:
+    def is_success(self) -> bool:
         r"""
         Check if status is within 200-299.
         """
 
-    def is_redirection(self) -> builtins.bool:
+    def is_redirection(self) -> bool:
         r"""
         Check if status is within 300-399.
         """
 
-    def is_client_error(self) -> builtins.bool:
+    def is_client_error(self) -> bool:
         r"""
         Check if status is within 400-499.
         """
 
-    def is_server_error(self) -> builtins.bool:
+    def is_server_error(self) -> bool:
         r"""
         Check if status is within 500-599.
         """
@@ -2152,11 +2152,11 @@ class WebSocket:
     A WebSocket response.
     """
 
-    ok: builtins.bool
+    ok: bool
     r"""
     Returns whether the response is successful.
     """
-    status: builtins.int
+    status: int
     r"""
     Returns the status code as integer of the response.
     """
@@ -2172,7 +2172,7 @@ class WebSocket:
     r"""
     Returns the headers of the response.
     """
-    cookies: builtins.list[Cookie]
+    cookies: List[Cookie]
     r"""
     Returns the cookies of the response.
     """
@@ -2180,7 +2180,7 @@ class WebSocket:
     r"""
     Returns the remote address of the response.
     """
-    protocol: Optional[builtins.str]
+    protocol: Optional[str]
     r"""
     Returns the WebSocket protocol.
     """
@@ -2204,7 +2204,7 @@ class WebSocket:
 
     async def close(
         self,
-        code: Optional[builtins.int] = None,
+        code: Optional[int] = None,
         reason: Optional[str] = None,
     ) -> None:
         r"""
@@ -2360,14 +2360,14 @@ async def delete(
     url: str,
     proxy: Optional[Union[str, Proxy]] = None,
     local_address: Optional[Union[ipaddress.IPv4Address, ipaddress.IPv6Address]] = None,
-    interface: Optional[builtins.str] = None,
-    timeout: Optional[builtins.int] = None,
-    read_timeout: Optional[builtins.int] = None,
+    interface: Optional[str] = None,
+    timeout: Optional[int] = None,
+    read_timeout: Optional[int] = None,
     version: Optional[Version] = None,
     headers: Optional[Union[Dict[str, str], HeaderMap]] = None,
     cookies: Optional[Dict[str, str]] = None,
-    allow_redirects: Optional[builtins.bool] = None,
-    max_redirects: Optional[builtins.int] = None,
+    allow_redirects: Optional[bool] = None,
+    max_redirects: Optional[int] = None,
     auth: Optional[str] = None,
     bearer_auth: Optional[str] = None,
     basic_auth: Optional[tuple[str, Optional[str]]] = None,
@@ -2406,14 +2406,14 @@ async def get(
     url: str,
     proxy: Optional[Union[str, Proxy]] = None,
     local_address: Optional[Union[ipaddress.IPv4Address, ipaddress.IPv6Address]] = None,
-    interface: Optional[builtins.str] = None,
-    timeout: Optional[builtins.int] = None,
-    read_timeout: Optional[builtins.int] = None,
+    interface: Optional[str] = None,
+    timeout: Optional[int] = None,
+    read_timeout: Optional[int] = None,
     version: Optional[Version] = None,
     headers: Optional[Union[Dict[str, str], HeaderMap]] = None,
     cookies: Optional[Dict[str, str]] = None,
-    allow_redirects: Optional[builtins.bool] = None,
-    max_redirects: Optional[builtins.int] = None,
+    allow_redirects: Optional[bool] = None,
+    max_redirects: Optional[int] = None,
     auth: Optional[str] = None,
     bearer_auth: Optional[str] = None,
     basic_auth: Optional[tuple[str, Optional[str]]] = None,
@@ -2452,14 +2452,14 @@ async def head(
     url: str,
     proxy: Optional[Union[str, Proxy]] = None,
     local_address: Optional[Union[ipaddress.IPv4Address, ipaddress.IPv6Address]] = None,
-    interface: Optional[builtins.str] = None,
-    timeout: Optional[builtins.int] = None,
-    read_timeout: Optional[builtins.int] = None,
+    interface: Optional[str] = None,
+    timeout: Optional[int] = None,
+    read_timeout: Optional[int] = None,
     version: Optional[Version] = None,
     headers: Optional[Union[Dict[str, str], HeaderMap]] = None,
     cookies: Optional[Dict[str, str]] = None,
-    allow_redirects: Optional[builtins.bool] = None,
-    max_redirects: Optional[builtins.int] = None,
+    allow_redirects: Optional[bool] = None,
+    max_redirects: Optional[int] = None,
     auth: Optional[str] = None,
     bearer_auth: Optional[str] = None,
     basic_auth: Optional[tuple[str, Optional[str]]] = None,
@@ -2497,14 +2497,14 @@ async def options(
     url: str,
     proxy: Optional[Union[str, Proxy]] = None,
     local_address: Optional[Union[ipaddress.IPv4Address, ipaddress.IPv6Address]] = None,
-    interface: Optional[builtins.str] = None,
-    timeout: Optional[builtins.int] = None,
-    read_timeout: Optional[builtins.int] = None,
+    interface: Optional[str] = None,
+    timeout: Optional[int] = None,
+    read_timeout: Optional[int] = None,
     version: Optional[Version] = None,
     headers: Optional[Union[Dict[str, str], HeaderMap]] = None,
     cookies: Optional[Dict[str, str]] = None,
-    allow_redirects: Optional[builtins.bool] = None,
-    max_redirects: Optional[builtins.int] = None,
+    allow_redirects: Optional[bool] = None,
+    max_redirects: Optional[int] = None,
     auth: Optional[str] = None,
     bearer_auth: Optional[str] = None,
     basic_auth: Optional[tuple[str, Optional[str]]] = None,
@@ -2542,14 +2542,14 @@ async def patch(
     url: str,
     proxy: Optional[Union[str, Proxy]] = None,
     local_address: Optional[Union[ipaddress.IPv4Address, ipaddress.IPv6Address]] = None,
-    interface: Optional[builtins.str] = None,
-    timeout: Optional[builtins.int] = None,
-    read_timeout: Optional[builtins.int] = None,
+    interface: Optional[str] = None,
+    timeout: Optional[int] = None,
+    read_timeout: Optional[int] = None,
     version: Optional[Version] = None,
     headers: Optional[Union[Dict[str, str], HeaderMap]] = None,
     cookies: Optional[Dict[str, str]] = None,
-    allow_redirects: Optional[builtins.bool] = None,
-    max_redirects: Optional[builtins.int] = None,
+    allow_redirects: Optional[bool] = None,
+    max_redirects: Optional[int] = None,
     auth: Optional[str] = None,
     bearer_auth: Optional[str] = None,
     basic_auth: Optional[tuple[str, Optional[str]]] = None,
@@ -2588,14 +2588,14 @@ async def post(
     url: str,
     proxy: Optional[Union[str, Proxy]] = None,
     local_address: Optional[Union[ipaddress.IPv4Address, ipaddress.IPv6Address]] = None,
-    interface: Optional[builtins.str] = None,
-    timeout: Optional[builtins.int] = None,
-    read_timeout: Optional[builtins.int] = None,
+    interface: Optional[str] = None,
+    timeout: Optional[int] = None,
+    read_timeout: Optional[int] = None,
     version: Optional[Version] = None,
     headers: Optional[Union[Dict[str, str], HeaderMap]] = None,
     cookies: Optional[Dict[str, str]] = None,
-    allow_redirects: Optional[builtins.bool] = None,
-    max_redirects: Optional[builtins.int] = None,
+    allow_redirects: Optional[bool] = None,
+    max_redirects: Optional[int] = None,
     auth: Optional[str] = None,
     bearer_auth: Optional[str] = None,
     basic_auth: Optional[tuple[str, Optional[str]]] = None,
@@ -2634,14 +2634,14 @@ async def put(
     url: str,
     proxy: Optional[Union[str, Proxy]] = None,
     local_address: Optional[Union[ipaddress.IPv4Address, ipaddress.IPv6Address]] = None,
-    interface: Optional[builtins.str] = None,
-    timeout: Optional[builtins.int] = None,
-    read_timeout: Optional[builtins.int] = None,
+    interface: Optional[str] = None,
+    timeout: Optional[int] = None,
+    read_timeout: Optional[int] = None,
     version: Optional[Version] = None,
     headers: Optional[Union[Dict[str, str], HeaderMap]] = None,
     cookies: Optional[Dict[str, str]] = None,
-    allow_redirects: Optional[builtins.bool] = None,
-    max_redirects: Optional[builtins.int] = None,
+    allow_redirects: Optional[bool] = None,
+    max_redirects: Optional[int] = None,
     auth: Optional[str] = None,
     bearer_auth: Optional[str] = None,
     basic_auth: Optional[tuple[str, Optional[str]]] = None,
@@ -2681,14 +2681,14 @@ async def request(
     url: str,
     proxy: Optional[Union[str, Proxy]] = None,
     local_address: Optional[Union[ipaddress.IPv4Address, ipaddress.IPv6Address]] = None,
-    interface: Optional[builtins.str] = None,
-    timeout: Optional[builtins.int] = None,
-    read_timeout: Optional[builtins.int] = None,
+    interface: Optional[str] = None,
+    timeout: Optional[int] = None,
+    read_timeout: Optional[int] = None,
     version: Optional[Version] = None,
     headers: Optional[Union[Dict[str, str], HeaderMap]] = None,
     cookies: Optional[Dict[str, str]] = None,
-    allow_redirects: Optional[builtins.bool] = None,
-    max_redirects: Optional[builtins.int] = None,
+    allow_redirects: Optional[bool] = None,
+    max_redirects: Optional[int] = None,
     auth: Optional[str] = None,
     bearer_auth: Optional[str] = None,
     basic_auth: Optional[tuple[str, Optional[str]]] = None,
@@ -2734,14 +2734,14 @@ async def trace(
     url: str,
     proxy: Optional[Union[str, Proxy]] = None,
     local_address: Optional[Union[ipaddress.IPv4Address, ipaddress.IPv6Address]] = None,
-    interface: Optional[builtins.str] = None,
-    timeout: Optional[builtins.int] = None,
-    read_timeout: Optional[builtins.int] = None,
+    interface: Optional[str] = None,
+    timeout: Optional[int] = None,
+    read_timeout: Optional[int] = None,
     version: Optional[Version] = None,
     headers: Optional[Union[Dict[str, str], HeaderMap]] = None,
     cookies: Optional[Dict[str, str]] = None,
-    allow_redirects: Optional[builtins.bool] = None,
-    max_redirects: Optional[builtins.int] = None,
+    allow_redirects: Optional[bool] = None,
+    max_redirects: Optional[int] = None,
     auth: Optional[str] = None,
     bearer_auth: Optional[str] = None,
     basic_auth: Optional[tuple[str, Optional[str]]] = None,
@@ -2781,21 +2781,21 @@ async def websocket(
     local_address: Optional[
         Union[str, ipaddress.IPv4Address, ipaddress.IPv6Address]
     ] = None,
-    interface: Optional[builtins.str] = None,
+    interface: Optional[str] = None,
     headers: Optional[Dict[str, bytes]] = None,
     cookies: Optional[Dict[str, str]] = None,
-    protocols: Optional[builtins.list[builtins.str]] = None,
-    use_http2: Optional[builtins.bool] = None,
-    auth: Optional[builtins.str] = None,
-    bearer_auth: Optional[builtins.str] = None,
-    basic_auth: Optional[tuple[builtins.str, Optional[builtins.str]]] = None,
-    query: Optional[builtins.list[tuple[builtins.str, builtins.str]]] = None,
-    read_buffer_size: Optional[builtins.int] = None,
-    write_buffer_size: Optional[builtins.int] = None,
-    max_write_buffer_size: Optional[builtins.int] = None,
-    max_message_size: Optional[builtins.int] = None,
-    max_frame_size: Optional[builtins.int] = None,
-    accept_unmasked_frames: Optional[builtins.bool] = None,
+    protocols: Optional[List[str]] = None,
+    use_http2: Optional[bool] = None,
+    auth: Optional[str] = None,
+    bearer_auth: Optional[str] = None,
+    basic_auth: Optional[tuple[str, Optional[str]]] = None,
+    query: Optional[List[tuple[str, str]]] = None,
+    read_buffer_size: Optional[int] = None,
+    write_buffer_size: Optional[int] = None,
+    max_write_buffer_size: Optional[int] = None,
+    max_message_size: Optional[int] = None,
+    max_frame_size: Optional[int] = None,
+    accept_unmasked_frames: Optional[bool] = None,
 ) -> WebSocket:
     r"""
     Make a WebSocket connection with the given parameters.
