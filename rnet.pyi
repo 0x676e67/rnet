@@ -660,7 +660,7 @@ class BlockingClient:
 
 class BlockingResponse:
     r"""
-    A bloking response from a request.
+    A blocking response from a request.
     """
 
     url: str

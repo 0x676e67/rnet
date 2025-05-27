@@ -8,7 +8,7 @@ use crate::{
 };
 use pyo3::prelude::*;
 
-/// A bloking response from a request.
+/// A blocking response from a request.
 #[pyclass(subclass)]
 pub struct BlockingResponse(async_impl::Response);
 
