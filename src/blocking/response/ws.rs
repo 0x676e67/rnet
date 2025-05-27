@@ -6,7 +6,7 @@ use crate::{
 use pyo3::{prelude::*, pybacked::PyBackedStr};
 
 /// A blocking WebSocket response.
-#[pyclass]
+#[pyclass(subclass)]
 pub struct BlockingWebSocket(async_impl::WebSocket);
 
 impl From<async_impl::WebSocket> for BlockingWebSocket {

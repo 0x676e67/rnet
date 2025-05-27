@@ -9,7 +9,7 @@ use crate::{
 use pyo3::prelude::*;
 
 /// A bloking response from a request.
-#[pyclass]
+#[pyclass(subclass)]
 pub struct BlockingResponse(async_impl::Response);
 
 impl From<async_impl::Response> for BlockingResponse {
@@ -170,7 +170,7 @@ impl BlockingResponse {
 /// Used for streaming response content.
 /// Employed in the `stream` method of the `Response` class.
 /// Utilized in an asynchronous for loop in Python.
-#[pyclass]
+#[pyclass(subclass)]
 pub struct BlockingStreamer(async_impl::Streamer);
 
 #[pymethods]

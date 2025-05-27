@@ -11,7 +11,7 @@ use rquest::Body;
 use std::path::PathBuf;
 
 /// A part of a multipart form.
-#[pyclass]
+#[pyclass(subclass)]
 pub struct Part {
     pub name: Option<String>,
     pub inner: Option<rquest::multipart::Part>,

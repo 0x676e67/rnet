@@ -12,7 +12,7 @@ use crate::{
 };
 
 /// A WebSocket message.
-#[pyclass]
+#[pyclass(subclass)]
 #[derive(Clone)]
 pub struct Message(pub rquest::Message);
 

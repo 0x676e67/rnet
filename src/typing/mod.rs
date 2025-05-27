@@ -30,7 +30,7 @@ use rquest_util::EmulationOption;
 use serde::ser::{Serialize, SerializeSeq, Serializer};
 
 /// A struct to represent the `ImpersonateOption` class.
-#[pyclass]
+#[pyclass(subclass)]
 pub struct ImpersonateOption {
     /// The browser version to impersonate.
     impersonate: Impersonate,

@@ -47,7 +47,7 @@ macro_rules! proxy_method {
 
 /// A proxy server for a request.
 /// Supports HTTP, HTTPS, SOCKS4, SOCKS4a, SOCKS5, and SOCKS5h protocols.
-#[pyclass]
+#[pyclass(subclass)]
 pub struct Proxy(pub rquest::Proxy);
 
 proxy_method! {

@@ -4,7 +4,7 @@ use pyo3::{prelude::*, types::PyTuple};
 use rquest::multipart::Form;
 
 /// A multipart form for a request.
-#[pyclass]
+#[pyclass(subclass)]
 pub struct Multipart(pub Option<Form>);
 
 #[pymethods]

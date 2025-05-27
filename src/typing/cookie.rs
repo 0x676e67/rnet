@@ -8,7 +8,7 @@ use rquest::header::{self, HeaderMap, HeaderValue};
 use std::time::SystemTime;
 
 /// A cookie.
-#[pyclass]
+#[pyclass(subclass)]
 #[derive(Clone)]
 pub struct Cookie(pub cookie::Cookie<'static>);
 

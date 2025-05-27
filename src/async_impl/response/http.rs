@@ -13,7 +13,7 @@ use std::{ops::Deref, pin::Pin, sync::Arc};
 use tokio::sync::Mutex;
 
 /// A response from a request.
-#[pyclass]
+#[pyclass(subclass)]
 pub struct Response {
     url: Url,
     version: Version,
@@ -231,7 +231,7 @@ type InnerStreamer = Pin<Box<dyn Stream<Item = rquest::Result<bytes::Bytes>> + S
 /// Used to stream response content.
 /// Implemented in the `stream` method of the `Response` class.
 /// Can be used in an asynchronous for loop in Python.
-#[pyclass]
+#[pyclass(subclass)]
 #[derive(Clone)]
 pub struct Streamer(Arc<Mutex<Option<InnerStreamer>>>);
 

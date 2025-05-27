@@ -10,7 +10,7 @@ use pyo3::{
 use rquest::header::{self, HeaderName, HeaderValue};
 
 /// A HTTP header map.
-#[pyclass]
+#[pyclass(subclass)]
 pub struct HeaderMap(pub header::HeaderMap);
 
 #[pymethods]
@@ -159,7 +159,7 @@ impl HeaderMap {
 }
 
 /// An iterator over the keys in a HeaderMap.
-#[pyclass]
+#[pyclass(subclass)]
 pub struct HeaderMapKeysIter {
     inner: Vec<HeaderName>,
 }
@@ -180,7 +180,7 @@ impl HeaderMapKeysIter {
 }
 
 /// An iterator over the values in a HeaderMap.
-#[pyclass]
+#[pyclass(subclass)]
 pub struct HeaderMapValuesIter {
     inner: Vec<HeaderValue>,
 }
@@ -200,7 +200,7 @@ impl HeaderMapValuesIter {
 }
 
 /// An iterator over the items in a HeaderMap.
-#[pyclass]
+#[pyclass(subclass)]
 pub struct HeaderMapItemsIter {
     inner: Vec<(HeaderName, HeaderValue)>,
 }

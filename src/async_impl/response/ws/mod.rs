@@ -23,7 +23,7 @@ type Sender = Arc<Mutex<Option<SplitSink<rquest::WebSocket, rquest::Message>>>>;
 type Receiver = Arc<Mutex<Option<SplitStream<rquest::WebSocket>>>>;
 
 /// A WebSocket response.
-#[pyclass]
+#[pyclass(subclass)]
 pub struct WebSocket {
     version: Version,
     status_code: StatusCode,
