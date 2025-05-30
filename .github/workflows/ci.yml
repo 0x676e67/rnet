@@ -19,7 +19,7 @@ on:
   workflow_dispatch:
 
 env:
-  MATURIIN_ARGS: '--interpreter python3.7 python3.8 python3.9 python3.10 python3.11 python3.12 python3.13 python3.13t'
+  MATURIIN_ARGS: '--interpreter python3.7 python3.8 python3.9 python3.10 python3.11 python3.12 python3.13 python3.13t python3.14'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref_name }}-${{ github.event.pull_request.number || github.sha }}
