@@ -4,7 +4,7 @@ define_enum_with_conversion!(
     /// An HTTP version.
     const,
     Version,
-    rquest::Version,
+    wreq::Version,
     HTTP_09,
     HTTP_10,
     HTTP_11,
@@ -15,7 +15,7 @@ define_enum_with_conversion!(
 define_enum_with_conversion!(
     /// An HTTP method.
     Method,
-    rquest::Method,
+    wreq::Method,
     GET,
     HEAD,
     POST,
@@ -30,7 +30,7 @@ define_enum_with_conversion!(
     /// An impersonate.
     const,
     Impersonate,
-    rquest_util::Emulation,
+    wreq_util::Emulation,
     Chrome100,
     Chrome101,
     Chrome104,
@@ -105,7 +105,7 @@ define_enum_with_conversion!(
     /// An impersonate operating system.
     const,
     ImpersonateOS,
-    rquest_util::EmulationOS,
+    wreq_util::EmulationOS,
     Windows,
     MacOS,
     Linux,
@@ -117,7 +117,7 @@ define_enum_with_conversion!(
     /// The lookup ip strategy.
     const,
     LookupIpStrategy,
-    rquest::dns::LookupIpStrategy,
+    wreq::dns::LookupIpStrategy,
     Ipv4Only,
     Ipv6Only,
     Ipv4AndIpv6,
@@ -129,7 +129,7 @@ define_enum_with_conversion!(
     /// The TLS version.
     const,
     TlsVersion,
-    rquest::TlsVersion,
+    wreq::TlsVersion,
     TLS_1_0,
     TLS_1_1,
     TLS_1_2,
@@ -140,7 +140,7 @@ define_enum_with_conversion!(
     /// The Cookie SameSite attribute.
     const,
     SameSite,
-    rquest::cookie::SameSite,
+    wreq::cookie::SameSite,
     (Strict, Strict),
     (Lax, Lax),
     (Empty, None),

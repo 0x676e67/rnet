@@ -12,15 +12,15 @@ use futures_util::{
 pub use message::Message;
 use pyo3::{IntoPyObjectExt, prelude::*, pybacked::PyBackedStr};
 use pyo3_async_runtimes::tokio::future_into_py;
-use rquest::{
+use std::sync::Arc;
+use tokio::sync::Mutex;
+use wreq::{
     Utf8Bytes,
     header::{self, HeaderValue},
 };
-use std::sync::Arc;
-use tokio::sync::Mutex;
 
-type Sender = Arc<Mutex<Option<SplitSink<rquest::WebSocket, rquest::Message>>>>;
-type Receiver = Arc<Mutex<Option<SplitStream<rquest::WebSocket>>>>;
+type Sender = Arc<Mutex<Option<SplitSink<wreq::WebSocket, wreq::Message>>>>;
+type Receiver = Arc<Mutex<Option<SplitStream<wreq::WebSocket>>>>;
 
 /// A WebSocket response.
 #[pyclass(subclass)]
@@ -35,7 +35,7 @@ pub struct WebSocket {
 }
 
 impl WebSocket {
-    pub async fn new(builder: rquest::WebSocketRequestBuilder) -> rquest::Result<WebSocket> {
+    pub async fn new(builder: wreq::WebSocketRequestBuilder) -> wreq::Result<WebSocket> {
         let response = builder.send().await?;
 
         let version = Version::from_ffi(response.version());
@@ -105,12 +105,10 @@ impl WebSocket {
             let reason = reason
                 .map(Bytes::from_owner)
                 .map(Utf8Bytes::from_bytes_unchecked)
-                .unwrap_or_else(|| rquest::Utf8Bytes::from_static("Goodbye"));
+                .unwrap_or_else(|| wreq::Utf8Bytes::from_static("Goodbye"));
             sender
-                .send(rquest::Message::Close(Some(rquest::CloseFrame {
-                    code: code
-                        .map(rquest::CloseCode)
-                        .unwrap_or(rquest::CloseCode::NORMAL),
+                .send(wreq::Message::Close(Some(wreq::CloseFrame {
+                    code: code.map(wreq::CloseCode).unwrap_or(wreq::CloseCode::NORMAL),
 
                     reason,
                 })))
@@ -147,7 +145,7 @@ impl WebSocket {
     /// Returns whether the response is successful.
     #[getter]
     pub fn ok(&self) -> bool {
-        self.status_code.as_int() == rquest::StatusCode::SWITCHING_PROTOCOLS
+        self.status_code.as_int() == wreq::StatusCode::SWITCHING_PROTOCOLS
     }
 
     /// Returns the status code as integer of the response.

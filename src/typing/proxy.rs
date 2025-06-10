@@ -1,7 +1,7 @@
 use super::HeaderMapExtractor;
 use crate::error::Error;
 use pyo3::{prelude::*, pybacked::PyBackedStr, types::PyList};
-use rquest::header::HeaderValue;
+use wreq::header::HeaderValue;
 
 macro_rules! proxy_method {
     ( $( { $(#[$meta:meta])* $name:ident, $proxy_fn:path} ),* ) => {
@@ -48,7 +48,7 @@ macro_rules! proxy_method {
 /// A proxy server for a request.
 /// Supports HTTP, HTTPS, SOCKS4, SOCKS4a, SOCKS5, and SOCKS5h protocols.
 #[pyclass(subclass)]
-pub struct Proxy(pub rquest::Proxy);
+pub struct Proxy(pub wreq::Proxy);
 
 proxy_method! {
     {
@@ -56,27 +56,27 @@ proxy_method! {
         ///
         /// This method sets up a proxy server for HTTP requests.
         http,
-        rquest::Proxy::http
+        wreq::Proxy::http
     },
     {
         /// Creates a new HTTPS proxy.
         ///
         /// This method sets up a proxy server for HTTPS requests.
         https,
-        rquest::Proxy::https
+        wreq::Proxy::https
     },
     {
         /// Creates a new proxy for all protocols.
         ///
         /// This method sets up a proxy server for all types of requests (HTTP, HTTPS, etc.).
         all,
-        rquest::Proxy::all
+        wreq::Proxy::all
     }
 }
 
 impl Proxy {
     fn create_proxy<'py>(
-        proxy_fn: impl Fn(&'py str) -> rquest::Result<rquest::Proxy>,
+        proxy_fn: impl Fn(&'py str) -> wreq::Result<wreq::Proxy>,
         url: &'py str,
         username: Option<&'py str>,
         password: Option<&'py str>,
@@ -102,19 +102,19 @@ impl Proxy {
 
         // Convert the exclusion list to a NoProxy instance.
         if let Some(exclusion) = exclusion {
-            proxy = proxy.no_proxy(rquest::NoProxy::from_string(exclusion))
+            proxy = proxy.no_proxy(wreq::NoProxy::from_string(exclusion))
         }
 
         Ok(Proxy(proxy))
     }
 }
 
-pub struct ProxyExtractor(pub rquest::Proxy);
+pub struct ProxyExtractor(pub wreq::Proxy);
 
 impl FromPyObject<'_> for ProxyExtractor {
     fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
         if let Ok(proxy_str) = ob.extract::<PyBackedStr>() {
-            let proxy = rquest::Proxy::all(proxy_str.as_ref() as &str)
+            let proxy = wreq::Proxy::all(proxy_str.as_ref() as &str)
                 .map(Self)
                 .map_err(Error::Request)?;
 
@@ -127,7 +127,7 @@ impl FromPyObject<'_> for ProxyExtractor {
     }
 }
 
-pub struct ProxyListExtractor(pub Vec<rquest::Proxy>);
+pub struct ProxyListExtractor(pub Vec<wreq::Proxy>);
 
 impl FromPyObject<'_> for ProxyListExtractor {
     fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {

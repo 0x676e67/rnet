@@ -7,14 +7,14 @@ use pyo3::{
     prelude::*,
     pybacked::{PyBackedBytes, PyBackedStr},
 };
-use rquest::Body;
 use std::path::PathBuf;
+use wreq::Body;
 
 /// A part of a multipart form.
 #[pyclass(subclass)]
 pub struct Part {
     pub name: Option<String>,
-    pub inner: Option<rquest::multipart::Part>,
+    pub inner: Option<wreq::multipart::Part>,
 }
 
 /// The data for a part of a multipart form.
@@ -42,16 +42,16 @@ impl Part {
             // Create the inner part
             let mut inner = match value {
                 PartExtractor::Text(bytes) | PartExtractor::Bytes(bytes) => {
-                    rquest::multipart::Part::stream(Body::from(bytes))
+                    wreq::multipart::Part::stream(Body::from(bytes))
                 }
                 PartExtractor::File(path) => pyo3_async_runtimes::tokio::get_runtime()
-                    .block_on(rquest::multipart::Part::file(path))
+                    .block_on(wreq::multipart::Part::file(path))
                     .map_err(Error::from)?,
                 PartExtractor::SyncStream(stream) => {
-                    rquest::multipart::Part::stream(Body::wrap_stream(stream))
+                    wreq::multipart::Part::stream(Body::wrap_stream(stream))
                 }
                 PartExtractor::AsyncStream(stream) => {
-                    rquest::multipart::Part::stream(Body::wrap_stream(stream))
+                    wreq::multipart::Part::stream(Body::wrap_stream(stream))
                 }
             };
 

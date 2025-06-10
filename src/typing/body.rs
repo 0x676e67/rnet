@@ -3,7 +3,7 @@ use bytes::Bytes;
 use pyo3::prelude::*;
 use pyo3::pybacked::{PyBackedBytes, PyBackedStr};
 use pyo3::{FromPyObject, PyAny};
-use rquest::Body;
+use wreq::Body;
 
 /// The body to use for the request.
 pub enum BodyExtractor {

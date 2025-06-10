@@ -2,7 +2,7 @@ use pyo3::{
     PyErr, create_exception,
     exceptions::{PyException, PyRuntimeError, PyStopAsyncIteration, PyStopIteration},
 };
-use rquest::header;
+use wreq::header;
 
 const RACE_CONDITION_ERROR_MSG: &str = r#"Due to Rust's memory management with borrowing,
 you cannot use certain instances multiple times as they may be consumed.
@@ -58,7 +58,7 @@ pub enum Error {
     InvalidHeaderValue(header::InvalidHeaderValue),
     UrlParse(url::ParseError),
     IO(std::io::Error),
-    Request(rquest::Error),
+    Request(wreq::Error),
 }
 
 impl From<Error> for PyErr {
@@ -117,8 +117,8 @@ impl From<std::io::Error> for Error {
     }
 }
 
-impl From<rquest::Error> for Error {
-    fn from(err: rquest::Error) -> Self {
+impl From<wreq::Error> for Error {
+    fn from(err: wreq::Error) -> Self {
         Error::Request(err)
     }
 }

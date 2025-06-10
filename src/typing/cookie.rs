@@ -3,9 +3,9 @@ use bytes::Bytes;
 use pyo3::FromPyObject;
 use pyo3::pybacked::PyBackedStr;
 use pyo3::{prelude::*, types::PyDict};
-use rquest::cookie::{self, Expiration};
-use rquest::header::{self, HeaderMap, HeaderValue};
 use std::time::SystemTime;
+use wreq::cookie::{self, Expiration};
+use wreq::header::{self, HeaderMap, HeaderValue};
 
 /// A cookie.
 #[pyclass(subclass)]

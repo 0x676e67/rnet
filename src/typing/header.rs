@@ -7,7 +7,7 @@ use pyo3::{
     pybacked::PyBackedStr,
     types::{PyDict, PyList},
 };
-use rquest::header::{self, HeaderName, HeaderValue};
+use wreq::header::{self, HeaderName, HeaderValue};
 
 /// A HTTP header map.
 #[pyclass(subclass)]

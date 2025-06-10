@@ -1,7 +1,7 @@
 use crate::{error::DNSResolverError, typing::LookupIpStrategy};
 use pyo3::PyResult;
-use rquest::dns::HickoryDnsResolver;
 use std::sync::{Arc, OnceLock};
+use wreq::dns::HickoryDnsResolver;
 
 macro_rules! dns_resolver {
     ($strategy:expr) => {{

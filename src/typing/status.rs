@@ -3,7 +3,7 @@ use pyo3::prelude::*;
 /// HTTP status code.
 #[pyclass(eq)]
 #[derive(Clone, Copy, PartialEq, Eq, Hash)]
-pub struct StatusCode(rquest::StatusCode);
+pub struct StatusCode(wreq::StatusCode);
 
 #[pymethods]
 impl StatusCode {
@@ -55,8 +55,8 @@ impl StatusCode {
     }
 }
 
-impl From<rquest::StatusCode> for StatusCode {
-    fn from(status_code: rquest::StatusCode) -> Self {
+impl From<wreq::StatusCode> for StatusCode {
+    fn from(status_code: wreq::StatusCode) -> Self {
         Self(status_code)
     }
 }

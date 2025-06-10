@@ -13,8 +13,8 @@ use pyo3::PyResult;
 pub use request::{execute_request, execute_websocket_request};
 use std::sync::LazyLock;
 
-static DEFAULT_CLIENT: LazyLock<rquest::Client> = LazyLock::new(|| {
-    let mut builder = rquest::Client::builder();
+static DEFAULT_CLIENT: LazyLock<wreq::Client> = LazyLock::new(|| {
+    let mut builder = wreq::Client::builder();
     apply_option!(
         apply_if_ok,
         builder,

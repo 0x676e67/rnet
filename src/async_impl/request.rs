@@ -5,9 +5,9 @@ use crate::{
     typing::{Method, Version},
 };
 use pyo3::PyResult;
-use rquest::redirect::Policy;
-use rquest::{Client, header};
 use std::time::Duration;
+use wreq::redirect::Policy;
+use wreq::{Client, header};
 
 /// Executes an HTTP request.
 pub async fn execute_request<U>(

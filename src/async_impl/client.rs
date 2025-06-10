@@ -10,20 +10,20 @@ use crate::{
 };
 use pyo3::{prelude::*, pybacked::PyBackedStr};
 use pyo3_async_runtimes::tokio::future_into_py;
-use rquest::{
+use std::ops::Deref;
+use std::time::Duration;
+use wreq::{
     CertStore, Url,
     header::{Entry, OccupiedEntry},
     redirect::Policy,
 };
-use std::ops::Deref;
-use std::time::Duration;
 
 /// A client for making HTTP requests.
 #[pyclass(subclass)]
-pub struct Client(rquest::Client);
+pub struct Client(wreq::Client);
 
 impl Deref for Client {
-    type Target = rquest::Client;
+    type Target = wreq::Client;
 
     #[inline(always)]
     fn deref(&self) -> &Self::Target {
@@ -155,7 +155,7 @@ impl Client {
     pub fn new(py: Python, mut kwds: Option<ClientParams>) -> PyResult<Client> {
         py.allow_threads(|| {
             let params = kwds.get_or_insert_default();
-            let mut builder = rquest::Client::builder().no_hickory_dns();
+            let mut builder = wreq::Client::builder().no_hickory_dns();
 
             // Impersonation options.
             if let Some(impersonate) = params.impersonate.take() {

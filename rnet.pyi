@@ -1193,6 +1193,15 @@ class ImpersonateOption:
             )
             ```
         """
+    
+    @staticmethod
+    def random() -> ImpersonateOption:
+        r"""
+        Creates a new random impersonation option instance.
+
+        This method generates a random browser/client impersonation option
+        with random settings for browser type and operating system options.
+        """
 
 class Message:
     r"""

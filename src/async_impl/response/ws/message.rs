@@ -3,7 +3,7 @@ use pyo3::{
     prelude::*,
     pybacked::{PyBackedBytes, PyBackedStr},
 };
-use rquest::Utf8Bytes;
+use wreq::Utf8Bytes;
 
 use crate::{
     buffer::{BytesBuffer, PyBufferProtocol},
@@ -14,7 +14,7 @@ use crate::{
 /// A WebSocket message.
 #[pyclass(subclass)]
 #[derive(Clone)]
-pub struct Message(pub rquest::Message);
+pub struct Message(pub wreq::Message);
 
 #[pymethods]
 impl Message {
@@ -32,10 +32,10 @@ impl Message {
     #[getter]
     pub fn data<'py>(&self, py: Python<'py>) -> Option<Bound<'py, PyAny>> {
         let bytes = match &self.0 {
-            rquest::Message::Text(text) => text.clone().into(),
-            rquest::Message::Binary(bytes)
-            | rquest::Message::Ping(bytes)
-            | rquest::Message::Pong(bytes) => bytes.clone(),
+            wreq::Message::Text(text) => text.clone().into(),
+            wreq::Message::Binary(bytes)
+            | wreq::Message::Ping(bytes)
+            | wreq::Message::Pong(bytes) => bytes.clone(),
             _ => return None,
         };
         BytesBuffer::new(bytes).into_bytes_ref(py).ok()
@@ -44,7 +44,7 @@ impl Message {
     /// Returns the text content of the message if it is a text message.
     #[getter]
     pub fn text(&self) -> Option<&str> {
-        if let rquest::Message::Text(text) = &self.0 {
+        if let wreq::Message::Text(text) = &self.0 {
             Some(text)
         } else {
             None
@@ -54,7 +54,7 @@ impl Message {
     /// Returns the binary data of the message if it is a binary message.
     #[getter]
     pub fn binary<'py>(&self, py: Python<'py>) -> Option<Bound<'py, PyAny>> {
-        if let rquest::Message::Binary(data) = &self.0 {
+        if let wreq::Message::Binary(data) = &self.0 {
             BytesBuffer::new(data.clone()).into_bytes_ref(py).ok()
         } else {
             None
@@ -64,7 +64,7 @@ impl Message {
     /// Returns the ping data of the message if it is a ping message.
     #[getter]
     pub fn ping<'py>(&self, py: Python<'py>) -> Option<Bound<'py, PyAny>> {
-        if let rquest::Message::Ping(data) = &self.0 {
+        if let wreq::Message::Ping(data) = &self.0 {
             BytesBuffer::new(data.clone()).into_bytes_ref(py).ok()
         } else {
             None
@@ -74,7 +74,7 @@ impl Message {
     /// Returns the pong data of the message if it is a pong message.
     #[getter]
     pub fn pong<'py>(&self, py: Python<'py>) -> Option<Bound<'py, PyAny>> {
-        if let rquest::Message::Pong(data) = &self.0 {
+        if let wreq::Message::Pong(data) = &self.0 {
             BytesBuffer::new(data.clone()).into_bytes_ref(py).ok()
         } else {
             None
@@ -84,7 +84,7 @@ impl Message {
     /// Returns the close code and reason of the message if it is a close message.
     #[getter]
     pub fn close(&self) -> Option<(u16, Option<&str>)> {
-        if let rquest::Message::Close(Some(s)) = &self.0 {
+        if let wreq::Message::Close(Some(s)) = &self.0 {
             Some((s.code.0, Some(s.reason.as_str())))
         } else {
             None
@@ -99,7 +99,7 @@ impl Message {
     #[pyo3(signature = (json))]
     pub fn text_from_json(py: Python, json: Json) -> PyResult<Self> {
         py.allow_threads(|| {
-            rquest::Message::text_from_json(&json)
+            wreq::Message::text_from_json(&json)
                 .map(Message)
                 .map_err(Error::Request)
                 .map_err(Into::into)
@@ -111,7 +111,7 @@ impl Message {
     #[pyo3(signature = (json))]
     pub fn binary_from_json(py: Python, json: Json) -> PyResult<Self> {
         py.allow_threads(|| {
-            rquest::Message::binary_from_json(&json)
+            wreq::Message::binary_from_json(&json)
                 .map(Message)
                 .map_err(Error::Request)
                 .map_err(Into::into)
@@ -122,7 +122,7 @@ impl Message {
     #[staticmethod]
     #[pyo3(signature = (text))]
     pub fn from_text(text: PyBackedStr) -> Self {
-        let msg = rquest::Message::text(Utf8Bytes::from_bytes_unchecked(Bytes::from_owner(text)));
+        let msg = wreq::Message::text(Utf8Bytes::from_bytes_unchecked(Bytes::from_owner(text)));
         Message(msg)
     }
 
@@ -130,7 +130,7 @@ impl Message {
     #[staticmethod]
     #[pyo3(signature = (data))]
     pub fn from_binary(data: PyBackedBytes) -> Self {
-        let msg = rquest::Message::binary(Bytes::from_owner(data));
+        let msg = wreq::Message::binary(Bytes::from_owner(data));
         Message(msg)
     }
 
@@ -138,7 +138,7 @@ impl Message {
     #[staticmethod]
     #[pyo3(signature = (data))]
     pub fn from_ping(data: PyBackedBytes) -> Self {
-        let msg = rquest::Message::ping(Bytes::from_owner(data));
+        let msg = wreq::Message::ping(Bytes::from_owner(data));
         Message(msg)
     }
 
@@ -146,7 +146,7 @@ impl Message {
     #[staticmethod]
     #[pyo3(signature = (data))]
     pub fn from_pong(data: PyBackedBytes) -> Self {
-        let msg = rquest::Message::pong(Bytes::from_owner(data));
+        let msg = wreq::Message::pong(Bytes::from_owner(data));
         Message(msg)
     }
 
@@ -157,9 +157,9 @@ impl Message {
         let reason = reason
             .map(Bytes::from_owner)
             .map(Utf8Bytes::from_bytes_unchecked)
-            .unwrap_or_else(|| rquest::Utf8Bytes::from_static("Goodbye"));
-        let msg = rquest::Message::close(rquest::CloseFrame {
-            code: rquest::CloseCode(code),
+            .unwrap_or_else(|| wreq::Utf8Bytes::from_static("Goodbye"));
+        let msg = wreq::Message::close(wreq::CloseFrame {
+            code: wreq::CloseCode(code),
             reason,
         });
         Message(msg)

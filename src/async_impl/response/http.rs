@@ -8,9 +8,9 @@ use futures_util::{Stream, TryStreamExt};
 use mime::Mime;
 use pyo3::{IntoPyObjectExt, prelude::*};
 use pyo3_async_runtimes::tokio::future_into_py;
-use rquest::{TlsInfo, Url, header};
 use std::{ops::Deref, pin::Pin, sync::Arc};
 use tokio::sync::Mutex;
+use wreq::{TlsInfo, Url, header};
 
 /// A response from a request.
 #[pyclass(subclass)]
@@ -20,13 +20,13 @@ pub struct Response {
     status_code: StatusCode,
     remote_addr: Option<SocketAddr>,
     content_length: Option<u64>,
-    headers: rquest::header::HeaderMap,
-    response: ArcSwapOption<rquest::Response>,
+    headers: wreq::header::HeaderMap,
+    response: ArcSwapOption<wreq::Response>,
 }
 
 impl Response {
     /// Create a new `Response` instance.
-    pub fn new(mut response: rquest::Response) -> Self {
+    pub fn new(mut response: wreq::Response) -> Self {
         Response {
             url: response.url().clone(),
             version: Version::from_ffi(response.version()),
@@ -38,8 +38,8 @@ impl Response {
         }
     }
 
-    /// Consumes the `Response` and returns the inner `rquest::Response`.
-    pub fn inner(&self) -> PyResult<rquest::Response> {
+    /// Consumes the `Response` and returns the inner `wreq::Response`.
+    pub fn inner(&self) -> PyResult<wreq::Response> {
         self.response
             .swap(None)
             .and_then(Arc::into_inner)
@@ -191,7 +191,7 @@ impl Response {
     pub fn stream(&self, py: Python) -> PyResult<Streamer> {
         py.allow_threads(|| {
             self.inner()
-                .map(rquest::Response::bytes_stream)
+                .map(wreq::Response::bytes_stream)
                 .map(Streamer::new)
         })
     }
@@ -224,7 +224,7 @@ impl Response {
     }
 }
 
-type InnerStreamer = Pin<Box<dyn Stream<Item = rquest::Result<bytes::Bytes>> + Send + 'static>>;
+type InnerStreamer = Pin<Box<dyn Stream<Item = wreq::Result<bytes::Bytes>> + Send + 'static>>;
 
 /// A byte stream response.
 /// An asynchronous iterator yielding data chunks from the response stream.
@@ -247,7 +247,7 @@ impl Deref for Streamer {
 impl Streamer {
     /// Create a new `Streamer` instance.
     pub fn new(
-        stream: impl Stream<Item = rquest::Result<bytes::Bytes>> + Send + 'static,
+        stream: impl Stream<Item = wreq::Result<bytes::Bytes>> + Send + 'static,
     ) -> Streamer {
         Streamer(Arc::new(Mutex::new(Some(Box::pin(stream)))))
     }

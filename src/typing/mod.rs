@@ -26,24 +26,12 @@ pub use self::{
     status::StatusCode,
 };
 use pyo3::{prelude::*, pybacked::PyBackedStr};
-use rquest_util::EmulationOption;
 use serde::ser::{Serialize, SerializeSeq, Serializer};
+use wreq_util::EmulationOption;
 
 /// A struct to represent the `ImpersonateOption` class.
 #[pyclass(subclass)]
-pub struct ImpersonateOption {
-    /// The browser version to impersonate.
-    impersonate: Impersonate,
-
-    /// The operating system.
-    impersonate_os: Option<ImpersonateOS>,
-
-    /// Whether to skip HTTP/2.
-    skip_http2: Option<bool>,
-
-    /// Whether to skip headers.
-    skip_headers: Option<bool>,
-}
+pub struct ImpersonateOption(EmulationOption);
 
 #[pymethods]
 impl ImpersonateOption {
@@ -61,12 +49,20 @@ impl ImpersonateOption {
         skip_http2: Option<bool>,
         skip_headers: Option<bool>,
     ) -> Self {
-        Self {
-            impersonate,
-            impersonate_os,
-            skip_http2,
-            skip_headers,
-        }
+        let emulation = EmulationOption::builder()
+            .emulation(impersonate.into_ffi())
+            .emulation_os(impersonate_os.map(|os| os.into_ffi()).unwrap_or_default())
+            .skip_http2(skip_http2.unwrap_or(false))
+            .skip_headers(skip_headers.unwrap_or(false))
+            .build();
+
+        Self(emulation)
+    }
+
+    /// Creates a new random impersonation option instance.
+    #[staticmethod]
+    fn random() -> Self {
+        Self(wreq_util::Emulation::random())
     }
 }
 
@@ -104,19 +100,6 @@ impl FromPyObject<'_> for ImpersonateExtractor {
         }
 
         let option = ob.downcast::<ImpersonateOption>()?.borrow();
-
-        Ok(Self(
-            EmulationOption::builder()
-                .emulation(option.impersonate.into_ffi())
-                .emulation_os(
-                    option
-                        .impersonate_os
-                        .map(|os| os.into_ffi())
-                        .unwrap_or_default(),
-                )
-                .skip_http2(option.skip_http2.unwrap_or(false))
-                .skip_headers(option.skip_headers.unwrap_or(false))
-                .build(),
-        ))
+        Ok(Self(option.0.clone()))
     }
 }

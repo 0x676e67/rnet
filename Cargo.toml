@@ -32,7 +32,7 @@ arc-swap = "1.7.1"
 url = "2.5"
 bytes = "1.10.1"
 futures-util = { version = "0.3.31", default-features = false }
-rquest = { version = "5.1.0", features = [
+wreq = { version = "5.1.0", features = [
     "full",
     "multipart",
     "websocket",
@@ -41,7 +41,7 @@ rquest = { version = "5.1.0", features = [
     "cookies-preserve-order",
     "cookies-multiple",
 ] }
-rquest-util = "2.2.1"
+wreq-util = { version = "2.2.2", features = ["emulation-rand"]}
 
 [target.'cfg(not(target_env = "msvc"))'.dependencies]
 jemallocator = { package = "tikv-jemallocator", version = "0.6", features = [
