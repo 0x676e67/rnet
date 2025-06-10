@@ -7,8 +7,106 @@ import ipaddress
 import pathlib
 import typing
 from enum import Enum, auto
-from typing import Optional, Tuple, Union, Any, Dict, List
+from typing import Optional, Tuple, Union, Any, Dict, List, TypedDict, Unpack
 from pathlib import Path
+
+class ClientParams(TypedDict):
+    impersonate: Optional[Union[Impersonate, ImpersonateOption]] = (None,)
+    user_agent: Optional[str] = (None,)
+    default_headers: Optional[Dict[str, bytes]] = (None,)
+    headers_order: Optional[List[str]] = (None,)
+    referer: Optional[bool] = (None,)
+    allow_redirects: Optional[bool] = (None,)
+    max_redirects: Optional[int] = (None,)
+    cookie_store: Optional[bool] = (None,)
+    lookup_ip_strategy: Optional[LookupIpStrategy] = (None,)
+    timeout: Optional[int] = (None,)
+    connect_timeout: Optional[int] = (None,)
+    read_timeout: Optional[int] = (None,)
+    no_keepalive: Optional[bool] = (None,)
+    tcp_keepalive: Optional[int] = (None,)
+    pool_idle_timeout: Optional[int] = (None,)
+    pool_max_idle_per_host: Optional[int] = (None,)
+    pool_max_size: Optional[int] = (None,)
+    http1_only: Optional[bool] = (None,)
+    http2_only: Optional[bool] = (None,)
+    https_only: Optional[bool] = (None,)
+    tcp_nodelay: Optional[bool] = (None,)
+    http2_max_retry_count: Optional[int] = (None,)
+    verify: Optional[Union[bool, Path]] = (None,)
+    tls_info: Optional[bool] = (None,)
+    min_tls_version: Optional[TlsVersion] = (None,)
+    max_tls_version: Optional[TlsVersion] = (None,)
+    no_proxy: Optional[bool] = (None,)
+    proxies: Optional[List[Proxy]] = (None,)
+    local_address: Optional[
+        Union[str, ipaddress.IPv4Address, ipaddress.IPv6Address]
+    ] = (None,)
+    interface: Optional[str] = (None,)
+    gzip: Optional[bool] = (None,)
+    brotli: Optional[bool] = (None,)
+    deflate: Optional[bool] = (None,)
+    zstd: Optional[bool] = (None,)
+
+class WebSocketParams(TypedDict):
+    url: str
+    proxy: Optional[Union[str, Proxy]] = (None,)
+    local_address: Optional[
+        Union[str, ipaddress.IPv4Address, ipaddress.IPv6Address]
+    ] = (None,)
+    interface: Optional[str] = (None,)
+    headers: Optional[Dict[str, bytes]] = (None,)
+    cookies: Optional[Dict[str, str]] = (None,)
+    protocols: Optional[List[str]] = (None,)
+    use_http2: Optional[bool] = (None,)
+    auth: Optional[str] = (None,)
+    bearer_auth: Optional[str] = (None,)
+    basic_auth: Optional[Tuple[str, Optional[str]]] = (None,)
+    query: Optional[List[Tuple[str, str]]] = (None,)
+    read_buffer_size: Optional[int] = (None,)
+    write_buffer_size: Optional[int] = (None,)
+    max_write_buffer_size: Optional[int] = (None,)
+    max_message_size: Optional[int] = (None,)
+    max_frame_size: Optional[int] = (None,)
+    accept_unmasked_frames: Optional[bool] = (None,)
+
+class RequestParams(TypedDict):
+    url: str
+    proxy: Optional[Union[str, Proxy]] = (None,)
+    local_address: Optional[Union[ipaddress.IPv4Address, ipaddress.IPv6Address]] = (
+        None,
+    )
+    interface: Optional[str] = (None,)
+    timeout: Optional[int] = (None,)
+    read_timeout: Optional[int] = (None,)
+    version: Optional[Version] = (None,)
+    headers: Optional[Union[Dict[str, str], HeaderMap]] = (None,)
+    cookies: Optional[Dict[str, str]] = (None,)
+    allow_redirects: Optional[bool] = (None,)
+    max_redirects: Optional[int] = (None,)
+    auth: Optional[str] = (None,)
+    bearer_auth: Optional[str] = (None,)
+    basic_auth: Optional[Tuple[str, Optional[str]]] = (None,)
+    query: Optional[List[Tuple[str, str]]] = (None,)
+    form: Optional[List[Tuple[str, str]]] = (None,)
+    json: Optional[Dict[str, Any]] = (None,)
+    body: Optional[
+        Union[
+            str,
+            bytes,
+            typing.AsyncGenerator[bytes, str],
+            typing.Generator[bytes, str],
+        ]
+    ] = (None,)
+    multipart: Optional[Multipart] = (None,)
+
+class ProxyParams(TypedDict):
+    url: str
+    username: Optional[str] = (None,)
+    password: Optional[str] = (None,)
+    custom_http_auth: Optional[str] = (None,)
+    custom_http_headers: Optional[Union[Dict[str, str], HeaderMap]] = (None,)
+    exclusion: Optional[str] = (None,)
 
 class BlockingClient:
     r"""
@@ -23,45 +121,7 @@ class BlockingClient:
     r"""
     Returns the headers of the client.
     """
-    def __new__(
-        cls,
-        impersonate: Optional[Union[Impersonate, ImpersonateOption]] = None,
-        user_agent: Optional[str] = None,
-        default_headers: Optional[Dict[str, bytes]] = None,
-        headers_order: Optional[List[str]] = None,
-        referer: Optional[bool] = None,
-        allow_redirects: Optional[bool] = None,
-        max_redirects: Optional[int] = None,
-        cookie_store: Optional[bool] = None,
-        lookup_ip_strategy: Optional[LookupIpStrategy] = None,
-        timeout: Optional[int] = None,
-        connect_timeout: Optional[int] = None,
-        read_timeout: Optional[int] = None,
-        no_keepalive: Optional[bool] = None,
-        tcp_keepalive: Optional[int] = None,
-        pool_idle_timeout: Optional[int] = None,
-        pool_max_idle_per_host: Optional[int] = None,
-        pool_max_size: Optional[int] = None,
-        http1_only: Optional[bool] = None,
-        http2_only: Optional[bool] = None,
-        https_only: Optional[bool] = None,
-        tcp_nodelay: Optional[bool] = None,
-        http2_max_retry_count: Optional[int] = None,
-        verify: Optional[Union[bool, Path]] = None,
-        tls_info: Optional[bool] = None,
-        min_tls_version: Optional[TlsVersion] = None,
-        max_tls_version: Optional[TlsVersion] = None,
-        no_proxy: Optional[bool] = None,
-        proxies: Optional[List[Proxy]] = None,
-        local_address: Optional[
-            Union[str, ipaddress.IPv4Address, ipaddress.IPv6Address]
-        ] = None,
-        interface: Optional[str] = None,
-        gzip: Optional[bool] = None,
-        brotli: Optional[bool] = None,
-        deflate: Optional[bool] = None,
-        zstd: Optional[bool] = None,
-    ) -> BlockingClient:
+    def __new__(cls, **kwds: Unpack[ClientParams]) -> BlockingClient:
         r"""
         Creates a new BlockingClient instance.
 
@@ -166,34 +226,7 @@ class BlockingClient:
     def request(
         self,
         method: Method,
-        url: str,
-        proxy: Optional[Union[str, Proxy]] = None,
-        local_address: Optional[
-            Union[ipaddress.IPv4Address, ipaddress.IPv6Address]
-        ] = None,
-        interface: Optional[str] = None,
-        timeout: Optional[int] = None,
-        read_timeout: Optional[int] = None,
-        version: Optional[Version] = None,
-        headers: Optional[Union[Dict[str, str], HeaderMap]] = None,
-        cookies: Optional[Dict[str, str]] = None,
-        allow_redirects: Optional[bool] = None,
-        max_redirects: Optional[int] = None,
-        auth: Optional[str] = None,
-        bearer_auth: Optional[str] = None,
-        basic_auth: Optional[Tuple[str, Optional[str]]] = None,
-        query: Optional[List[Tuple[str, str]]] = None,
-        form: Optional[List[Tuple[str, str]]] = None,
-        json: Optional[Dict[str, Any]] = None,
-        body: Optional[
-            Union[
-                str,
-                bytes,
-                typing.AsyncGenerator[bytes, str],
-                typing.Generator[bytes, str],
-            ]
-        ] = None,
-        multipart: Optional[Multipart] = None,
+        **kwds: Unpack[RequestParams],
     ) -> BlockingResponse:
         r"""
         Sends a request with the given method and URL.
@@ -214,29 +247,7 @@ class BlockingClient:
         ```
         """
 
-    def websocket(
-        self,
-        url: str,
-        proxy: Optional[Union[str, Proxy]] = None,
-        local_address: Optional[
-            Union[str, ipaddress.IPv4Address, ipaddress.IPv6Address]
-        ] = None,
-        interface: Optional[str] = None,
-        headers: Optional[Dict[str, bytes]] = None,
-        cookies: Optional[Dict[str, str]] = None,
-        protocols: Optional[List[str]] = None,
-        use_http2: Optional[bool] = None,
-        auth: Optional[str] = None,
-        bearer_auth: Optional[str] = None,
-        basic_auth: Optional[Tuple[str, Optional[str]]] = None,
-        query: Optional[List[Tuple[str, str]]] = None,
-        read_buffer_size: Optional[int] = None,
-        write_buffer_size: Optional[int] = None,
-        max_write_buffer_size: Optional[int] = None,
-        max_message_size: Optional[int] = None,
-        max_frame_size: Optional[int] = None,
-        accept_unmasked_frames: Optional[bool] = None,
-    ) -> BlockingWebSocket:
+    def websocket(self, **kwds: Unpack[WebSocketParams]) -> BlockingWebSocket:
         r"""
         Sends a WebSocket request.
 
@@ -260,34 +271,7 @@ class BlockingClient:
 
     def trace(
         self,
-        url: str,
-        proxy: Optional[Union[str, Proxy]] = None,
-        local_address: Optional[
-            Union[ipaddress.IPv4Address, ipaddress.IPv6Address]
-        ] = None,
-        interface: Optional[str] = None,
-        timeout: Optional[int] = None,
-        read_timeout: Optional[int] = None,
-        version: Optional[Version] = None,
-        headers: Optional[Union[Dict[str, str], HeaderMap]] = None,
-        cookies: Optional[Dict[str, str]] = None,
-        allow_redirects: Optional[bool] = None,
-        max_redirects: Optional[int] = None,
-        auth: Optional[str] = None,
-        bearer_auth: Optional[str] = None,
-        basic_auth: Optional[Tuple[str, Optional[str]]] = None,
-        query: Optional[List[Tuple[str, str]]] = None,
-        form: Optional[List[Tuple[str, str]]] = None,
-        json: Optional[Dict[str, Any]] = None,
-        body: Optional[
-            Union[
-                str,
-                bytes,
-                typing.AsyncGenerator[bytes, str],
-                typing.Generator[bytes, str],
-            ]
-        ] = None,
-        multipart: Optional[Multipart] = None,
+        **kwds: Unpack[RequestParams],
     ) -> BlockingResponse:
         r"""
         Sends a request with the given URL.
@@ -310,34 +294,7 @@ class BlockingClient:
 
     def options(
         self,
-        url: str,
-        proxy: Optional[Union[str, Proxy]] = None,
-        local_address: Optional[
-            Union[ipaddress.IPv4Address, ipaddress.IPv6Address]
-        ] = None,
-        interface: Optional[str] = None,
-        timeout: Optional[int] = None,
-        read_timeout: Optional[int] = None,
-        version: Optional[Version] = None,
-        headers: Optional[Union[Dict[str, str], HeaderMap]] = None,
-        cookies: Optional[Dict[str, str]] = None,
-        allow_redirects: Optional[bool] = None,
-        max_redirects: Optional[int] = None,
-        auth: Optional[str] = None,
-        bearer_auth: Optional[str] = None,
-        basic_auth: Optional[Tuple[str, Optional[str]]] = None,
-        query: Optional[List[Tuple[str, str]]] = None,
-        form: Optional[List[Tuple[str, str]]] = None,
-        json: Optional[Dict[str, Any]] = None,
-        body: Optional[
-            Union[
-                str,
-                bytes,
-                typing.AsyncGenerator[bytes, str],
-                typing.Generator[bytes, str],
-            ]
-        ] = None,
-        multipart: Optional[Multipart] = None,
+        **kwds: Unpack[RequestParams],
     ) -> BlockingResponse:
         r"""
         Sends a request with the given URL.
@@ -360,34 +317,7 @@ class BlockingClient:
 
     def head(
         self,
-        url: str,
-        proxy: Optional[Union[str, Proxy]] = None,
-        local_address: Optional[
-            Union[ipaddress.IPv4Address, ipaddress.IPv6Address]
-        ] = None,
-        interface: Optional[str] = None,
-        timeout: Optional[int] = None,
-        read_timeout: Optional[int] = None,
-        version: Optional[Version] = None,
-        headers: Optional[Union[Dict[str, str], HeaderMap]] = None,
-        cookies: Optional[Dict[str, str]] = None,
-        allow_redirects: Optional[bool] = None,
-        max_redirects: Optional[int] = None,
-        auth: Optional[str] = None,
-        bearer_auth: Optional[str] = None,
-        basic_auth: Optional[Tuple[str, Optional[str]]] = None,
-        query: Optional[List[Tuple[str, str]]] = None,
-        form: Optional[List[Tuple[str, str]]] = None,
-        json: Optional[Dict[str, Any]] = None,
-        body: Optional[
-            Union[
-                str,
-                bytes,
-                typing.AsyncGenerator[bytes, str],
-                typing.Generator[bytes, str],
-            ]
-        ] = None,
-        multipart: Optional[Multipart] = None,
+        **kwds: Unpack[RequestParams],
     ) -> BlockingResponse:
         r"""
         Sends a request with the given URL.
@@ -410,34 +340,7 @@ class BlockingClient:
 
     def delete(
         self,
-        url: str,
-        proxy: Optional[Union[str, Proxy]] = None,
-        local_address: Optional[
-            Union[ipaddress.IPv4Address, ipaddress.IPv6Address]
-        ] = None,
-        interface: Optional[str] = None,
-        timeout: Optional[int] = None,
-        read_timeout: Optional[int] = None,
-        version: Optional[Version] = None,
-        headers: Optional[Union[Dict[str, str], HeaderMap]] = None,
-        cookies: Optional[Dict[str, str]] = None,
-        allow_redirects: Optional[bool] = None,
-        max_redirects: Optional[int] = None,
-        auth: Optional[str] = None,
-        bearer_auth: Optional[str] = None,
-        basic_auth: Optional[Tuple[str, Optional[str]]] = None,
-        query: Optional[List[Tuple[str, str]]] = None,
-        form: Optional[List[Tuple[str, str]]] = None,
-        json: Optional[Dict[str, Any]] = None,
-        body: Optional[
-            Union[
-                str,
-                bytes,
-                typing.AsyncGenerator[bytes, str],
-                typing.Generator[bytes, str],
-            ]
-        ] = None,
-        multipart: Optional[Multipart] = None,
+        **kwds: Unpack[RequestParams],
     ) -> BlockingResponse:
         r"""
         Sends a request with the given URL.
@@ -460,34 +363,7 @@ class BlockingClient:
 
     def patch(
         self,
-        url: str,
-        proxy: Optional[Union[str, Proxy]] = None,
-        local_address: Optional[
-            Union[ipaddress.IPv4Address, ipaddress.IPv6Address]
-        ] = None,
-        interface: Optional[str] = None,
-        timeout: Optional[int] = None,
-        read_timeout: Optional[int] = None,
-        version: Optional[Version] = None,
-        headers: Optional[Union[Dict[str, str], HeaderMap]] = None,
-        cookies: Optional[Dict[str, str]] = None,
-        allow_redirects: Optional[bool] = None,
-        max_redirects: Optional[int] = None,
-        auth: Optional[str] = None,
-        bearer_auth: Optional[str] = None,
-        basic_auth: Optional[Tuple[str, Optional[str]]] = None,
-        query: Optional[List[Tuple[str, str]]] = None,
-        form: Optional[List[Tuple[str, str]]] = None,
-        json: Optional[Dict[str, Any]] = None,
-        body: Optional[
-            Union[
-                str,
-                bytes,
-                typing.AsyncGenerator[bytes, str],
-                typing.Generator[bytes, str],
-            ]
-        ] = None,
-        multipart: Optional[Multipart] = None,
+        **kwds: Unpack[RequestParams],
     ) -> BlockingResponse:
         r"""
         Sends a request with the given URL.
@@ -510,34 +386,7 @@ class BlockingClient:
 
     def put(
         self,
-        url: str,
-        proxy: Optional[Union[str, Proxy]] = None,
-        local_address: Optional[
-            Union[ipaddress.IPv4Address, ipaddress.IPv6Address]
-        ] = None,
-        interface: Optional[str] = None,
-        timeout: Optional[int] = None,
-        read_timeout: Optional[int] = None,
-        version: Optional[Version] = None,
-        headers: Optional[Union[Dict[str, str], HeaderMap]] = None,
-        cookies: Optional[Dict[str, str]] = None,
-        allow_redirects: Optional[bool] = None,
-        max_redirects: Optional[int] = None,
-        auth: Optional[str] = None,
-        bearer_auth: Optional[str] = None,
-        basic_auth: Optional[Tuple[str, Optional[str]]] = None,
-        query: Optional[List[Tuple[str, str]]] = None,
-        form: Optional[List[Tuple[str, str]]] = None,
-        json: Optional[Dict[str, Any]] = None,
-        body: Optional[
-            Union[
-                str,
-                bytes,
-                typing.AsyncGenerator[bytes, str],
-                typing.Generator[bytes, str],
-            ]
-        ] = None,
-        multipart: Optional[Multipart] = None,
+        **kwds: Unpack[RequestParams],
     ) -> BlockingResponse:
         r"""
         Sends a request with the given URL.
@@ -560,34 +409,7 @@ class BlockingClient:
 
     def post(
         self,
-        url: str,
-        proxy: Optional[Union[str, Proxy]] = None,
-        local_address: Optional[
-            Union[ipaddress.IPv4Address, ipaddress.IPv6Address]
-        ] = None,
-        interface: Optional[str] = None,
-        timeout: Optional[int] = None,
-        read_timeout: Optional[int] = None,
-        version: Optional[Version] = None,
-        headers: Optional[Union[Dict[str, str], HeaderMap]] = None,
-        cookies: Optional[Dict[str, str]] = None,
-        allow_redirects: Optional[bool] = None,
-        max_redirects: Optional[int] = None,
-        auth: Optional[str] = None,
-        bearer_auth: Optional[str] = None,
-        basic_auth: Optional[Tuple[str, Optional[str]]] = None,
-        query: Optional[List[Tuple[str, str]]] = None,
-        form: Optional[List[Tuple[str, str]]] = None,
-        json: Optional[Dict[str, Any]] = None,
-        body: Optional[
-            Union[
-                str,
-                bytes,
-                typing.AsyncGenerator[bytes, str],
-                typing.Generator[bytes, str],
-            ]
-        ] = None,
-        multipart: Optional[Multipart] = None,
+        **kwds: Unpack[RequestParams],
     ) -> BlockingResponse:
         r"""
         Sends a request with the given URL.
@@ -610,34 +432,7 @@ class BlockingClient:
 
     def get(
         self,
-        url: str,
-        proxy: Optional[Union[str, Proxy]] = None,
-        local_address: Optional[
-            Union[ipaddress.IPv4Address, ipaddress.IPv6Address]
-        ] = None,
-        interface: Optional[str] = None,
-        timeout: Optional[int] = None,
-        read_timeout: Optional[int] = None,
-        version: Optional[Version] = None,
-        headers: Optional[Union[Dict[str, str], HeaderMap]] = None,
-        cookies: Optional[Dict[str, str]] = None,
-        allow_redirects: Optional[bool] = None,
-        max_redirects: Optional[int] = None,
-        auth: Optional[str] = None,
-        bearer_auth: Optional[str] = None,
-        basic_auth: Optional[Tuple[str, Optional[str]]] = None,
-        query: Optional[List[Tuple[str, str]]] = None,
-        form: Optional[List[Tuple[str, str]]] = None,
-        json: Optional[Dict[str, Any]] = None,
-        body: Optional[
-            Union[
-                str,
-                bytes,
-                typing.AsyncGenerator[bytes, str],
-                typing.Generator[bytes, str],
-            ]
-        ] = None,
-        multipart: Optional[Multipart] = None,
+        **kwds: Unpack[RequestParams],
     ) -> BlockingResponse:
         r"""
         Sends a request with the given URL.
@@ -860,45 +655,7 @@ class Client:
     print(headers)
     ```
     """
-    def __new__(
-        cls,
-        impersonate: Optional[Union[Impersonate, ImpersonateOption]] = None,
-        user_agent: Optional[str] = None,
-        default_headers: Optional[Dict[str, bytes]] = None,
-        headers_order: Optional[List[str]] = None,
-        referer: Optional[bool] = None,
-        allow_redirects: Optional[bool] = None,
-        max_redirects: Optional[int] = None,
-        cookie_store: Optional[bool] = None,
-        lookup_ip_strategy: Optional[LookupIpStrategy] = None,
-        timeout: Optional[int] = None,
-        connect_timeout: Optional[int] = None,
-        read_timeout: Optional[int] = None,
-        no_keepalive: Optional[bool] = None,
-        tcp_keepalive: Optional[int] = None,
-        pool_idle_timeout: Optional[int] = None,
-        pool_max_idle_per_host: Optional[int] = None,
-        pool_max_size: Optional[int] = None,
-        http1_only: Optional[bool] = None,
-        http2_only: Optional[bool] = None,
-        https_only: Optional[bool] = None,
-        tcp_nodelay: Optional[bool] = None,
-        http2_max_retry_count: Optional[int] = None,
-        verify: Optional[Union[bool, Path]] = None,
-        tls_info: Optional[bool] = None,
-        min_tls_version: Optional[TlsVersion] = None,
-        max_tls_version: Optional[TlsVersion] = None,
-        no_proxy: Optional[bool] = None,
-        proxies: Optional[List[Proxy]] = None,
-        local_address: Optional[
-            Union[str, ipaddress.IPv4Address, ipaddress.IPv6Address]
-        ] = None,
-        interface: Optional[str] = None,
-        gzip: Optional[bool] = None,
-        brotli: Optional[bool] = None,
-        deflate: Optional[bool] = None,
-        zstd: Optional[bool] = None,
-    ) -> Client:
+    def __new__(cls, **kwds: Unpack[ClientParams]) -> Client:
         r"""
         Creates a new Client instance.
 
@@ -1020,34 +777,7 @@ class Client:
     async def request(
         self,
         method: Method,
-        url: str,
-        proxy: Optional[Union[str, Proxy]] = None,
-        local_address: Optional[
-            Union[ipaddress.IPv4Address, ipaddress.IPv6Address]
-        ] = None,
-        interface: Optional[str] = None,
-        timeout: Optional[int] = None,
-        read_timeout: Optional[int] = None,
-        version: Optional[Version] = None,
-        headers: Optional[Union[Dict[str, str], HeaderMap]] = None,
-        cookies: Optional[Dict[str, str]] = None,
-        allow_redirects: Optional[bool] = None,
-        max_redirects: Optional[int] = None,
-        auth: Optional[str] = None,
-        bearer_auth: Optional[str] = None,
-        basic_auth: Optional[Tuple[str, Optional[str]]] = None,
-        query: Optional[List[Tuple[str, str]]] = None,
-        form: Optional[List[Tuple[str, str]]] = None,
-        json: Optional[Dict[str, Any]] = None,
-        body: Optional[
-            Union[
-                str,
-                bytes,
-                typing.AsyncGenerator[bytes, str],
-                typing.Generator[bytes, str],
-            ]
-        ] = None,
-        multipart: Optional[Multipart] = None,
+        **kwds: Unpack[RequestParams],
     ) -> Response:
         r"""
         Sends a request with the given method and URL.
@@ -1070,26 +800,7 @@ class Client:
 
     async def websocket(
         self,
-        url: str,
-        proxy: Optional[Union[str, Proxy]] = None,
-        local_address: Optional[
-            Union[str, ipaddress.IPv4Address, ipaddress.IPv6Address]
-        ] = None,
-        interface: Optional[str] = None,
-        headers: Optional[Dict[str, bytes]] = None,
-        cookies: Optional[Dict[str, str]] = None,
-        protocols: Optional[List[str]] = None,
-        use_http2: Optional[bool] = None,
-        auth: Optional[str] = None,
-        bearer_auth: Optional[str] = None,
-        basic_auth: Optional[Tuple[str, Optional[str]]] = None,
-        query: Optional[List[Tuple[str, str]]] = None,
-        read_buffer_size: Optional[int] = None,
-        write_buffer_size: Optional[int] = None,
-        max_write_buffer_size: Optional[int] = None,
-        max_message_size: Optional[int] = None,
-        max_frame_size: Optional[int] = None,
-        accept_unmasked_frames: Optional[bool] = None,
+        **kwds: Unpack[WebSocketParams],
     ) -> WebSocket:
         r"""
         Sends a WebSocket request.
@@ -1114,34 +825,7 @@ class Client:
 
     async def trace(
         self,
-        url: str,
-        proxy: Optional[Union[str, Proxy]] = None,
-        local_address: Optional[
-            Union[ipaddress.IPv4Address, ipaddress.IPv6Address]
-        ] = None,
-        interface: Optional[str] = None,
-        timeout: Optional[int] = None,
-        read_timeout: Optional[int] = None,
-        version: Optional[Version] = None,
-        headers: Optional[Union[Dict[str, str], HeaderMap]] = None,
-        cookies: Optional[Dict[str, str]] = None,
-        allow_redirects: Optional[bool] = None,
-        max_redirects: Optional[int] = None,
-        auth: Optional[str] = None,
-        bearer_auth: Optional[str] = None,
-        basic_auth: Optional[Tuple[str, Optional[str]]] = None,
-        query: Optional[List[Tuple[str, str]]] = None,
-        form: Optional[List[Tuple[str, str]]] = None,
-        json: Optional[Dict[str, Any]] = None,
-        body: Optional[
-            Union[
-                str,
-                bytes,
-                typing.AsyncGenerator[bytes, str],
-                typing.Generator[bytes, str],
-            ]
-        ] = None,
-        multipart: Optional[Multipart] = None,
+        **kwds: Unpack[RequestParams],
     ) -> Response:
         r"""
         Sends a request with the given URL
@@ -1164,34 +848,7 @@ class Client:
 
     async def options(
         self,
-        url: str,
-        proxy: Optional[Union[str, Proxy]] = None,
-        local_address: Optional[
-            Union[ipaddress.IPv4Address, ipaddress.IPv6Address]
-        ] = None,
-        interface: Optional[str] = None,
-        timeout: Optional[int] = None,
-        read_timeout: Optional[int] = None,
-        version: Optional[Version] = None,
-        headers: Optional[Union[Dict[str, str], HeaderMap]] = None,
-        cookies: Optional[Dict[str, str]] = None,
-        allow_redirects: Optional[bool] = None,
-        max_redirects: Optional[int] = None,
-        auth: Optional[str] = None,
-        bearer_auth: Optional[str] = None,
-        basic_auth: Optional[Tuple[str, Optional[str]]] = None,
-        query: Optional[List[Tuple[str, str]]] = None,
-        form: Optional[List[Tuple[str, str]]] = None,
-        json: Optional[Dict[str, Any]] = None,
-        body: Optional[
-            Union[
-                str,
-                bytes,
-                typing.AsyncGenerator[bytes, str],
-                typing.Generator[bytes, str],
-            ]
-        ] = None,
-        multipart: Optional[Multipart] = None,
+        **kwds: Unpack[RequestParams],
     ) -> Response:
         r"""
         Sends a request with the given URL
@@ -1214,34 +871,7 @@ class Client:
 
     async def patch(
         self,
-        url: str,
-        proxy: Optional[Union[str, Proxy]] = None,
-        local_address: Optional[
-            Union[ipaddress.IPv4Address, ipaddress.IPv6Address]
-        ] = None,
-        interface: Optional[str] = None,
-        timeout: Optional[int] = None,
-        read_timeout: Optional[int] = None,
-        version: Optional[Version] = None,
-        headers: Optional[Union[Dict[str, str], HeaderMap]] = None,
-        cookies: Optional[Dict[str, str]] = None,
-        allow_redirects: Optional[bool] = None,
-        max_redirects: Optional[int] = None,
-        auth: Optional[str] = None,
-        bearer_auth: Optional[str] = None,
-        basic_auth: Optional[Tuple[str, Optional[str]]] = None,
-        query: Optional[List[Tuple[str, str]]] = None,
-        form: Optional[List[Tuple[str, str]]] = None,
-        json: Optional[Dict[str, Any]] = None,
-        body: Optional[
-            Union[
-                str,
-                bytes,
-                typing.AsyncGenerator[bytes, str],
-                typing.Generator[bytes, str],
-            ]
-        ] = None,
-        multipart: Optional[Multipart] = None,
+        **kwds: Unpack[RequestParams],
     ) -> Response:
         r"""
         Sends a request with the given URL
@@ -1264,34 +894,7 @@ class Client:
 
     async def delete(
         self,
-        url: str,
-        proxy: Optional[Union[str, Proxy]] = None,
-        local_address: Optional[
-            Union[ipaddress.IPv4Address, ipaddress.IPv6Address]
-        ] = None,
-        interface: Optional[str] = None,
-        timeout: Optional[int] = None,
-        read_timeout: Optional[int] = None,
-        version: Optional[Version] = None,
-        headers: Optional[Union[Dict[str, str], HeaderMap]] = None,
-        cookies: Optional[Dict[str, str]] = None,
-        allow_redirects: Optional[bool] = None,
-        max_redirects: Optional[int] = None,
-        auth: Optional[str] = None,
-        bearer_auth: Optional[str] = None,
-        basic_auth: Optional[Tuple[str, Optional[str]]] = None,
-        query: Optional[List[Tuple[str, str]]] = None,
-        form: Optional[List[Tuple[str, str]]] = None,
-        json: Optional[Dict[str, Any]] = None,
-        body: Optional[
-            Union[
-                str,
-                bytes,
-                typing.AsyncGenerator[bytes, str],
-                typing.Generator[bytes, str],
-            ]
-        ] = None,
-        multipart: Optional[Multipart] = None,
+        **kwds: Unpack[RequestParams],
     ) -> Response:
         r"""
         Sends a request with the given URL
@@ -1314,34 +917,7 @@ class Client:
 
     async def put(
         self,
-        url: str,
-        proxy: Optional[Union[str, Proxy]] = None,
-        local_address: Optional[
-            Union[ipaddress.IPv4Address, ipaddress.IPv6Address]
-        ] = None,
-        interface: Optional[str] = None,
-        timeout: Optional[int] = None,
-        read_timeout: Optional[int] = None,
-        version: Optional[Version] = None,
-        headers: Optional[Union[Dict[str, str], HeaderMap]] = None,
-        cookies: Optional[Dict[str, str]] = None,
-        allow_redirects: Optional[bool] = None,
-        max_redirects: Optional[int] = None,
-        auth: Optional[str] = None,
-        bearer_auth: Optional[str] = None,
-        basic_auth: Optional[Tuple[str, Optional[str]]] = None,
-        query: Optional[List[Tuple[str, str]]] = None,
-        form: Optional[List[Tuple[str, str]]] = None,
-        json: Optional[Dict[str, Any]] = None,
-        body: Optional[
-            Union[
-                str,
-                bytes,
-                typing.AsyncGenerator[bytes, str],
-                typing.Generator[bytes, str],
-            ]
-        ] = None,
-        multipart: Optional[Multipart] = None,
+        **kwds: Unpack[RequestParams],
     ) -> Response:
         r"""
         Sends a request with the given URL
@@ -1364,34 +940,7 @@ class Client:
 
     async def post(
         self,
-        url: str,
-        proxy: Optional[Union[str, Proxy]] = None,
-        local_address: Optional[
-            Union[ipaddress.IPv4Address, ipaddress.IPv6Address]
-        ] = None,
-        interface: Optional[str] = None,
-        timeout: Optional[int] = None,
-        read_timeout: Optional[int] = None,
-        version: Optional[Version] = None,
-        headers: Optional[Union[Dict[str, str], HeaderMap]] = None,
-        cookies: Optional[Dict[str, str]] = None,
-        allow_redirects: Optional[bool] = None,
-        max_redirects: Optional[int] = None,
-        auth: Optional[str] = None,
-        bearer_auth: Optional[str] = None,
-        basic_auth: Optional[Tuple[str, Optional[str]]] = None,
-        query: Optional[List[Tuple[str, str]]] = None,
-        form: Optional[List[Tuple[str, str]]] = None,
-        json: Optional[Dict[str, Any]] = None,
-        body: Optional[
-            Union[
-                str,
-                bytes,
-                typing.AsyncGenerator[bytes, str],
-                typing.Generator[bytes, str],
-            ]
-        ] = None,
-        multipart: Optional[Multipart] = None,
+        **kwds: Unpack[RequestParams],
     ) -> Response:
         r"""
         Sends a request with the given URL
@@ -1414,34 +963,7 @@ class Client:
 
     async def head(
         self,
-        url: str,
-        proxy: Optional[Union[str, Proxy]] = None,
-        local_address: Optional[
-            Union[ipaddress.IPv4Address, ipaddress.IPv6Address]
-        ] = None,
-        interface: Optional[str] = None,
-        timeout: Optional[int] = None,
-        read_timeout: Optional[int] = None,
-        version: Optional[Version] = None,
-        headers: Optional[Union[Dict[str, str], HeaderMap]] = None,
-        cookies: Optional[Dict[str, str]] = None,
-        allow_redirects: Optional[bool] = None,
-        max_redirects: Optional[int] = None,
-        auth: Optional[str] = None,
-        bearer_auth: Optional[str] = None,
-        basic_auth: Optional[Tuple[str, Optional[str]]] = None,
-        query: Optional[List[Tuple[str, str]]] = None,
-        form: Optional[List[Tuple[str, str]]] = None,
-        json: Optional[Dict[str, Any]] = None,
-        body: Optional[
-            Union[
-                str,
-                bytes,
-                typing.AsyncGenerator[bytes, str],
-                typing.Generator[bytes, str],
-            ]
-        ] = None,
-        multipart: Optional[Multipart] = None,
+        **kwds: Unpack[RequestParams],
     ) -> Response:
         r"""
         Sends a request with the given URL
@@ -1464,34 +986,7 @@ class Client:
 
     async def get(
         self,
-        url: str,
-        proxy: Optional[Union[str, Proxy]] = None,
-        local_address: Optional[
-            Union[ipaddress.IPv4Address, ipaddress.IPv6Address]
-        ] = None,
-        interface: Optional[str] = None,
-        timeout: Optional[int] = None,
-        read_timeout: Optional[int] = None,
-        version: Optional[Version] = None,
-        headers: Optional[Union[Dict[str, str], HeaderMap]] = None,
-        cookies: Optional[Dict[str, str]] = None,
-        allow_redirects: Optional[bool] = None,
-        max_redirects: Optional[int] = None,
-        auth: Optional[str] = None,
-        bearer_auth: Optional[str] = None,
-        basic_auth: Optional[Tuple[str, Optional[str]]] = None,
-        query: Optional[List[Tuple[str, str]]] = None,
-        form: Optional[List[Tuple[str, str]]] = None,
-        json: Optional[Dict[str, Any]] = None,
-        body: Optional[
-            Union[
-                str,
-                bytes,
-                typing.AsyncGenerator[bytes, str],
-                typing.Generator[bytes, str],
-            ]
-        ] = None,
-        multipart: Optional[Multipart] = None,
+        **kwds: Unpack[RequestParams],
     ) -> Response:
         r"""
         Sends a request with the given URL
@@ -1849,14 +1344,7 @@ class Proxy:
     """
 
     @staticmethod
-    def http(
-        url: str,
-        username: Optional[str] = None,
-        password: Optional[str] = None,
-        custom_http_auth: Optional[str] = None,
-        custom_http_headers: Optional[Union[Dict[str, str], HeaderMap]] = None,
-        exclusion: Optional[str] = None,
-    ) -> Proxy:
+    def http(**kwds: Unpack[ProxyParams]) -> Proxy:
         r"""
         Creates a new HTTP proxy.
 
@@ -1881,14 +1369,7 @@ class Proxy:
         """
 
     @staticmethod
-    def https(
-        url: str,
-        username: Optional[str] = None,
-        password: Optional[str] = None,
-        custom_http_auth: Optional[str] = None,
-        custom_http_headers: Optional[Union[Dict[str, str], HeaderMap]] = None,
-        exclusion: Optional[str] = None,
-    ) -> Proxy:
+    def https(**kwds: Unpack[ProxyParams]) -> Proxy:
         r"""
         Creates a new HTTPS proxy.
 
@@ -1913,14 +1394,7 @@ class Proxy:
         """
 
     @staticmethod
-    def all(
-        url: str,
-        username: Optional[str] = None,
-        password: Optional[str] = None,
-        custom_http_auth: Optional[str] = None,
-        custom_http_headers: Optional[Union[Dict[str, str], HeaderMap]] = None,
-        exclusion: Optional[str] = None,
-    ) -> Proxy:
+    def all(**kwds: Unpack[ProxyParams]) -> Proxy:
         r"""
         Creates a new proxy for all protocols.
 
@@ -2357,32 +1831,7 @@ class Version(Enum):
     HTTP_3 = auto()
 
 async def delete(
-    url: str,
-    proxy: Optional[Union[str, Proxy]] = None,
-    local_address: Optional[Union[ipaddress.IPv4Address, ipaddress.IPv6Address]] = None,
-    interface: Optional[str] = None,
-    timeout: Optional[int] = None,
-    read_timeout: Optional[int] = None,
-    version: Optional[Version] = None,
-    headers: Optional[Union[Dict[str, str], HeaderMap]] = None,
-    cookies: Optional[Dict[str, str]] = None,
-    allow_redirects: Optional[bool] = None,
-    max_redirects: Optional[int] = None,
-    auth: Optional[str] = None,
-    bearer_auth: Optional[str] = None,
-    basic_auth: Optional[Tuple[str, Optional[str]]] = None,
-    query: Optional[List[Tuple[str, str]]] = None,
-    form: Optional[List[Tuple[str, str]]] = None,
-    json: Optional[Dict[str, Any]] = None,
-    body: Optional[
-        Union[
-            str,
-            bytes,
-            typing.AsyncGenerator[bytes, str],
-            typing.Generator[bytes, str],
-        ]
-    ] = None,
-    multipart: Optional[Multipart] = None,
+    **kwds: Unpack[RequestParams],
 ) -> Response:
     r"""
     Shortcut method to quickly make a request.
@@ -2403,32 +1852,7 @@ async def delete(
     """
 
 async def get(
-    url: str,
-    proxy: Optional[Union[str, Proxy]] = None,
-    local_address: Optional[Union[ipaddress.IPv4Address, ipaddress.IPv6Address]] = None,
-    interface: Optional[str] = None,
-    timeout: Optional[int] = None,
-    read_timeout: Optional[int] = None,
-    version: Optional[Version] = None,
-    headers: Optional[Union[Dict[str, str], HeaderMap]] = None,
-    cookies: Optional[Dict[str, str]] = None,
-    allow_redirects: Optional[bool] = None,
-    max_redirects: Optional[int] = None,
-    auth: Optional[str] = None,
-    bearer_auth: Optional[str] = None,
-    basic_auth: Optional[Tuple[str, Optional[str]]] = None,
-    query: Optional[List[Tuple[str, str]]] = None,
-    form: Optional[List[Tuple[str, str]]] = None,
-    json: Optional[Dict[str, Any]] = None,
-    body: Optional[
-        Union[
-            str,
-            bytes,
-            typing.AsyncGenerator[bytes, str],
-            typing.Generator[bytes, str],
-        ]
-    ] = None,
-    multipart: Optional[Multipart] = None,
+    **kwds: Unpack[RequestParams],
 ) -> Response:
     r"""
     Shortcut method to quickly make a request.
@@ -2449,32 +1873,7 @@ async def get(
     """
 
 async def head(
-    url: str,
-    proxy: Optional[Union[str, Proxy]] = None,
-    local_address: Optional[Union[ipaddress.IPv4Address, ipaddress.IPv6Address]] = None,
-    interface: Optional[str] = None,
-    timeout: Optional[int] = None,
-    read_timeout: Optional[int] = None,
-    version: Optional[Version] = None,
-    headers: Optional[Union[Dict[str, str], HeaderMap]] = None,
-    cookies: Optional[Dict[str, str]] = None,
-    allow_redirects: Optional[bool] = None,
-    max_redirects: Optional[int] = None,
-    auth: Optional[str] = None,
-    bearer_auth: Optional[str] = None,
-    basic_auth: Optional[Tuple[str, Optional[str]]] = None,
-    query: Optional[List[Tuple[str, str]]] = None,
-    form: Optional[List[Tuple[str, str]]] = None,
-    json: Optional[Dict[str, Any]] = None,
-    body: Optional[
-        Union[
-            str,
-            bytes,
-            typing.AsyncGenerator[bytes, str],
-            typing.Generator[bytes, str],
-        ]
-    ] = None,
-    multipart: Optional[Multipart] = None,
+    **kwds: Unpack[RequestParams],
 ) -> Response:
     r"""
     Shortcut method to quickly make a request.
@@ -2494,32 +1893,7 @@ async def head(
     """
 
 async def options(
-    url: str,
-    proxy: Optional[Union[str, Proxy]] = None,
-    local_address: Optional[Union[ipaddress.IPv4Address, ipaddress.IPv6Address]] = None,
-    interface: Optional[str] = None,
-    timeout: Optional[int] = None,
-    read_timeout: Optional[int] = None,
-    version: Optional[Version] = None,
-    headers: Optional[Union[Dict[str, str], HeaderMap]] = None,
-    cookies: Optional[Dict[str, str]] = None,
-    allow_redirects: Optional[bool] = None,
-    max_redirects: Optional[int] = None,
-    auth: Optional[str] = None,
-    bearer_auth: Optional[str] = None,
-    basic_auth: Optional[Tuple[str, Optional[str]]] = None,
-    query: Optional[List[Tuple[str, str]]] = None,
-    form: Optional[List[Tuple[str, str]]] = None,
-    json: Optional[Dict[str, Any]] = None,
-    body: Optional[
-        Union[
-            str,
-            bytes,
-            typing.AsyncGenerator[bytes, str],
-            typing.Generator[bytes, str],
-        ]
-    ] = None,
-    multipart: Optional[Multipart] = None,
+    **kwds: Unpack[RequestParams],
 ) -> Response:
     r"""
     Shortcut method to quickly make a request.
@@ -2539,32 +1913,7 @@ async def options(
     """
 
 async def patch(
-    url: str,
-    proxy: Optional[Union[str, Proxy]] = None,
-    local_address: Optional[Union[ipaddress.IPv4Address, ipaddress.IPv6Address]] = None,
-    interface: Optional[str] = None,
-    timeout: Optional[int] = None,
-    read_timeout: Optional[int] = None,
-    version: Optional[Version] = None,
-    headers: Optional[Union[Dict[str, str], HeaderMap]] = None,
-    cookies: Optional[Dict[str, str]] = None,
-    allow_redirects: Optional[bool] = None,
-    max_redirects: Optional[int] = None,
-    auth: Optional[str] = None,
-    bearer_auth: Optional[str] = None,
-    basic_auth: Optional[Tuple[str, Optional[str]]] = None,
-    query: Optional[List[Tuple[str, str]]] = None,
-    form: Optional[List[Tuple[str, str]]] = None,
-    json: Optional[Dict[str, Any]] = None,
-    body: Optional[
-        Union[
-            str,
-            bytes,
-            typing.AsyncGenerator[bytes, str],
-            typing.Generator[bytes, str],
-        ]
-    ] = None,
-    multipart: Optional[Multipart] = None,
+    **kwds: Unpack[RequestParams],
 ) -> Response:
     r"""
     Shortcut method to quickly make a request.
@@ -2585,32 +1934,7 @@ async def patch(
     """
 
 async def post(
-    url: str,
-    proxy: Optional[Union[str, Proxy]] = None,
-    local_address: Optional[Union[ipaddress.IPv4Address, ipaddress.IPv6Address]] = None,
-    interface: Optional[str] = None,
-    timeout: Optional[int] = None,
-    read_timeout: Optional[int] = None,
-    version: Optional[Version] = None,
-    headers: Optional[Union[Dict[str, str], HeaderMap]] = None,
-    cookies: Optional[Dict[str, str]] = None,
-    allow_redirects: Optional[bool] = None,
-    max_redirects: Optional[int] = None,
-    auth: Optional[str] = None,
-    bearer_auth: Optional[str] = None,
-    basic_auth: Optional[Tuple[str, Optional[str]]] = None,
-    query: Optional[List[Tuple[str, str]]] = None,
-    form: Optional[List[Tuple[str, str]]] = None,
-    json: Optional[Dict[str, Any]] = None,
-    body: Optional[
-        Union[
-            str,
-            bytes,
-            typing.AsyncGenerator[bytes, str],
-            typing.Generator[bytes, str],
-        ]
-    ] = None,
-    multipart: Optional[Multipart] = None,
+    **kwds: Unpack[RequestParams],
 ) -> Response:
     r"""
     Shortcut method to quickly make a request.
@@ -2631,32 +1955,7 @@ async def post(
     """
 
 async def put(
-    url: str,
-    proxy: Optional[Union[str, Proxy]] = None,
-    local_address: Optional[Union[ipaddress.IPv4Address, ipaddress.IPv6Address]] = None,
-    interface: Optional[str] = None,
-    timeout: Optional[int] = None,
-    read_timeout: Optional[int] = None,
-    version: Optional[Version] = None,
-    headers: Optional[Union[Dict[str, str], HeaderMap]] = None,
-    cookies: Optional[Dict[str, str]] = None,
-    allow_redirects: Optional[bool] = None,
-    max_redirects: Optional[int] = None,
-    auth: Optional[str] = None,
-    bearer_auth: Optional[str] = None,
-    basic_auth: Optional[Tuple[str, Optional[str]]] = None,
-    query: Optional[List[Tuple[str, str]]] = None,
-    form: Optional[List[Tuple[str, str]]] = None,
-    json: Optional[Dict[str, Any]] = None,
-    body: Optional[
-        Union[
-            str,
-            bytes,
-            typing.AsyncGenerator[bytes, str],
-            typing.Generator[bytes, str],
-        ]
-    ] = None,
-    multipart: Optional[Multipart] = None,
+    **kwds: Unpack[RequestParams],
 ) -> Response:
     r"""
     Shortcut method to quickly make a request.
@@ -2678,32 +1977,7 @@ async def put(
 
 async def request(
     method: Method,
-    url: str,
-    proxy: Optional[Union[str, Proxy]] = None,
-    local_address: Optional[Union[ipaddress.IPv4Address, ipaddress.IPv6Address]] = None,
-    interface: Optional[str] = None,
-    timeout: Optional[int] = None,
-    read_timeout: Optional[int] = None,
-    version: Optional[Version] = None,
-    headers: Optional[Union[Dict[str, str], HeaderMap]] = None,
-    cookies: Optional[Dict[str, str]] = None,
-    allow_redirects: Optional[bool] = None,
-    max_redirects: Optional[int] = None,
-    auth: Optional[str] = None,
-    bearer_auth: Optional[str] = None,
-    basic_auth: Optional[Tuple[str, Optional[str]]] = None,
-    query: Optional[List[Tuple[str, str]]] = None,
-    form: Optional[List[Tuple[str, str]]] = None,
-    json: Optional[Dict[str, Any]] = None,
-    body: Optional[
-        Union[
-            str,
-            bytes,
-            typing.AsyncGenerator[bytes, str],
-            typing.Generator[bytes, str],
-        ]
-    ] = None,
-    multipart: Optional[Multipart] = None,
+    **kwds: Unpack[RequestParams],
 ) -> Response:
     r"""
     Make a request with the given parameters.
@@ -2731,32 +2005,7 @@ async def request(
     """
 
 async def trace(
-    url: str,
-    proxy: Optional[Union[str, Proxy]] = None,
-    local_address: Optional[Union[ipaddress.IPv4Address, ipaddress.IPv6Address]] = None,
-    interface: Optional[str] = None,
-    timeout: Optional[int] = None,
-    read_timeout: Optional[int] = None,
-    version: Optional[Version] = None,
-    headers: Optional[Union[Dict[str, str], HeaderMap]] = None,
-    cookies: Optional[Dict[str, str]] = None,
-    allow_redirects: Optional[bool] = None,
-    max_redirects: Optional[int] = None,
-    auth: Optional[str] = None,
-    bearer_auth: Optional[str] = None,
-    basic_auth: Optional[Tuple[str, Optional[str]]] = None,
-    query: Optional[List[Tuple[str, str]]] = None,
-    form: Optional[List[Tuple[str, str]]] = None,
-    json: Optional[Dict[str, Any]] = None,
-    body: Optional[
-        Union[
-            str,
-            bytes,
-            typing.AsyncGenerator[bytes, str],
-            typing.Generator[bytes, str],
-        ]
-    ] = None,
-    multipart: Optional[Multipart] = None,
+    **kwds: Unpack[RequestParams],
 ) -> Response:
     r"""
     Shortcut method to quickly make a request.
@@ -2776,26 +2025,7 @@ async def trace(
     """
 
 async def websocket(
-    url: str,
-    proxy: Optional[Union[str, Proxy]] = None,
-    local_address: Optional[
-        Union[str, ipaddress.IPv4Address, ipaddress.IPv6Address]
-    ] = None,
-    interface: Optional[str] = None,
-    headers: Optional[Dict[str, bytes]] = None,
-    cookies: Optional[Dict[str, str]] = None,
-    protocols: Optional[List[str]] = None,
-    use_http2: Optional[bool] = None,
-    auth: Optional[str] = None,
-    bearer_auth: Optional[str] = None,
-    basic_auth: Optional[Tuple[str, Optional[str]]] = None,
-    query: Optional[List[Tuple[str, str]]] = None,
-    read_buffer_size: Optional[int] = None,
-    write_buffer_size: Optional[int] = None,
-    max_write_buffer_size: Optional[int] = None,
-    max_message_size: Optional[int] = None,
-    max_frame_size: Optional[int] = None,
-    accept_unmasked_frames: Optional[bool] = None,
+    **kwds: Unpack[WebSocketParams],
 ) -> WebSocket:
     r"""
     Make a WebSocket connection with the given parameters.
