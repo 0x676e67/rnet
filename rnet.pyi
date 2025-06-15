@@ -12,44 +12,6 @@ from enum import Enum, auto
 from typing import Optional, Tuple, Union, Any, Dict, List, TypedDict, Unpack
 from pathlib import Path
 
-class ClientParams(TypedDict, closed=True):
-    impersonate: Optional[Union[Impersonate, ImpersonateOption]] = (None,)
-    user_agent: Optional[str] = (None,)
-    default_headers: Optional[Dict[str, bytes]] = (None,)
-    headers_order: Optional[List[str]] = (None,)
-    referer: Optional[bool] = (None,)
-    allow_redirects: Optional[bool] = (None,)
-    max_redirects: Optional[int] = (None,)
-    cookie_store: Optional[bool] = (None,)
-    lookup_ip_strategy: Optional[LookupIpStrategy] = (None,)
-    timeout: Optional[int] = (None,)
-    connect_timeout: Optional[int] = (None,)
-    read_timeout: Optional[int] = (None,)
-    no_keepalive: Optional[bool] = (None,)
-    tcp_keepalive: Optional[int] = (None,)
-    pool_idle_timeout: Optional[int] = (None,)
-    pool_max_idle_per_host: Optional[int] = (None,)
-    pool_max_size: Optional[int] = (None,)
-    http1_only: Optional[bool] = (None,)
-    http2_only: Optional[bool] = (None,)
-    https_only: Optional[bool] = (None,)
-    tcp_nodelay: Optional[bool] = (None,)
-    http2_max_retry_count: Optional[int] = (None,)
-    verify: Optional[Union[bool, Path]] = (None,)
-    tls_info: Optional[bool] = (None,)
-    min_tls_version: Optional[TlsVersion] = (None,)
-    max_tls_version: Optional[TlsVersion] = (None,)
-    no_proxy: Optional[bool] = (None,)
-    proxies: Optional[List[Proxy]] = (None,)
-    local_address: Optional[
-        Union[str, ipaddress.IPv4Address, ipaddress.IPv6Address]
-    ] = (None,)
-    interface: Optional[str] = (None,)
-    gzip: Optional[bool] = (None,)
-    brotli: Optional[bool] = (None,)
-    deflate: Optional[bool] = (None,)
-    zstd: Optional[bool] = (None,)
-
 class WebSocketParams(TypedDict, closed=True):
     url: str
     proxy: Optional[Union[str, Proxy]] = (None,)
@@ -123,7 +85,45 @@ class BlockingClient:
     r"""
     Returns the headers of the client.
     """
-    def __new__(cls, **kwargs: Unpack[ClientParams]) -> BlockingClient:
+    def __new__(
+        cls,
+        impersonate: Optional[Union[Impersonate, ImpersonateOption]] = None,
+        user_agent: Optional[str] = None,
+        default_headers: Optional[Dict[str, bytes]] = None,
+        headers_order: Optional[List[str]] = None,
+        referer: Optional[bool] = None,
+        allow_redirects: Optional[bool] = None,
+        max_redirects: Optional[int] = None,
+        cookie_store: Optional[bool] = None,
+        lookup_ip_strategy: Optional[LookupIpStrategy] = None,
+        timeout: Optional[int] = None,
+        connect_timeout: Optional[int] = None,
+        read_timeout: Optional[int] = None,
+        no_keepalive: Optional[bool] = None,
+        tcp_keepalive: Optional[int] = None,
+        pool_idle_timeout: Optional[int] = None,
+        pool_max_idle_per_host: Optional[int] = None,
+        pool_max_size: Optional[int] = None,
+        http1_only: Optional[bool] = None,
+        http2_only: Optional[bool] = None,
+        https_only: Optional[bool] = None,
+        tcp_nodelay: Optional[bool] = None,
+        http2_max_retry_count: Optional[int] = None,
+        verify: Optional[Union[bool, Path]] = None,
+        tls_info: Optional[bool] = None,
+        min_tls_version: Optional[TlsVersion] = None,
+        max_tls_version: Optional[TlsVersion] = None,
+        no_proxy: Optional[bool] = None,
+        proxies: Optional[List[Proxy]] = None,
+        local_address: Optional[
+            Union[str, ipaddress.IPv4Address, ipaddress.IPv6Address]
+        ] = None,
+        interface: Optional[str] = None,
+        gzip: Optional[bool] = None,
+        brotli: Optional[bool] = None,
+        deflate: Optional[bool] = None,
+        zstd: Optional[bool] = None,
+    ) -> BlockingClient:
         r"""
         Creates a new BlockingClient instance.
 
@@ -657,7 +657,45 @@ class Client:
     print(headers)
     ```
     """
-    def __new__(cls, **kwargs: Unpack[ClientParams]) -> Client:
+    def __new__(
+        cls,
+        impersonate: Optional[Union[Impersonate, ImpersonateOption]] = None,
+        user_agent: Optional[str] = None,
+        default_headers: Optional[Dict[str, bytes]] = None,
+        headers_order: Optional[List[str]] = None,
+        referer: Optional[bool] = None,
+        allow_redirects: Optional[bool] = None,
+        max_redirects: Optional[int] = None,
+        cookie_store: Optional[bool] = None,
+        lookup_ip_strategy: Optional[LookupIpStrategy] = None,
+        timeout: Optional[int] = None,
+        connect_timeout: Optional[int] = None,
+        read_timeout: Optional[int] = None,
+        no_keepalive: Optional[bool] = None,
+        tcp_keepalive: Optional[int] = None,
+        pool_idle_timeout: Optional[int] = None,
+        pool_max_idle_per_host: Optional[int] = None,
+        pool_max_size: Optional[int] = None,
+        http1_only: Optional[bool] = None,
+        http2_only: Optional[bool] = None,
+        https_only: Optional[bool] = None,
+        tcp_nodelay: Optional[bool] = None,
+        http2_max_retry_count: Optional[int] = None,
+        verify: Optional[Union[bool, Path]] = None,
+        tls_info: Optional[bool] = None,
+        min_tls_version: Optional[TlsVersion] = None,
+        max_tls_version: Optional[TlsVersion] = None,
+        no_proxy: Optional[bool] = None,
+        proxies: Optional[List[Proxy]] = None,
+        local_address: Optional[
+            Union[str, ipaddress.IPv4Address, ipaddress.IPv6Address]
+        ] = None,
+        interface: Optional[str] = None,
+        gzip: Optional[bool] = None,
+        brotli: Optional[bool] = None,
+        deflate: Optional[bool] = None,
+        zstd: Optional[bool] = None,
+    ) -> Client:
         r"""
         Creates a new Client instance.
 
