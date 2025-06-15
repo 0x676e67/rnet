@@ -8,7 +8,7 @@ from enum import Enum, auto
 from typing import Optional, Tuple, Union, Any, Dict, List, TypedDict, Unpack
 from pathlib import Path
 
-class ClientParams(TypedDict):
+class ClientParams(TypedDict, closed=True):
     impersonate: Optional[Union[Impersonate, ImpersonateOption]] = (None,)
     user_agent: Optional[str] = (None,)
     default_headers: Optional[Dict[str, bytes]] = (None,)
@@ -46,7 +46,7 @@ class ClientParams(TypedDict):
     deflate: Optional[bool] = (None,)
     zstd: Optional[bool] = (None,)
 
-class WebSocketParams(TypedDict):
+class WebSocketParams(TypedDict, closed=True):
     url: str
     proxy: Optional[Union[str, Proxy]] = (None,)
     local_address: Optional[
@@ -68,7 +68,7 @@ class WebSocketParams(TypedDict):
     max_frame_size: Optional[int] = (None,)
     accept_unmasked_frames: Optional[bool] = (None,)
 
-class RequestParams(TypedDict):
+class RequestParams(TypedDict, closed=True):
     url: str
     proxy: Optional[Union[str, Proxy]] = (None,)
     local_address: Optional[Union[ipaddress.IPv4Address, ipaddress.IPv6Address]] = (
@@ -98,7 +98,7 @@ class RequestParams(TypedDict):
     ] = (None,)
     multipart: Optional[Multipart] = (None,)
 
-class ProxyParams(TypedDict):
+class ProxyParams(TypedDict, closed=True):
     url: str
     username: Optional[str] = (None,)
     password: Optional[str] = (None,)
@@ -119,13 +119,13 @@ class BlockingClient:
     r"""
     Returns the headers of the client.
     """
-    def __new__(cls, **kwds: Unpack[ClientParams]) -> BlockingClient:
+    def __new__(cls, **kwargs: Unpack[ClientParams]) -> BlockingClient:
         r"""
         Creates a new BlockingClient instance.
 
         # Arguments
 
-        * `**kwds` - Optional request parameters as a dictionary.
+        * `**kwargs` - Optional request parameters as a dictionary.
 
 
 
@@ -224,7 +224,7 @@ class BlockingClient:
     def request(
         self,
         method: Method,
-        **kwds: Unpack[RequestParams],
+        **kwargs: Unpack[RequestParams],
     ) -> BlockingResponse:
         r"""
         Sends a request with the given method and URL.
@@ -245,7 +245,7 @@ class BlockingClient:
         ```
         """
 
-    def websocket(self, **kwds: Unpack[WebSocketParams]) -> BlockingWebSocket:
+    def websocket(self, **kwargs: Unpack[WebSocketParams]) -> BlockingWebSocket:
         r"""
         Sends a WebSocket request.
 
@@ -269,7 +269,7 @@ class BlockingClient:
 
     def trace(
         self,
-        **kwds: Unpack[RequestParams],
+        **kwargs: Unpack[RequestParams],
     ) -> BlockingResponse:
         r"""
         Sends a request with the given URL.
@@ -292,7 +292,7 @@ class BlockingClient:
 
     def options(
         self,
-        **kwds: Unpack[RequestParams],
+        **kwargs: Unpack[RequestParams],
     ) -> BlockingResponse:
         r"""
         Sends a request with the given URL.
@@ -315,7 +315,7 @@ class BlockingClient:
 
     def head(
         self,
-        **kwds: Unpack[RequestParams],
+        **kwargs: Unpack[RequestParams],
     ) -> BlockingResponse:
         r"""
         Sends a request with the given URL.
@@ -338,7 +338,7 @@ class BlockingClient:
 
     def delete(
         self,
-        **kwds: Unpack[RequestParams],
+        **kwargs: Unpack[RequestParams],
     ) -> BlockingResponse:
         r"""
         Sends a request with the given URL.
@@ -361,7 +361,7 @@ class BlockingClient:
 
     def patch(
         self,
-        **kwds: Unpack[RequestParams],
+        **kwargs: Unpack[RequestParams],
     ) -> BlockingResponse:
         r"""
         Sends a request with the given URL.
@@ -384,7 +384,7 @@ class BlockingClient:
 
     def put(
         self,
-        **kwds: Unpack[RequestParams],
+        **kwargs: Unpack[RequestParams],
     ) -> BlockingResponse:
         r"""
         Sends a request with the given URL.
@@ -407,7 +407,7 @@ class BlockingClient:
 
     def post(
         self,
-        **kwds: Unpack[RequestParams],
+        **kwargs: Unpack[RequestParams],
     ) -> BlockingResponse:
         r"""
         Sends a request with the given URL.
@@ -430,7 +430,7 @@ class BlockingClient:
 
     def get(
         self,
-        **kwds: Unpack[RequestParams],
+        **kwargs: Unpack[RequestParams],
     ) -> BlockingResponse:
         r"""
         Sends a request with the given URL.
@@ -653,7 +653,7 @@ class Client:
     print(headers)
     ```
     """
-    def __new__(cls, **kwds: Unpack[ClientParams]) -> Client:
+    def __new__(cls, **kwargs: Unpack[ClientParams]) -> Client:
         r"""
         Creates a new Client instance.
 
@@ -775,7 +775,7 @@ class Client:
     async def request(
         self,
         method: Method,
-        **kwds: Unpack[RequestParams],
+        **kwargs: Unpack[RequestParams],
     ) -> Response:
         r"""
         Sends a request with the given method and URL.
@@ -798,7 +798,7 @@ class Client:
 
     async def websocket(
         self,
-        **kwds: Unpack[WebSocketParams],
+        **kwargs: Unpack[WebSocketParams],
     ) -> WebSocket:
         r"""
         Sends a WebSocket request.
@@ -823,7 +823,7 @@ class Client:
 
     async def trace(
         self,
-        **kwds: Unpack[RequestParams],
+        **kwargs: Unpack[RequestParams],
     ) -> Response:
         r"""
         Sends a request with the given URL
@@ -846,7 +846,7 @@ class Client:
 
     async def options(
         self,
-        **kwds: Unpack[RequestParams],
+        **kwargs: Unpack[RequestParams],
     ) -> Response:
         r"""
         Sends a request with the given URL
@@ -869,7 +869,7 @@ class Client:
 
     async def patch(
         self,
-        **kwds: Unpack[RequestParams],
+        **kwargs: Unpack[RequestParams],
     ) -> Response:
         r"""
         Sends a request with the given URL
@@ -892,7 +892,7 @@ class Client:
 
     async def delete(
         self,
-        **kwds: Unpack[RequestParams],
+        **kwargs: Unpack[RequestParams],
     ) -> Response:
         r"""
         Sends a request with the given URL
@@ -915,7 +915,7 @@ class Client:
 
     async def put(
         self,
-        **kwds: Unpack[RequestParams],
+        **kwargs: Unpack[RequestParams],
     ) -> Response:
         r"""
         Sends a request with the given URL
@@ -938,7 +938,7 @@ class Client:
 
     async def post(
         self,
-        **kwds: Unpack[RequestParams],
+        **kwargs: Unpack[RequestParams],
     ) -> Response:
         r"""
         Sends a request with the given URL
@@ -961,7 +961,7 @@ class Client:
 
     async def head(
         self,
-        **kwds: Unpack[RequestParams],
+        **kwargs: Unpack[RequestParams],
     ) -> Response:
         r"""
         Sends a request with the given URL
@@ -984,7 +984,7 @@ class Client:
 
     async def get(
         self,
-        **kwds: Unpack[RequestParams],
+        **kwargs: Unpack[RequestParams],
     ) -> Response:
         r"""
         Sends a request with the given URL
@@ -1351,7 +1351,7 @@ class Proxy:
     """
 
     @staticmethod
-    def http(**kwds: Unpack[ProxyParams]) -> Proxy:
+    def http(**kwargs: Unpack[ProxyParams]) -> Proxy:
         r"""
         Creates a new HTTP proxy.
 
@@ -1376,7 +1376,7 @@ class Proxy:
         """
 
     @staticmethod
-    def https(**kwds: Unpack[ProxyParams]) -> Proxy:
+    def https(**kwargs: Unpack[ProxyParams]) -> Proxy:
         r"""
         Creates a new HTTPS proxy.
 
@@ -1401,7 +1401,7 @@ class Proxy:
         """
 
     @staticmethod
-    def all(**kwds: Unpack[ProxyParams]) -> Proxy:
+    def all(**kwargs: Unpack[ProxyParams]) -> Proxy:
         r"""
         Creates a new proxy for all protocols.
 
@@ -1838,7 +1838,7 @@ class Version(Enum):
     HTTP_3 = auto()
 
 async def delete(
-    **kwds: Unpack[RequestParams],
+    **kwargs: Unpack[RequestParams],
 ) -> Response:
     r"""
     Shortcut method to quickly make a request.
@@ -1859,7 +1859,7 @@ async def delete(
     """
 
 async def get(
-    **kwds: Unpack[RequestParams],
+    **kwargs: Unpack[RequestParams],
 ) -> Response:
     r"""
     Shortcut method to quickly make a request.
@@ -1880,7 +1880,7 @@ async def get(
     """
 
 async def head(
-    **kwds: Unpack[RequestParams],
+    **kwargs: Unpack[RequestParams],
 ) -> Response:
     r"""
     Shortcut method to quickly make a request.
@@ -1900,7 +1900,7 @@ async def head(
     """
 
 async def options(
-    **kwds: Unpack[RequestParams],
+    **kwargs: Unpack[RequestParams],
 ) -> Response:
     r"""
     Shortcut method to quickly make a request.
@@ -1920,7 +1920,7 @@ async def options(
     """
 
 async def patch(
-    **kwds: Unpack[RequestParams],
+    **kwargs: Unpack[RequestParams],
 ) -> Response:
     r"""
     Shortcut method to quickly make a request.
@@ -1941,7 +1941,7 @@ async def patch(
     """
 
 async def post(
-    **kwds: Unpack[RequestParams],
+    **kwargs: Unpack[RequestParams],
 ) -> Response:
     r"""
     Shortcut method to quickly make a request.
@@ -1962,7 +1962,7 @@ async def post(
     """
 
 async def put(
-    **kwds: Unpack[RequestParams],
+    **kwargs: Unpack[RequestParams],
 ) -> Response:
     r"""
     Shortcut method to quickly make a request.
@@ -1984,7 +1984,7 @@ async def put(
 
 async def request(
     method: Method,
-    **kwds: Unpack[RequestParams],
+    **kwargs: Unpack[RequestParams],
 ) -> Response:
     r"""
     Make a request with the given parameters.
@@ -1993,7 +1993,7 @@ async def request(
 
     * `method` - The method to use for the request.
     * `url` - The URL to send the request to.
-    * `**kwds` - Additional request parameters.
+    * `**kwargs` - Additional request parameters.
 
     # Examples
 
@@ -2012,7 +2012,7 @@ async def request(
     """
 
 async def trace(
-    **kwds: Unpack[RequestParams],
+    **kwargs: Unpack[RequestParams],
 ) -> Response:
     r"""
     Shortcut method to quickly make a request.
@@ -2032,7 +2032,7 @@ async def trace(
     """
 
 async def websocket(
-    **kwds: Unpack[WebSocketParams],
+    **kwargs: Unpack[WebSocketParams],
 ) -> WebSocket:
     r"""
     Make a WebSocket connection with the given parameters.
