@@ -21,7 +21,10 @@ use typing::{
     SocketAddr, StatusCode, TlsVersion, Version,
 };
 
-#[cfg(not(target_env = "msvc"))]
+#[cfg(all(
+    not(target_env = "msvc"),
+    not(all(target_os = "linux", target_env = "gnu"))
+))]
 #[global_allocator]
 static ALLOC: jemallocator::Jemalloc = jemallocator::Jemalloc;
 

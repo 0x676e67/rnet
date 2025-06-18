@@ -43,15 +43,8 @@ wreq = { version = "5.1.0", features = [
 ] }
 wreq-util = { version = "2.2.2", features = ["emulation-rand"]}
 
-[target.'cfg(not(target_env = "msvc"))'.dependencies]
+[target.'cfg(all(not(target_env = "msvc"), not(all(target_os = "linux", target_env = "gnu"))) )'.dependencies]
 jemallocator = { package = "tikv-jemallocator", version = "0.6", features = [
     "disable_initial_exec_tls",
     "unprefixed_malloc_on_supported_platforms",
 ] }
-
-[profile.release]
-lto = true
-opt-level = 3
-codegen-units = 1
-strip = true
-panic = "abort"
