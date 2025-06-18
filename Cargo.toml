@@ -48,3 +48,10 @@ jemallocator = { package = "tikv-jemallocator", version = "0.6", features = [
     "disable_initial_exec_tls",
     "unprefixed_malloc_on_supported_platforms",
 ] }
+
+[profile.release]
+lto = "fat"
+opt-level = 3
+codegen-units = 1
+strip = true
+panic = "abort"
