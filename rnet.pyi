@@ -1838,6 +1838,10 @@ class Impersonate(Enum):
     OkHttp4_10 = auto()
     OkHttp4_12 = auto()
     OkHttp5 = auto()
+    Opera116 = auto()
+    Opera117 = auto()
+    Opera118 = auto()
+    Opera119 = auto()
 
 class ImpersonateOS(Enum):
     r"""

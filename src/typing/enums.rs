@@ -98,7 +98,11 @@ define_enum_with_conversion!(
     OkHttp4_9,
     OkHttp4_10,
     OkHttp4_12,
-    OkHttp5
+    OkHttp5,
+    Opera116,
+    Opera117,
+    Opera118,
+    Opera119
 );
 
 define_enum_with_conversion!(
