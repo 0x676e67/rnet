@@ -27,6 +27,8 @@ A blazing-fast Python HTTP client with advanced browser fingerprinting. Accurate
 - Free-Threaded Safety
 - Automatic Decompression
 
+> Faster than requests, httpx, and curl_cffi in most cases — see [benchmark](https://raw.githubusercontent.com/0x676e67/rnet/main/bench/benchmark_multi.jpg) for details.
+
 ## Example
 
 This asynchronous example demonstrates how to make a simple GET request using the `rnet` library. So you need install `rnet` and run the following code:
