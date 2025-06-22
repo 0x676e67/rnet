@@ -264,15 +264,15 @@ def plot_benchmark_multi(df, filename):
     # Plot main sessions (sync and async)
     if main_sessions:
         num_sessions = len(main_sessions)
-        # 每个子图分配更多高度，确保有足够间距
-        subplot_height = 8  # 固定每个子图的高度
-        total_height = subplot_height * num_sessions + 2  # 额外2英寸用于间距
+        # Allocate more height for each subplot to ensure sufficient spacing
+        subplot_height = 8  # Fixed height for each subplot
+        total_height = subplot_height * num_sessions + 2  # Extra 2 inches for spacing
         
         fig, axes = plt.subplots(
             num_sessions,
             1,
             figsize=(20, total_height),
-            constrained_layout=False,  # 禁用constrained_layout，使用手动布局
+            constrained_layout=False,  # Disable constrained_layout, use manual layout
         )
 
         if num_sessions == 1:
@@ -310,7 +310,7 @@ def plot_benchmark_multi(df, filename):
             if max_height > 0:
                 ax.set_ylim(0, max_height * 1.35)
 
-        plt.subplots_adjust(hspace=0.5, top=0.95, bottom=0.1, left=0.08, right=0.98)  # 明确设置各边距
+        plt.subplots_adjust(hspace=0.5, top=0.95, bottom=0.1, left=0.08, right=0.98)  # Set explicit margins for all sides
         plt.savefig(filename, format="jpg", dpi=150, bbox_inches="tight")
         plt.show()
 
@@ -323,7 +323,7 @@ def plot_benchmark_multi(df, filename):
             len(thread_counts),
             1,
             figsize=(20, 10 * len(thread_counts)),
-            constrained_layout=False,  # 禁用constrained_layout，使用手动布局
+            constrained_layout=False,  # Disable constrained_layout, use manual layout
         )
 
         if len(thread_counts) == 1:
@@ -372,7 +372,7 @@ def plot_benchmark_multi(df, filename):
                 ax.set_ylim(0, max_height * 1.35)
 
         threaded_filename = filename.replace('.jpg', '_threaded.jpg')
-        plt.subplots_adjust(hspace=0.5, top=0.95, bottom=0.1, left=0.08, right=0.98)  # 明确设置各边距
+        plt.subplots_adjust(hspace=0.5, top=0.95, bottom=0.1, left=0.08, right=0.98)  # Set explicit margins for all sides
         plt.savefig(threaded_filename, format="jpg", dpi=150, bbox_inches="tight")
         plt.show()
 
