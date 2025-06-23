@@ -75,7 +75,7 @@ class ProxyParams(TypedDict, total=False, closed=True):
     username: NotRequired[str]
     password: NotRequired[str]
     rdns: NotRequired[bool]
-    headers: NotRequired[Dict[str, str]]
+    headers: NotRequired[Union[Dict[str, str], HeaderMap]]
 
 class BlockingClient:
     r"""
