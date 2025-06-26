@@ -10,9 +10,9 @@
 
 A blazing-fast Python HTTP client with advanced browser fingerprinting. Accurately emulates **Chrome**, **Firefox**, **Safari**, **Opera**, and **OkHttp** with precise **TLS/HTTP2** signatures.
 
-- ⚡ **Powered by [wreq](https://github.com/0x676e67/wreq)** — High performance with a clean API
-- 🏆 **Faster than requests, httpx & curl_cffi** — See [benchmark](https://github.com/0x676e67/rnet/tree/main/benchmark)
-- 🎯 **Precision emulation** — Chrome/Firefox/Safari/Opera/OkHttp TLS fingerprints
+- **Powered by [wreq](https://github.com/0x676e67/wreq)** — High performance with a clean API
+- **Faster than requests, httpx & curl_cffi** — See [benchmark](https://github.com/0x676e67/rnet/tree/main/benchmark)
+- **Precision emulation** — Chrome/Firefox/Safari/Opera/OkHttp TLS fingerprints
 
 ## Features
 
