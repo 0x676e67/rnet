@@ -8,6 +8,7 @@ Sync clients
 
 - curl_cffi
 - requests
+- niquests
 - pycurl
 - [python-tls-client](https://github.com/FlorianREGAZ/Python-Tls-Client.git)
 - httpx

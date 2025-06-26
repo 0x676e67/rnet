@@ -9,6 +9,7 @@ from importlib.metadata import version
 import aiohttp
 import httpx
 import matplotlib.pyplot as plt
+import niquests
 import numpy as np
 import pandas as pd
 import pycurl
@@ -404,6 +405,7 @@ def main():
         ("tls_client", tls_client.Session),
         ("httpx", httpx.Client),
         ("requests", requests.Session),
+        ("niquests", niquests.Session),
         ("rnet", rnet.BlockingClient),
         ("curl_cffi", curl_cffi.requests.Session),
         ("pycurl", PycurlSession),
