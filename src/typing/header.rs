@@ -16,13 +16,29 @@ pub struct HeaderMap(pub header::HeaderMap);
 #[pymethods]
 impl HeaderMap {
     #[new]
-    #[pyo3(signature = (capacity=None))]
-    fn new(capacity: Option<usize>) -> Self {
-        if let Some(capacity) = capacity {
-            Self(header::HeaderMap::with_capacity(capacity))
-        } else {
-            Self(header::HeaderMap::new())
+    #[pyo3(signature = (init=None, capacity=None))]
+    fn new(init: Option<&Bound<'_, PyDict>>, capacity: Option<usize>) -> Self {
+        let mut headers = capacity
+            .map(header::HeaderMap::with_capacity)
+            .unwrap_or_else(header::HeaderMap::new);
+
+        // This section of memory might be retained by the Rust object,
+        // and we want to prevent Python's garbage collector from managing it.
+        if let Some(dict) = init {
+            for (name, value) in dict.iter() {
+                if let (Ok(Ok(name)), Ok(Ok(value))) = (
+                    name.extract::<PyBackedStr>()
+                        .map(|n| HeaderName::from_bytes(n.as_bytes())),
+                    value
+                        .extract::<PyBackedStr>()
+                        .map(|v| HeaderValue::from_bytes(v.as_bytes())),
+                ) {
+                    headers.insert(name, value);
+                }
+            }
         }
+
+        HeaderMap(headers)
     }
 
     /// Returns a reference to the value associated with the key.
