@@ -22,22 +22,30 @@ if __name__ == "__main__":
     import multiprocessing
     import argparse
 
-    parser = argparse.ArgumentParser(description='Start benchmark server')
-    parser.add_argument('--workers', type=int, default=None, 
-                        help='Number of worker processes (default: CPU count)')
-    parser.add_argument('--port', type=int, default=8000, 
-                        help='Port to bind to (default: 8000)')
-    parser.add_argument('--host', type=str, default="0.0.0.0", 
-                        help='Host to bind to (default: 0.0.0.0)')
+    parser = argparse.ArgumentParser(description="Start benchmark server")
+    parser.add_argument(
+        "--workers",
+        type=int,
+        default=None,
+        help="Number of worker processes (default: CPU count)",
+    )
+    parser.add_argument(
+        "--port", type=int, default=8000, help="Port to bind to (default: 8000)"
+    )
+    parser.add_argument(
+        "--host", type=str, default="0.0.0.0", help="Host to bind to (default: 0.0.0.0)"
+    )
     args = parser.parse_args()
 
     host = args.host
     port = args.port
     workers = args.workers or multiprocessing.cpu_count()
-    
+
     max_workers = workers
-    
-    print(f"Starting server on {host}:{port} with {max_workers} workers (CPU cores/threads: {multiprocessing.cpu_count()})...")
+
+    print(
+        f"Starting server on {host}:{port} with {max_workers} workers (CPU cores/threads: {multiprocessing.cpu_count()})..."
+    )
     uvicorn.run(
         "server:app",
         host=host,
