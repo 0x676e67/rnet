@@ -31,7 +31,7 @@ impl HeaderMap {
                         .map(|n| HeaderName::from_bytes(n.as_bytes())),
                     value
                         .extract::<PyBackedStr>()
-                        .map(|v| HeaderValue::from_bytes(v.as_bytes())),
+                        .map(HeaderValue::from_maybe_shared),
                 ) {
                     headers.insert(name, value);
                 }
@@ -69,7 +69,7 @@ impl HeaderMap {
         py.allow_threads(|| {
             if let (Ok(name), Ok(value)) = (
                 HeaderName::from_bytes(key.as_bytes()),
-                HeaderValue::from_bytes(value.as_bytes()),
+                HeaderValue::from_maybe_shared(value),
             ) {
                 self.0.insert(name, value);
             }
@@ -81,7 +81,7 @@ impl HeaderMap {
         py.allow_threads(|| {
             if let (Ok(name), Ok(value)) = (
                 HeaderName::from_bytes(key.as_bytes()),
-                HeaderValue::from_bytes(value.as_bytes()),
+                HeaderValue::from_maybe_shared(value),
             ) {
                 self.0.append(name, value);
             }
@@ -267,10 +267,16 @@ impl FromPyObject<'_> for HeaderMapExtractor {
             .try_fold(
                 header::HeaderMap::with_capacity(dict.len()),
                 |mut headers, (name, value)| {
-                    let name = name.extract::<PyBackedStr>()?;
-                    let name = HeaderName::from_bytes(name.as_bytes()).map_err(Error::from)?;
-                    let value = value.extract::<PyBackedStr>()?;
-                    let value = HeaderValue::from_bytes(value.as_bytes()).map_err(Error::from)?;
+                    let name = {
+                        let name = name.extract::<PyBackedStr>()?;
+                        HeaderName::from_bytes(name.as_bytes()).map_err(Error::from)?
+                    };
+
+                    let value = {
+                        let value = value.extract::<PyBackedStr>()?;
+                        HeaderValue::from_maybe_shared(value).map_err(Error::from)?
+                    };
+
                     headers.insert(name, value);
                     Ok(headers)
                 },
@@ -284,8 +290,11 @@ impl<'py> FromPyObject<'py> for HeadersOrderExtractor {
         let list = ob.downcast::<PyList>()?;
         list.iter()
             .try_fold(Vec::with_capacity(list.len()), |mut order, name| {
-                let name = name.extract::<PyBackedStr>()?;
-                let name = HeaderName::from_bytes(name.as_bytes()).map_err(Error::from)?;
+                let name = {
+                    let name = name.extract::<PyBackedStr>()?;
+                    HeaderName::from_bytes(name.as_bytes()).map_err(Error::from)?
+                };
+
                 order.push(name);
                 Ok(order)
             })
