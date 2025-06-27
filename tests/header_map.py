@@ -85,7 +85,6 @@ def test_items_and_iter():
     h.append("A", "2")
     h.insert("B", "3")
     items = list(h.items())
-    # 只返回每个 key 的最后一个值
     assert len(items) == 2
     assert (b"a", b"2") in items
     assert (b"b", b"3") in items
