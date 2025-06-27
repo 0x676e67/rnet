@@ -46,7 +46,6 @@ impl HeaderMap {
     /// If there are multiple values associated with the key, then the first one
     /// is returned. Use `get_all` to get all values associated with a given
     /// key. Returns `None` if there are no values associated with the key.
-    #[inline]
     fn get<'py>(&self, py: Python<'py>, key: PyBackedStr) -> Option<Bound<'py, PyAny>> {
         let value = self.0.get::<&str>(key.as_ref())?;
         let buffer = HeaderValueBuffer::new(value.clone());
@@ -54,7 +53,6 @@ impl HeaderMap {
     }
 
     /// Returns a view of all values associated with a key.
-    #[inline]
     fn get_all(&self, key: PyBackedStr) -> HeaderMapValuesIter {
         HeaderMapValuesIter {
             inner: self
@@ -67,7 +65,6 @@ impl HeaderMap {
     }
 
     /// Insert a key-value pair into the header map.
-    #[inline]
     fn insert(&mut self, py: Python, key: PyBackedStr, value: PyBackedStr) {
         py.allow_threads(|| {
             if let (Ok(name), Ok(value)) = (
@@ -80,7 +77,6 @@ impl HeaderMap {
     }
 
     /// Append a key-value pair to the header map.
-    #[inline]
     fn append(&mut self, py: Python, key: PyBackedStr, value: PyBackedStr) {
         py.allow_threads(|| {
             if let (Ok(name), Ok(value)) = (
@@ -93,7 +89,6 @@ impl HeaderMap {
     }
 
     /// Remove a key-value pair from the header map.
-    #[inline]
     fn remove(&mut self, py: Python, key: PyBackedStr) {
         py.allow_threads(|| {
             self.0.remove::<&str>(key.as_ref());
@@ -101,9 +96,15 @@ impl HeaderMap {
     }
 
     /// Returns true if the map contains a value for the specified key.
-    #[inline]
     fn contains_key(&self, py: Python, key: PyBackedStr) -> bool {
         py.allow_threads(|| self.0.contains_key::<&str>(key.as_ref()))
+    }
+
+    /// Returns key-value pairs in the order they were added.
+    fn items(&self) -> HeaderMapItemsIter {
+        HeaderMapItemsIter {
+            inner: self.0.iter().map(|(k, v)| (k.clone(), v.clone())).collect(),
+        }
     }
 
     /// Returns the number of headers stored in the map.
@@ -137,14 +138,6 @@ impl HeaderMap {
     #[inline]
     fn clear(&mut self) {
         self.0.clear();
-    }
-
-    /// Returns key-value pairs in the order they were added.
-    #[inline]
-    fn items(&self) -> HeaderMapItemsIter {
-        HeaderMapItemsIter {
-            inner: self.0.iter().map(|(k, v)| (k.clone(), v.clone())).collect(),
-        }
     }
 }
 
@@ -206,7 +199,6 @@ impl HeaderMapKeysIter {
         slf
     }
 
-    #[inline]
     fn __next__(mut slf: PyRefMut<Self>) -> Option<Bound<'_, PyAny>> {
         slf.inner
             .pop()
@@ -226,7 +218,6 @@ impl HeaderMapValuesIter {
         slf
     }
 
-    #[inline]
     fn __next__(mut slf: PyRefMut<Self>) -> Option<Bound<'_, PyAny>> {
         slf.inner
             .pop()
@@ -247,7 +238,6 @@ impl HeaderMapItemsIter {
         slf
     }
 
-    #[inline]
     fn __next__(
         mut slf: PyRefMut<'_, Self>,
     ) -> Option<(Bound<'_, PyAny>, Option<Bound<'_, PyAny>>)> {
