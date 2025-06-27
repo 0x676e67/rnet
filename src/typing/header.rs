@@ -16,27 +16,13 @@ pub struct HeaderMap(pub header::HeaderMap);
 #[pymethods]
 impl HeaderMap {
     #[new]
-    #[inline]
-    fn new(init: Option<&Bound<'_, PyDict>>) -> Self {
-        let mut headers = header::HeaderMap::new();
-
-        // This section of memory might be retained by the Rust object,
-        // and we want to prevent Python's garbage collector from managing it.
-        if let Some(dict) = init {
-            for (name, value) in dict.iter() {
-                if let (Ok(Ok(name)), Ok(Ok(value))) = (
-                    name.extract::<PyBackedStr>()
-                        .map(|n| HeaderName::from_bytes(n.as_bytes())),
-                    value
-                        .extract::<PyBackedStr>()
-                        .map(|v| HeaderValue::from_bytes(v.as_bytes())),
-                ) {
-                    headers.insert(name, value);
-                }
-            }
+    #[pyo3(signature = (capacity=None))]
+    fn new(capacity: Option<usize>) -> Self {
+        if let Some(capacity) = capacity {
+            Self(header::HeaderMap::with_capacity(capacity))
+        } else {
+            Self(header::HeaderMap::new())
         }
-
-        Self(headers)
     }
 
     /// Returns a reference to the value associated with the key.
@@ -49,6 +35,19 @@ impl HeaderMap {
         let value = self.0.get::<&str>(key.as_ref())?;
         let buffer = HeaderValueBuffer::new(value.clone());
         buffer.into_bytes_ref(py).ok()
+    }
+
+    /// Returns a view of all values associated with a key.
+    #[inline]
+    fn get_all(&self, key: PyBackedStr) -> HeaderMapValuesIter {
+        HeaderMapValuesIter {
+            inner: self
+                .0
+                .get_all::<&str>(key.as_ref())
+                .iter()
+                .cloned()
+                .collect(),
+        }
     }
 
     /// Insert a key-value pair into the header map.
@@ -91,17 +90,37 @@ impl HeaderMap {
         py.allow_threads(|| self.0.contains_key::<&str>(key.as_ref()))
     }
 
-    /// Returns a view of all values associated with a key.
+    /// Returns the number of headers stored in the map.
+    ///
+    /// This number represents the total number of **values** stored in the map.
+    /// This number can be greater than or equal to the number of **keys**
+    /// stored given that a single key may have more than one associated value.
+    ///
     #[inline]
-    fn get_all(&self, key: PyBackedStr) -> HeaderMapValuesIter {
-        HeaderMapValuesIter {
-            inner: self
-                .0
-                .get_all::<&str>(key.as_ref())
-                .iter()
-                .cloned()
-                .collect(),
-        }
+    fn len(&self) -> usize {
+        self.0.len()
+    }
+
+    /// Returns the number of keys stored in the map.
+    ///
+    /// This number will be less than or equal to `len()` as each key may have
+    /// more than one associated value.
+    #[inline]
+    fn keys_len(&self) -> usize {
+        self.0.keys_len()
+    }
+
+    /// Returns true if the map contains no elements.
+    #[inline]
+    fn is_empty(&self) -> bool {
+        self.0.is_empty()
+    }
+
+    /// Clears the map, removing all key-value pairs. Keeps the allocated memory
+    /// for reuse.
+    #[inline]
+    fn clear(&mut self) {
+        self.0.clear();
     }
 
     /// Returns key-value pairs in the order they were added.
@@ -200,7 +219,7 @@ impl HeaderMapValuesIter {
 }
 
 /// An iterator over the items in a HeaderMap.
-#[pyclass(subclass)]
+#[pyclass]
 pub struct HeaderMapItemsIter {
     inner: Vec<(HeaderName, HeaderValue)>,
 }

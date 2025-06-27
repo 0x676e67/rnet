@@ -4,7 +4,7 @@ from rnet import Method
 
 
 async def main():
-    resp: rnet.Response = await rnet.request(Method.GET, "https://www.google.com/")
+    resp: rnet.Response = await rnet.request(Method.GET, url="https://www.google.com/")
     print("Status Code: ", resp.status_code)
     print("Version: ", resp.version)
     print("Response URL: ", resp.url)

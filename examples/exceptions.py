@@ -17,6 +17,7 @@ rnet_errors = (
     rnet.MIMEParseError,
 )
 
+
 async def test_bad_builder():
     print("\n--- BuilderError (bad builder) ---")
     try:

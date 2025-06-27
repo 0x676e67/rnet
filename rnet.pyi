@@ -1148,7 +1148,7 @@ class HeaderMap:
     def __iter__(self) -> HeaderMapKeysIter: ...
     def __str__(self) -> str: ...
     def __repr__(self) -> str: ...
-    def __new__(cls, init: Optional[dict]) -> HeaderMap: ...
+    def __new__(cls, capacity: Optional[int]) -> HeaderMap: ...
     def contains_key(self, key: str) -> bool:
         r"""
         Returns true if the header map contains the given key.
@@ -1181,6 +1181,27 @@ class HeaderMap:
     def get_all(self, key: str) -> HeaderMapValuesIter:
         r"""
         Returns a view of all values associated with a key.
+        """
+
+    def len(self) -> int:
+        """
+        Returns the number of values stored in the map.
+        This number can be greater than or equal to the number of keys.
+        """
+
+    def keys_len(self) -> int:
+        """
+        Returns the number of unique keys stored in the map.
+        """
+
+    def is_empty(self) -> bool:
+        """
+        Returns True if the map contains no elements.
+        """
+
+    def clear(self) -> None:
+        """
+        Clears the map, removing all key-value pairs.
         """
 
     def items(self) -> HeaderMapItemsIter:
