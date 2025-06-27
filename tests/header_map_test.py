@@ -105,4 +105,6 @@ def test_edge_cases():
     h.append("X", "2")
     # hash is randomized, so we check both possible orders
     assert len(h) == 2
-    assert (list(h.get_all("X")) == [b"1", b"2"]) or (list(h.get_all("X")) == [b"2", b"1"])
+    assert (list(h.get_all("X")) == [b"1", b"2"]) or (
+        list(h.get_all("X")) == [b"2", b"1"]
+    )
