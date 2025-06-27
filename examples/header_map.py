@@ -22,17 +22,3 @@ if __name__ == "__main__":
     # Clear all headers
     headers.clear()
     print("After clear, is_empty:", headers.is_empty())
-    
-    h = HeaderMap()
-    h.insert("A", "1")
-    h.append("A", "2")
-    h.insert("B", "3")
-    for key, value in h.items():
-        print(f"{key}: {value}")
-    # assert len(items) == 3
-    # assert ("A", b"1") in items
-    # assert ("A", b"2") in items
-    # assert ("B", b"3") in items
-    # keys = list(iter(h))
-    # print("HeaderMap keys:", keys)
-    # assert set(keys) == {"A", "B"}
