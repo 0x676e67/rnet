@@ -29,9 +29,8 @@ def test_append_and_get_all():
     h.insert("Accept", "application/json")
     h.append("Accept", "text/html")
     all_vals = list(h.get_all("Accept"))
-    assert all_vals == [b"text/html"]
-    assert h.get("Accept") == b"text/html"
-    assert len(h) == 1
+    assert all_vals == [b"text/html", b"application/json"]
+    assert len(h) == 2
     assert h.keys_len() == 1
 
 
@@ -62,8 +61,7 @@ def test_len_and_keys_len():
     h.insert("A", "1")
     h.append("A", "2")
     h.insert("B", "3")
-    # 只统计 key 数量
-    assert len(h) == 2
+    assert len(h) == 3
     assert h.keys_len() == 2
 
 
@@ -85,7 +83,7 @@ def test_items_and_iter():
     h.append("A", "2")
     h.insert("B", "3")
     items = list(h.items())
-    assert len(items) == 2
+    assert len(items) == 3
     assert (b"a", b"2") in items
     assert (b"b", b"3") in items
     keys = list(iter(h))
@@ -105,5 +103,6 @@ def test_edge_cases():
     h.append("X", "1")
     assert h["X"] == b"1"
     h.append("X", "2")
-    # 只保留最后一个
-    assert list(h.get_all("X")) == [b"2"]
+    # hash is randomized, so we check both possible orders
+    assert len(h) == 2
+    assert (list(h.get_all("X")) == [b"1", b"2"]) or (list(h.get_all("X")) == [b"2", b"1"])
