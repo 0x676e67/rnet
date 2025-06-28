@@ -16,6 +16,7 @@ on:
       - '*.pyi'
       - '*.md'
       - '.github/**'
+      - 'python/**'
       - 'README.md'
   workflow_dispatch:
 
