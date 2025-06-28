@@ -1,5 +1,6 @@
 import asyncio
-from rnet import Impersonate, ImpersonateOS, ImpersonateOption, Client, Response
+from rnet import Client, Response
+from rnet.impersonate import Impersonate, ImpersonateOS, ImpersonateOption
 
 
 async def print_response_info(resp: Response):

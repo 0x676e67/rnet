@@ -1,4 +1,4 @@
-from rnet import HeaderMap
+from rnet.header import HeaderMap
 
 
 if __name__ == "__main__":

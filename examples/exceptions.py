@@ -1,20 +1,21 @@
 import rnet
 import asyncio
+import rnet.exceptions as exceptions
 
 rnet_errors = (
-    rnet.DNSResolverError,
-    rnet.BodyError,
-    rnet.BuilderError,
-    rnet.ConnectionError,
-    rnet.ConnectionResetError,
-    rnet.DecodingError,
-    rnet.RedirectError,
-    rnet.TimeoutError,
-    rnet.StatusError,
-    rnet.RequestError,
-    rnet.UpgradeError,
-    rnet.URLParseError,
-    rnet.MIMEParseError,
+    exceptions.DNSResolverError,
+    exceptions.BodyError,
+    exceptions.BuilderError,
+    exceptions.ConnectionError,
+    exceptions.ConnectionResetError,
+    exceptions.DecodingError,
+    exceptions.RedirectError,
+    exceptions.TimeoutError,
+    exceptions.StatusError,
+    exceptions.RequestError,
+    exceptions.UpgradeError,
+    exceptions.URLParseError,
+    exceptions.MIMEParseError,
 )
 
 
