@@ -140,7 +140,7 @@ fn websocket(
 }
 
 #[pymodule(gil_used = false)]
-fn rnet(m: &Bound<'_, PyModule>) -> PyResult<()> {
+fn _rnet(m: &Bound<'_, PyModule>) -> PyResult<()> {
     pyo3::prepare_freethreaded_python();
 
     m.add_class::<Method>()?;

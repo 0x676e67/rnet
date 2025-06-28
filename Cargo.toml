@@ -10,7 +10,7 @@ authors = ["0x676e67 <gngppz@gmail.com>"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [lib]
-name = "rnet"
+name = "_rnet"
 crate-type = ["cdylib"]
 doctest = false
 
