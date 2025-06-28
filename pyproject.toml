@@ -35,6 +35,7 @@ keywords = ["http", "client", "websocket", "ja3", "ja4"]
 [tool.maturin]
 features = ["pyo3/extension-module", "pyo3/generate-import-lib"]
 strip = true
+python-source = "python"
 
 [project.urls]
 Documentation = "https://github.com/0x676e67/rnet/blob/main/rnet.pyi"
