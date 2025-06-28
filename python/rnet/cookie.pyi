@@ -1,7 +1,15 @@
 import datetime
+from enum import Enum, auto
 from typing import Optional
 
-from rnet.enums import SameSite
+class SameSite(Enum):
+    r"""
+    The Cookie SameSite attribute.
+    """
+
+    Strict = auto()
+    Lax = auto()
+    Empty = auto()
 
 class Cookie:
     r"""

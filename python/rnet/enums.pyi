@@ -25,15 +25,6 @@ class Method(Enum):
     TRACE = auto()
     PATCH = auto()
 
-class SameSite(Enum):
-    r"""
-    The Cookie SameSite attribute.
-    """
-
-    Strict = auto()
-    Lax = auto()
-    Empty = auto()
-
 class TlsVersion(Enum):
     r"""
     The TLS version.
