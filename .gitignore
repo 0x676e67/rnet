@@ -65,9 +65,6 @@ docs/_build/
 # PyCharm
 .idea/
 
-# VSCode
-.vscode/
-
 # Pyenv
 .python-version
 venv

@@ -11,10 +11,10 @@ from typing import (
 )
 from pathlib import Path
 
-from impersonate import ImpersonateOption, Impersonate
-from header import HeaderMap
-from cookie import Cookie
-from enums import (
+from .impersonate import ImpersonateOption, Impersonate
+from .header import HeaderMap
+from .cookie import Cookie
+from .enums import (
     LookupIpStrategy,
     Method,
     TlsVersion,

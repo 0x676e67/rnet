@@ -2,7 +2,7 @@ from pathlib import Path
 import asyncio
 import aiofiles
 import rnet
-from rnet import Multipart, Part, Impersonate
+from rnet import Multipart, Part
 
 
 async def file_to_bytes_stream(file_path):
