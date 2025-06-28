@@ -33,7 +33,7 @@ from rnet import Client, Impersonate, Proxy
 async def main():
     client = Client(
         impersonate=Impersonate.Chrome120,
-        proxies=[Proxy.http("http://127.0.0.1:8080")],
+        proxies=[Proxy.all("http://127.0.0.1:8080")],
     )
     resp = await client.get("https://httpbin.org/get")
     print(await resp.text())
