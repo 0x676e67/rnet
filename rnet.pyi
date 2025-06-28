@@ -53,7 +53,7 @@ class WebSocketParams(TypedDict, closed=True):
     proxy: NotRequired[Union[str, Proxy]]
     local_address: NotRequired[Union[str, ipaddress.IPv4Address, ipaddress.IPv6Address]]
     interface: NotRequired[str]
-    headers: NotRequired[Dict[str, bytes]]
+    headers: NotRequired[Union[Dict[str, str], HeaderMap]]
     cookies: NotRequired[Dict[str, str]]
     protocols: NotRequired[List[str]]
     use_http2: NotRequired[bool]
