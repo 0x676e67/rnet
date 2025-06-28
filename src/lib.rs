@@ -169,7 +169,7 @@ fn rnet(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     // Header module
     m.add_wrapped(wrap_pymodule!(header_module))?;
 
-        // Cookie module
+    // Cookie module
     m.add_wrapped(wrap_pymodule!(cookie_module))?;
 
     // Impersonate module
@@ -239,7 +239,6 @@ fn blocking_module(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<BlockingStreamer>()?;
     Ok(())
 }
-
 
 #[pymodule(name = "exceptions")]
 fn exceptions_module(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
