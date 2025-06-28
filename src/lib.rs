@@ -166,26 +166,12 @@ fn rnet(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(request, m)?)?;
     m.add_function(wrap_pyfunction!(websocket, m)?)?;
 
-    // Header module
     m.add_wrapped(wrap_pymodule!(header_module))?;
-
-    // Cookie module
     m.add_wrapped(wrap_pymodule!(cookie_module))?;
-
-    // Impersonate module
     m.add_wrapped(wrap_pymodule!(impersonate_module))?;
-
-    // Enum module
     m.add_wrapped(wrap_pymodule!(enums_module))?;
-
-    // Blocking module
     m.add_wrapped(wrap_pymodule!(blocking_module))?;
-
-    // Exceptions module
     m.add_wrapped(wrap_pymodule!(exceptions_module))?;
-
-    // Inserting to sys.modules allows importing submodules nicely from Python
-    // e.g. from maturin_starter.submodule import SubmoduleClass
 
     let sys = PyModule::import(py, "sys")?;
     let sys_modules: Bound<'_, PyDict> = sys.getattr("modules")?.downcast_into()?;
