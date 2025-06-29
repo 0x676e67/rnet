@@ -186,7 +186,7 @@ fn rnet(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     Ok(())
 }
 
-#[pymodule(name = "header")]
+#[pymodule(gil_used = false, name = "header")]
 fn header_module(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<HeaderMap>()?;
     m.add_class::<HeaderMapItemsIter>()?;
@@ -195,14 +195,14 @@ fn header_module(m: &Bound<'_, PyModule>) -> PyResult<()> {
     Ok(())
 }
 
-#[pymodule(name = "cookie")]
+#[pymodule(gil_used = false, name = "cookie")]
 fn cookie_module(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<Cookie>()?;
     m.add_class::<SameSite>()?;
     Ok(())
 }
 
-#[pymodule(name = "impersonate")]
+#[pymodule(gil_used = false, name = "impersonate")]
 fn impersonate_module(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<Impersonate>()?;
     m.add_class::<ImpersonateOS>()?;
@@ -210,7 +210,7 @@ fn impersonate_module(m: &Bound<'_, PyModule>) -> PyResult<()> {
     Ok(())
 }
 
-#[pymodule(name = "blocking")]
+#[pymodule(gil_used = false, name = "blocking")]
 fn blocking_module(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<BlockingClient>()?;
     m.add_class::<BlockingResponse>()?;
@@ -219,7 +219,7 @@ fn blocking_module(m: &Bound<'_, PyModule>) -> PyResult<()> {
     Ok(())
 }
 
-#[pymodule(name = "exceptions")]
+#[pymodule(gil_used = false, name = "exceptions")]
 fn exceptions_module(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add("DNSResolverError", py.get_type::<DNSResolverError>())?;
     m.add("BodyError", py.get_type::<BodyError>())?;
