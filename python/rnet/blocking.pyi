@@ -11,16 +11,10 @@ from typing import (
 )
 from pathlib import Path
 
-from rnet import SocketAddr, StatusCode
+from rnet import LookupIpStrategy, TlsVersion, Version, Method, SocketAddr, StatusCode
 from rnet.header import HeaderMap
 from rnet.cookie import Cookie
 from rnet.impersonate import ImpersonateOption, Impersonate
-from rnet import (
-    LookupIpStrategy,
-    TlsVersion,
-    Version,
-    Method,
-)
 
 class BlockingClient:
     r"""
