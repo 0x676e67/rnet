@@ -71,12 +71,6 @@ class BlockingClient:
         r"""
         Creates a new BlockingClient instance.
 
-        # Arguments
-
-        * `**kwargs` - Optional request parameters as a dictionary.
-
-
-
         # Examples
 
         ```python
