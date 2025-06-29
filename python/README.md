@@ -13,17 +13,6 @@
 - **Comprehensive Exception Hierarchy**: All network and protocol errors are mapped to Python exceptions for robust error handling.
 - **Type Hints and IDE Support**: Complete `.pyi` stubs for all public APIs, enabling full autocompletion and type checking in modern editors.
 
-## Module Structure
-
-- `rnet.Client` — The main async HTTP client class.
-- `rnet.Proxy` — Proxy configuration and helpers.
-- `rnet.Impersonate` — Browser impersonation options.
-- `rnet.HeaderMap` — Multi-value HTTP header map.
-- `rnet.Cookie` — Cookie object and utilities.
-- `rnet.enums` — HTTP methods, versions, and other enums.
-- `rnet.exceptions` — All custom exception types.
-- `rnet.blocking` — Synchronous (blocking) API for all major features.
-
 ## Usage Example
 
 ```python

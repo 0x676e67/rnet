@@ -154,6 +154,10 @@ fn rnet(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<WebSocket>()?;
     m.add_class::<Streamer>()?;
     m.add_class::<Proxy>()?;
+    m.add_class::<Method>()?;
+    m.add_class::<Version>()?;
+    m.add_class::<LookupIpStrategy>()?;
+    m.add_class::<TlsVersion>()?;
 
     m.add_function(wrap_pyfunction!(get, m)?)?;
     m.add_function(wrap_pyfunction!(post, m)?)?;
@@ -169,7 +173,6 @@ fn rnet(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_wrapped(wrap_pymodule!(header_module))?;
     m.add_wrapped(wrap_pymodule!(cookie_module))?;
     m.add_wrapped(wrap_pymodule!(impersonate_module))?;
-    m.add_wrapped(wrap_pymodule!(enums_module))?;
     m.add_wrapped(wrap_pymodule!(blocking_module))?;
     m.add_wrapped(wrap_pymodule!(exceptions_module))?;
 
@@ -178,7 +181,6 @@ fn rnet(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     sys_modules.set_item("rnet.header", m.getattr("header")?)?;
     sys_modules.set_item("rnet.cookie", m.getattr("cookie")?)?;
     sys_modules.set_item("rnet.impersonate", m.getattr("impersonate")?)?;
-    sys_modules.set_item("rnet.enums", m.getattr("enums")?)?;
     sys_modules.set_item("rnet.blocking", m.getattr("blocking")?)?;
     sys_modules.set_item("rnet.exceptions", m.getattr("exceptions")?)?;
     Ok(())
@@ -196,6 +198,7 @@ fn header_module(m: &Bound<'_, PyModule>) -> PyResult<()> {
 #[pymodule(name = "cookie")]
 fn cookie_module(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<Cookie>()?;
+    m.add_class::<SameSite>()?;
     Ok(())
 }
 
@@ -204,16 +207,6 @@ fn impersonate_module(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<Impersonate>()?;
     m.add_class::<ImpersonateOS>()?;
     m.add_class::<ImpersonateOption>()?;
-    Ok(())
-}
-
-#[pymodule(name = "enums")]
-fn enums_module(m: &Bound<'_, PyModule>) -> PyResult<()> {
-    m.add_class::<Method>()?;
-    m.add_class::<Version>()?;
-    m.add_class::<LookupIpStrategy>()?;
-    m.add_class::<TlsVersion>()?;
-    m.add_class::<SameSite>()?;
     Ok(())
 }
 

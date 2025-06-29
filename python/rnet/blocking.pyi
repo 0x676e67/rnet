@@ -15,7 +15,7 @@ from rnet import SocketAddr, StatusCode
 from rnet.header import HeaderMap
 from rnet.cookie import Cookie
 from rnet.impersonate import ImpersonateOption, Impersonate
-from rnet.enums import (
+from rnet import (
     LookupIpStrategy,
     TlsVersion,
     Version,
