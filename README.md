@@ -61,9 +61,9 @@ if __name__ == "__main__":
 Additional learning resources include:
 
 - [DeepWiki](https://deepwiki.com/0x676e67/rnet)
-- [API Documentation](https://github.com/0x676e67/rnet/blob/main/rnet.pyi)
+- [API Documentation](https://github.com/0x676e67/rnet/blob/main/python/rnet)
 - [Repository Tests](https://github.com/0x676e67/rnet/tree/main/tests)
-- [Repository Examples](https://github.com/0x676e67/rnet/tree/main/examples)
+- [Repository Examples](https://github.com/0x676e67/rnet/tree/main/python/examples)
 
 ## Platforms
 
