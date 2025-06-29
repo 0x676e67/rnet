@@ -72,5 +72,8 @@ venv
 Cargo.lock
 uv.lock
 
+# VSCode
+.vscode
+
 # wheel package
 dist
