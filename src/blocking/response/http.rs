@@ -6,7 +6,7 @@ use crate::{
     error::Error,
     typing::{Cookie, HeaderMap, Json, SocketAddr, StatusCode, Version},
 };
-use pyo3::prelude::*;
+use pyo3::{prelude::*, pybacked::PyBackedStr};
 
 /// A blocking response from a request.
 #[pyclass(subclass)]
@@ -100,7 +100,7 @@ impl BlockingResponse {
     }
 
     /// Returns the text content of the response with a specific charset.
-    pub fn text_with_charset(&self, py: Python, encoding: String) -> PyResult<String> {
+    pub fn text_with_charset(&self, py: Python, encoding: PyBackedStr) -> PyResult<String> {
         py.allow_threads(|| {
             let resp = self.0.inner()?;
             pyo3_async_runtimes::tokio::get_runtime()
