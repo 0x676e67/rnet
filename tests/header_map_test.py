@@ -109,6 +109,7 @@ def test_edge_cases():
         list(h.get_all("X")) == [b"2", b"1"]
     )
 
+
 @pytest.mark.flaky(reruns=3, reruns_delay=2)
 def test_get_with_default():
     h = HeaderMap()
