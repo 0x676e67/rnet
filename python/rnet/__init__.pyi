@@ -636,7 +636,7 @@ class Response:
         * `encoding` - The default encoding to use if the charset is not specified.
         """
 
-    async def json(self) -> Dict[str, Any]:
+    async def json(self) -> Any:
         r"""
         Returns the JSON content of the response.
         """
