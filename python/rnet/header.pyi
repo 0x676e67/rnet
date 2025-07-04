@@ -36,7 +36,7 @@ class HeaderMap:
         Remove a key-value pair from the header map.
         """
 
-    def get(self, key: str) -> Optional[bytes]:
+    def get(self, key: str, default: Optional[bytes] = None) -> Optional[bytes]:
         r"""
         Returns a reference to the value associated with the key.
 

@@ -4,13 +4,14 @@ use crate::{
 };
 use pyo3::{
     prelude::*,
-    pybacked::PyBackedStr,
+    pybacked::{PyBackedBytes, PyBackedStr},
     types::{PyDict, PyList},
 };
 use wreq::header::{self, HeaderName, HeaderValue};
 
 /// A HTTP header map.
 #[pyclass(subclass)]
+#[derive(Clone)]
 pub struct HeaderMap(pub header::HeaderMap);
 
 #[pymethods]
@@ -46,13 +47,27 @@ impl HeaderMap {
     /// If there are multiple values associated with the key, then the first one
     /// is returned. Use `get_all` to get all values associated with a given
     /// key. Returns `None` if there are no values associated with the key.
-    fn get<'py>(&self, py: Python<'py>, key: PyBackedStr) -> Option<Bound<'py, PyAny>> {
-        let value = self.0.get::<&str>(key.as_ref())?;
-        let buffer = HeaderValueBuffer::new(value.clone());
-        buffer.into_bytes_ref(py).ok()
+    #[pyo3(signature = (key, default=None))]
+    fn get<'py>(
+        &self,
+        py: Python<'py>,
+        key: PyBackedStr,
+        default: Option<PyBackedBytes>,
+    ) -> Option<Bound<'py, PyAny>> {
+        match self.0.get::<&str>(key.as_ref()).cloned().or_else(|| {
+            default
+                .map(HeaderValue::from_maybe_shared)
+                .transpose()
+                .ok()
+                .flatten()
+        }) {
+            Some(value) => HeaderValueBuffer::new(value).into_bytes_ref(py).ok(),
+            None => None,
+        }
     }
 
     /// Returns a view of all values associated with a key.
+    #[pyo3(signature = (key))]
     fn get_all(&self, key: PyBackedStr) -> HeaderMapValuesIter {
         HeaderMapValuesIter {
             inner: self
@@ -65,6 +80,7 @@ impl HeaderMap {
     }
 
     /// Insert a key-value pair into the header map.
+    #[pyo3(signature = (key, value))]
     fn insert(&mut self, py: Python, key: PyBackedStr, value: PyBackedStr) {
         py.allow_threads(|| {
             if let (Ok(name), Ok(value)) = (
@@ -77,6 +93,7 @@ impl HeaderMap {
     }
 
     /// Append a key-value pair to the header map.
+    #[pyo3(signature = (key, value))]
     fn append(&mut self, py: Python, key: PyBackedStr, value: PyBackedStr) {
         py.allow_threads(|| {
             if let (Ok(name), Ok(value)) = (
@@ -89,6 +106,7 @@ impl HeaderMap {
     }
 
     /// Remove a key-value pair from the header map.
+    #[pyo3(signature = (key))]
     fn remove(&mut self, py: Python, key: PyBackedStr) {
         py.allow_threads(|| {
             self.0.remove::<&str>(key.as_ref());
@@ -96,6 +114,7 @@ impl HeaderMap {
     }
 
     /// Returns true if the map contains a value for the specified key.
+    #[pyo3(signature = (key))]
     fn contains_key(&self, py: Python, key: PyBackedStr) -> bool {
         py.allow_threads(|| self.0.contains_key::<&str>(key.as_ref()))
     }
@@ -145,7 +164,7 @@ impl HeaderMap {
 impl HeaderMap {
     #[inline]
     fn __getitem__<'py>(&self, py: Python<'py>, key: PyBackedStr) -> Option<Bound<'py, PyAny>> {
-        self.get(py, key)
+        self.get(py, key, None)
     }
 
     #[inline]

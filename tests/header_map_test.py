@@ -108,3 +108,13 @@ def test_edge_cases():
     assert (list(h.get_all("X")) == [b"1", b"2"]) or (
         list(h.get_all("X")) == [b"2", b"1"]
     )
+
+@pytest.mark.flaky(reruns=3, reruns_delay=2)
+def test_get_with_default():
+    h = HeaderMap()
+    h.insert("A", "1")
+    assert h.get("A") == b"1"
+    assert h.get("B", b"default") == b"default"
+    assert h.get("C") is None
+    assert h.get("C", b"default") == b"default"
+    assert h.get("A", b"default") == b"1"

@@ -6,7 +6,7 @@ use crate::{
 use arc_swap::ArcSwapOption;
 use futures_util::{Stream, TryStreamExt};
 use mime::Mime;
-use pyo3::{IntoPyObjectExt, prelude::*};
+use pyo3::{IntoPyObjectExt, prelude::*, pybacked::PyBackedStr};
 use pyo3_async_runtimes::tokio::future_into_py;
 use std::{ops::Deref, pin::Pin, sync::Arc};
 use tokio::sync::Mutex;
@@ -20,7 +20,7 @@ pub struct Response {
     status_code: StatusCode,
     remote_addr: Option<SocketAddr>,
     content_length: Option<u64>,
-    headers: wreq::header::HeaderMap,
+    headers: HeaderMap,
     response: ArcSwapOption<wreq::Response>,
 }
 
@@ -33,7 +33,7 @@ impl Response {
             status_code: StatusCode::from(response.status()),
             remote_addr: response.remote_addr().map(SocketAddr),
             content_length: response.content_length(),
-            headers: std::mem::take(response.headers_mut()),
+            headers: HeaderMap(std::mem::take(response.headers_mut())),
             response: ArcSwapOption::from_pointee(response),
         }
     }
@@ -83,13 +83,13 @@ impl Response {
     /// Returns the headers of the response.
     #[getter]
     pub fn headers(&self) -> HeaderMap {
-        HeaderMap(self.headers.clone())
+        self.headers.clone()
     }
 
     /// Returns the cookies of the response.
     #[getter]
     pub fn cookies(&self, py: Python) -> Vec<Cookie> {
-        py.allow_threads(|| Cookie::extract_cookies(&self.headers))
+        py.allow_threads(|| Cookie::extract_cookies(&self.headers.0))
     }
 
     /// Returns the content length of the response.
@@ -109,6 +109,7 @@ impl Response {
     pub fn encoding(&self, py: Python) -> String {
         py.allow_threads(|| {
             self.headers
+                .0
                 .get(header::CONTENT_TYPE)
                 .and_then(|value| value.to_str().ok())
                 .and_then(|value| value.parse::<Mime>().ok())
@@ -152,7 +153,7 @@ impl Response {
     pub fn text_with_charset<'py>(
         &self,
         py: Python<'py>,
-        encoding: String,
+        encoding: PyBackedStr,
     ) -> PyResult<Bound<'py, PyAny>> {
         let resp = self.inner()?;
         future_into_py(py, async move {

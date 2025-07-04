@@ -14,10 +14,7 @@ use pyo3::{IntoPyObjectExt, prelude::*, pybacked::PyBackedStr};
 use pyo3_async_runtimes::tokio::future_into_py;
 use std::sync::Arc;
 use tokio::sync::Mutex;
-use wreq::{
-    Utf8Bytes,
-    header::{self, HeaderValue},
-};
+use wreq::{Utf8Bytes, header::HeaderValue};
 
 type Sender = Arc<Mutex<Option<SplitSink<wreq::WebSocket, wreq::Message>>>>;
 type Receiver = Arc<Mutex<Option<SplitStream<wreq::WebSocket>>>>;
@@ -28,7 +25,7 @@ pub struct WebSocket {
     version: Version,
     status_code: StatusCode,
     remote_addr: Option<SocketAddr>,
-    headers: header::HeaderMap,
+    headers: HeaderMap,
     protocol: Option<HeaderValue>,
     sender: Sender,
     receiver: Receiver,
@@ -41,7 +38,7 @@ impl WebSocket {
         let version = Version::from_ffi(response.version());
         let status_code = StatusCode::from(response.status());
         let remote_addr = response.remote_addr().map(SocketAddr);
-        let headers = response.headers().clone();
+        let headers = HeaderMap(response.headers().clone());
         let websocket = response.into_websocket().await?;
         let protocol = websocket.protocol().cloned();
         let (sender, receiver) = websocket.split();
@@ -169,13 +166,13 @@ impl WebSocket {
     /// Returns the headers of the response.
     #[getter]
     pub fn headers(&self) -> HeaderMap {
-        HeaderMap(self.headers.clone())
+        self.headers.clone()
     }
 
     /// Returns the cookies of the response.
     #[getter]
     pub fn cookies(&self, py: Python) -> Vec<Cookie> {
-        py.allow_threads(|| Cookie::extract_cookies(&self.headers))
+        py.allow_threads(|| Cookie::extract_cookies(&self.headers.0))
     }
 
     /// Returns the remote address of the response.
