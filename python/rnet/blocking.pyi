@@ -470,7 +470,7 @@ class BlockingResponse:
         * `encoding` - The default encoding to use if the charset is not specified.
         """
 
-    def json(self) -> Dict[str, Any]:
+    def json(self) -> Any:
         r"""
         Returns the JSON content of the response.
         """
