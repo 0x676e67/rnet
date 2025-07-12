@@ -68,6 +68,7 @@ class Impersonate(Enum):
     Safari18_3 = auto()
     Safari18_3_1 = auto()
     SafariIos18_1_1 = auto()
+    Safari18_5 = auto()
     OkHttp3_9 = auto()
     OkHttp3_11 = auto()
     OkHttp3_13 = auto()
