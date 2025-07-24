@@ -174,19 +174,13 @@ impl FromPyObject<'_> for CookieExtractor {
             .try_fold(Vec::with_capacity(dict.len()), |mut cookies, (k, v)| {
                 let cookie = {
                     let mut cookie = String::with_capacity(10);
-                    if !cookie.is_empty() {
-                        cookie.push_str("; ");
-                    }
                     cookie.push_str(k.extract::<PyBackedStr>()?.as_ref());
                     cookie.push('=');
                     cookie.push_str(v.extract::<PyBackedStr>()?.as_ref());
-                    cookie
+                    HeaderValue::from_maybe_shared(Bytes::from(cookie)).map_err(Error::from)?
                 };
 
-                let cookie =
-                    HeaderValue::from_maybe_shared(Bytes::from(cookie)).map_err(Error::from)?;
                 cookies.push(cookie);
-
                 Ok(cookies)
             })
             .map(CookieExtractor)
