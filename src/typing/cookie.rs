@@ -165,29 +165,30 @@ impl Cookie {
     }
 }
 
-pub struct CookieExtractor(pub HeaderValue);
+pub struct CookieExtractor(pub Vec<HeaderValue>);
 
 impl FromPyObject<'_> for CookieExtractor {
     fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
         let dict = ob.downcast::<PyDict>()?;
         dict.iter()
-            .try_fold(
-                String::with_capacity(dict.len() * 8),
-                |mut cookies, (k, v)| {
-                    if !cookies.is_empty() {
-                        cookies.push_str("; ");
+            .try_fold(Vec::with_capacity(dict.len()), |mut cookies, (k, v)| {
+                let cookie = {
+                    let mut cookie = String::with_capacity(10);
+                    if !cookie.is_empty() {
+                        cookie.push_str("; ");
                     }
-                    cookies.push_str(k.extract::<PyBackedStr>()?.as_ref());
-                    cookies.push('=');
-                    cookies.push_str(v.extract::<PyBackedStr>()?.as_ref());
-                    Ok(cookies)
-                },
-            )
-            .and_then(|cookies| {
-                HeaderValue::from_maybe_shared(Bytes::from(cookies))
-                    .map(Self)
-                    .map_err(Error::from)
-                    .map_err(Into::into)
+                    cookie.push_str(k.extract::<PyBackedStr>()?.as_ref());
+                    cookie.push('=');
+                    cookie.push_str(v.extract::<PyBackedStr>()?.as_ref());
+                    cookie
+                };
+
+                let cookie =
+                    HeaderValue::from_maybe_shared(Bytes::from(cookie)).map_err(Error::from)?;
+                cookies.push(cookie);
+
+                Ok(cookies)
             })
+            .map(CookieExtractor)
     }
 }
