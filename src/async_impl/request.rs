@@ -86,7 +86,9 @@ where
 
     // Cookies options.
     if let Some(cookies) = params.cookies.take() {
-        builder = builder.header(header::COOKIE, cookies.0);
+        for cookie in cookies.0 {
+            builder = builder.header_append(header::COOKIE, cookie);
+        }
     }
 
     // Authentication options.
@@ -234,7 +236,9 @@ where
 
     // Cookies options.
     if let Some(cookies) = params.cookies.take() {
-        builder = builder.header(header::COOKIE, cookies.0);
+        for cookie in cookies.0 {
+            builder = builder.header_append(header::COOKIE, cookie);
+        }
     }
 
     // Query options.
