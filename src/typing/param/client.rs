@@ -51,6 +51,15 @@ pub struct ClientParams {
     /// Set that all sockets have `SO_KEEPALIVE` set with the supplied duration. (in seconds)
     pub tcp_keepalive: Option<u64>,
 
+    /// Set the interval between TCP keepalive probes. (in seconds)
+    pub tcp_keepalive_interval: Option<u64>,
+
+    /// Set the number of retries for TCP keepalive.
+    pub tcp_keepalive_retries: Option<u32>,
+
+    /// Set an optional user timeout for TCP sockets. (in seconds)    
+    pub tcp_user_timeout: Option<u64>,
+
     /// Set an optional timeout for idle sockets being kept-alive. (in seconds)
     pub pool_idle_timeout: Option<u64>,
 

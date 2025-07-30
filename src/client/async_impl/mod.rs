@@ -219,6 +219,43 @@ impl Client {
                 dns_resolver
             );
 
+            // TCP options.
+            apply_option!(
+                apply_option_or_default,
+                builder,
+                params.no_keepalive,
+                no_keepalive,
+                false
+            );
+            apply_option!(
+                apply_transformed_option,
+                builder,
+                params.tcp_keepalive,
+                tcp_keepalive,
+                Duration::from_secs
+            );
+            apply_option!(
+                apply_transformed_option,
+                builder,
+                params.tcp_keepalive_interval,
+                tcp_keepalive_interval,
+                Duration::from_secs
+            );
+            apply_option!(
+                apply_if_some,
+                builder,
+                params.tcp_keepalive_retries,
+                tcp_keepalive_retries
+            );
+            #[cfg(any(target_os = "android", target_os = "fuchsia", target_os = "linux"))]
+            apply_option!(
+                apply_transformed_option,
+                builder,
+                params.tcp_user_timeout,
+                tcp_user_timeout,
+                Duration::from_secs
+            );
+
             // Timeout options.
             apply_option!(
                 apply_transformed_option,
@@ -241,20 +278,8 @@ impl Client {
                 read_timeout,
                 Duration::from_secs
             );
-            apply_option!(
-                apply_option_or_default,
-                builder,
-                params.no_keepalive,
-                no_keepalive,
-                false
-            );
-            apply_option!(
-                apply_transformed_option,
-                builder,
-                params.tcp_keepalive,
-                tcp_keepalive,
-                Duration::from_secs
-            );
+
+            // Pool options.
             apply_option!(
                 apply_transformed_option,
                 builder,
