@@ -1,3 +1,13 @@
+use std::{ops::Deref, time::Duration};
+
+use pyo3::{prelude::*, pybacked::PyBackedStr};
+use pyo3_async_runtimes::tokio::future_into_py;
+use wreq::{
+    CertStore, Url,
+    header::{Entry, OccupiedEntry},
+    redirect::Policy,
+};
+
 use super::request::{execute_request, execute_websocket_request};
 use crate::{
     buffer::{HeaderValueBuffer, PyBufferProtocol},
@@ -7,15 +17,6 @@ use crate::{
         Cookie, HeaderMap, Method, SslVerify, TlsVersion,
         param::{ClientParams, RequestParams, UpdateClientParams, WebSocketParams},
     },
-};
-use pyo3::{prelude::*, pybacked::PyBackedStr};
-use pyo3_async_runtimes::tokio::future_into_py;
-use std::ops::Deref;
-use std::time::Duration;
-use wreq::{
-    CertStore, Url,
-    header::{Entry, OccupiedEntry},
-    redirect::Policy,
 };
 
 /// A client for making HTTP requests.

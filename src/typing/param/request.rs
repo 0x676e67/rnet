@@ -1,8 +1,9 @@
+use pyo3::{prelude::*, pybacked::PyBackedStr};
+
 use crate::typing::{
     BodyExtractor, CookieExtractor, HeaderMapExtractor, IpAddrExtractor, Json, ProxyExtractor,
     UrlEncodedValuesExtractor, Version, multipart::MultipartExtractor,
 };
-use pyo3::{prelude::*, pybacked::PyBackedStr};
 
 /// The parameters for a request.
 #[derive(Default)]

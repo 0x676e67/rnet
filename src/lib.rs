@@ -12,15 +12,13 @@ mod typing;
 use async_impl::{Client, Message, Response, Streamer, WebSocket};
 use blocking::{BlockingClient, BlockingResponse, BlockingStreamer, BlockingWebSocket};
 use error::*;
-use pyo3::types::PyDict;
-use pyo3::wrap_pymodule;
-use pyo3::{prelude::*, pybacked::PyBackedStr};
+use pyo3::{prelude::*, pybacked::PyBackedStr, types::PyDict, wrap_pymodule};
 use pyo3_async_runtimes::tokio::future_into_py;
-use typing::param::{RequestParams, WebSocketParams};
 use typing::{
     Cookie, HeaderMap, HeaderMapItemsIter, HeaderMapKeysIter, HeaderMapValuesIter, Impersonate,
     ImpersonateOS, ImpersonateOption, LookupIpStrategy, Method, Multipart, Part, Proxy, SameSite,
     SocketAddr, StatusCode, TlsVersion, Version,
+    param::{RequestParams, WebSocketParams},
 };
 
 #[cfg(all(

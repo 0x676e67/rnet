@@ -18,11 +18,10 @@
 // This ignores bug warnings for macro-generated code
 #![allow(unsafe_op_in_unsafe_fn)]
 
-use bytes::Bytes;
-use pyo3::IntoPyObjectExt;
-use pyo3::ffi;
-use pyo3::prelude::*;
 use std::os::raw::c_int;
+
+use bytes::Bytes;
+use pyo3::{IntoPyObjectExt, ffi, prelude::*};
 use wreq::header::{HeaderName, HeaderValue};
 
 /// A trait to define common buffer behavior

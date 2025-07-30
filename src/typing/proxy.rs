@@ -1,7 +1,8 @@
-use super::HeaderMapExtractor;
-use crate::error::Error;
 use pyo3::{prelude::*, pybacked::PyBackedStr, types::PyList};
 use wreq::header::HeaderValue;
+
+use super::HeaderMapExtractor;
+use crate::error::Error;
 
 macro_rules! proxy_method {
     ( $( { $(#[$meta:meta])* $name:ident, $proxy_fn:path} ),* ) => {

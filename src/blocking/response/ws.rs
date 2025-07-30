@@ -1,9 +1,10 @@
+use pyo3::{prelude::*, pybacked::PyBackedStr};
+
 use crate::{
     async_impl::{self, Message},
     error::Error,
     typing::{Cookie, HeaderMap, SocketAddr, StatusCode, Version},
 };
-use pyo3::{prelude::*, pybacked::PyBackedStr};
 
 /// A blocking WebSocket response.
 #[pyclass(subclass)]

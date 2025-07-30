@@ -1,13 +1,16 @@
-use crate::error::Error;
+use std::time::Duration;
+
+use pyo3::PyResult;
+use wreq::{Client, header, redirect::Policy};
+
 use crate::{
     async_impl::{Response, WebSocket},
-    typing::param::{RequestParams, WebSocketParams},
-    typing::{Method, Version},
+    error::Error,
+    typing::{
+        Method, Version,
+        param::{RequestParams, WebSocketParams},
+    },
 };
-use pyo3::PyResult;
-use std::time::Duration;
-use wreq::redirect::Policy;
-use wreq::{Client, header};
 
 /// Executes an HTTP request.
 pub async fn execute_request<U>(

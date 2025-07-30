@@ -1,7 +1,9 @@
-use crate::{error::DNSResolverError, typing::LookupIpStrategy};
-use pyo3::PyResult;
 use std::sync::{Arc, OnceLock};
+
+use pyo3::PyResult;
 use wreq::dns::HickoryDnsResolver;
+
+use crate::{error::DNSResolverError, typing::LookupIpStrategy};
 
 macro_rules! dns_resolver {
     ($strategy:expr) => {{
@@ -18,7 +20,8 @@ macro_rules! dns_resolver {
 ///
 /// # Returns
 ///
-/// A `Result` containing an `Arc` to the `HickoryDnsResolver` instance, or an error if initialization fails.
+/// A `Result` containing an `Arc` to the `HickoryDnsResolver` instance, or an error if
+/// initialization fails.
 ///
 /// # Errors
 ///

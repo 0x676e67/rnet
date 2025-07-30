@@ -1,13 +1,14 @@
-use crate::{
-    buffer::{HeaderNameBuffer, HeaderValueBuffer, PyBufferProtocol},
-    error::Error,
-};
 use pyo3::{
     prelude::*,
     pybacked::{PyBackedBytes, PyBackedStr},
     types::{PyDict, PyList},
 };
 use wreq::header::{self, HeaderName, HeaderValue};
+
+use crate::{
+    buffer::{HeaderNameBuffer, HeaderValueBuffer, PyBufferProtocol},
+    error::Error,
+};
 
 /// A HTTP header map.
 #[pyclass(subclass)]
@@ -131,7 +132,6 @@ impl HeaderMap {
     /// This number represents the total number of **values** stored in the map.
     /// This number can be greater than or equal to the number of **keys**
     /// stored given that a single key may have more than one associated value.
-    ///
     #[inline]
     fn len(&self) -> usize {
         self.0.len()

@@ -1,16 +1,18 @@
-use crate::{
-    buffer::{Buffer, BytesBuffer, PyBufferProtocol},
-    error::Error,
-    typing::{Cookie, HeaderMap, Json, SocketAddr, StatusCode, Version},
-};
+use std::{ops::Deref, pin::Pin, sync::Arc};
+
 use arc_swap::ArcSwapOption;
 use futures_util::{Stream, TryStreamExt};
 use mime::Mime;
 use pyo3::{IntoPyObjectExt, prelude::*, pybacked::PyBackedStr};
 use pyo3_async_runtimes::tokio::future_into_py;
-use std::{ops::Deref, pin::Pin, sync::Arc};
 use tokio::sync::Mutex;
 use wreq::{TlsInfo, Url, header};
+
+use crate::{
+    buffer::{Buffer, BytesBuffer, PyBufferProtocol},
+    error::Error,
+    typing::{Cookie, HeaderMap, Json, SocketAddr, StatusCode, Version},
+};
 
 /// A response from a request.
 #[pyclass(subclass)]

@@ -10,6 +10,10 @@ mod proxy;
 mod ssl;
 mod status;
 
+use pyo3::{prelude::*, pybacked::PyBackedStr};
+use serde::ser::{Serialize, SerializeSeq, Serializer};
+use wreq_util::EmulationOption;
+
 pub use self::{
     body::BodyExtractor,
     cookie::{Cookie, CookieExtractor},
@@ -25,9 +29,6 @@ pub use self::{
     ssl::SslVerify,
     status::StatusCode,
 };
-use pyo3::{prelude::*, pybacked::PyBackedStr};
-use serde::ser::{Serialize, SerializeSeq, Serializer};
-use wreq_util::EmulationOption;
 
 /// A struct to represent the `ImpersonateOption` class.
 #[pyclass(subclass)]

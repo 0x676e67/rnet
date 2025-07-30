@@ -1,9 +1,12 @@
-use crate::stream::{AsyncStream, SyncStream};
 use bytes::Bytes;
-use pyo3::prelude::*;
-use pyo3::pybacked::{PyBackedBytes, PyBackedStr};
-use pyo3::{FromPyObject, PyAny};
+use pyo3::{
+    FromPyObject, PyAny,
+    prelude::*,
+    pybacked::{PyBackedBytes, PyBackedStr},
+};
 use wreq::Body;
+
+use crate::stream::{AsyncStream, SyncStream};
 
 /// The body to use for the request.
 pub enum BodyExtractor {

@@ -2,16 +2,22 @@ mod client;
 mod request;
 mod response;
 
+use std::sync::LazyLock;
+
+use pyo3::PyResult;
+pub use request::{execute_request, execute_websocket_request};
+
 pub use self::{
     client::Client,
     response::{Message, Response, Streamer, WebSocket},
 };
-use crate::dns;
-use crate::typing::param::{RequestParams, WebSocketParams};
-use crate::typing::{LookupIpStrategy, Method};
-use pyo3::PyResult;
-pub use request::{execute_request, execute_websocket_request};
-use std::sync::LazyLock;
+use crate::{
+    dns,
+    typing::{
+        LookupIpStrategy, Method,
+        param::{RequestParams, WebSocketParams},
+    },
+};
 
 static DEFAULT_CLIENT: LazyLock<wreq::Client> = LazyLock::new(|| {
     let mut builder = wreq::Client::builder();

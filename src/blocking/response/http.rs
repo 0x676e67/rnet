@@ -1,12 +1,13 @@
 use std::ops::Deref;
 
+use pyo3::{prelude::*, pybacked::PyBackedStr};
+
 use crate::{
     async_impl::{self},
     buffer::{BytesBuffer, PyBufferProtocol},
     error::Error,
     typing::{Cookie, HeaderMap, Json, SocketAddr, StatusCode, Version},
 };
-use pyo3::{prelude::*, pybacked::PyBackedStr};
 
 /// A blocking response from a request.
 #[pyclass(subclass)]

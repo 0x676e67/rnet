@@ -1,7 +1,8 @@
+use pyo3::{prelude::*, pybacked::PyBackedStr};
+
 use crate::typing::{
     CookieExtractor, HeaderMapExtractor, IpAddrExtractor, ProxyExtractor, UrlEncodedValuesExtractor,
 };
-use pyo3::{prelude::*, pybacked::PyBackedStr};
 
 /// The parameters for a WebSocket request.
 #[derive(Default)]
@@ -73,15 +74,15 @@ pub struct WebSocketParams {
     /// and probably a little more depending on error handling strategy.
     pub max_write_buffer_size: Option<usize>,
 
-    /// The maximum size of an incoming message. `None` means no size limit. The default value is 64 MiB
-    /// which should be reasonably big for all normal use-cases but small enough to prevent
-    /// memory eating by a malicious user.
+    /// The maximum size of an incoming message. `None` means no size limit. The default value is
+    /// 64 MiB which should be reasonably big for all normal use-cases but small enough to
+    /// prevent memory eating by a malicious user.
     pub max_message_size: Option<usize>,
 
-    /// The maximum size of a single incoming message frame. `None` means no size limit. The limit is for
-    /// frame payload NOT including the frame header. The default value is 16 MiB which should
-    /// be reasonably big for all normal use-cases but small enough to prevent memory eating
-    /// by a malicious user.
+    /// The maximum size of a single incoming message frame. `None` means no size limit. The limit
+    /// is for frame payload NOT including the frame header. The default value is 16 MiB which
+    /// should be reasonably big for all normal use-cases but small enough to prevent memory
+    /// eating by a malicious user.
     pub max_frame_size: Option<usize>,
 
     /// When set to `true`, the server will accept and handle unmasked frames

@@ -1,9 +1,7 @@
 mod message;
 
-use crate::{
-    error::Error,
-    typing::{Cookie, HeaderMap, SocketAddr, StatusCode, Version},
-};
+use std::sync::Arc;
+
 use bytes::Bytes;
 use futures_util::{
     SinkExt, StreamExt, TryStreamExt,
@@ -12,9 +10,13 @@ use futures_util::{
 pub use message::Message;
 use pyo3::{IntoPyObjectExt, prelude::*, pybacked::PyBackedStr};
 use pyo3_async_runtimes::tokio::future_into_py;
-use std::sync::Arc;
 use tokio::sync::Mutex;
 use wreq::{Utf8Bytes, header::HeaderValue};
+
+use crate::{
+    error::Error,
+    typing::{Cookie, HeaderMap, SocketAddr, StatusCode, Version},
+};
 
 type Sender = Arc<Mutex<Option<SplitSink<wreq::WebSocket, wreq::Message>>>>;
 type Receiver = Arc<Mutex<Option<SplitStream<wreq::WebSocket>>>>;

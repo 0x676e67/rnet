@@ -1,3 +1,5 @@
+use pyo3::{prelude::*, pybacked::PyBackedStr};
+
 use super::{BlockingResponse, BlockingWebSocket};
 use crate::{
     async_impl::{self, execute_request, execute_websocket_request},
@@ -6,7 +8,6 @@ use crate::{
         param::{ClientParams, RequestParams, UpdateClientParams, WebSocketParams},
     },
 };
-use pyo3::{prelude::*, pybacked::PyBackedStr};
 
 /// A blocking client for making HTTP requests.
 #[pyclass(subclass)]

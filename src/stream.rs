@@ -1,10 +1,11 @@
+use std::{pin::Pin, task::Context};
+
 use bytes::Bytes;
 use futures_util::Stream;
 use pyo3::{
     PyObject, PyResult, Python,
     pybacked::{PyBackedBytes, PyBackedStr},
 };
-use std::{pin::Pin, task::Context};
 
 pub struct SyncStream {
     iter: PyObject,

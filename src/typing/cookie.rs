@@ -1,11 +1,13 @@
-use crate::error::Error;
-use bytes::Bytes;
-use pyo3::FromPyObject;
-use pyo3::pybacked::PyBackedStr;
-use pyo3::{prelude::*, types::PyDict};
 use std::time::SystemTime;
-use wreq::cookie::{self, Expiration};
-use wreq::header::{self, HeaderMap, HeaderValue};
+
+use bytes::Bytes;
+use pyo3::{FromPyObject, prelude::*, pybacked::PyBackedStr, types::PyDict};
+use wreq::{
+    cookie::{self, Expiration},
+    header::{self, HeaderMap, HeaderValue},
+};
+
+use crate::error::Error;
 
 /// A cookie.
 #[pyclass(subclass)]

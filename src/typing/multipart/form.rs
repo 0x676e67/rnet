@@ -1,7 +1,8 @@
-use super::part::Part;
-use crate::error::Error;
 use pyo3::{prelude::*, types::PyTuple};
 use wreq::multipart::Form;
+
+use super::part::Part;
+use crate::error::Error;
 
 /// A multipart form for a request.
 #[pyclass(subclass)]

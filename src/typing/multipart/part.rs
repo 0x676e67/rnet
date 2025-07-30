@@ -1,14 +1,16 @@
-use crate::{
-    error::{Error, MIMEParseError},
-    stream::{AsyncStream, SyncStream},
-};
+use std::path::PathBuf;
+
 use bytes::Bytes;
 use pyo3::{
     prelude::*,
     pybacked::{PyBackedBytes, PyBackedStr},
 };
-use std::path::PathBuf;
 use wreq::Body;
+
+use crate::{
+    error::{Error, MIMEParseError},
+    stream::{AsyncStream, SyncStream},
+};
 
 /// A part of a multipart form.
 #[pyclass(subclass)]
