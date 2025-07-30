@@ -9,7 +9,7 @@ use wreq::Body;
 
 use crate::{
     error::{Error, MIMEParseError},
-    stream::{AsyncStream, SyncStream},
+    typing::stream::{AsyncStream, SyncStream},
 };
 
 /// A part of a multipart form.

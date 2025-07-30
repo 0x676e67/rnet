@@ -4,7 +4,6 @@ mod macros;
 mod buffer;
 mod client;
 mod error;
-mod stream;
 mod typing;
 
 use client::{

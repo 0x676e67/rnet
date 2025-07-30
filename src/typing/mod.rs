@@ -8,6 +8,7 @@ mod multipart;
 mod proxy;
 mod ssl;
 mod status;
+mod stream;
 
 use pyo3::{prelude::*, pybacked::PyBackedStr};
 use serde::ser::{Serialize, SerializeSeq, Serializer};

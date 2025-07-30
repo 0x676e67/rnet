@@ -6,7 +6,7 @@ use pyo3::{
 };
 use wreq::Body;
 
-use crate::stream::{AsyncStream, SyncStream};
+use super::stream::{AsyncStream, SyncStream};
 
 /// The body to use for the request.
 pub enum BodyExtractor {
