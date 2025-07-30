@@ -125,6 +125,9 @@ class Client:
         read_timeout: Optional[int] = None,
         no_keepalive: Optional[bool] = None,
         tcp_keepalive: Optional[int] = None,
+        tcp_keepalive_interval: Optional[int] = None,
+        tcp_keepalive_retries: Optional[int] = None,
+        tcp_user_timeout: Optional[int] = None,
         pool_idle_timeout: Optional[int] = None,
         pool_max_idle_per_host: Optional[int] = None,
         pool_max_size: Optional[int] = None,
@@ -151,19 +154,58 @@ class Client:
         r"""
         Creates a new Client instance.
 
-        # Examples
+        Args:
+            impersonate: Browser fingerprint/impersonation config.
+            user_agent: Default User-Agent string.
+            default_headers: Default request headers.
+            headers_order: Custom header order.
+            referer: Automatically set Referer.
+            allow_redirects: Allow automatic redirects.
+            max_redirects: Maximum number of redirects.
+            cookie_store: Enable cookie store.
+            lookup_ip_strategy: IP lookup strategy.
+            timeout: Total timeout (seconds).
+            connect_timeout: Connection timeout (seconds).
+            read_timeout: Read timeout (seconds).
+            no_keepalive: Disable HTTP keep-alive.
+            tcp_keepalive: TCP keepalive time (seconds).
+            tcp_keepalive_interval: TCP keepalive interval (seconds).
+            tcp_keepalive_retries: TCP keepalive retry count.
+            tcp_user_timeout: TCP user timeout (seconds).
+            pool_idle_timeout: Connection pool idle timeout (seconds).
+            pool_max_idle_per_host: Max idle connections per host.
+            pool_max_size: Max total connections in pool.
+            http1_only: Enable HTTP/1.1 only.
+            http2_only: Enable HTTP/2 only.
+            https_only: Enable HTTPS only.
+            tcp_nodelay: Enable TCP_NODELAY.
+            http2_max_retry_count: Max HTTP/2 retry count.
+            verify: Verify SSL or specify CA path.
+            tls_info: Return TLS info.
+            min_tls_version: Minimum TLS version.
+            max_tls_version: Maximum TLS version.
+            no_proxy: Disable proxy.
+            proxies: Proxy server list.
+            local_address: Local bind address.
+            interface: Local network interface.
+            gzip: Enable gzip decompression.
+            brotli: Enable brotli decompression.
+            deflate: Enable deflate decompression.
+            zstd: Enable zstd decompression.
 
-        ```python
-        import asyncio
-        import rnet
+        Examples:
 
-        client = rnet.Client(
-            user_agent="my-app/0.0.1",
-            timeout=10,
-        )
-        response = await client.get('https://httpbin.org/get')
-        print(response.text)
-        ```
+            ```python
+            import asyncio
+            import rnet
+
+            client = rnet.Client(
+                user_agent="my-app/0.0.1",
+                timeout=10,
+            )
+            response = await client.get('https://httpbin.org/get')
+            print(response.text)
+            ```
         """
 
     def get_cookies(self, url: str) -> Optional[bytes]:
