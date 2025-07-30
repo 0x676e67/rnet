@@ -1,4 +1,4 @@
-mod response;
+pub mod response;
 
 use std::{ops::Deref, time::Duration};
 
@@ -10,16 +10,15 @@ use wreq::{
     redirect::Policy,
 };
 
-pub use self::response::{Message, Response, Streamer, WebSocket};
-use super::request::{execute_request, execute_websocket_request};
+use super::{
+    dns,
+    param::{ClientParams, RequestParams, UpdateClientParams, WebSocketParams},
+    request_ops::{execute_request, execute_websocket_request},
+};
 use crate::{
     buffer::{HeaderValueBuffer, PyBufferProtocol},
-    dns,
     error::Error,
-    typing::{
-        Cookie, HeaderMap, Method, SslVerify, TlsVersion,
-        param::{ClientParams, RequestParams, UpdateClientParams, WebSocketParams},
-    },
+    typing::{Cookie, HeaderMap, Method, SslVerify, TlsVersion},
 };
 
 /// A client for making HTTP requests.

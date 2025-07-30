@@ -2,7 +2,7 @@ use pyo3::{prelude::*, pybacked::PyBackedStr};
 
 use crate::typing::{
     HeaderMapExtractor, HeadersOrderExtractor, ImpersonateExtractor, IpAddrExtractor,
-    LookupIpStrategy, SslVerify, TlsVersion, proxy::ProxyListExtractor,
+    LookupIpStrategy, ProxyListExtractor, SslVerify, TlsVersion,
 };
 
 /// The parameters for a request.

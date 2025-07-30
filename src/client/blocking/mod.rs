@@ -4,17 +4,15 @@ use pyo3::{prelude::*, pybacked::PyBackedStr};
 
 pub use self::response::{BlockingResponse, BlockingStreamer, BlockingWebSocket};
 use super::{
-    async_impl,
-    request::{execute_request, execute_websocket_request},
-};
-use crate::typing::{
-    Cookie, HeaderMap, Method,
+    async_impl::Client,
     param::{ClientParams, RequestParams, UpdateClientParams, WebSocketParams},
+    request_ops::{execute_request, execute_websocket_request},
 };
+use crate::typing::{Cookie, HeaderMap, Method};
 
 /// A blocking client for making HTTP requests.
 #[pyclass(subclass)]
-pub struct BlockingClient(async_impl::Client);
+pub struct BlockingClient(Client);
 
 #[pymethods]
 impl BlockingClient {
@@ -146,7 +144,7 @@ impl BlockingClient {
     #[new]
     #[pyo3(signature = (**kwds))]
     fn new(py: Python, kwds: Option<ClientParams>) -> PyResult<BlockingClient> {
-        async_impl::Client::new(py, kwds).map(BlockingClient)
+        Client::new(py, kwds).map(BlockingClient)
     }
 
     /// Returns the user agent of the client.

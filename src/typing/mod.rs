@@ -5,7 +5,6 @@ mod header;
 mod ipaddr;
 mod json;
 mod multipart;
-pub mod param;
 mod proxy;
 mod ssl;
 mod status;
@@ -24,8 +23,8 @@ pub use self::{
     },
     ipaddr::{IpAddrExtractor, SocketAddr},
     json::Json,
-    multipart::{Multipart, Part},
-    proxy::{Proxy, ProxyExtractor},
+    multipart::{Multipart, MultipartExtractor, Part},
+    proxy::{Proxy, ProxyExtractor, ProxyListExtractor},
     ssl::SslVerify,
     status::StatusCode,
 };

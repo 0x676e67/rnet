@@ -15,7 +15,7 @@ crate-type = ["cdylib"]
 doctest = false
 
 [dependencies]
-tokio = { version = "1.46.0", features = ["sync"] }
+tokio = { version = "1.46.0", features = ["rt-multi-thread"] }
 pyo3 = { version = "0.25.0", features = [
     "indexmap",
     "multiple-pymethods",

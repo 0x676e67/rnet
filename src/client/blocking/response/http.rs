@@ -4,17 +4,17 @@ use pyo3::{prelude::*, pybacked::PyBackedStr};
 
 use crate::{
     buffer::{BytesBuffer, PyBufferProtocol},
-    client::async_impl,
+    client::async_impl::response::{Response, Streamer},
     error::Error,
     typing::{Cookie, HeaderMap, Json, SocketAddr, StatusCode, Version},
 };
 
 /// A blocking response from a request.
 #[pyclass(subclass)]
-pub struct BlockingResponse(async_impl::Response);
+pub struct BlockingResponse(Response);
 
-impl From<async_impl::Response> for BlockingResponse {
-    fn from(response: async_impl::Response) -> Self {
+impl From<Response> for BlockingResponse {
+    fn from(response: Response) -> Self {
         Self(response)
     }
 }
@@ -172,7 +172,7 @@ impl BlockingResponse {
 /// Employed in the `stream` method of the `Response` class.
 /// Utilized in an asynchronous for loop in Python.
 #[pyclass(subclass)]
-pub struct BlockingStreamer(async_impl::Streamer);
+pub struct BlockingStreamer(Streamer);
 
 #[pymethods]
 impl BlockingStreamer {
@@ -183,7 +183,7 @@ impl BlockingStreamer {
     fn __next__(&self, py: Python) -> PyResult<Py<PyAny>> {
         py.allow_threads(|| {
             pyo3_async_runtimes::tokio::get_runtime()
-                .block_on(async_impl::Streamer::_anext(self.0.deref().clone(), || {
+                .block_on(Streamer::_anext(self.0.deref().clone(), || {
                     Error::StopIteration.into()
                 }))
         })

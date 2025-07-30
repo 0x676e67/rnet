@@ -3,13 +3,11 @@ use std::time::Duration;
 use pyo3::PyResult;
 use wreq::{Client, header, redirect::Policy};
 
+use super::param::{RequestParams, WebSocketParams};
 use crate::{
-    client::async_impl::{Response, WebSocket},
+    client::async_impl::response::{Response, WebSocket},
     error::Error,
-    typing::{
-        Method, Version,
-        param::{RequestParams, WebSocketParams},
-    },
+    typing::{Method, Version},
 };
 
 /// Executes an HTTP request.

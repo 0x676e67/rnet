@@ -1,17 +1,17 @@
 use pyo3::{prelude::*, pybacked::PyBackedStr};
 
 use crate::{
-    client::async_impl::{self, Message},
+    client::async_impl::response::{Message, WebSocket},
     error::Error,
     typing::{Cookie, HeaderMap, SocketAddr, StatusCode, Version},
 };
 
 /// A blocking WebSocket response.
 #[pyclass(subclass)]
-pub struct BlockingWebSocket(async_impl::WebSocket);
+pub struct BlockingWebSocket(WebSocket);
 
-impl From<async_impl::WebSocket> for BlockingWebSocket {
-    fn from(inner: async_impl::WebSocket) -> Self {
+impl From<WebSocket> for BlockingWebSocket {
+    fn from(inner: WebSocket) -> Self {
         Self(inner)
     }
 }
@@ -69,8 +69,7 @@ impl BlockingWebSocket {
     /// Receives a message from the WebSocket.
     pub fn recv(&self, py: Python) -> PyResult<Option<Message>> {
         py.allow_threads(|| {
-            pyo3_async_runtimes::tokio::get_runtime()
-                .block_on(async_impl::WebSocket::_recv(self.0.receiver()))
+            pyo3_async_runtimes::tokio::get_runtime().block_on(WebSocket::_recv(self.0.receiver()))
         })
     }
 
@@ -79,7 +78,7 @@ impl BlockingWebSocket {
     pub fn send(&self, py: Python, message: Message) -> PyResult<()> {
         py.allow_threads(|| {
             pyo3_async_runtimes::tokio::get_runtime()
-                .block_on(async_impl::WebSocket::_send(self.0.sender(), message))
+                .block_on(WebSocket::_send(self.0.sender(), message))
         })
     }
 
@@ -92,7 +91,7 @@ impl BlockingWebSocket {
         reason: Option<PyBackedStr>,
     ) -> PyResult<()> {
         py.allow_threads(|| {
-            pyo3_async_runtimes::tokio::get_runtime().block_on(async_impl::WebSocket::_close(
+            pyo3_async_runtimes::tokio::get_runtime().block_on(WebSocket::_close(
                 self.0.receiver(),
                 self.0.sender(),
                 code,
@@ -111,7 +110,7 @@ impl BlockingWebSocket {
     fn __next__(&self, py: Python) -> PyResult<Message> {
         py.allow_threads(|| {
             pyo3_async_runtimes::tokio::get_runtime()
-                .block_on(async_impl::WebSocket::_anext(self.0.receiver(), || {
+                .block_on(WebSocket::_anext(self.0.receiver(), || {
                     Error::StopIteration.into()
                 }))
         })

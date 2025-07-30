@@ -1,8 +1,8 @@
 use pyo3::{prelude::*, pybacked::PyBackedStr};
 
 use crate::typing::{
-    BodyExtractor, CookieExtractor, HeaderMapExtractor, IpAddrExtractor, Json, ProxyExtractor,
-    UrlEncodedValuesExtractor, Version, multipart::MultipartExtractor,
+    BodyExtractor, CookieExtractor, HeaderMapExtractor, IpAddrExtractor, Json, MultipartExtractor,
+    ProxyExtractor, UrlEncodedValuesExtractor, Version,
 };
 
 /// The parameters for a request.
