@@ -1,17 +1,14 @@
-mod client;
+pub mod async_impl;
+pub mod blocking;
 mod request;
-mod response;
 
 use std::sync::LazyLock;
 
 use pyo3::PyResult;
 pub use request::{execute_request, execute_websocket_request};
 
-pub use self::{
-    client::Client,
-    response::{Message, Response, Streamer, WebSocket},
-};
 use crate::{
+    client::async_impl::{Response, WebSocket},
     dns,
     typing::{
         LookupIpStrategy, Method,

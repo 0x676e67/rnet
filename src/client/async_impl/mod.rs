@@ -1,3 +1,5 @@
+mod response;
+
 use std::{ops::Deref, time::Duration};
 
 use pyo3::{prelude::*, pybacked::PyBackedStr};
@@ -8,6 +10,7 @@ use wreq::{
     redirect::Policy,
 };
 
+pub use self::response::{Message, Response, Streamer, WebSocket};
 use super::request::{execute_request, execute_websocket_request};
 use crate::{
     buffer::{HeaderValueBuffer, PyBufferProtocol},

@@ -1,7 +1,7 @@
 use pyo3::{prelude::*, pybacked::PyBackedStr};
 
 use crate::{
-    async_impl::{self, Message},
+    client::async_impl::{self, Message},
     error::Error,
     typing::{Cookie, HeaderMap, SocketAddr, StatusCode, Version},
 };

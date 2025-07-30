@@ -3,8 +3,8 @@ use std::ops::Deref;
 use pyo3::{prelude::*, pybacked::PyBackedStr};
 
 use crate::{
-    async_impl::{self},
     buffer::{BytesBuffer, PyBufferProtocol},
+    client::async_impl,
     error::Error,
     typing::{Cookie, HeaderMap, Json, SocketAddr, StatusCode, Version},
 };

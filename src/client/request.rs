@@ -4,7 +4,7 @@ use pyo3::PyResult;
 use wreq::{Client, header, redirect::Policy};
 
 use crate::{
-    async_impl::{Response, WebSocket},
+    client::async_impl::{Response, WebSocket},
     error::Error,
     typing::{
         Method, Version,

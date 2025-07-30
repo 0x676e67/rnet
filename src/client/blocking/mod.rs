@@ -1,12 +1,15 @@
+mod response;
+
 use pyo3::{prelude::*, pybacked::PyBackedStr};
 
-use super::{BlockingResponse, BlockingWebSocket};
-use crate::{
-    async_impl::{self, execute_request, execute_websocket_request},
-    typing::{
-        Cookie, HeaderMap, Method,
-        param::{ClientParams, RequestParams, UpdateClientParams, WebSocketParams},
-    },
+pub use self::response::{BlockingResponse, BlockingStreamer, BlockingWebSocket};
+use super::{
+    async_impl,
+    request::{execute_request, execute_websocket_request},
+};
+use crate::typing::{
+    Cookie, HeaderMap, Method,
+    param::{ClientParams, RequestParams, UpdateClientParams, WebSocketParams},
 };
 
 /// A blocking client for making HTTP requests.

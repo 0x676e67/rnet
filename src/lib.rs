@@ -1,16 +1,17 @@
 #[macro_use]
 mod macros;
 
-mod async_impl;
-mod blocking;
 mod buffer;
+mod client;
 mod dns;
 mod error;
 mod stream;
 mod typing;
 
-use async_impl::{Client, Message, Response, Streamer, WebSocket};
-use blocking::{BlockingClient, BlockingResponse, BlockingStreamer, BlockingWebSocket};
+use client::{
+    async_impl::{Client, Message, Response, Streamer, WebSocket},
+    blocking::{BlockingClient, BlockingResponse, BlockingStreamer, BlockingWebSocket},
+};
 use error::*;
 use pyo3::{prelude::*, pybacked::PyBackedStr, types::PyDict, wrap_pymodule};
 use pyo3_async_runtimes::tokio::future_into_py;
@@ -36,7 +37,7 @@ fn get(
     url: PyBackedStr,
     kwds: Option<RequestParams>,
 ) -> PyResult<Bound<'_, PyAny>> {
-    future_into_py(py, async_impl::shortcut_request(url, Method::GET, kwds))
+    future_into_py(py, client::shortcut_request(url, Method::GET, kwds))
 }
 
 /// Make a POST request with the given parameters.
@@ -47,7 +48,7 @@ fn post(
     url: PyBackedStr,
     kwds: Option<RequestParams>,
 ) -> PyResult<Bound<'_, PyAny>> {
-    future_into_py(py, async_impl::shortcut_request(url, Method::POST, kwds))
+    future_into_py(py, client::shortcut_request(url, Method::POST, kwds))
 }
 
 /// Make a PUT request with the given parameters.
@@ -58,7 +59,7 @@ fn put(
     url: PyBackedStr,
     kwds: Option<RequestParams>,
 ) -> PyResult<Bound<'_, PyAny>> {
-    future_into_py(py, async_impl::shortcut_request(url, Method::PUT, kwds))
+    future_into_py(py, client::shortcut_request(url, Method::PUT, kwds))
 }
 
 /// Make a PATCH request with the given parameters.
@@ -69,7 +70,7 @@ fn patch(
     url: PyBackedStr,
     kwds: Option<RequestParams>,
 ) -> PyResult<Bound<'_, PyAny>> {
-    future_into_py(py, async_impl::shortcut_request(url, Method::PATCH, kwds))
+    future_into_py(py, client::shortcut_request(url, Method::PATCH, kwds))
 }
 
 /// Make a DELETE request with the given parameters.
@@ -80,7 +81,7 @@ fn delete(
     url: PyBackedStr,
     kwds: Option<RequestParams>,
 ) -> PyResult<Bound<'_, PyAny>> {
-    future_into_py(py, async_impl::shortcut_request(url, Method::DELETE, kwds))
+    future_into_py(py, client::shortcut_request(url, Method::DELETE, kwds))
 }
 
 /// Make a HEAD request with the given parameters.
@@ -91,7 +92,7 @@ fn head(
     url: PyBackedStr,
     kwds: Option<RequestParams>,
 ) -> PyResult<Bound<'_, PyAny>> {
-    future_into_py(py, async_impl::shortcut_request(url, Method::HEAD, kwds))
+    future_into_py(py, client::shortcut_request(url, Method::HEAD, kwds))
 }
 
 /// Make a OPTIONS request with the given parameters.
@@ -102,7 +103,7 @@ fn options(
     url: PyBackedStr,
     kwds: Option<RequestParams>,
 ) -> PyResult<Bound<'_, PyAny>> {
-    future_into_py(py, async_impl::shortcut_request(url, Method::OPTIONS, kwds))
+    future_into_py(py, client::shortcut_request(url, Method::OPTIONS, kwds))
 }
 
 /// Make a TRACE request with the given parameters.
@@ -113,7 +114,7 @@ fn trace(
     url: PyBackedStr,
     kwds: Option<RequestParams>,
 ) -> PyResult<Bound<'_, PyAny>> {
-    future_into_py(py, async_impl::shortcut_request(url, Method::TRACE, kwds))
+    future_into_py(py, client::shortcut_request(url, Method::TRACE, kwds))
 }
 
 /// Make a request with the given parameters.
@@ -125,7 +126,7 @@ fn request(
     url: PyBackedStr,
     kwds: Option<RequestParams>,
 ) -> PyResult<Bound<'_, PyAny>> {
-    future_into_py(py, async_impl::shortcut_request(url, method, kwds))
+    future_into_py(py, client::shortcut_request(url, method, kwds))
 }
 
 /// Make a WebSocket connection with the given parameters.
@@ -136,7 +137,7 @@ fn websocket(
     url: PyBackedStr,
     kwds: Option<WebSocketParams>,
 ) -> PyResult<Bound<'_, PyAny>> {
-    future_into_py(py, async_impl::shortcut_websocket_request(url, kwds))
+    future_into_py(py, client::shortcut_websocket_request(url, kwds))
 }
 
 #[pymodule(gil_used = false)]
