@@ -1,6 +1,6 @@
 [package]
 name = "rnet"
-version = "2.4.1"
+version = "2.4.2"
 description = "A blazing-fast Python HTTP client with TLS fingerprint"
 edition = "2024"
 rust-version = "1.85.0"
@@ -15,8 +15,8 @@ crate-type = ["cdylib"]
 doctest = false
 
 [dependencies]
-tokio = "1.47.0"
-pyo3 = { version = "0.25.0", features = [
+tokio = "1.47.1"
+pyo3 = { version = "0.25.1", features = [
     "indexmap",
     "multiple-pymethods",
     "generate-import-lib",
@@ -27,9 +27,9 @@ pyo3-async-runtimes = { version = "0.25.0", features = [
 ] }
 serde = { version = "1.0.219", features = ["derive"] }
 mime = "0.3.17"
-indexmap = { version = "2.8.0", features = ["serde"] }
+indexmap = { version = "2.10.0", features = ["serde"] }
 arc-swap = "1.7.1"
-url = "2.5"
+url = "2.5.4"
 bytes = "1.10.1"
 futures-util = { version = "0.3.31", default-features = false }
 wreq = { version = "5.3.0", features = [
