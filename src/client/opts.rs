@@ -78,20 +78,6 @@ where
         Version::into_ffi
     );
 
-    // Allow redirects options.
-    apply_option!(
-        apply_option_or_default_with_value,
-        builder,
-        params.allow_redirects,
-        redirect,
-        false,
-        params
-            .max_redirects
-            .take()
-            .map(Policy::limited)
-            .unwrap_or_default()
-    );
-
     // Timeout options.
     apply_option!(
         apply_transformed_option,
@@ -131,13 +117,6 @@ where
     // Headers options.
     apply_option!(apply_if_some_inner, builder, params.headers, headers);
 
-    // Cookies options.
-    if let Some(cookies) = params.cookies.take() {
-        for cookie in cookies.0 {
-            builder = builder.header_append(header::COOKIE, cookie);
-        }
-    }
-
     // Authentication options.
     apply_option!(
         apply_transformed_option_ref,
@@ -154,6 +133,30 @@ where
     if let Some(basic_auth) = params.basic_auth.take() {
         builder = builder.basic_auth(basic_auth.0, basic_auth.1);
     }
+
+    // Cookies options.
+    if let Some(cookies) = params.cookies.take() {
+        for cookie in cookies.0 {
+            builder = builder.header_append(header::COOKIE, cookie);
+        }
+    }
+
+    // Allow redirects options.
+    match params.allow_redirects {
+        Some(false) => {
+            builder = builder.redirect(Policy::none());
+        }
+        Some(true) => {
+            builder = builder.redirect(
+                params
+                    .max_redirects
+                    .take()
+                    .map(Policy::limited)
+                    .unwrap_or_default(),
+            );
+        }
+        None => {}
+    };
 
     // Query options.
     apply_option!(apply_if_some_ref, builder, params.query, query);
