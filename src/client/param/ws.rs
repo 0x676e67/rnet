@@ -1,6 +1,6 @@
 use pyo3::{prelude::*, pybacked::PyBackedStr};
 
-use crate::typing::{
+use crate::client::typing::{
     CookieExtractor, HeaderMapExtractor, IpAddrExtractor, ProxyExtractor, UrlEncodedValuesExtractor,
 };
 

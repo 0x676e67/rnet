@@ -10,8 +10,8 @@ use wreq::{TlsInfo, Url, header};
 
 use crate::{
     buffer::{Buffer, BytesBuffer, PyBufferProtocol},
+    client::typing::{Cookie, HeaderMap, Json, SocketAddr, StatusCode, Version},
     error::Error,
-    typing::{Cookie, HeaderMap, Json, SocketAddr, StatusCode, Version},
 };
 
 /// A response from a request.

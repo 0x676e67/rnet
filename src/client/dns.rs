@@ -3,7 +3,8 @@ use std::sync::{Arc, OnceLock};
 use pyo3::PyResult;
 use wreq::dns::HickoryDnsResolver;
 
-use crate::{error::DNSResolverError, typing::LookupIpStrategy};
+use super::typing::LookupIpStrategy;
+use crate::error::DNSResolverError;
 
 macro_rules! dns_resolver {
     ($strategy:expr) => {{
@@ -49,7 +50,7 @@ fn init(
             HickoryDnsResolver::new(strategy.into_ffi())
                 .map(Arc::new)
                 .map_err(|err| {
-                    eprintln!("failed to initialize the DNS resolver: {}", err);
+                    eprintln!("failed to initialize the DNS resolver: {err}");
                     "failed to initialize the DNS resolver"
                 })
         })

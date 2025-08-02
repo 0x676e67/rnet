@@ -4,7 +4,6 @@ mod macros;
 mod buffer;
 mod client;
 mod error;
-mod typing;
 
 use client::{
     async_impl::{
@@ -12,15 +11,16 @@ use client::{
         response::{Message, Response, Streamer, WebSocket},
     },
     blocking::{BlockingClient, BlockingResponse, BlockingStreamer, BlockingWebSocket},
-    delete, get, head, options, patch, post, put, request, trace, websocket,
+    delete, get, head, options, patch, post, put, request, trace,
+    typing::{
+        Cookie, HeaderMap, HeaderMapItemsIter, HeaderMapKeysIter, HeaderMapValuesIter, Impersonate,
+        ImpersonateOS, ImpersonateOption, LookupIpStrategy, Method, Multipart, Part, Proxy,
+        SameSite, SocketAddr, StatusCode, TlsVersion, Version,
+    },
+    websocket,
 };
 use error::*;
 use pyo3::{prelude::*, types::PyDict, wrap_pymodule};
-use typing::{
-    Cookie, HeaderMap, HeaderMapItemsIter, HeaderMapKeysIter, HeaderMapValuesIter, Impersonate,
-    ImpersonateOS, ImpersonateOption, LookupIpStrategy, Method, Multipart, Part, Proxy, SameSite,
-    SocketAddr, StatusCode, TlsVersion, Version,
-};
 
 #[cfg(all(
     not(target_env = "msvc"),

@@ -4,9 +4,11 @@ use pyo3::{prelude::*, pybacked::PyBackedStr};
 
 use crate::{
     buffer::{BytesBuffer, PyBufferProtocol},
-    client::async_impl::response::{Response, Streamer},
+    client::{
+        async_impl::response::{Response, Streamer},
+        typing::{Cookie, HeaderMap, Json, SocketAddr, StatusCode, Version},
+    },
     error::Error,
-    typing::{Cookie, HeaderMap, Json, SocketAddr, StatusCode, Version},
 };
 
 /// A blocking response from a request.

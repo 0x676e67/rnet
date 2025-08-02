@@ -14,8 +14,8 @@ use tokio::sync::Mutex;
 use wreq::{Utf8Bytes, header::HeaderValue};
 
 use crate::{
+    client::typing::{Cookie, HeaderMap, SocketAddr, StatusCode, Version},
     error::Error,
-    typing::{Cookie, HeaderMap, SocketAddr, StatusCode, Version},
 };
 
 type Sender = Arc<Mutex<Option<SplitSink<wreq::WebSocket, wreq::Message>>>>;

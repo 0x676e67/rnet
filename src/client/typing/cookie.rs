@@ -7,7 +7,7 @@ use wreq::{
     header::{self, HeaderMap, HeaderValue},
 };
 
-use crate::error::Error;
+use crate::{client::typing::SameSite, error::Error};
 
 /// A cookie.
 #[pyclass(subclass)]
@@ -52,7 +52,7 @@ impl Cookie {
         expires: Option<SystemTime>,
         http_only: bool,
         secure: bool,
-        same_site: Option<crate::typing::SameSite>,
+        same_site: Option<SameSite>,
     ) -> Cookie {
         let mut builder = cookie::Cookie::builder(name, value);
         if let Some(domain) = domain {

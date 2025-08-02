@@ -71,13 +71,13 @@ impl From<Error> for PyErr {
                 PyRuntimeError::new_err("The WebSocket has been disconnected")
             }
             Error::InvalidHeaderName(err) => {
-                PyRuntimeError::new_err(format!("Invalid header name: {:?}", err))
+                PyRuntimeError::new_err(format!("Invalid header name: {err:?}"))
             }
             Error::InvalidHeaderValue(err) => {
-                PyRuntimeError::new_err(format!("Invalid header value: {:?}", err))
+                PyRuntimeError::new_err(format!("Invalid header value: {err:?}"))
             }
-            Error::UrlParse(err) => URLParseError::new_err(format!("URL parse error: {:?}", err)),
-            Error::IO(err) => PyRuntimeError::new_err(format!("IO error: {:?}", err)),
+            Error::UrlParse(err) => URLParseError::new_err(format!("URL parse error: {err:?}")),
+            Error::IO(err) => PyRuntimeError::new_err(format!("IO error: {err:?}")),
             Error::Request(err) => wrap_error!(err,
                 is_body => BodyError,
                 is_connect => ConnectionError,

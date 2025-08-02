@@ -1,19 +1,19 @@
 pub mod async_impl;
 pub mod blocking;
+pub mod typing;
 
-mod default;
 mod dns;
+mod opts;
 mod param;
-mod request_ops;
 
 use pyo3::{PyResult, prelude::*, pybacked::PyBackedStr};
 use pyo3_async_runtimes::tokio::future_into_py;
 
 use self::{
-    default::{shortcut_request, shortcut_websocket_request},
+    opts::{shortcut_request, shortcut_websocket_request},
     param::{RequestParams, WebSocketParams},
+    typing::Method,
 };
-use crate::typing::Method;
 
 /// Make a GET request with the given parameters.
 #[pyfunction]

@@ -22,7 +22,7 @@ impl HeaderMap {
     fn new(init: Option<&Bound<'_, PyDict>>, capacity: Option<usize>) -> Self {
         let mut headers = capacity
             .map(header::HeaderMap::with_capacity)
-            .unwrap_or_else(header::HeaderMap::new);
+            .unwrap_or_default();
 
         // This section of memory might be retained by the Rust object,
         // and we want to prevent Python's garbage collector from managing it.

@@ -12,13 +12,13 @@ use wreq::{
 
 use super::{
     dns,
+    opts::{execute_request, execute_websocket_request},
     param::{ClientParams, RequestParams, UpdateClientParams, WebSocketParams},
-    request_ops::{execute_request, execute_websocket_request},
+    typing::{Cookie, HeaderMap, Method, SslVerify, TlsVersion},
 };
 use crate::{
     buffer::{HeaderValueBuffer, PyBufferProtocol},
     error::Error,
-    typing::{Cookie, HeaderMap, Method, SslVerify, TlsVersion},
 };
 
 /// A client for making HTTP requests.

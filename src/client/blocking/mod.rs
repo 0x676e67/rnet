@@ -5,10 +5,10 @@ use pyo3::{prelude::*, pybacked::PyBackedStr};
 pub use self::response::{BlockingResponse, BlockingStreamer, BlockingWebSocket};
 use super::{
     async_impl::Client,
+    opts::{execute_request, execute_websocket_request},
     param::{ClientParams, RequestParams, UpdateClientParams, WebSocketParams},
-    request_ops::{execute_request, execute_websocket_request},
+    typing::{Cookie, HeaderMap, Method},
 };
-use crate::typing::{Cookie, HeaderMap, Method};
 
 /// A blocking client for making HTTP requests.
 #[pyclass(subclass)]

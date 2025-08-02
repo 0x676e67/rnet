@@ -8,8 +8,8 @@ use pyo3::{
 use wreq::Body;
 
 use crate::{
+    client::typing::stream::{AsyncStream, SyncStream},
     error::{Error, MIMEParseError},
-    typing::stream::{AsyncStream, SyncStream},
 };
 
 /// A part of a multipart form.
@@ -65,7 +65,7 @@ impl Part {
             // Set the MIME type if provided
             if let Some(mime) = mime {
                 inner = inner.mime_str(mime).map_err(|e| {
-                    MIMEParseError::new_err(format!("Cannot parse MIME type: {:?}", e))
+                    MIMEParseError::new_err(format!("Cannot parse MIME type: {e:?}"))
                 })?;
             }
 

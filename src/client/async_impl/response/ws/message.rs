@@ -7,8 +7,8 @@ use wreq::Utf8Bytes;
 
 use crate::{
     buffer::{BytesBuffer, PyBufferProtocol},
+    client::typing::Json,
     error::Error,
-    typing::Json,
 };
 
 /// A WebSocket message.
