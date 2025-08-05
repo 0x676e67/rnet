@@ -10,9 +10,10 @@ use super::{
 use crate::{
     client::{
         async_impl::response::{Response, WebSocket},
-        typing::{LookupIpStrategy, Method, Version},
+        dns::LookupIpStrategy,
     },
     error::Error,
+    http::{Method, Version},
 };
 
 static DEFAULT_CLIENT: LazyLock<wreq::Client> = LazyLock::new(|| {

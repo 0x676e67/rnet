@@ -10,9 +10,12 @@ use super::{
     dns,
     opts::{execute_request, execute_websocket_request},
     param::{ClientParams, RequestParams, WebSocketParams},
-    typing::{Method, TlsVersion},
 };
-use crate::{error::Error, tls::SslVerify};
+use crate::{
+    error::Error,
+    http::Method,
+    tls::{SslVerify, TlsVersion},
+};
 
 /// A client for making HTTP requests.
 #[pyclass(subclass)]

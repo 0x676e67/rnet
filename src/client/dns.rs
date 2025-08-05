@@ -1,9 +1,8 @@
 use std::sync::{Arc, OnceLock};
 
-use pyo3::PyResult;
+use pyo3::{PyResult, prelude::*};
 use wreq::dns::HickoryDnsResolver;
 
-use super::typing::LookupIpStrategy;
 use crate::error::DNSResolverError;
 
 macro_rules! dns_resolver {
@@ -13,6 +12,18 @@ macro_rules! dns_resolver {
         init(&DNS_RESOLVER, $strategy)
     }};
 }
+
+define_enum_with_conversion!(
+    /// The lookup ip strategy.
+    const,
+    LookupIpStrategy,
+    wreq::dns::LookupIpStrategy,
+    Ipv4Only,
+    Ipv6Only,
+    Ipv4AndIpv6,
+    Ipv6thenIpv4,
+    Ipv4thenIpv6,
+);
 
 /// Initializes and returns a DNS resolver with the specified strategy.
 ///

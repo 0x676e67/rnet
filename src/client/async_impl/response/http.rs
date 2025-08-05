@@ -10,10 +10,10 @@ use wreq::{Url, header, tls::TlsInfo};
 
 use crate::{
     buffer::{Buffer, BytesBuffer, PyBufferProtocol},
-    client::typing::{Json, SocketAddr, StatusCode, Version},
+    client::{SocketAddr, json::Json},
     cookie::Cookie,
     error::Error,
-    header::HeaderMap,
+    http::{StatusCode, Version, header::HeaderMap},
 };
 
 /// A response from a request.

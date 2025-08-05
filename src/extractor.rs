@@ -5,17 +5,40 @@ use pyo3::{
     pybacked::PyBackedStr,
     types::{PyDict, PyList},
 };
+use serde::ser::{Serialize, SerializeSeq, Serializer};
 use wreq::header::{self, HeaderName, HeaderValue};
 
 use crate::{
+    client::Multipart,
     emulation::{Emulation, EmulationOption},
     error::Error,
-    header::HeaderMap,
+    http::header::HeaderMap,
     proxy::Proxy,
 };
 
-/// Generic extractor for converting Python objects to Rust types
+/// A generic extractor for various types.
 pub struct Extractor<T>(pub T);
+
+/// Serialize implementation for [`Vec<(PyBackedStr, PyBackedStr)>`].
+impl Serialize for Extractor<Vec<(PyBackedStr, PyBackedStr)>> {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        let mut seq = serializer.serialize_seq(Some(self.0.len()))?;
+        for (key, value) in &self.0 {
+            seq.serialize_element::<(&str, &str)>(&(key.as_ref(), value.as_ref()))?;
+        }
+        seq.end()
+    }
+}
+
+/// Extractor for URL-encoded values as [`Vec<(PyBackedStr, PyBackedStr)>`].
+impl FromPyObject<'_> for Extractor<Vec<(PyBackedStr, PyBackedStr)>> {
+    fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
+        ob.extract().map(Self)
+    }
+}
 
 /// Extractor for cookies as [`Vec<HeaderValue>`].
 impl FromPyObject<'_> for Extractor<Vec<HeaderValue>> {
@@ -101,6 +124,7 @@ impl FromPyObject<'_> for Extractor<wreq::Proxy> {
     }
 }
 
+/// Extractor for a vector of proxies as [`Vec<wreq::Proxy>`].
 impl FromPyObject<'_> for Extractor<Vec<wreq::Proxy>> {
     fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
         let proxies = ob.downcast::<PyList>()?;
@@ -113,5 +137,25 @@ impl FromPyObject<'_> for Extractor<Vec<wreq::Proxy>> {
                 Ok::<_, PyErr>(list)
             })
             .map(Self)
+    }
+}
+
+/// Extractor for multipart forms as [`wreq::multipart::Form`].
+impl FromPyObject<'_> for Extractor<wreq::multipart::Form> {
+    fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
+        let form = ob.downcast::<Multipart>()?;
+        form.borrow_mut()
+            .0
+            .take()
+            .map(Self)
+            .ok_or_else(|| Error::Memory)
+            .map_err(Into::into)
+    }
+}
+
+/// Extractor for a single IP address as [`std::net::IpAddr`].
+impl FromPyObject<'_> for Extractor<std::net::IpAddr> {
+    fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
+        ob.extract().map(Extractor)
     }
 }

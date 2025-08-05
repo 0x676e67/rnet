@@ -2,12 +2,12 @@ use pyo3::{prelude::*, pybacked::PyBackedStr};
 
 use crate::{
     client::{
+        SocketAddr,
         async_impl::response::{Message, WebSocket},
-        typing::{SocketAddr, StatusCode, Version},
     },
     cookie::Cookie,
     error::Error,
-    header::HeaderMap,
+    http::{StatusCode, Version, header::HeaderMap},
 };
 
 /// A blocking WebSocket response.

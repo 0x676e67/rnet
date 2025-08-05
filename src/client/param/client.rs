@@ -1,11 +1,13 @@
+use std::net::IpAddr;
+
 use pyo3::{prelude::*, pybacked::PyBackedStr};
 use wreq::{Proxy, header::HeaderMap};
 use wreq_util::EmulationOption;
 
 use crate::{
-    client::typing::{IpAddrExtractor, LookupIpStrategy, TlsVersion},
+    client::dns::LookupIpStrategy,
     extractor::Extractor,
-    tls::SslVerify,
+    tls::{SslVerify, TlsVersion},
 };
 
 /// The parameters for a request.
@@ -106,7 +108,7 @@ pub struct ClientParams {
     pub proxies: Option<Extractor<Vec<Proxy>>>,
 
     /// Bind to a local IP Address.
-    pub local_address: Option<IpAddrExtractor>,
+    pub local_address: Option<Extractor<IpAddr>>,
 
     /// Bind to an interface by `SO_BINDTODEVICE`.
     pub interface: Option<String>,

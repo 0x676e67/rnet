@@ -7,7 +7,7 @@ use wreq::ws::{self, CloseCode, CloseFrame, Utf8Bytes};
 
 use crate::{
     buffer::{BytesBuffer, PyBufferProtocol},
-    client::typing::Json,
+    client::json::Json,
     error::Error,
 };
 

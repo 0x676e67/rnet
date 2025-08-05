@@ -1,15 +1,16 @@
+use std::net::IpAddr;
+
 use pyo3::{prelude::*, pybacked::PyBackedStr};
 use wreq::{
     Proxy,
     header::{HeaderMap, HeaderValue},
+    multipart::Form,
 };
 
 use crate::{
-    client::typing::{
-        BodyExtractor, IpAddrExtractor, Json, MultipartExtractor, UrlEncodedValuesExtractor,
-        Version,
-    },
+    client::{body::Body, json::Json},
     extractor::Extractor,
+    http::Version,
 };
 
 /// The parameters for a request.
@@ -19,7 +20,7 @@ pub struct RequestParams {
     pub proxy: Option<Extractor<Proxy>>,
 
     /// Bind to a local IP Address.
-    pub local_address: Option<IpAddrExtractor>,
+    pub local_address: Option<Extractor<IpAddr>>,
 
     /// Bind to an interface by `SO_BINDTODEVICE`.
     pub interface: Option<String>,
@@ -55,19 +56,19 @@ pub struct RequestParams {
     pub basic_auth: Option<(PyBackedStr, Option<PyBackedStr>)>,
 
     /// The query parameters to use for the request.
-    pub query: Option<UrlEncodedValuesExtractor>,
+    pub query: Option<Extractor<Vec<(PyBackedStr, PyBackedStr)>>>,
 
     /// The form parameters to use for the request.
-    pub form: Option<UrlEncodedValuesExtractor>,
+    pub form: Option<Extractor<Vec<(PyBackedStr, PyBackedStr)>>>,
 
     /// The JSON body to use for the request.
     pub json: Option<Json>,
 
     /// The body to use for the request.
-    pub body: Option<BodyExtractor>,
+    pub body: Option<Body>,
 
     /// The multipart form to use for the request.
-    pub multipart: Option<MultipartExtractor>,
+    pub multipart: Option<Extractor<Form>>,
 }
 
 impl<'py> FromPyObject<'py> for RequestParams {

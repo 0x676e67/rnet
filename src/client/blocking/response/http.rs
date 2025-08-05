@@ -5,12 +5,13 @@ use pyo3::{prelude::*, pybacked::PyBackedStr};
 use crate::{
     buffer::{BytesBuffer, PyBufferProtocol},
     client::{
+        SocketAddr,
         async_impl::response::{Response, Streamer},
-        typing::{Json, SocketAddr, StatusCode, Version},
+        json::Json,
     },
     cookie::Cookie,
     error::Error,
-    header::HeaderMap,
+    http::{StatusCode, Version, header::HeaderMap},
 };
 
 /// A blocking response from a request.

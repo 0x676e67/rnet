@@ -6,28 +6,32 @@ mod cookie;
 mod emulation;
 mod error;
 mod extractor;
-mod header;
+mod http;
 mod proxy;
 mod tls;
 
-use client::{
-    async_impl::{
-        Client,
-        response::{Message, Response, Streamer, WebSocket},
-    },
-    blocking::{BlockingClient, BlockingResponse, BlockingStreamer, BlockingWebSocket},
-    delete, get, head, options, patch, post, put, request, trace,
-    typing::{
-        LookupIpStrategy, Method, Multipart, Part, SameSite, SocketAddr, StatusCode, TlsVersion,
-        Version,
-    },
-    websocket,
-};
-use emulation::{Emulation, EmulationOS, EmulationOption};
-use error::*;
-use header::{HeaderMap, HeaderMapItemsIter, HeaderMapKeysIter, HeaderMapValuesIter};
-use proxy::Proxy;
 use pyo3::{prelude::*, types::PyDict, wrap_pymodule};
+
+use self::{
+    client::{
+        LookupIpStrategy, Multipart, Part, SocketAddr,
+        async_impl::{
+            Client,
+            response::{Message, Response, Streamer, WebSocket},
+        },
+        blocking::{BlockingClient, BlockingResponse, BlockingStreamer, BlockingWebSocket},
+        delete, get, head, options, patch, post, put, request, trace, websocket,
+    },
+    cookie::{Cookie, SameSite},
+    emulation::{Emulation, EmulationOS, EmulationOption},
+    error::*,
+    http::{
+        Method, StatusCode, Version,
+        header::{HeaderMap, HeaderMapItemsIter, HeaderMapKeysIter, HeaderMapValuesIter},
+    },
+    proxy::Proxy,
+    tls::TlsVersion,
+};
 
 #[cfg(all(
     not(target_env = "msvc"),
@@ -92,7 +96,7 @@ fn header_module(m: &Bound<'_, PyModule>) -> PyResult<()> {
 
 #[pymodule(gil_used = false, name = "cookie")]
 fn cookie_module(m: &Bound<'_, PyModule>) -> PyResult<()> {
-    m.add_class::<cookie::Cookie>()?;
+    m.add_class::<Cookie>()?;
     m.add_class::<SameSite>()?;
     Ok(())
 }

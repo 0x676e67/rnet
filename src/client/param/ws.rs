@@ -1,13 +1,12 @@
+use std::net::IpAddr;
+
 use pyo3::{prelude::*, pybacked::PyBackedStr};
 use wreq::{
     Proxy,
     header::{HeaderMap, HeaderValue},
 };
 
-use crate::{
-    client::typing::{IpAddrExtractor, UrlEncodedValuesExtractor},
-    extractor::Extractor,
-};
+use crate::extractor::Extractor;
 
 /// The parameters for a WebSocket request.
 #[derive(Default)]
@@ -16,7 +15,7 @@ pub struct WebSocketParams {
     pub proxy: Option<Extractor<Proxy>>,
 
     /// Bind to a local IP Address.
-    pub local_address: Option<IpAddrExtractor>,
+    pub local_address: Option<Extractor<IpAddr>>,
 
     /// Bind to an interface by `SO_BINDTODEVICE`.
     pub interface: Option<String>,
@@ -43,7 +42,7 @@ pub struct WebSocketParams {
     pub basic_auth: Option<(PyBackedStr, Option<PyBackedStr>)>,
 
     /// The query parameters to use for the request.
-    pub query: Option<UrlEncodedValuesExtractor>,
+    pub query: Option<Extractor<Vec<(PyBackedStr, PyBackedStr)>>>,
 
     /// Read buffer capacity. This buffer is eagerly allocated and used for receiving
     /// messages.

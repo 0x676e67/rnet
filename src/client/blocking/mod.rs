@@ -7,8 +7,8 @@ use super::{
     async_impl::Client,
     opts::{execute_request, execute_websocket_request},
     param::{ClientParams, RequestParams, WebSocketParams},
-    typing::Method,
 };
+use crate::http::Method;
 
 /// A blocking client for making HTTP requests.
 #[pyclass(subclass)]

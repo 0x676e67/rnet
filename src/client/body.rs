@@ -3,9 +3,50 @@ use std::{pin::Pin, task::Context};
 use bytes::Bytes;
 use futures_util::Stream;
 use pyo3::{
-    PyObject, PyResult, Python,
+    FromPyObject, PyAny, PyObject, PyResult, Python,
+    prelude::*,
     pybacked::{PyBackedBytes, PyBackedStr},
 };
+
+/// The body to use for the request.
+pub enum Body {
+    Text(Bytes),
+    Bytes(Bytes),
+    SyncStream(SyncStream),
+    AsyncStream(AsyncStream),
+}
+
+impl From<Body> for wreq::Body {
+    fn from(value: Body) -> wreq::Body {
+        match value {
+            Body::Text(bytes) | Body::Bytes(bytes) => wreq::Body::from(bytes),
+            Body::SyncStream(stream) => wreq::Body::wrap_stream(stream),
+            Body::AsyncStream(stream) => wreq::Body::wrap_stream(stream),
+        }
+    }
+}
+
+impl FromPyObject<'_> for Body {
+    fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
+        if let Ok(text) = ob.extract::<PyBackedStr>() {
+            return Ok(Self::Text(Bytes::from_owner(text)));
+        }
+
+        if let Ok(bytes) = ob.extract::<PyBackedBytes>() {
+            return Ok(Self::Bytes(Bytes::from_owner(bytes)));
+        }
+
+        if ob.hasattr("asend")? {
+            pyo3_async_runtimes::tokio::into_stream_v2(ob.to_owned())
+                .map(AsyncStream::new)
+                .map(Self::AsyncStream)
+        } else {
+            ob.extract::<PyObject>()
+                .map(SyncStream::new)
+                .map(Self::SyncStream)
+        }
+    }
+}
 
 pub struct SyncStream {
     iter: PyObject,

@@ -6,7 +6,15 @@ use wreq::{
     header::{self, HeaderMap},
 };
 
-use crate::client::typing::SameSite;
+define_enum_with_conversion!(
+    /// The Cookie SameSite attribute.
+    const,
+    SameSite,
+    wreq::cookie::SameSite,
+    (Strict, Strict),
+    (Lax, Lax),
+    (Empty, None),
+);
 
 /// A cookie.
 #[pyclass(subclass)]
