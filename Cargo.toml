@@ -38,16 +38,22 @@ arc-swap = "1.7.1"
 url = "2.5.4"
 bytes = "1.10.1"
 futures-util = { version = "0.3.31", default-features = false }
-wreq = { version = "5.3.0", features = [
-    "full",
+cookie_crate = { version = "0.18", package = "cookie" }
+cookie_store = { version = "0.22" }
+wreq = { version = "6.0.0-rc.2", features = [
+    "json",
+    "socks",
+    "stream",
     "multipart",
-    "websocket",
+    "gzip",
+    "brotli",
+    "deflate",
+    "zstd",
+    "ws",
+    "cookies",
     "hickory-dns",
-    "apple-network-device-binding",
-    "cookies-preserve-order",
-    "cookies-multiple",
 ] }
-wreq-util = { version = "2.2.6", features = ["emulation-rand"] }
+wreq-util = { version = "3.0.0-rc.1", features = ["emulation-rand"] }
 
 [target.'cfg(all(not(target_env = "msvc"), not(all(target_os = "linux", target_env = "gnu"))) )'.dependencies]
 jemallocator = { package = "tikv-jemallocator", version = "0.6", features = [

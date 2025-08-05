@@ -1,6 +1,6 @@
 import pytest
 import rnet
-from rnet import Cookie, Impersonate, ImpersonateOS, ImpersonateOption, HeaderMap
+from rnet import Cookie, Emulation, EmulationOS, EmulationOption, HeaderMap
 
 
 @pytest.mark.asyncio
@@ -11,7 +11,7 @@ async def test_inherit_client():
             self.test_var = "test"
             self.cookie_jar = None
 
-    client = SubClient(impersonate=Impersonate.Chrome133)
+    client = SubClient(emulation=Emulation.Chrome133)
     url = "https://google.com"
     response = await client.get(url)
     text = await response.text()
@@ -19,9 +19,9 @@ async def test_inherit_client():
     assert client.cookie_jar is None
     assert client.test_var == "test"
     client.update(
-        impersonate=ImpersonateOption(
-            impersonate=Impersonate.Firefox135,
-            impersonate_os=ImpersonateOS.Windows,
+        emulation=EmulationOption(
+            emulation=Emulation.Firefox135,
+            emulation_os=EmulationOS.Windows,
             skip_headers=False,
         )
     )
@@ -61,16 +61,16 @@ async def test_set_cookie():
 
 @pytest.mark.asyncio
 @pytest.mark.flaky(reruns=3, reruns_delay=2)
-async def test_update_impersonate():
-    client = rnet.Client(impersonate=Impersonate.Firefox133)
+async def test_update_emulation():
+    client = rnet.Client(emulation=Emulation.Firefox133)
     assert (
         client.user_agent
         == "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:133.0) Gecko/20100101 Firefox/133.0"
     )
     client.update(
-        impersonate=ImpersonateOption(
-            impersonate=Impersonate.Firefox135,
-            impersonate_os=ImpersonateOS.Windows,
+        emulation=EmulationOption(
+            emulation=Emulation.Firefox135,
+            emulation_os=EmulationOS.Windows,
             skip_headers=False,
         )
     )
@@ -84,7 +84,7 @@ async def test_update_impersonate():
 @pytest.mark.flaky(reruns=3, reruns_delay=2)
 async def test_alps_new_endpoint():
     url = "https://google.com"
-    client = rnet.Client(impersonate=Impersonate.Chrome133)
+    client = rnet.Client(emulation=Emulation.Chrome133)
     response = await client.get(url)
     text = await response.text()
     assert text is not None

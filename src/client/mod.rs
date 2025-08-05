@@ -1,11 +1,9 @@
-#[macro_use]
-mod macros;
-
 pub mod async_impl;
 pub mod blocking;
 pub mod typing;
 
 mod dns;
+
 mod opts;
 mod param;
 

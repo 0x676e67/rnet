@@ -26,9 +26,6 @@ static DEFAULT_CLIENT: LazyLock<wreq::Client> = LazyLock::new(|| {
     builder
         .no_hickory_dns()
         .no_keepalive()
-        .http1(|mut http| {
-            http.title_case_headers(true);
-        })
         .build()
         .expect("Failed to build the default client.")
 });
@@ -240,7 +237,7 @@ where
         apply_option_or_default,
         builder,
         params.use_http2,
-        use_http2,
+        force_http2,
         false
     );
 

@@ -1,14 +1,19 @@
 use pyo3::{prelude::*, pybacked::PyBackedStr};
+use wreq::{
+    Proxy,
+    header::{HeaderMap, HeaderValue},
+};
 
-use crate::client::typing::{
-    CookieExtractor, HeaderMapExtractor, IpAddrExtractor, ProxyExtractor, UrlEncodedValuesExtractor,
+use crate::{
+    client::typing::{IpAddrExtractor, UrlEncodedValuesExtractor},
+    extractor::Extractor,
 };
 
 /// The parameters for a WebSocket request.
 #[derive(Default)]
 pub struct WebSocketParams {
     /// The proxy to use for the request.
-    pub proxy: Option<ProxyExtractor>,
+    pub proxy: Option<Extractor<Proxy>>,
 
     /// Bind to a local IP Address.
     pub local_address: Option<IpAddrExtractor>,
@@ -17,10 +22,10 @@ pub struct WebSocketParams {
     pub interface: Option<String>,
 
     /// The headers to use for the request.
-    pub headers: Option<HeaderMapExtractor>,
+    pub headers: Option<Extractor<HeaderMap>>,
 
     /// The cookies to use for the request.
-    pub cookies: Option<CookieExtractor>,
+    pub cookies: Option<Extractor<Vec<HeaderValue>>>,
 
     /// The protocols to use for the request.
     pub protocols: Option<Vec<String>>,

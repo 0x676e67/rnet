@@ -1,6 +1,14 @@
+#[macro_use]
+mod macros;
 mod buffer;
 mod client;
+mod cookie;
+mod emulation;
 mod error;
+mod extractor;
+mod header;
+mod proxy;
+mod tls;
 
 use client::{
     async_impl::{
@@ -10,13 +18,15 @@ use client::{
     blocking::{BlockingClient, BlockingResponse, BlockingStreamer, BlockingWebSocket},
     delete, get, head, options, patch, post, put, request, trace,
     typing::{
-        Cookie, HeaderMap, HeaderMapItemsIter, HeaderMapKeysIter, HeaderMapValuesIter, Impersonate,
-        ImpersonateOS, ImpersonateOption, LookupIpStrategy, Method, Multipart, Part, Proxy,
-        SameSite, SocketAddr, StatusCode, TlsVersion, Version,
+        LookupIpStrategy, Method, Multipart, Part, SameSite, SocketAddr, StatusCode, TlsVersion,
+        Version,
     },
     websocket,
 };
+use emulation::{Emulation, EmulationOS, EmulationOption};
 use error::*;
+use header::{HeaderMap, HeaderMapItemsIter, HeaderMapKeysIter, HeaderMapValuesIter};
+use proxy::Proxy;
 use pyo3::{prelude::*, types::PyDict, wrap_pymodule};
 
 #[cfg(all(
@@ -57,7 +67,7 @@ fn rnet(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
 
     m.add_wrapped(wrap_pymodule!(header_module))?;
     m.add_wrapped(wrap_pymodule!(cookie_module))?;
-    m.add_wrapped(wrap_pymodule!(impersonate_module))?;
+    m.add_wrapped(wrap_pymodule!(emulation_module))?;
     m.add_wrapped(wrap_pymodule!(blocking_module))?;
     m.add_wrapped(wrap_pymodule!(exceptions_module))?;
 
@@ -65,7 +75,7 @@ fn rnet(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     let sys_modules: Bound<'_, PyDict> = sys.getattr("modules")?.downcast_into()?;
     sys_modules.set_item("rnet.header", m.getattr("header")?)?;
     sys_modules.set_item("rnet.cookie", m.getattr("cookie")?)?;
-    sys_modules.set_item("rnet.impersonate", m.getattr("impersonate")?)?;
+    sys_modules.set_item("rnet.emulation", m.getattr("emulation")?)?;
     sys_modules.set_item("rnet.blocking", m.getattr("blocking")?)?;
     sys_modules.set_item("rnet.exceptions", m.getattr("exceptions")?)?;
     Ok(())
@@ -82,16 +92,16 @@ fn header_module(m: &Bound<'_, PyModule>) -> PyResult<()> {
 
 #[pymodule(gil_used = false, name = "cookie")]
 fn cookie_module(m: &Bound<'_, PyModule>) -> PyResult<()> {
-    m.add_class::<Cookie>()?;
+    m.add_class::<cookie::Cookie>()?;
     m.add_class::<SameSite>()?;
     Ok(())
 }
 
-#[pymodule(gil_used = false, name = "impersonate")]
-fn impersonate_module(m: &Bound<'_, PyModule>) -> PyResult<()> {
-    m.add_class::<Impersonate>()?;
-    m.add_class::<ImpersonateOS>()?;
-    m.add_class::<ImpersonateOption>()?;
+#[pymodule(gil_used = false, name = "emulation")]
+fn emulation_module(m: &Bound<'_, PyModule>) -> PyResult<()> {
+    m.add_class::<Emulation>()?;
+    m.add_class::<EmulationOS>()?;
+    m.add_class::<EmulationOption>()?;
     Ok(())
 }
 

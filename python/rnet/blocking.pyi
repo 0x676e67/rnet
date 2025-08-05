@@ -14,27 +14,18 @@ from pathlib import Path
 from rnet import LookupIpStrategy, TlsVersion, Version, Method, SocketAddr, StatusCode
 from rnet.header import HeaderMap
 from rnet.cookie import Cookie
-from rnet.impersonate import ImpersonateOption, Impersonate
+from rnet.emulation import EmulationOption, Emulation
 
 class BlockingClient:
     r"""
     A blocking client for making HTTP requests.
     """
 
-    user_agent: Optional[str]
-    r"""
-    Returns the user agent of the client.
-    """
-    headers: HeaderMap
-    r"""
-    Returns the headers of the client.
-    """
     def __new__(
         cls,
-        impersonate: Optional[Union[Impersonate, ImpersonateOption]] = None,
+        emulation: Optional[Union[Emulation, EmulationOption]] = None,
         user_agent: Optional[str] = None,
         default_headers: Optional[Union[Dict[str, str], HeaderMap]] = None,
-        headers_order: Optional[List[str]] = None,
         referer: Optional[bool] = None,
         allow_redirects: Optional[bool] = None,
         max_redirects: Optional[int] = None,
@@ -75,10 +66,9 @@ class BlockingClient:
         Creates a new BlockingClient instance.
 
         Args:
-            impersonate: Browser fingerprint/impersonation config.
+            emulation: Browser fingerprint/Emulation config.
             user_agent: Default User-Agent string.
             default_headers: Default request headers.
-            headers_order: Custom header order.
             referer: Automatically set Referer.
             allow_redirects: Allow automatic redirects.
             max_redirects: Maximum number of redirects.
@@ -125,83 +115,6 @@ class BlockingClient:
         )
         response = client.get('https://httpbin.org/get')
         print(response.text())
-        ```
-        """
-
-    def get_cookies(self, url: str) -> Optional[bytes]:
-        r"""
-        Returns the cookies for the given URL.
-
-        # Arguments
-
-        * `url` - The URL to get the cookies for.
-        """
-
-    def set_cookie(self, url: str, cookie: Cookie) -> None:
-        r"""
-        Sets the cookies for the given URL.
-
-        # Arguments
-        * `url` - The URL to set the cookies for.
-        * `cookie` - The cookie to set.
-
-        # Examples
-
-        ```python
-        import rnet
-
-        client = rnet.Client(cookie_store=True)
-        client.set_cookie("https://example.com", rnet.Cookie(name="foo", value="bar"))
-        ```
-        """
-
-    def remove_cookie(self, url: str, name: str) -> None:
-        r"""
-        Removes the cookie with the given name for the given URL.
-
-        # Arguments
-        * `url` - The URL to remove the cookie from.
-        * `name` - The name of the cookie to remove.
-
-        # Examples
-
-        ```python
-        import rnet
-
-        client = rnet.Client(cookie_store=True)
-        client.remove_cookie("https://example.com", "foo")
-        """
-
-    def clear_cookies(self) -> None:
-        r"""
-        Clears the cookies for the given URL.
-        """
-
-    def update(
-        self,
-        impersonate: Optional[Union[Impersonate, ImpersonateOption]] = None,
-        headers: Optional[Union[Dict[str, str], HeaderMap]] = None,
-        headers_order: Optional[List[str]] = None,
-        proxies: Optional[List[Proxy]] = None,
-        local_address: Optional[
-            Union[ipaddress.IPv4Address, ipaddress.IPv6Address]
-        ] = None,
-        interface: Optional[str] = None,
-    ) -> None:
-        r"""
-        Updates the client with the given parameters.
-
-        # Examples
-
-        ```python
-        import rnet
-
-        client = rnet.BlockingClient()
-        client.update(
-           impersonate=rnet.Impersonate.Firefox135,
-           headers={"X-My-Header": "value"},
-           proxies=[rnet.Proxy.all("http://proxy.example.com:8080")],
-        )
         ```
         """
 

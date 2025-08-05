@@ -117,3 +117,45 @@ macro_rules! extract_option {
         }
     };
 }
+
+macro_rules! proxy_method {
+    ( $( { $(#[$meta:meta])* $name:ident, $proxy_fn:path} ),* ) => {
+        #[pymethods]
+        impl Proxy {
+            $(
+                $(#[$meta])*
+                #[staticmethod]
+                #[pyo3(signature = (
+                    url,
+                    username = None,
+                    password = None,
+                    custom_http_auth = None,
+                    custom_http_headers = None,
+                    exclusion = None,
+                ))]
+                #[inline]
+                fn $name(
+                    py: Python,
+                    url: &str,
+                    username: Option<&str>,
+                    password: Option<&str>,
+                    custom_http_auth: Option<&str>,
+                    custom_http_headers: Option<Extractor<HeaderMap>>,
+                    exclusion: Option<&str>,
+                ) -> PyResult<Self> {
+                    py.allow_threads(|| {
+                        Self::create_proxy(
+                            $proxy_fn,
+                            url,
+                            username,
+                            password,
+                            custom_http_auth,
+                            custom_http_headers,
+                            exclusion,
+                        )
+                    })
+                }
+            )*
+        }
+    };
+}

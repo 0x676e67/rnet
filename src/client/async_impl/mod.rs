@@ -4,22 +4,15 @@ use std::{ops::Deref, time::Duration};
 
 use pyo3::{prelude::*, pybacked::PyBackedStr};
 use pyo3_async_runtimes::tokio::future_into_py;
-use wreq::{
-    CertStore, Url,
-    header::{Entry, OccupiedEntry},
-    redirect::Policy,
-};
+use wreq::{redirect::Policy, tls::CertStore};
 
 use super::{
     dns,
     opts::{execute_request, execute_websocket_request},
-    param::{ClientParams, RequestParams, UpdateClientParams, WebSocketParams},
-    typing::{Cookie, HeaderMap, Method, SslVerify, TlsVersion},
+    param::{ClientParams, RequestParams, WebSocketParams},
+    typing::{Method, TlsVersion},
 };
-use crate::{
-    buffer::{HeaderValueBuffer, PyBufferProtocol},
-    error::Error,
-};
+use crate::{error::Error, tls::SslVerify};
 
 /// A client for making HTTP requests.
 #[pyclass(subclass)]
@@ -160,9 +153,9 @@ impl Client {
             let params = kwds.get_or_insert_default();
             let mut builder = wreq::Client::builder().no_hickory_dns();
 
-            // Impersonation options.
-            if let Some(impersonate) = params.impersonate.take() {
-                builder = builder.emulation(impersonate.0);
+            // Emulation options.
+            if let Some(emulation) = params.emulation.take() {
+                builder = builder.emulation(emulation.0);
             }
 
             // User agent options.
@@ -180,14 +173,6 @@ impl Client {
                 builder,
                 params.default_headers,
                 default_headers
-            );
-
-            // Headers order options.
-            apply_option!(
-                apply_if_some_inner,
-                builder,
-                params.headers_order,
-                headers_order
             );
 
             // Referer options.
@@ -315,7 +300,7 @@ impl Client {
                 apply_if_some,
                 builder,
                 params.http2_max_retry_count,
-                http2_max_retry_count
+                http2_max_retry
             );
 
             // TLS options.
@@ -340,7 +325,8 @@ impl Client {
                 builder = match verify {
                     SslVerify::DisableSslVerification(verify) => builder.cert_verification(verify),
                     SslVerify::RootCertificateFilepath(path_buf) => {
-                        let store = CertStore::from_pem_file(path_buf).map_err(Error::Request)?;
+                        let pem_data = std::fs::read(path_buf)?;
+                        let store = CertStore::from_pem_stack(pem_data).map_err(Error::Request)?;
                         builder.cert_store(store)
                     }
                 }
@@ -384,149 +370,10 @@ impl Client {
             apply_option!(apply_if_some, builder, params.zstd, zstd);
 
             builder
-                .http1(|mut http1| {
-                    http1.title_case_headers(true);
-                })
                 .build()
                 .map(Client)
                 .map_err(Error::Request)
                 .map_err(Into::into)
-        })
-    }
-
-    /// Returns the user agent of the client.
-    #[getter]
-    pub fn user_agent(&self, py: Python) -> Option<String> {
-        py.allow_threads(|| {
-            self.0
-                .user_agent()
-                .and_then(|hv| hv.to_str().map(ToString::to_string).ok())
-        })
-    }
-
-    /// Returns the headers of the client.
-    #[getter]
-    pub fn headers(&self) -> HeaderMap {
-        HeaderMap(self.0.headers())
-    }
-
-    /// Returns the cookies for the given URL.
-    #[pyo3(signature = (url))]
-    pub fn get_cookies<'py>(
-        &self,
-        py: Python<'py>,
-        url: PyBackedStr,
-    ) -> PyResult<Option<Bound<'py, PyAny>>> {
-        let cookies = py.allow_threads(|| {
-            let url = Url::parse(url.as_ref()).map_err(Error::from)?;
-            let cookies = self.0.get_cookies(&url);
-            Ok::<_, PyErr>(cookies.map(HeaderValueBuffer::new))
-        })?;
-
-        cookies.map(|buffer| buffer.into_bytes_ref(py)).transpose()
-    }
-
-    /// Sets the cookies for the given URL.
-    #[pyo3(signature = (url, cookie))]
-    pub fn set_cookie(&self, py: Python, url: PyBackedStr, cookie: Cookie) -> PyResult<()> {
-        py.allow_threads(|| {
-            let url = Url::parse(url.as_ref()).map_err(Error::from)?;
-            self.0.set_cookie(&url, cookie.0);
-            Ok(())
-        })
-    }
-
-    /// Removes the cookie with the given name for the given URL.
-    #[pyo3(signature = (url, name))]
-    pub fn remove_cookie(&self, py: Python, url: PyBackedStr, name: PyBackedStr) -> PyResult<()> {
-        py.allow_threads(|| {
-            let url = Url::parse(url.as_ref()).map_err(Error::from)?;
-            self.0.remove_cookie(&url, &name);
-            Ok(())
-        })
-    }
-
-    /// Clears the cookies for the given URL.
-    pub fn clear_cookies(&self, py: Python) {
-        py.allow_threads(|| {
-            self.0.clear_cookies();
-        })
-    }
-
-    /// Updates the client with the given parameters.
-    #[pyo3(signature = (**kwds))]
-    pub fn update(&self, py: Python, mut kwds: Option<UpdateClientParams>) -> PyResult<()> {
-        py.allow_threads(|| {
-            let params = kwds.get_or_insert_default();
-
-            // Create a new client with the current configuration.
-            let mut update = self.0.update();
-
-            // Impersonation options.
-            apply_option!(apply_if_some_inner, update, params.impersonate, emulation);
-
-            // Updated headers options.
-            if let Some(src) = params.headers.take() {
-                update = update.headers(|dst| {
-                    // IntoIter of HeaderMap yields (Option<HeaderName>, HeaderValue).
-                    // The first time a name is yielded, it will be Some(name), and if
-                    // there are more values with the same name, the next yield will be
-                    // None.
-
-                    let mut prev_entry: Option<OccupiedEntry<_>> = None;
-                    for (key, value) in src.0 {
-                        match key {
-                            Some(key) => match dst.entry(key) {
-                                Entry::Occupied(mut e) => {
-                                    e.insert(value);
-                                    prev_entry = Some(e);
-                                }
-                                Entry::Vacant(e) => {
-                                    let e = e.insert_entry(value);
-                                    prev_entry = Some(e);
-                                }
-                            },
-                            None => match prev_entry {
-                                Some(ref mut entry) => {
-                                    entry.append(value);
-                                }
-                                None => unreachable!("HeaderMap::into_iter yielded None first"),
-                            },
-                        }
-                    }
-                });
-            }
-
-            // Headers order options.
-            apply_option!(
-                apply_if_some_inner,
-                update,
-                params.headers_order,
-                headers_order
-            );
-
-            // Network options.
-            apply_option!(apply_if_some_inner, update, params.proxies, proxies);
-            apply_option!(
-                apply_if_some_inner,
-                update,
-                params.local_address,
-                local_address
-            );
-            #[cfg(any(
-                target_os = "android",
-                target_os = "fuchsia",
-                target_os = "linux",
-                target_os = "ios",
-                target_os = "visionos",
-                target_os = "macos",
-                target_os = "tvos",
-                target_os = "watchos"
-            ))]
-            apply_option!(apply_if_some, update, params.interface, interface);
-
-            // Apply the changes.
-            update.apply().map_err(Error::Request).map_err(Into::into)
         })
     }
 }

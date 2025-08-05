@@ -8,7 +8,7 @@
 - **WebSocket Support**: Native async WebSocket client with full protocol support.
 - **Advanced Proxy Support**: HTTP, HTTPS, SOCKS4/5, and custom proxy authentication.
 - **HeaderMap and Cookie Management**: Flexible header and cookie handling, compatible with modern web standards.
-- **Impersonation**: Easily switch between browser-like client fingerprints (user-agent, TLS, etc.).
+- **Emulation**: Easily switch between browser-like client fingerprints (user-agent, TLS, etc.).
 - **Connection Pooling and Timeout**: Fine-grained control over connection reuse and timeouts.
 - **Comprehensive Exception Hierarchy**: All network and protocol errors are mapped to Python exceptions for robust error handling.
 - **Type Hints and IDE Support**: Complete `.pyi` stubs for all public APIs, enabling full autocompletion and type checking in modern editors.
@@ -17,11 +17,11 @@
 
 ```python
 import asyncio
-from rnet import Client, Impersonate, Proxy
+from rnet import Client, Emulation, Proxy
 
 async def main():
     client = Client(
-        impersonate=Impersonate.Chrome120,
+        emulation=Emulation.Chrome120,
         proxies=[Proxy.all("http://127.0.0.1:8080")],
     )
     resp = await client.get("https://httpbin.org/get")

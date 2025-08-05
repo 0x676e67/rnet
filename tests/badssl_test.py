@@ -9,6 +9,6 @@ async def test_badssl():
     resp = await client.get("https://self-signed.badssl.com/")
     assert resp.status == 200
 
-    client.update(impersonate=rnet.Impersonate.Chrome100)
+    client.update(emulation=rnet.Emulation.Chrome100)
     resp = await client.get("https://self-signed.badssl.com/")
     assert resp.status == 200

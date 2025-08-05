@@ -1,9 +1,9 @@
 from enum import Enum, auto
 from typing import Optional
 
-class Impersonate(Enum):
+class Emulation(Enum):
     r"""
-    An impersonate.
+    An emulation.
     """
 
     Chrome100 = auto()
@@ -82,9 +82,9 @@ class Impersonate(Enum):
     Opera118 = auto()
     Opera119 = auto()
 
-class ImpersonateOS(Enum):
+class EmulationOS(Enum):
     r"""
-    An impersonate operating system.
+    An emulation operating system.
     """
 
     Windows = auto()
@@ -93,44 +93,44 @@ class ImpersonateOS(Enum):
     Android = auto()
     IOS = auto()
 
-class ImpersonateOption:
+class EmulationOption:
     r"""
-    A struct to represent the `ImpersonateOption` class.
+    A struct to represent the `EmulationOption` class.
     """
 
     def __new__(
         cls,
-        impersonate: Impersonate,
-        impersonate_os: Optional[ImpersonateOS] = None,
+        emulation: Emulation,
+        emulation_os: Optional[EmulationOS] = None,
         skip_http2: Optional[bool] = None,
         skip_headers: Optional[bool] = None,
-    ) -> ImpersonateOption:
+    ) -> EmulationOption:
         r"""
-        Create a new impersonation option instance.
+        Create a new Emulation option instance.
 
-        This class allows you to configure browser/client impersonation settings
+        This class allows you to configure browser/client Emulation settings
         including the browser type, operating system, and HTTP protocol options.
 
         Args:
-            impersonate (Impersonate): The browser/client type to impersonate
-            impersonate_os (Optional[ImpersonateOS]): The operating system to impersonate, defaults to None
+            emulation (Emulation): The browser/client type to emulation
+            emulation_os (Optional[EmulationOS]): The operating system to emulation, defaults to None
             skip_http2 (Optional[bool]): Whether to disable HTTP/2 support, defaults to False
             skip_headers (Optional[bool]): Whether to skip default request headers, defaults to False
 
         Returns:
-            ImpersonateOption: A new impersonation option instance
+            EmulationOption: A new Emulation option instance
 
         Examples:
             ```python
-            from rnet import ImpersonateOption, Impersonate, ImpersonateOS
+            from rnet import EmulationOption, Emulation, EmulationOS
 
-            # Basic Chrome 120 impersonation
-            option = ImpersonateOption(Impersonate.Chrome120)
+            # Basic Chrome 120 Emulation
+            option = EmulationOption(Emulation.Chrome120)
 
             # Firefox 136 on Windows with custom options
-            option = ImpersonateOption(
-                impersonate=Impersonate.Firefox136,
-                impersonate_os=ImpersonateOS.Windows,
+            option = EmulationOption(
+                emulation=Emulation.Firefox136,
+                emulation_os=EmulationOS.Windows,
                 skip_http2=False,
                 skip_headers=True
             )
@@ -138,10 +138,10 @@ class ImpersonateOption:
         """
 
     @staticmethod
-    def random() -> ImpersonateOption:
+    def random() -> EmulationOption:
         r"""
-        Creates a new random impersonation option instance.
+        Creates a new random Emulation option instance.
 
-        This method generates a random browser/client impersonation option
+        This method generates a random browser/client Emulation option
         with random settings for browser type and operating system options.
         """

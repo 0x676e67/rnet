@@ -6,9 +6,11 @@ use crate::{
     buffer::{BytesBuffer, PyBufferProtocol},
     client::{
         async_impl::response::{Response, Streamer},
-        typing::{Cookie, HeaderMap, Json, SocketAddr, StatusCode, Version},
+        typing::{Json, SocketAddr, StatusCode, Version},
     },
+    cookie::Cookie,
     error::Error,
+    header::HeaderMap,
 };
 
 /// A blocking response from a request.

@@ -1,31 +1,17 @@
 use std::time::SystemTime;
 
-use bytes::Bytes;
-use pyo3::{FromPyObject, prelude::*, pybacked::PyBackedStr, types::PyDict};
+use pyo3::prelude::*;
 use wreq::{
     cookie::{self, Expiration},
-    header::{self, HeaderMap, HeaderValue},
+    header::{self, HeaderMap},
 };
 
-use crate::{client::typing::SameSite, error::Error};
+use crate::client::typing::SameSite;
 
 /// A cookie.
 #[pyclass(subclass)]
 #[derive(Clone)]
-pub struct Cookie(pub cookie::Cookie<'static>);
-
-impl Cookie {
-    pub(crate) fn extract_cookies(headers: &HeaderMap) -> Vec<Self> {
-        headers
-            .get_all(header::SET_COOKIE)
-            .iter()
-            .map(cookie::Cookie::parse)
-            .flat_map(Result::ok)
-            .map(cookie::Cookie::into_owned)
-            .map(Cookie)
-            .collect()
-    }
-}
+pub struct Cookie(pub cookie_crate::Cookie<'static>);
 
 #[pymethods]
 impl Cookie {
@@ -54,38 +40,38 @@ impl Cookie {
         secure: bool,
         same_site: Option<SameSite>,
     ) -> Cookie {
-        let mut builder = cookie::Cookie::builder(name, value);
+        let mut cookie = cookie_crate::Cookie::new(name, value);
         if let Some(domain) = domain {
-            builder = builder.domain(domain);
+            cookie.set_domain(domain);
         }
 
         if let Some(path) = path {
-            builder = builder.path(path);
+            cookie.set_path(path);
         }
 
         if let Some(max_age) = max_age {
             if let Ok(max_age) = cookie::Duration::try_from(max_age) {
-                builder = builder.max_age(max_age);
+                cookie.set_max_age(max_age);
             }
         }
 
         if let Some(expires) = expires {
-            builder = builder.expires(Expiration::DateTime(expires.into()));
+            cookie.set_expires(Expiration::DateTime(expires.into()));
         }
 
         if http_only {
-            builder = builder.http_only(true);
+            cookie.set_http_only(true);
         }
 
         if secure {
-            builder = builder.secure(true);
+            cookie.set_secure(true);
         }
 
         if let Some(same_site) = same_site {
-            builder = builder.same_site(same_site.into_ffi());
+            cookie.set_same_site(same_site.into_ffi());
         }
 
-        Self(builder.build())
+        Self(cookie)
     }
 
     /// The name of the cookie.
@@ -106,28 +92,28 @@ impl Cookie {
     #[getter]
     #[inline(always)]
     pub fn http_only(&self) -> bool {
-        self.0.http_only()
+        self.0.http_only().unwrap_or(false)
     }
 
     /// Returns true if the 'Secure' directive is enabled.
     #[getter]
     #[inline(always)]
     pub fn secure(&self) -> bool {
-        self.0.secure()
+        self.0.secure().unwrap_or(false)
     }
 
     /// Returns true if  'SameSite' directive is 'Lax'.
     #[getter]
     #[inline(always)]
     pub fn same_site_lax(&self) -> bool {
-        self.0.same_site_lax()
+        self.0.same_site() == Some(cookie_crate::SameSite::Lax)
     }
 
     /// Returns true if  'SameSite' directive is 'Strict'.
     #[getter]
     #[inline(always)]
     pub fn same_site_strict(&self) -> bool {
-        self.0.same_site_strict()
+        self.0.same_site() == Some(cookie_crate::SameSite::Strict)
     }
 
     /// Returns the path directive of the cookie, if set.
@@ -148,14 +134,17 @@ impl Cookie {
     #[getter]
     #[inline(always)]
     pub fn max_age(&self) -> Option<std::time::Duration> {
-        self.0.max_age()
+        self.0.max_age().and_then(|d| d.try_into().ok())
     }
 
     /// The cookie expiration time.
     #[getter]
     #[inline(always)]
     pub fn expires(&self) -> Option<SystemTime> {
-        self.0.expires()
+        match self.0.expires() {
+            Some(Expiration::DateTime(offset)) => Some(SystemTime::from(offset)),
+            None | Some(Expiration::Session) => None,
+        }
     }
 
     fn __str__(&self) -> String {
@@ -167,24 +156,19 @@ impl Cookie {
     }
 }
 
-pub struct CookieExtractor(pub Vec<HeaderValue>);
-
-impl FromPyObject<'_> for CookieExtractor {
-    fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
-        let dict = ob.downcast::<PyDict>()?;
-        dict.iter()
-            .try_fold(Vec::with_capacity(dict.len()), |mut cookies, (k, v)| {
-                let cookie = {
-                    let mut cookie = String::with_capacity(10);
-                    cookie.push_str(k.extract::<PyBackedStr>()?.as_ref());
-                    cookie.push('=');
-                    cookie.push_str(v.extract::<PyBackedStr>()?.as_ref());
-                    HeaderValue::from_maybe_shared(Bytes::from(cookie)).map_err(Error::from)?
-                };
-
-                cookies.push(cookie);
-                Ok(cookies)
+impl Cookie {
+    pub fn parse(headers: &HeaderMap) -> Vec<Cookie> {
+        headers
+            .get_all(header::SET_COOKIE)
+            .iter()
+            .map(|h| {
+                std::str::from_utf8(h.as_bytes())
+                    .map_err(cookie_crate::ParseError::from)
+                    .and_then(cookie_crate::Cookie::parse)
             })
-            .map(CookieExtractor)
+            .flat_map(Result::ok)
+            .map(cookie_crate::Cookie::into_owned)
+            .map(Cookie)
+            .collect()
     }
 }

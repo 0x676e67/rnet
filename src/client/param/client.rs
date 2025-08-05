@@ -1,24 +1,24 @@
 use pyo3::{prelude::*, pybacked::PyBackedStr};
+use wreq::{Proxy, header::HeaderMap};
+use wreq_util::EmulationOption;
 
-use crate::client::typing::{
-    HeaderMapExtractor, HeadersOrderExtractor, ImpersonateExtractor, IpAddrExtractor,
-    LookupIpStrategy, ProxyListExtractor, SslVerify, TlsVersion,
+use crate::{
+    client::typing::{IpAddrExtractor, LookupIpStrategy, TlsVersion},
+    extractor::Extractor,
+    tls::SslVerify,
 };
 
 /// The parameters for a request.
 #[derive(Default)]
 pub struct ClientParams {
-    /// The impersonation settings for the request.
-    pub impersonate: Option<ImpersonateExtractor>,
+    /// The Emulation settings for the request.
+    pub emulation: Option<Extractor<EmulationOption>>,
 
     /// The user agent to use for the request.
     pub user_agent: Option<PyBackedStr>,
 
     /// The headers to use for the request.
-    pub default_headers: Option<HeaderMapExtractor>,
-
-    /// The order of the headers to use for the request.
-    pub headers_order: Option<HeadersOrderExtractor>,
+    pub default_headers: Option<Extractor<HeaderMap>>,
 
     /// Whether to use referer.
     pub referer: Option<bool>,
@@ -67,7 +67,7 @@ pub struct ClientParams {
     pub pool_max_idle_per_host: Option<usize>,
 
     /// Sets the maximum number of connections in the pool.
-    pub pool_max_size: Option<usize>,
+    pub pool_max_size: Option<u32>,
 
     // ========= Protocol options =========
     /// Whether to use the HTTP/1 protocol only.
@@ -103,7 +103,7 @@ pub struct ClientParams {
     pub no_proxy: Option<bool>,
 
     /// The proxy to use for the request.
-    pub proxies: Option<ProxyListExtractor>,
+    pub proxies: Option<Extractor<Vec<Proxy>>>,
 
     /// Bind to a local IP Address.
     pub local_address: Option<IpAddrExtractor>,
@@ -125,37 +125,13 @@ pub struct ClientParams {
     pub zstd: Option<bool>,
 }
 
-/// The parameters for updating a client.
-#[derive(Default)]
-pub struct UpdateClientParams {
-    /// The impersonation settings for the request.
-    pub impersonate: Option<ImpersonateExtractor>,
-
-    /// The headers to use for the request.
-    pub headers: Option<HeaderMapExtractor>,
-
-    /// The order of the headers to use for the request.
-    pub headers_order: Option<HeadersOrderExtractor>,
-
-    // ========= Network options =========
-    /// The proxy to use for the request.
-    pub proxies: Option<ProxyListExtractor>,
-
-    /// Bind to a local IP Address.
-    pub local_address: Option<IpAddrExtractor>,
-
-    /// Bind to an interface by `SO_BINDTODEVICE`.
-    pub interface: Option<String>,
-}
-
 impl<'py> FromPyObject<'py> for ClientParams {
     fn extract_bound(ob: &Bound<'py, PyAny>) -> PyResult<Self> {
         let mut params = Self::default();
-        extract_option!(ob, params, impersonate);
+        extract_option!(ob, params, emulation);
 
         extract_option!(ob, params, user_agent);
         extract_option!(ob, params, default_headers);
-        extract_option!(ob, params, headers_order);
         extract_option!(ob, params, referer);
         extract_option!(ob, params, allow_redirects);
         extract_option!(ob, params, cookie_store);
@@ -189,19 +165,6 @@ impl<'py> FromPyObject<'py> for ClientParams {
         extract_option!(ob, params, brotli);
         extract_option!(ob, params, deflate);
         extract_option!(ob, params, zstd);
-        Ok(params)
-    }
-}
-
-impl<'py> FromPyObject<'py> for UpdateClientParams {
-    fn extract_bound(ob: &Bound<'py, PyAny>) -> PyResult<Self> {
-        let mut params = Self::default();
-        extract_option!(ob, params, impersonate);
-        extract_option!(ob, params, headers);
-        extract_option!(ob, params, headers_order);
-        extract_option!(ob, params, proxies);
-        extract_option!(ob, params, local_address);
-        extract_option!(ob, params, interface);
         Ok(params)
     }
 }

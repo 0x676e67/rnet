@@ -1,15 +1,22 @@
 use pyo3::{prelude::*, pybacked::PyBackedStr};
+use wreq::{
+    Proxy,
+    header::{HeaderMap, HeaderValue},
+};
 
-use crate::client::typing::{
-    BodyExtractor, CookieExtractor, HeaderMapExtractor, IpAddrExtractor, Json, MultipartExtractor,
-    ProxyExtractor, UrlEncodedValuesExtractor, Version,
+use crate::{
+    client::typing::{
+        BodyExtractor, IpAddrExtractor, Json, MultipartExtractor, UrlEncodedValuesExtractor,
+        Version,
+    },
+    extractor::Extractor,
 };
 
 /// The parameters for a request.
 #[derive(Default)]
 pub struct RequestParams {
     /// The proxy to use for the request.
-    pub proxy: Option<ProxyExtractor>,
+    pub proxy: Option<Extractor<Proxy>>,
 
     /// Bind to a local IP Address.
     pub local_address: Option<IpAddrExtractor>,
@@ -27,10 +34,10 @@ pub struct RequestParams {
     pub version: Option<Version>,
 
     /// The headers to use for the request.
-    pub headers: Option<HeaderMapExtractor>,
+    pub headers: Option<Extractor<HeaderMap>>,
 
     /// The cookies to use for the request.
-    pub cookies: Option<CookieExtractor>,
+    pub cookies: Option<Extractor<Vec<HeaderValue>>>,
 
     /// Whether to allow redirects.
     pub allow_redirects: Option<bool>,
