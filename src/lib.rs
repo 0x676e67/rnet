@@ -1,6 +1,3 @@
-#[macro_use]
-mod macros;
-
 mod buffer;
 mod client;
 mod error;

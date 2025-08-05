@@ -14,6 +14,12 @@ name = "rnet"
 crate-type = ["cdylib"]
 doctest = false
 
+[features]
+default = ["abi3"]
+
+# we build cp311-abi3 and cp310 wheels now, move this to pyo3 after we drop cp310
+abi3 = ["pyo3/abi3-py311"]
+
 [dependencies]
 tokio = "1.47.1"
 pyo3 = { version = "0.25.1", features = [
