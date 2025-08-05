@@ -4,26 +4,22 @@ build-backend = "maturin"
 
 [project]
 name = "rnet"
-requires-python = ">=3.7"
+requires-python = ">=3.11"
 classifiers = [
-    "Programming Language :: Rust",
-    "Programming Language :: Python :: Implementation :: CPython",
-    "Programming Language :: Python :: Implementation :: PyPy",
-    "Programming Language :: Python :: 3.7",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.12",
-    "Programming Language :: Python :: 3.13",
-    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
-    "Development Status :: 5 - Production/Stable",
-    "Intended Audience :: Developers",
-    "Topic :: Software Development :: Libraries :: Python Modules",
-    'Operating System :: Microsoft :: Windows',
-    'Operating System :: POSIX',
-    'Operating System :: Unix',
-    'Operating System :: MacOS',
+  "Programming Language :: Rust",
+  "Programming Language :: Python :: Implementation :: CPython",
+  "Programming Language :: Python :: Implementation :: PyPy",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+  "Development Status :: 5 - Production/Stable",
+  "Intended Audience :: Developers",
+  "Topic :: Software Development :: Libraries :: Python Modules",
+  'Operating System :: Microsoft :: Windows',
+  'Operating System :: POSIX',
+  'Operating System :: Unix',
+  'Operating System :: MacOS',
 ]
 description = "A blazing-fast Python HTTP client with TLS fingerprint"
 readme = "README.md"
