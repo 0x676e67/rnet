@@ -38,6 +38,30 @@ async def test_get_cookie():
 
 @pytest.mark.asyncio
 @pytest.mark.flaky(reruns=3, reruns_delay=2)
+async def test_get_all_cookies():
+    jar = rnet.Jar()
+    url = "https://httpbin.org/cookies"
+    cookie1 = Cookie("test_cookie1", "12345", domain="httpbin.org", path="/cookies")
+    cookie2 = Cookie("test_cookie2", "67890", domain="httpbin.org", path="/cookies")
+    jar.add(cookie1, url)
+    jar.add(cookie2, url)
+
+    cookies = jar.get_all()
+    assert len(cookies) == 2
+    cookie_names = [cookie.name for cookie in cookies]
+    assert "test_cookie1" in cookie_names
+    assert "test_cookie2" in cookie_names
+
+    client = rnet.Client(cookie_provider=jar)
+    response = await client.get(url)
+    assert response.status == 200
+    body = await response.text()
+    assert "test_cookie1" in body
+    assert "test_cookie2" in body
+
+
+@pytest.mark.asyncio
+@pytest.mark.flaky(reruns=3, reruns_delay=2)
 async def test_remove_cookie():
     jar = rnet.Jar()
     client = rnet.Client(cookie_provider=jar)
