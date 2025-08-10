@@ -1,7 +1,30 @@
+# ========================================
+# Network and System-Level Errors
+# ========================================
+
 class DNSResolverError(RuntimeError):
     r"""
     An error occurred while resolving a DNS name.
     """
+
+class TlsError(Exception):
+    r"""
+    An error occurred in the TLS security layer.
+    """
+
+class ConnectionError(Exception):
+    r"""
+    An error occurred while establishing a connection.
+    """
+
+class ConnectionResetError(Exception):
+    r"""
+    The connection was reset by the remote peer.
+    """
+
+# ========================================
+# Request/Response Processing Errors
+# ========================================
 
 class BodyError(Exception):
     r"""
@@ -13,29 +36,9 @@ class BuilderError(Exception):
     An error occurred while building a request or response.
     """
 
-class ConnectionError(Exception):
-    r"""
-    An error occurred while establishing a connection.
-    """
-
-class ConnectionResetError(Exception):
-    r"""
-    The connection was reset.
-    """
-
 class DecodingError(Exception):
     r"""
     An error occurred while decoding a response.
-    """
-
-class RedirectError(Exception):
-    r"""
-    An error occurred while following a redirect.
-    """
-
-class TimeoutError(Exception):
-    r"""
-    A timeout occurred while waiting for a response.
     """
 
 class StatusError(Exception):
@@ -48,10 +51,28 @@ class RequestError(Exception):
     An error occurred while making a request.
     """
 
+# ========================================
+# HTTP Protocol and Navigation Errors
+# ========================================
+
+class RedirectError(Exception):
+    r"""
+    An error occurred while following a redirect.
+    """
+
 class UpgradeError(Exception):
     r"""
     An error occurred while upgrading a connection.
     """
+
+class WebSocketError(Exception):
+    r"""
+    An error occurred while handling a WebSocket connection.
+    """
+
+# ========================================
+# Parsing and Validation Errors
+# ========================================
 
 class URLParseError(Exception):
     r"""
@@ -61,4 +82,13 @@ class URLParseError(Exception):
 class MIMEParseError(Exception):
     r"""
     An error occurred while parsing a MIME type.
+    """
+
+# ========================================
+# Timeout Errors
+# ========================================
+
+class TimeoutError(Exception):
+    r"""
+    A timeout occurred while waiting for a response.
     """

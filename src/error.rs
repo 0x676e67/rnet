@@ -18,19 +18,32 @@ Potential solutions:
 3) Change the order of operations to reference the instance before borrowing it.
 "#;
 
+// System-level and runtime errors
 create_exception!(exceptions, DNSResolverError, PyRuntimeError);
 
-create_exception!(exceptions, BodyError, PyException);
-create_exception!(exceptions, BuilderError, PyException);
+// Network connection errors
 create_exception!(exceptions, ConnectionError, PyException);
 create_exception!(exceptions, ConnectionResetError, PyException);
-create_exception!(exceptions, DecodingError, PyException);
+create_exception!(exceptions, TlsError, PyException);
+
+// HTTP protocol and request/response errors
+create_exception!(exceptions, RequestError, PyException);
+create_exception!(exceptions, StatusError, PyException);
 create_exception!(exceptions, RedirectError, PyException);
 create_exception!(exceptions, TimeoutError, PyException);
-create_exception!(exceptions, StatusError, PyException);
-create_exception!(exceptions, RequestError, PyException);
-create_exception!(exceptions, UpgradeError, PyException);
 
+// Data processing and encoding errors
+create_exception!(exceptions, BodyError, PyException);
+create_exception!(exceptions, DecodingError, PyException);
+
+// Configuration and builder errors
+create_exception!(exceptions, BuilderError, PyException);
+
+// Protocol upgrade and WebSocket errors
+create_exception!(exceptions, UpgradeError, PyException);
+create_exception!(exceptions, WebSocketError, PyException);
+
+// Input validation and parsing errors
 create_exception!(exceptions, URLParseError, PyException);
 create_exception!(exceptions, MIMEParseError, PyException);
 
@@ -82,6 +95,8 @@ impl From<Error> for PyErr {
             Error::Decode(err) => MIMEParseError::new_err(format!("Decode error: {err:?}")),
             Error::Request(err) => wrap_error!(err,
                 is_body => BodyError,
+                is_tls => TlsError,
+                is_websocket => WebSocketError,
                 is_connect => ConnectionError,
                 is_connection_reset => ConnectionResetError,
                 is_decode => DecodingError,
