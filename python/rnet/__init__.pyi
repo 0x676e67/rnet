@@ -65,7 +65,7 @@ class WebSocketParams(TypedDict, closed=True):
     default_headers: NotRequired[bool]
     cookies: NotRequired[Dict[str, str]]
     protocols: NotRequired[List[str]]
-    use_http2: NotRequired[bool]
+    force_http2: NotRequired[bool]
     auth: NotRequired[str]
     bearer_auth: NotRequired[str]
     basic_auth: NotRequired[Tuple[str, Optional[str]]]
