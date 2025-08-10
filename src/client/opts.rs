@@ -1,31 +1,25 @@
-use std::{sync::LazyLock, time::Duration};
+use std::{
+    sync::{Arc, LazyLock},
+    time::Duration,
+};
 
 use pyo3::PyResult;
 use wreq::{Client, header, redirect::Policy};
 
-use super::{
-    dns,
-    param::{RequestParams, WebSocketParams},
-};
+use super::param::{RequestParams, WebSocketParams};
 use crate::{
     client::{
         async_impl::response::{Response, WebSocket},
-        dns::LookupIpStrategy,
+        dns::{self},
     },
     error::Error,
     http::{Method, Version},
 };
 
 static DEFAULT_CLIENT: LazyLock<wreq::Client> = LazyLock::new(|| {
-    let mut builder = wreq::Client::builder();
-    apply_option!(
-        apply_if_ok,
-        builder,
-        || dns::get_or_try_init(LookupIpStrategy::Ipv4AndIpv6),
-        dns_resolver
-    );
+    let builder = wreq::Client::builder();
     builder
-        .no_hickory_dns()
+        .dns_resolver(Arc::new(dns::HickoryDnsResolver::new()))
         .no_keepalive()
         .build()
         .expect("Failed to build the default client.")

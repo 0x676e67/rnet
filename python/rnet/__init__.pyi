@@ -90,7 +90,7 @@ class Client:
         allow_redirects: Optional[bool] = None,
         max_redirects: Optional[int] = None,
         cookie_store: Optional[bool] = None,
-        lookup_ip_strategy: Optional[LookupIpStrategy] = None,
+        cookie_provider: Optional[Jar] = None,
         timeout: Optional[int] = None,
         connect_timeout: Optional[int] = None,
         read_timeout: Optional[int] = None,
@@ -1144,17 +1144,6 @@ class WebSocket:
         * `code` - An optional close code.
         * `reason` - An optional reason for closing.
         """
-
-class LookupIpStrategy(Enum):
-    r"""
-    The lookup ip strategy.
-    """
-
-    Ipv4Only = auto()
-    Ipv6Only = auto()
-    Ipv4AndIpv6 = auto()
-    Ipv6thenIpv4 = auto()
-    Ipv4thenIpv6 = auto()
 
 class Method(Enum):
     r"""

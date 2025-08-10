@@ -2,7 +2,7 @@ use std::path::PathBuf;
 
 use pyo3::prelude::*;
 
-define_enum_with_conversion!(
+define_enum!(
     /// The TLS version.
     const,
     TlsVersion,

@@ -5,7 +5,7 @@ use pyo3::prelude::*;
 
 pub use self::status::StatusCode;
 
-define_enum_with_conversion!(
+define_enum!(
     /// An HTTP version.
     const,
     Version,
@@ -17,7 +17,7 @@ define_enum_with_conversion!(
     HTTP_3,
 );
 
-define_enum_with_conversion!(
+define_enum!(
     /// An HTTP method.
     Method,
     wreq::Method,

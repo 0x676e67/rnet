@@ -14,7 +14,6 @@ use pyo3::{PyResult, prelude::*, pybacked::PyBackedStr};
 use pyo3_async_runtimes::tokio::future_into_py;
 
 pub use self::{
-    dns::LookupIpStrategy,
     multipart::{Multipart, Part},
     net::SocketAddr,
 };

@@ -46,13 +46,13 @@ macro_rules! apply_option {
     };
 }
 
-macro_rules! define_enum_with_conversion {
+macro_rules! define_enum {
     ($(#[$meta:meta])* $enum_type:ident, $ffi_type:ty, $($variant:ident),* $(,)?) => {
-        define_enum_with_conversion!($(#[$meta])* $enum_type, $ffi_type, $( ($variant, $variant) ),*);
+        define_enum!($(#[$meta])* $enum_type, $ffi_type, $( ($variant, $variant) ),*);
     };
 
     ($(#[$meta:meta])* const, $enum_type:ident, $ffi_type:ty, $($variant:ident),* $(,)?) => {
-        define_enum_with_conversion!($(#[$meta])* const, $enum_type, $ffi_type, $( ($variant, $variant) ),*);
+        define_enum!($(#[$meta])* const, $enum_type, $ffi_type, $( ($variant, $variant) ),*);
     };
 
     ($(#[$meta:meta])* $enum_type:ident, $ffi_type:ty, $(($rust_variant:ident, $ffi_variant:ident)),* $(,)?) => {
@@ -114,48 +114,6 @@ macro_rules! extract_option {
     ($ob:expr, $params:expr, $field:ident) => {
         if let Ok(value) = $ob.get_item(stringify!($field)) {
             $params.$field = value.extract()?;
-        }
-    };
-}
-
-macro_rules! proxy_method {
-    ( $( { $(#[$meta:meta])* $name:ident, $proxy_fn:path} ),* ) => {
-        #[pymethods]
-        impl Proxy {
-            $(
-                $(#[$meta])*
-                #[staticmethod]
-                #[pyo3(signature = (
-                    url,
-                    username = None,
-                    password = None,
-                    custom_http_auth = None,
-                    custom_http_headers = None,
-                    exclusion = None,
-                ))]
-                #[inline]
-                fn $name(
-                    py: Python,
-                    url: &str,
-                    username: Option<&str>,
-                    password: Option<&str>,
-                    custom_http_auth: Option<&str>,
-                    custom_http_headers: Option<Extractor<HeaderMap>>,
-                    exclusion: Option<&str>,
-                ) -> PyResult<Self> {
-                    py.allow_threads(|| {
-                        Self::create_proxy(
-                            $proxy_fn,
-                            url,
-                            username,
-                            password,
-                            custom_http_auth,
-                            custom_http_headers,
-                            exclusion,
-                        )
-                    })
-                }
-            )*
         }
     };
 }

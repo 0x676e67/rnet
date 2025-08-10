@@ -93,7 +93,7 @@ impl Response {
     /// Returns the cookies of the response.
     #[getter]
     pub fn cookies(&self, py: Python) -> Vec<Cookie> {
-        py.allow_threads(|| Cookie::parse(&self.headers.0))
+        py.allow_threads(|| Cookie::extract_headers_cookies(&self.headers.0))
     }
 
     /// Returns the content length of the response.

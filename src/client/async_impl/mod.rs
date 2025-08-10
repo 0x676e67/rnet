@@ -1,17 +1,17 @@
 pub mod response;
 
-use std::{ops::Deref, time::Duration};
+use std::{ops::Deref, sync::Arc, time::Duration};
 
 use pyo3::{prelude::*, pybacked::PyBackedStr};
 use pyo3_async_runtimes::tokio::future_into_py;
 use wreq::{redirect::Policy, tls::CertStore};
 
 use super::{
-    dns,
     opts::{execute_request, execute_websocket_request},
     param::{ClientParams, RequestParams, WebSocketParams},
 };
 use crate::{
+    client::dns::HickoryDnsResolver,
     error::Error,
     http::Method,
     tls::{SslVerify, TlsVersion},
@@ -154,7 +154,7 @@ impl Client {
     pub fn new(py: Python, mut kwds: Option<ClientParams>) -> PyResult<Client> {
         py.allow_threads(|| {
             let params = kwds.get_or_insert_default();
-            let mut builder = wreq::Client::builder().no_hickory_dns();
+            let mut builder = wreq::Client::builder();
 
             // Emulation options.
             if let Some(emulation) = params.emulation.take() {
@@ -195,16 +195,12 @@ impl Client {
                     .unwrap_or_default()
             );
 
-            // Cookie store options.
-            apply_option!(apply_if_some, builder, params.cookie_store, cookie_store);
-
-            // Async resolver options.
-            apply_option!(
-                apply_if_ok,
-                builder,
-                || dns::get_or_try_init(params.lookup_ip_strategy),
-                dns_resolver
-            );
+            // Cookie options.
+            if let Some(cookie_provider) = params.cookie_provider.take() {
+                builder = builder.cookie_provider(Arc::new(cookie_provider));
+            } else {
+                apply_option!(apply_if_some, builder, params.cookie_store, cookie_store);
+            }
 
             // TCP options.
             apply_option!(
@@ -373,6 +369,7 @@ impl Client {
             apply_option!(apply_if_some, builder, params.zstd, zstd);
 
             builder
+                .dns_resolver(Arc::new(HickoryDnsResolver::new()))
                 .build()
                 .map(Client)
                 .map_err(Error::Request)

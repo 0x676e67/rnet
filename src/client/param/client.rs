@@ -5,7 +5,7 @@ use wreq::{Proxy, header::HeaderMap};
 use wreq_util::EmulationOption;
 
 use crate::{
-    client::dns::LookupIpStrategy,
+    cookie::Jar,
     extractor::Extractor,
     tls::{SslVerify, TlsVersion},
 };
@@ -31,11 +31,12 @@ pub struct ClientParams {
     /// The maximum number of redirects to follow.
     pub max_redirects: Option<usize>,
 
+    // ========= Cookie options =========
     /// Whether to use cookie store.
     pub cookie_store: Option<bool>,
 
-    /// The lookup ip strategy
-    pub lookup_ip_strategy: Option<LookupIpStrategy>,
+    /// Whether to use cookie store provider.
+    pub cookie_provider: Option<Jar>,
 
     // ========= Timeout options =========
     /// The timeout to use for the request. (in seconds)
@@ -136,8 +137,9 @@ impl<'py> FromPyObject<'py> for ClientParams {
         extract_option!(ob, params, default_headers);
         extract_option!(ob, params, referer);
         extract_option!(ob, params, allow_redirects);
+
         extract_option!(ob, params, cookie_store);
-        extract_option!(ob, params, lookup_ip_strategy);
+        extract_option!(ob, params, cookie_provider);
 
         extract_option!(ob, params, timeout);
         extract_option!(ob, params, connect_timeout);

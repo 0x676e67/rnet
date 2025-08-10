@@ -14,7 +14,7 @@ use pyo3::{prelude::*, types::PyDict, wrap_pymodule};
 
 use self::{
     client::{
-        LookupIpStrategy, Multipart, Part, SocketAddr,
+        Multipart, Part, SocketAddr,
         async_impl::{
             Client,
             response::{Message, Response, Streamer, WebSocket},
@@ -32,6 +32,7 @@ use self::{
     proxy::Proxy,
     tls::TlsVersion,
 };
+use crate::cookie::Jar;
 
 #[cfg(all(
     not(target_env = "msvc"),
@@ -55,7 +56,6 @@ fn rnet(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<Proxy>()?;
     m.add_class::<Method>()?;
     m.add_class::<Version>()?;
-    m.add_class::<LookupIpStrategy>()?;
     m.add_class::<TlsVersion>()?;
 
     m.add_function(wrap_pyfunction!(get, m)?)?;
@@ -96,6 +96,7 @@ fn header_module(m: &Bound<'_, PyModule>) -> PyResult<()> {
 
 #[pymodule(gil_used = false, name = "cookie")]
 fn cookie_module(m: &Bound<'_, PyModule>) -> PyResult<()> {
+    m.add_class::<Jar>()?;
     m.add_class::<Cookie>()?;
     m.add_class::<SameSite>()?;
     Ok(())

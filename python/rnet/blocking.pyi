@@ -11,9 +11,9 @@ from typing import (
 )
 from pathlib import Path
 
-from rnet import LookupIpStrategy, TlsVersion, Version, Method, SocketAddr, StatusCode
+from rnet import TlsVersion, Version, Method, SocketAddr, StatusCode
 from rnet.header import HeaderMap
-from rnet.cookie import Cookie
+from rnet.cookie import Cookie, Jar
 from rnet.emulation import EmulationOption, Emulation
 
 class BlockingClient:
@@ -30,7 +30,7 @@ class BlockingClient:
         allow_redirects: Optional[bool] = None,
         max_redirects: Optional[int] = None,
         cookie_store: Optional[bool] = None,
-        lookup_ip_strategy: Optional[LookupIpStrategy] = None,
+        cookie_provider: Optional[Jar] = None,
         timeout: Optional[int] = None,
         connect_timeout: Optional[int] = None,
         read_timeout: Optional[int] = None,

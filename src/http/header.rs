@@ -118,6 +118,7 @@ impl HeaderMap {
     }
 
     /// Returns key-value pairs in the order they were added.
+    #[inline]
     fn items(&self) -> HeaderMapItemsIter {
         HeaderMapItemsIter {
             inner: self.0.iter().map(|(k, v)| (k.clone(), v.clone())).collect(),
@@ -215,7 +216,8 @@ impl HeaderMapKeysIter {
         slf
     }
 
-    fn __next__(mut slf: PyRefMut<Self>) -> Option<Bound<'_, PyAny>> {
+    #[inline]
+    fn __next__(mut slf: PyRefMut<'_, Self>) -> Option<Bound<'_, PyAny>> {
         slf.inner
             .pop()
             .and_then(|k| HeaderNameBuffer::new(k).into_bytes_ref(slf.py()).ok())
@@ -234,7 +236,8 @@ impl HeaderMapValuesIter {
         slf
     }
 
-    fn __next__(mut slf: PyRefMut<Self>) -> Option<Bound<'_, PyAny>> {
+    #[inline]
+    fn __next__(mut slf: PyRefMut<'_, Self>) -> Option<Bound<'_, PyAny>> {
         slf.inner
             .pop()
             .and_then(|v| HeaderValueBuffer::new(v).into_bytes_ref(slf.py()).ok())

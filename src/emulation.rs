@@ -1,6 +1,6 @@
 use pyo3::prelude::*;
 
-define_enum_with_conversion!(
+define_enum!(
     /// An emulation.
     const,
     Emulation,
@@ -82,7 +82,7 @@ define_enum_with_conversion!(
     Opera119
 );
 
-define_enum_with_conversion!(
+define_enum!(
     /// An emulation operating system.
     const,
     EmulationOS,

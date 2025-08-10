@@ -38,9 +38,7 @@ arc-swap = "1.7.1"
 url = "2.5.4"
 bytes = "1.10.1"
 futures-util = { version = "0.3.31", default-features = false }
-cookie_crate = { version = "0.18", package = "cookie" }
-cookie_store = { version = "0.22" }
-wreq = { version = "6.0.0-rc.2", features = [
+wreq = { version = "6.0.0-rc.6", features = [
     "json",
     "socks",
     "stream",
@@ -51,9 +49,15 @@ wreq = { version = "6.0.0-rc.2", features = [
     "zstd",
     "ws",
     "cookies",
-    "hickory-dns",
 ] }
 wreq-util = { version = "3.0.0-rc.1", features = ["emulation-rand"] }
+
+## hickory-dns
+hickory-resolver = "0.25.2"
+
+## cookies
+cookie_crate = { version = "0.18", package = "cookie" }
+cookie_store = { version = "0.22" }
 
 [target.'cfg(all(not(target_env = "msvc"), not(all(target_os = "linux", target_env = "gnu"))) )'.dependencies]
 jemallocator = { package = "tikv-jemallocator", version = "0.6", features = [

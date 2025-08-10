@@ -13,7 +13,7 @@ use pyo3_async_runtimes::tokio::future_into_py;
 use tokio::sync::Mutex;
 use wreq::{
     header::HeaderValue,
-    ws::{self, Utf8Bytes, WebSocketRequestBuilder},
+    ws::{self, WebSocketRequestBuilder, message::Utf8Bytes},
 };
 
 use crate::{
@@ -23,7 +23,7 @@ use crate::{
     http::{StatusCode, Version, header::HeaderMap},
 };
 
-type Sender = Arc<Mutex<Option<SplitSink<ws::WebSocket, ws::Message>>>>;
+type Sender = Arc<Mutex<Option<SplitSink<ws::WebSocket, ws::message::Message>>>>;
 type Receiver = Arc<Mutex<Option<SplitStream<ws::WebSocket>>>>;
 
 /// A WebSocket response.
@@ -111,8 +111,10 @@ impl WebSocket {
                 .map(Utf8Bytes::from_bytes_unchecked)
                 .unwrap_or_else(|| Utf8Bytes::from_static("Goodbye"));
             sender
-                .send(ws::Message::Close(Some(ws::CloseFrame {
-                    code: code.map(ws::CloseCode).unwrap_or(ws::CloseCode::NORMAL),
+                .send(ws::message::Message::Close(Some(ws::message::CloseFrame {
+                    code: code
+                        .map(ws::message::CloseCode)
+                        .unwrap_or(ws::message::CloseCode::NORMAL),
 
                     reason,
                 })))
@@ -179,7 +181,7 @@ impl WebSocket {
     /// Returns the cookies of the response.
     #[getter]
     pub fn cookies(&self, py: Python) -> Vec<Cookie> {
-        py.allow_threads(|| Cookie::parse(&self.headers.0))
+        py.allow_threads(|| Cookie::extract_headers_cookies(&self.headers.0))
     }
 
     /// Returns the remote address of the response.
