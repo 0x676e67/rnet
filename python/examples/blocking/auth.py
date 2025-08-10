@@ -7,7 +7,7 @@ def main():
         "https://httpbin.org/anything",
         auth="token",
     )
-    print("Status Code: ", resp.status_code)
+    print("Status Code: ", resp.status)
     print("Version: ", resp.version)
     print("Response URL: ", resp.url)
     print("Headers: ", resp.headers)

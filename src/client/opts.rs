@@ -248,7 +248,7 @@ where
     apply_option!(
         apply_option_or_default,
         builder,
-        params.use_http2,
+        params.force_http2,
         force_http2,
         false
     );

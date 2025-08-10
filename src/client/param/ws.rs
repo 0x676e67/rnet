@@ -37,7 +37,7 @@ pub struct WebSocketParams {
     pub protocols: Option<Vec<String>>,
 
     /// Whether to use HTTP/2 for the websocket.
-    pub use_http2: Option<bool>,
+    pub force_http2: Option<bool>,
 
     /// The authentication to use for the request.
     pub auth: Option<PyBackedStr>,
@@ -112,7 +112,7 @@ impl<'py> FromPyObject<'py> for WebSocketParams {
         extract_option!(ob, params, local_address);
         extract_option!(ob, params, interface);
 
-        extract_option!(ob, params, use_http2);
+        extract_option!(ob, params, force_http2);
         extract_option!(ob, params, headers);
         extract_option!(ob, params, default_headers);
         extract_option!(ob, params, cookies);

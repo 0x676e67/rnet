@@ -12,7 +12,7 @@ async def test_request_disable_redirect():
         "https://httpbin.org//redirect-to?url=https://google.com",
         allow_redirects=False,
     )
-    assert response.status == 302
+    assert response.status.is_redirection()
     assert response.url == "https://httpbin.org//redirect-to?url=https://google.com"
 
 
@@ -23,7 +23,7 @@ async def test_request_enable_redirect():
         "https://httpbin.org//redirect-to?url=https://google.com",
         allow_redirects=True,
     )
-    assert response.status == 200
+    assert response.status.is_success()
     assert response.url == "https://www.google.com/"
 
 
@@ -34,7 +34,7 @@ async def test_client_request_disable_redirect():
     response = await client.get(
         "https://httpbin.org//redirect-to?url=https://google.com"
     )
-    assert response.status == 302
+    assert response.status.is_redirection()
     assert response.url == "https://httpbin.org//redirect-to?url=https://google.com"
 
 
@@ -44,5 +44,5 @@ async def test_client_request_enable_redirect():
     response = await client.get(
         "https://httpbin.org//redirect-to?url=https://google.com"
     )
-    assert response.status == 200
+    assert response.status.is_success()
     assert response.url == "https://www.google.com/"

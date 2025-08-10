@@ -56,7 +56,7 @@ impl StatusCode {
 }
 
 impl From<wreq::StatusCode> for StatusCode {
-    fn from(status_code: wreq::StatusCode) -> Self {
-        Self(status_code)
+    fn from(status: wreq::StatusCode) -> Self {
+        Self(status)
     }
 }

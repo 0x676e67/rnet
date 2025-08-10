@@ -22,22 +22,10 @@ impl From<WebSocket> for BlockingWebSocket {
 
 #[pymethods]
 impl BlockingWebSocket {
-    /// Returns whether the response is successful.
-    #[getter]
-    pub fn ok(&self) -> bool {
-        self.0.ok()
-    }
-
-    /// Returns the status code as integer of the response.
-    #[getter]
-    pub fn status(&self) -> u16 {
-        self.0.status()
-    }
-
     /// Returns the status code of the response.
     #[getter]
-    pub fn status_code(&self) -> StatusCode {
-        self.0.status_code()
+    pub fn status(&self) -> StatusCode {
+        self.0.status()
     }
 
     /// Returns the HTTP version of the response.

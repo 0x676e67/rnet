@@ -11,7 +11,7 @@ async def print_response_info(resp: Response):
     """
     async with resp:
         print("\n=== Response Information ===")
-        print(f"Status Code: {resp.status_code}")
+        print(f"Status Code: {resp.status}")
         print(f"Version: {resp.version}")
         print(f"Response URL: {resp.url}")
         print(f"Headers: {resp.headers}")

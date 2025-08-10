@@ -12,16 +12,6 @@ async def send_message(ws):
 
 
 async def receive_message(ws):
-    # while True:
-    #     try:
-    #         message = await ws.recv()
-    #         print("Received: ", message)
-    #         if message.data == b"Message 20":
-    #             print("Closing connection...")
-    #             break
-    #     except asyncio.CancelledError:
-    #         break
-    # or
     async for message in ws:
         print("Received: ", message)
         if message.data == b"Message 20":
@@ -37,18 +27,19 @@ async def main():
         print("Headers: ", ws.headers)
         print("Remote Address: ", ws.remote_addr)
 
-        if ws.ok:
+        if ws.status.as_int() == 101:
+            print("WebSocket connection established successfully.")
             send_task = asyncio.create_task(send_message(ws))
             receive_task = asyncio.create_task(receive_message(ws))
 
-            async def close_ws():
+            async def close():
                 await ws.close()
                 send_task.cancel()
                 receive_task.cancel()
 
             loop = asyncio.get_running_loop()
             for sig in (signal.SIGINT, signal.SIGTERM):
-                loop.add_signal_handler(sig, lambda: asyncio.create_task(close_ws()))
+                loop.add_signal_handler(sig, lambda: asyncio.create_task(close()))
 
             await asyncio.gather(send_task, receive_task)
 

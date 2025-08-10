@@ -32,7 +32,7 @@ async def test_get_cookie():
 
     client = rnet.Client(cookie_provider=jar)
     response = await client.get(url)
-    assert response.status == 200
+    assert response.status.is_success()
     assert "test_cookie" in await response.text()
 
 
@@ -54,7 +54,7 @@ async def test_get_all_cookies():
 
     client = rnet.Client(cookie_provider=jar)
     response = await client.get(url)
-    assert response.status == 200
+    assert response.status.is_success()
     body = await response.text()
     assert "test_cookie1" in body
     assert "test_cookie2" in body
@@ -71,7 +71,7 @@ async def test_remove_cookie():
 
     # Verify the cookie is set
     response = await client.get(url)
-    assert response.status == 200
+    assert response.status.is_success()
     assert "test_cookie" in await response.text()
 
     # Remove the cookie
@@ -82,7 +82,7 @@ async def test_remove_cookie():
     assert cookie is None
 
     response = await client.get(url)
-    assert response.status == 200
+    assert response.status.is_success()
     assert "test_cookie" not in await response.text()
 
 
@@ -101,7 +101,7 @@ async def test_clear_cookies():
     # Verify cookies are set
 
     response = await client.get(url)
-    assert response.status == 200
+    assert response.status.is_success()
     body = await response.text()
     assert "test_cookie1" in body
     assert "test_cookie2" in body
@@ -114,7 +114,7 @@ async def test_clear_cookies():
     assert jar.get("test_cookie2", url) is None
 
     response = await client.get(url)
-    assert response.status == 200
+    assert response.status.is_success()
     body = await response.text()
     assert "test_cookie1" not in body
     assert "test_cookie2" not in body
