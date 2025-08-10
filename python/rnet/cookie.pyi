@@ -77,11 +77,10 @@ class Cookie:
 
 class Jar:
     r"""
-    A good default `CookieStore` implementation.
+    A thread-safe cookie jar for storing and managing HTTP cookies.
 
-    This is the implementation used when simply calling `cookie_store(true)`.
-    This type is exposed to allow creating one and filling it with some
-    existing cookies more easily, before creating a `Client`.
+    This cookie jar can be safely shared across multiple threads and is used
+    to automatically handle cookies during HTTP requests and responses.
     """
 
     def __init__(self) -> None: ...

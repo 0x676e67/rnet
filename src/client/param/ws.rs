@@ -5,12 +5,16 @@ use wreq::{
     Proxy,
     header::{HeaderMap, HeaderValue},
 };
+use wreq_util::EmulationOption;
 
 use crate::extractor::Extractor;
 
 /// The parameters for a WebSocket request.
 #[derive(Default)]
 pub struct WebSocketParams {
+    /// The Emulation settings for the request.
+    pub emulation: Option<Extractor<EmulationOption>>,
+
     /// The proxy to use for the request.
     pub proxy: Option<Extractor<Proxy>>,
 
@@ -22,6 +26,9 @@ pub struct WebSocketParams {
 
     /// The headers to use for the request.
     pub headers: Option<Extractor<HeaderMap>>,
+
+    /// The option enables default headers.
+    pub default_headers: Option<bool>,
 
     /// The cookies to use for the request.
     pub cookies: Option<Extractor<Vec<HeaderValue>>>,
@@ -100,12 +107,14 @@ pub struct WebSocketParams {
 impl<'py> FromPyObject<'py> for WebSocketParams {
     fn extract_bound(ob: &Bound<'py, PyAny>) -> PyResult<Self> {
         let mut params = Self::default();
+        extract_option!(ob, params, emulation);
         extract_option!(ob, params, proxy);
         extract_option!(ob, params, local_address);
         extract_option!(ob, params, interface);
 
         extract_option!(ob, params, use_http2);
         extract_option!(ob, params, headers);
+        extract_option!(ob, params, default_headers);
         extract_option!(ob, params, cookies);
         extract_option!(ob, params, protocols);
         extract_option!(ob, params, auth);

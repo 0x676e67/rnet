@@ -2,17 +2,6 @@
 
 `rnet` is a high-performance, async-first HTTP(S) and WebSocket client library for Python, powered by a Rust backend. It is designed for modern web automation, scraping, and networking scenarios, providing both ergonomic Python APIs and the speed and safety of Rust.
 
-## Features
-
-- **Async and Sync HTTP(S) Client**: Unified API for both asynchronous and blocking HTTP requests.
-- **WebSocket Support**: Native async WebSocket client with full protocol support.
-- **Advanced Proxy Support**: HTTP, HTTPS, SOCKS4/5, and custom proxy authentication.
-- **HeaderMap and Cookie Management**: Flexible header and cookie handling, compatible with modern web standards.
-- **Emulation**: Easily switch between browser-like client fingerprints (user-agent, TLS, etc.).
-- **Connection Pooling and Timeout**: Fine-grained control over connection reuse and timeouts.
-- **Comprehensive Exception Hierarchy**: All network and protocol errors are mapped to Python exceptions for robust error handling.
-- **Type Hints and IDE Support**: Complete `.pyi` stubs for all public APIs, enabling full autocompletion and type checking in modern editors.
-
 ## Usage Example
 
 ```python

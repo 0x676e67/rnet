@@ -38,7 +38,7 @@ arc-swap = "1.7.1"
 url = "2.5.4"
 bytes = "1.10.1"
 futures-util = { version = "0.3.31", default-features = false }
-wreq = { version = "6.0.0-rc.6", features = [
+wreq = { version = "6.0.0-rc.7", features = [
     "json",
     "socks",
     "stream",

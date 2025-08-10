@@ -157,9 +157,7 @@ impl Client {
             let mut builder = wreq::Client::builder();
 
             // Emulation options.
-            if let Some(emulation) = params.emulation.take() {
-                builder = builder.emulation(emulation.0);
-            }
+            apply_option!(apply_if_some_inner, builder, params.emulation, emulation);
 
             // User agent options.
             apply_option!(

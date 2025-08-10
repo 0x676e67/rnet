@@ -61,6 +61,9 @@ where
     let params = params.get_or_insert_default();
     let mut builder = client.request(method.into_ffi(), url.as_ref());
 
+    // Emulation options.
+    apply_option!(apply_if_some_inner, builder, params.emulation, emulation);
+
     // Version options.
     apply_option!(
         apply_transformed_option,
@@ -97,17 +100,25 @@ where
     #[cfg(any(
         target_os = "android",
         target_os = "fuchsia",
-        target_os = "linux",
+        target_os = "illumos",
         target_os = "ios",
-        target_os = "visionos",
+        target_os = "linux",
         target_os = "macos",
+        target_os = "solaris",
         target_os = "tvos",
-        target_os = "watchos"
+        target_os = "visionos",
+        target_os = "watchos",
     ))]
     apply_option!(apply_if_some, builder, params.interface, interface);
 
     // Headers options.
     apply_option!(apply_if_some_inner, builder, params.headers, headers);
+    apply_option!(
+        apply_if_some,
+        builder,
+        params.default_headers,
+        default_headers
+    );
 
     // Authentication options.
     apply_option!(
@@ -247,12 +258,14 @@ where
     #[cfg(any(
         target_os = "android",
         target_os = "fuchsia",
-        target_os = "linux",
+        target_os = "illumos",
         target_os = "ios",
-        target_os = "visionos",
+        target_os = "linux",
         target_os = "macos",
+        target_os = "solaris",
         target_os = "tvos",
-        target_os = "watchos"
+        target_os = "visionos",
+        target_os = "watchos",
     ))]
     apply_option!(apply_if_some, builder, params.interface, interface);
 
@@ -275,6 +288,12 @@ where
 
     // Headers options.
     apply_option!(apply_if_some_inner, builder, params.headers, headers);
+    apply_option!(
+        apply_if_some,
+        builder,
+        params.default_headers,
+        default_headers
+    );
 
     // Cookies options.
     if let Some(cookies) = params.cookies.take() {

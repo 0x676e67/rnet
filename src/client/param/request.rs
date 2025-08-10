@@ -6,6 +6,7 @@ use wreq::{
     header::{HeaderMap, HeaderValue},
     multipart::Form,
 };
+use wreq_util::EmulationOption;
 
 use crate::{
     client::{body::Body, json::Json},
@@ -16,6 +17,9 @@ use crate::{
 /// The parameters for a request.
 #[derive(Default)]
 pub struct RequestParams {
+    /// The Emulation settings for the request.
+    pub emulation: Option<Extractor<EmulationOption>>,
+
     /// The proxy to use for the request.
     pub proxy: Option<Extractor<Proxy>>,
 
@@ -36,6 +40,9 @@ pub struct RequestParams {
 
     /// The headers to use for the request.
     pub headers: Option<Extractor<HeaderMap>>,
+
+    /// The option enables default headers.
+    pub default_headers: Option<bool>,
 
     /// The cookies to use for the request.
     pub cookies: Option<Extractor<Vec<HeaderValue>>>,
@@ -74,6 +81,7 @@ pub struct RequestParams {
 impl<'py> FromPyObject<'py> for RequestParams {
     fn extract_bound(ob: &Bound<'py, PyAny>) -> PyResult<RequestParams> {
         let mut params = Self::default();
+        extract_option!(ob, params, emulation);
         extract_option!(ob, params, proxy);
         extract_option!(ob, params, local_address);
         extract_option!(ob, params, interface);
@@ -82,6 +90,7 @@ impl<'py> FromPyObject<'py> for RequestParams {
 
         extract_option!(ob, params, version);
         extract_option!(ob, params, headers);
+        extract_option!(ob, params, default_headers);
         extract_option!(ob, params, cookies);
         extract_option!(ob, params, allow_redirects);
         extract_option!(ob, params, max_redirects);

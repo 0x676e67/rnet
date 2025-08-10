@@ -47,13 +47,15 @@ async def request_chrome_android(client: Client):
         client: Existing client instance to update
     """
     print("\n[Testing Chrome on Android Emulation]")
-    client.update(
+    resp = await client.get(
+        "https://tls.peet.ws/api/all",
         emulation=EmulationOption(
             emulation=Emulation.Chrome134,
             emulation_os=EmulationOS.Android,
-        )
+        ),
+        # Disable client default headers
+        default_headers=False,  
     )
-    resp = await client.get("https://tls.peet.ws/api/all")
     await print_response_info(resp)
 
 

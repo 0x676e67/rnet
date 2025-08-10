@@ -13,13 +13,13 @@ use crate::{
 /// The parameters for a request.
 #[derive(Default)]
 pub struct ClientParams {
-    /// The Emulation settings for the request.
+    /// The Emulation settings for the client.
     pub emulation: Option<Extractor<EmulationOption>>,
 
-    /// The user agent to use for the request.
+    /// The user agent to use for the client.
     pub user_agent: Option<PyBackedStr>,
 
-    /// The headers to use for the request.
+    /// The headers to use for the client.
     pub default_headers: Option<Extractor<HeaderMap>>,
 
     /// Whether to use referer.
@@ -39,13 +39,13 @@ pub struct ClientParams {
     pub cookie_provider: Option<Jar>,
 
     // ========= Timeout options =========
-    /// The timeout to use for the request. (in seconds)
+    /// The timeout to use for the client. (in seconds)
     pub timeout: Option<u64>,
 
-    /// The connect timeout to use for the request. (in seconds)
+    /// The connect timeout to use for the client. (in seconds)
     pub connect_timeout: Option<u64>,
 
-    /// The read timeout to use for the request. (in seconds)
+    /// The read timeout to use for the client. (in seconds)
     pub read_timeout: Option<u64>,
 
     /// Disable keep-alive for the client.
@@ -85,7 +85,7 @@ pub struct ClientParams {
     /// Set whether sockets have `TCP_NODELAY` enabled.
     pub tcp_nodelay: Option<bool>,
 
-    /// The maximum number of times to retry a request.
+    /// The maximum number of times to retry a client.
     pub http2_max_retry_count: Option<usize>,
 
     // ========= TLS options =========
@@ -95,17 +95,17 @@ pub struct ClientParams {
     /// Add TLS information as `TlsInfo` extension to responses.
     pub tls_info: Option<bool>,
 
-    /// The minimum TLS version to use for the request.
+    /// The minimum TLS version to use for the client.
     pub min_tls_version: Option<TlsVersion>,
 
-    /// The maximum TLS version to use for the request.
+    /// The maximum TLS version to use for the client.
     pub max_tls_version: Option<TlsVersion>,
 
     // ========= Network options =========
-    /// Whether to disable the proxy for the request.
+    /// Whether to disable the proxy for the client.
     pub no_proxy: Option<bool>,
 
-    /// The proxy to use for the request.
+    /// The proxy to use for the client.
     pub proxies: Option<Extractor<Vec<Proxy>>>,
 
     /// Bind to a local IP Address.
@@ -132,7 +132,6 @@ impl<'py> FromPyObject<'py> for ClientParams {
     fn extract_bound(ob: &Bound<'py, PyAny>) -> PyResult<Self> {
         let mut params = Self::default();
         extract_option!(ob, params, emulation);
-
         extract_option!(ob, params, user_agent);
         extract_option!(ob, params, default_headers);
         extract_option!(ob, params, referer);

@@ -24,6 +24,7 @@ except ImportError:
     from typing_extensions import Unpack, NotRequired
 
 class RequestParams(TypedDict, closed=True):
+    emulation: NotRequired[Union[Emulation, EmulationOption]]
     proxy: NotRequired[Union[str, Proxy]]
     local_address: NotRequired[Union[ipaddress.IPv4Address, ipaddress.IPv6Address]]
     interface: NotRequired[str]
@@ -31,6 +32,7 @@ class RequestParams(TypedDict, closed=True):
     read_timeout: NotRequired[int]
     version: NotRequired[Version]
     headers: NotRequired[Union[Dict[str, str], HeaderMap]]
+    default_headers: NotRequired[bool]
     cookies: NotRequired[Dict[str, str]]
     allow_redirects: NotRequired[bool]
     max_redirects: NotRequired[int]
@@ -51,10 +53,12 @@ class RequestParams(TypedDict, closed=True):
     multipart: NotRequired[Multipart]
 
 class WebSocketParams(TypedDict, closed=True):
+    emulation: NotRequired[Union[Emulation, EmulationOption]]
     proxy: NotRequired[Union[str, Proxy]]
     local_address: NotRequired[Union[str, ipaddress.IPv4Address, ipaddress.IPv6Address]]
     interface: NotRequired[str]
     headers: NotRequired[Union[Dict[str, str], HeaderMap]]
+    default_headers: NotRequired[bool]
     cookies: NotRequired[Dict[str, str]]
     protocols: NotRequired[List[str]]
     use_http2: NotRequired[bool]
