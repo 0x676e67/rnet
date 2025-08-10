@@ -30,7 +30,7 @@ type Receiver = Arc<Mutex<Option<SplitStream<ws::WebSocket>>>>;
 #[pyclass(subclass)]
 pub struct WebSocket {
     version: Version,
-    status_code: StatusCode,
+    status: StatusCode,
     remote_addr: Option<SocketAddr>,
     headers: HeaderMap,
     protocol: Option<HeaderValue>,
@@ -43,7 +43,7 @@ impl WebSocket {
         let response = builder.send().await?;
 
         let version = Version::from_ffi(response.version());
-        let status_code = StatusCode::from(response.status());
+        let status = StatusCode::from(response.status());
         let remote_addr = response.remote_addr().map(SocketAddr);
         let headers = HeaderMap(response.headers().clone());
         let websocket = response.into_websocket().await?;
@@ -52,7 +52,7 @@ impl WebSocket {
 
         Ok(WebSocket {
             version,
-            status_code,
+            status,
             remote_addr,
             headers,
             protocol,
@@ -148,22 +148,10 @@ impl WebSocket {
 
 #[pymethods]
 impl WebSocket {
-    /// Returns whether the response is successful.
-    #[getter]
-    pub fn ok(&self) -> bool {
-        self.status_code.as_int() == wreq::StatusCode::SWITCHING_PROTOCOLS
-    }
-
-    /// Returns the status code as integer of the response.
-    #[getter]
-    pub fn status(&self) -> u16 {
-        self.status_code.as_int()
-    }
-
     /// Returns the status code of the response.
     #[getter]
-    pub fn status_code(&self) -> StatusCode {
-        self.status_code
+    pub fn status(&self) -> StatusCode {
+        self.status
     }
 
     /// Returns the HTTP version of the response.

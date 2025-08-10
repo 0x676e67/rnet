@@ -480,7 +480,7 @@ class Response:
 
     async def main():
         response = await rnet.get("https://www.rust-lang.org")
-        print("Status Code: ", response.status_code)
+        print("Status Code: ", response.status)
         print("Version: ", response.version)
         print("Response URL: ", response.url)
         print("Headers: ", response.headers)
@@ -500,15 +500,7 @@ class Response:
     r"""
     Returns the URL of the response.
     """
-    ok: bool
-    r"""
-    Returns whether the response is successful.
-    """
-    status: int
-    r"""
-    Returns the status code as integer of the response.
-    """
-    status_code: StatusCode
+    status: StatusCode
     r"""
     Returns the status code of the response.
     """
@@ -648,7 +640,7 @@ class Streamer:
 
     async def main():
         resp = await rnet.get("https://httpbin.org/stream/20")
-        print("Status Code: ", resp.status_code)
+        print("Status Code: ", resp.status)
         print("Version: ", resp.version)
         print("Response URL: ", resp.url)
         print("Headers: ", resp.headers)
@@ -1090,15 +1082,7 @@ class WebSocket:
     A WebSocket response.
     """
 
-    ok: bool
-    r"""
-    Returns whether the response is successful.
-    """
-    status: int
-    r"""
-    Returns the status code as integer of the response.
-    """
-    status_code: StatusCode
+    status: StatusCode
     r"""
     Returns the status code of the response.
     """

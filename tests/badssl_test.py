@@ -8,7 +8,7 @@ from rnet.emulation import Emulation
 async def test_badssl():
     client = rnet.Client(verify=False)
     resp = await client.get("https://self-signed.badssl.com/")
-    assert resp.status == 200
+    assert resp.status.is_success()
 
 
 @pytest.mark.asyncio

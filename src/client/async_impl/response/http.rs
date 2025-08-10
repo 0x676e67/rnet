@@ -21,7 +21,7 @@ use crate::{
 pub struct Response {
     url: Url,
     version: Version,
-    status_code: StatusCode,
+    status: StatusCode,
     remote_addr: Option<SocketAddr>,
     content_length: Option<u64>,
     headers: HeaderMap,
@@ -34,7 +34,7 @@ impl Response {
         Response {
             url: response.url().clone(),
             version: Version::from_ffi(response.version()),
-            status_code: StatusCode::from(response.status()),
+            status: StatusCode::from(response.status()),
             remote_addr: response.remote_addr().map(SocketAddr),
             content_length: response.content_length(),
             headers: HeaderMap(std::mem::take(response.headers_mut())),
@@ -60,22 +60,10 @@ impl Response {
         self.url.as_str()
     }
 
-    /// Returns whether the response is successful.
-    #[getter]
-    pub fn ok(&self) -> bool {
-        self.status_code.is_success()
-    }
-
-    /// Returns the status code as integer of the response.
-    #[getter]
-    pub fn status(&self) -> u16 {
-        self.status_code.as_int()
-    }
-
     /// Returns the status code of the response.
     #[getter]
-    pub fn status_code(&self) -> StatusCode {
-        self.status_code
+    pub fn status(&self) -> StatusCode {
+        self.status
     }
 
     /// Returns the HTTP version of the response.

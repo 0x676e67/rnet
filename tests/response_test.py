@@ -44,8 +44,7 @@ async def test_multiple_requests():
             ),
         ),
     )
-    assert resp.status == 200
-    assert resp.status_code.is_success() is True
+    assert resp.status.is_success() is True
     text = await resp.text()
     assert "111" in text
     assert "000" in text
@@ -75,8 +74,7 @@ async def test_getters():
     url = "https://httpbin.org/anything"
     response = await client.get(url, version=Version.HTTP_11)
     assert response.url == url
-    assert response.status_code.is_success() is True
-    assert response.ok is True
+    assert response.status.is_success()
     assert response.version == Version.HTTP_11
 
 

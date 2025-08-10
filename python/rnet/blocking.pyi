@@ -369,15 +369,7 @@ class BlockingResponse:
     r"""
     Returns the URL of the response.
     """
-    ok: bool
-    r"""
-    Returns whether the response is successful.
-    """
-    status: int
-    r"""
-    Returns the status code as integer of the response.
-    """
-    status_code: StatusCode
+    status: StatusCode
     r"""
     Returns the status code of the response.
     """
@@ -465,15 +457,7 @@ class BlockingWebSocket:
     A blocking WebSocket response.
     """
 
-    ok: bool
-    r"""
-    Returns whether the response is successful.
-    """
-    status: int
-    r"""
-    Returns the status code as integer of the response.
-    """
-    status_code: StatusCode
+    status: StatusCode
     r"""
     Returns the status code of the response.
     """
