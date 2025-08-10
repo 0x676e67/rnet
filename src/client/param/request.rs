@@ -53,6 +53,18 @@ pub struct RequestParams {
     /// The maximum number of redirects to follow.
     pub max_redirects: Option<usize>,
 
+    /// Sets gzip as an accepted encoding.
+    pub gzip: Option<bool>,
+
+    /// Sets brotli as an accepted encoding.
+    pub brotli: Option<bool>,
+
+    /// Sets deflate as an accepted encoding.
+    pub deflate: Option<bool>,
+
+    /// Sets zstd as an accepted encoding.
+    pub zstd: Option<bool>,
+
     /// The authentication to use for the request.
     pub auth: Option<PyBackedStr>,
 
@@ -102,6 +114,11 @@ impl<'py> FromPyObject<'py> for RequestParams {
         extract_option!(ob, params, json);
         extract_option!(ob, params, body);
         extract_option!(ob, params, multipart);
+
+        extract_option!(ob, params, gzip);
+        extract_option!(ob, params, brotli);
+        extract_option!(ob, params, deflate);
+        extract_option!(ob, params, zstd);
 
         Ok(params)
     }
