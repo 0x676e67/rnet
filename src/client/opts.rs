@@ -161,6 +161,12 @@ where
         None => {}
     };
 
+    // Compression options.
+    apply_option!(apply_if_some, builder, params.gzip, gzip);
+    apply_option!(apply_if_some, builder, params.brotli, brotli);
+    apply_option!(apply_if_some, builder, params.deflate, deflate);
+    apply_option!(apply_if_some, builder, params.zstd, zstd);
+
     // Query options.
     apply_option!(apply_if_some_ref, builder, params.query, query);
 
