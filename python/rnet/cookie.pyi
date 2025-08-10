@@ -74,3 +74,37 @@ class Cookie:
 
     def __str__(self) -> str: ...
     def __repr__(self) -> str: ...
+
+class Jar:
+    r"""
+    A thread-safe cookie jar for storing and managing HTTP cookies.
+
+    This cookie jar can be safely shared across multiple threads and is used
+    to automatically handle cookies during HTTP requests and responses.
+    """
+
+    def __init__(self) -> None: ...
+    def get(self, name: str, url: str) -> Optional[Cookie]:
+        r"""
+        Get a cookie by name and URL.
+        """
+
+    def add(self, cookie: Cookie, url: str) -> None:
+        r"""
+        Add a cookie to this jar.
+        """
+
+    def add_cookie_str(self, cookie: Cookie, url: str) -> None:
+        r"""
+        Add a cookie str to this jar.
+        """
+
+    def remove(self, cookie: Cookie, url: str) -> None:
+        r"""
+        Remove a cookie from this jar by name and URL.
+        """
+
+    def clear(self) -> None:
+        r"""
+        Clear all cookies in this jar.
+        """

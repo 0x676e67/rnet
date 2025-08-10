@@ -16,7 +16,7 @@ from .blocking import *
 from .cookie import *
 from .exceptions import *
 from .header import *
-from .impersonate import *
+from .emulation import *
 
 try:
     from typing import Unpack, NotRequired
@@ -24,6 +24,7 @@ except ImportError:
     from typing_extensions import Unpack, NotRequired
 
 class RequestParams(TypedDict, closed=True):
+    emulation: NotRequired[Union[Emulation, EmulationOption]]
     proxy: NotRequired[Union[str, Proxy]]
     local_address: NotRequired[Union[ipaddress.IPv4Address, ipaddress.IPv6Address]]
     interface: NotRequired[str]
@@ -31,6 +32,7 @@ class RequestParams(TypedDict, closed=True):
     read_timeout: NotRequired[int]
     version: NotRequired[Version]
     headers: NotRequired[Union[Dict[str, str], HeaderMap]]
+    default_headers: NotRequired[bool]
     cookies: NotRequired[Dict[str, str]]
     allow_redirects: NotRequired[bool]
     max_redirects: NotRequired[int]
@@ -51,10 +53,12 @@ class RequestParams(TypedDict, closed=True):
     multipart: NotRequired[Multipart]
 
 class WebSocketParams(TypedDict, closed=True):
+    emulation: NotRequired[Union[Emulation, EmulationOption]]
     proxy: NotRequired[Union[str, Proxy]]
     local_address: NotRequired[Union[str, ipaddress.IPv4Address, ipaddress.IPv6Address]]
     interface: NotRequired[str]
     headers: NotRequired[Union[Dict[str, str], HeaderMap]]
+    default_headers: NotRequired[bool]
     cookies: NotRequired[Dict[str, str]]
     protocols: NotRequired[List[str]]
     use_http2: NotRequired[bool]
@@ -81,45 +85,16 @@ class Client:
     A client for making HTTP requests.
     """
 
-    user_agent: Optional[str]
-    r"""
-    Returns the user agent of the client.
-    
-    # Examples
-    
-    ```python
-    import rnet
-    
-    client = rnet.Client()
-    user_agent = client.user_agent()
-    print(user_agent)
-    ```
-    """
-    headers: HeaderMap
-    r"""
-    Returns the headers of the client.
-    
-    # Examples
-    
-    ```python
-    import rnet
-    
-    client = rnet.Client()
-    headers = client.headers()
-    print(headers)
-    ```
-    """
     def __new__(
         cls,
-        impersonate: Optional[Union[Impersonate, ImpersonateOption]] = None,
+        emulation: Optional[Union[Emulation, EmulationOption]] = None,
         user_agent: Optional[str] = None,
         default_headers: Optional[Union[Dict[str, str], HeaderMap]] = None,
-        headers_order: Optional[List[str]] = None,
         referer: Optional[bool] = None,
         allow_redirects: Optional[bool] = None,
         max_redirects: Optional[int] = None,
         cookie_store: Optional[bool] = None,
-        lookup_ip_strategy: Optional[LookupIpStrategy] = None,
+        cookie_provider: Optional[Jar] = None,
         timeout: Optional[int] = None,
         connect_timeout: Optional[int] = None,
         read_timeout: Optional[int] = None,
@@ -155,10 +130,9 @@ class Client:
         Creates a new Client instance.
 
         Args:
-            impersonate: Browser fingerprint/impersonation config.
+            emulation: Browser fingerprint/Emulation config.
             user_agent: Default User-Agent string.
             default_headers: Default request headers.
-            headers_order: Custom header order.
             referer: Automatically set Referer.
             allow_redirects: Allow automatic redirects.
             max_redirects: Maximum number of redirects.
@@ -206,106 +180,6 @@ class Client:
             response = await client.get('https://httpbin.org/get')
             print(response.text)
             ```
-        """
-
-    def get_cookies(self, url: str) -> Optional[bytes]:
-        r"""
-        Returns the cookies for the given URL.
-
-        # Arguments
-
-        * `url` - The URL to get the cookies for.
-
-        # Returns
-
-        A List of cookie strings.
-
-        # Examples
-
-        ```python
-        import rnet
-
-        client = rnet.Client(cookie_store=True)
-        cookies = client.get_cookies("https://example.com")
-        print(cookies)
-        ```
-        """
-
-    def set_cookie(self, url: str, cookie: Cookie) -> None:
-        r"""
-        Sets the cookies for the given URL.
-
-        # Arguments
-        * `url` - The URL to set the cookies for.
-        * `cookie` - The cookie to set.
-
-        # Examples
-
-        ```python
-        import rnet
-
-        client = rnet.Client(cookie_store=True)
-        client.set_cookie("https://example.com", rnet.Cookie(name="foo", value="bar"))
-        ```
-        """
-
-    def remove_cookie(self, url: str, name: str) -> None:
-        r"""
-        Removes the cookie with the given name for the given URL.
-
-        # Arguments
-        * `url` - The URL to remove the cookie from.
-        * `name` - The name of the cookie to remove.
-
-        # Examples
-
-        ```python
-        import rnet
-
-        client = rnet.Client(cookie_store=True)
-        client.remove_cookie("https://example.com", "foo")
-        """
-
-    def clear_cookies(self) -> None:
-        r"""
-        Clears the cookies for the given URL.
-        """
-
-    def update(
-        self,
-        impersonate: Optional[Union[Impersonate, ImpersonateOption]] = None,
-        headers: Optional[Union[Dict[str, str], HeaderMap]] = None,
-        headers_order: Optional[List[str]] = None,
-        proxies: Optional[List[Proxy]] = None,
-        local_address: Optional[
-            Union[ipaddress.IPv4Address, ipaddress.IPv6Address]
-        ] = None,
-        interface: Optional[str] = None,
-    ) -> None:
-        r"""
-        Updates the client with the given parameters.
-
-        # Arguments
-
-        * `impersonate` - The impersonation settings for the request.
-        * `headers` - The headers to use for the request.
-        * `headers_order` - The order of the headers to use for the request.
-        * `proxies` - The proxy to use for the request.
-        * `local_address` - The local IP address to bind to.
-        * `interface` - The interface to bind to.
-
-        # Examples
-
-        ```python
-        import rnet
-
-        client = rnet.Client()
-        client.update(
-           impersonate=rnet.Impersonate.Firefox135,
-           headers={"X-My-Header": "value"},
-           proxies=[rnet.Proxy.all("http://proxy.example.com:8080")],
-        )
-        ```
         """
 
     async def request(
@@ -765,7 +639,7 @@ class Streamer:
     ```python
     import asyncio
     import rnet
-    from rnet import Method, Impersonate
+    from rnet import Method, Emulation
 
     async def main():
         resp = await rnet.get("https://httpbin.org/stream/20")
@@ -1274,17 +1148,6 @@ class WebSocket:
         * `code` - An optional close code.
         * `reason` - An optional reason for closing.
         """
-
-class LookupIpStrategy(Enum):
-    r"""
-    The lookup ip strategy.
-    """
-
-    Ipv4Only = auto()
-    Ipv6Only = auto()
-    Ipv4AndIpv6 = auto()
-    Ipv6thenIpv4 = auto()
-    Ipv4thenIpv6 = auto()
 
 class Method(Enum):
     r"""

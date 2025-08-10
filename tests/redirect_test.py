@@ -4,6 +4,7 @@ from rnet import Version, HeaderMap
 
 client = rnet.Client(allow_redirects=True)
 
+
 @pytest.mark.asyncio
 @pytest.mark.flaky(reruns=3, reruns_delay=2)
 async def test_request_disable_redirect():

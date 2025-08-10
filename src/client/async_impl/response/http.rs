@@ -6,12 +6,14 @@ use mime::Mime;
 use pyo3::{IntoPyObjectExt, prelude::*, pybacked::PyBackedStr};
 use pyo3_async_runtimes::tokio::future_into_py;
 use tokio::sync::Mutex;
-use wreq::{TlsInfo, Url, header};
+use wreq::{Url, header, tls::TlsInfo};
 
 use crate::{
     buffer::{Buffer, BytesBuffer, PyBufferProtocol},
-    client::typing::{Cookie, HeaderMap, Json, SocketAddr, StatusCode, Version},
+    client::{SocketAddr, json::Json},
+    cookie::Cookie,
     error::Error,
+    http::{StatusCode, Version, header::HeaderMap},
 };
 
 /// A response from a request.
@@ -91,7 +93,7 @@ impl Response {
     /// Returns the cookies of the response.
     #[getter]
     pub fn cookies(&self, py: Python) -> Vec<Cookie> {
-        py.allow_threads(|| Cookie::extract_cookies(&self.headers.0))
+        py.allow_threads(|| Cookie::extract_headers_cookies(&self.headers.0))
     }
 
     /// Returns the content length of the response.

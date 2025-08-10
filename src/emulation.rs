@@ -1,35 +1,9 @@
 use pyo3::prelude::*;
 
-define_enum_with_conversion!(
-    /// An HTTP version.
+define_enum!(
+    /// An emulation.
     const,
-    Version,
-    wreq::Version,
-    HTTP_09,
-    HTTP_10,
-    HTTP_11,
-    HTTP_2,
-    HTTP_3,
-);
-
-define_enum_with_conversion!(
-    /// An HTTP method.
-    Method,
-    wreq::Method,
-    GET,
-    HEAD,
-    POST,
-    PUT,
-    DELETE,
-    OPTIONS,
-    TRACE,
-    PATCH,
-);
-
-define_enum_with_conversion!(
-    /// An impersonate.
-    const,
-    Impersonate,
+    Emulation,
     wreq_util::Emulation,
     Chrome100,
     Chrome101,
@@ -108,10 +82,10 @@ define_enum_with_conversion!(
     Opera119
 );
 
-define_enum_with_conversion!(
-    /// An impersonate operating system.
+define_enum!(
+    /// An emulation operating system.
     const,
-    ImpersonateOS,
+    EmulationOS,
     wreq_util::EmulationOS,
     Windows,
     MacOS,
@@ -120,35 +94,40 @@ define_enum_with_conversion!(
     IOS,
 );
 
-define_enum_with_conversion!(
-    /// The lookup ip strategy.
-    const,
-    LookupIpStrategy,
-    wreq::dns::LookupIpStrategy,
-    Ipv4Only,
-    Ipv6Only,
-    Ipv4AndIpv6,
-    Ipv6thenIpv4,
-    Ipv4thenIpv6,
-);
+/// A struct to represent the `EmulationOption` class.
+#[pyclass(subclass)]
+#[derive(Clone)]
+pub struct EmulationOption(pub wreq_util::EmulationOption);
 
-define_enum_with_conversion!(
-    /// The TLS version.
-    const,
-    TlsVersion,
-    wreq::TlsVersion,
-    TLS_1_0,
-    TLS_1_1,
-    TLS_1_2,
-    TLS_1_3,
-);
+#[pymethods]
+impl EmulationOption {
+    /// Create a new Emulation option instance.
+    #[new]
+    #[pyo3(signature = (
+        emulation,
+        emulation_os = None,
+        skip_http2 = None,
+        skip_headers = None
+    ))]
+    fn new(
+        emulation: Emulation,
+        emulation_os: Option<EmulationOS>,
+        skip_http2: Option<bool>,
+        skip_headers: Option<bool>,
+    ) -> Self {
+        let emulation = wreq_util::EmulationOption::builder()
+            .emulation(emulation.into_ffi())
+            .emulation_os(emulation_os.map(|os| os.into_ffi()).unwrap_or_default())
+            .skip_http2(skip_http2.unwrap_or(false))
+            .skip_headers(skip_headers.unwrap_or(false))
+            .build();
 
-define_enum_with_conversion!(
-    /// The Cookie SameSite attribute.
-    const,
-    SameSite,
-    wreq::cookie::SameSite,
-    (Strict, Strict),
-    (Lax, Lax),
-    (Empty, None),
-);
+        Self(emulation)
+    }
+
+    /// Creates a new random Emulation option instance.
+    #[staticmethod]
+    fn random() -> Self {
+        Self(wreq_util::Emulation::random())
+    }
+}

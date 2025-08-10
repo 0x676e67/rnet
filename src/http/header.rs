@@ -1,14 +1,11 @@
 use pyo3::{
     prelude::*,
     pybacked::{PyBackedBytes, PyBackedStr},
-    types::{PyDict, PyList},
+    types::PyDict,
 };
 use wreq::header::{self, HeaderName, HeaderValue};
 
-use crate::{
-    buffer::{HeaderNameBuffer, HeaderValueBuffer, PyBufferProtocol},
-    error::Error,
-};
+use crate::buffer::{HeaderNameBuffer, HeaderValueBuffer, PyBufferProtocol};
 
 /// A HTTP header map.
 #[pyclass(subclass)]
@@ -121,6 +118,7 @@ impl HeaderMap {
     }
 
     /// Returns key-value pairs in the order they were added.
+    #[inline]
     fn items(&self) -> HeaderMapItemsIter {
         HeaderMapItemsIter {
             inner: self.0.iter().map(|(k, v)| (k.clone(), v.clone())).collect(),
@@ -218,7 +216,8 @@ impl HeaderMapKeysIter {
         slf
     }
 
-    fn __next__(mut slf: PyRefMut<Self>) -> Option<Bound<'_, PyAny>> {
+    #[inline]
+    fn __next__(mut slf: PyRefMut<'_, Self>) -> Option<Bound<'_, PyAny>> {
         slf.inner
             .pop()
             .and_then(|k| HeaderNameBuffer::new(k).into_bytes_ref(slf.py()).ok())
@@ -237,7 +236,8 @@ impl HeaderMapValuesIter {
         slf
     }
 
-    fn __next__(mut slf: PyRefMut<Self>) -> Option<Bound<'_, PyAny>> {
+    #[inline]
+    fn __next__(mut slf: PyRefMut<'_, Self>) -> Option<Bound<'_, PyAny>> {
         slf.inner
             .pop()
             .and_then(|v| HeaderValueBuffer::new(v).into_bytes_ref(slf.py()).ok())
@@ -266,57 +266,5 @@ impl HeaderMapItemsIter {
             return Some((key, value));
         }
         None
-    }
-}
-
-/// A HTTP header map.
-pub struct HeaderMapExtractor(pub header::HeaderMap);
-
-/// A list of header names in order.
-pub struct HeadersOrderExtractor(pub Vec<HeaderName>);
-
-impl FromPyObject<'_> for HeaderMapExtractor {
-    fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
-        if let Ok(headers) = ob.downcast::<HeaderMap>() {
-            return Ok(Self(headers.borrow().0.clone()));
-        }
-
-        let dict = ob.downcast::<PyDict>()?;
-        dict.iter()
-            .try_fold(
-                header::HeaderMap::with_capacity(dict.len()),
-                |mut headers, (name, value)| {
-                    let name = {
-                        let name = name.extract::<PyBackedStr>()?;
-                        HeaderName::from_bytes(name.as_bytes()).map_err(Error::from)?
-                    };
-
-                    let value = {
-                        let value = value.extract::<PyBackedStr>()?;
-                        HeaderValue::from_maybe_shared(value).map_err(Error::from)?
-                    };
-
-                    headers.insert(name, value);
-                    Ok(headers)
-                },
-            )
-            .map(Self)
-    }
-}
-
-impl<'py> FromPyObject<'py> for HeadersOrderExtractor {
-    fn extract_bound(ob: &Bound<'py, PyAny>) -> PyResult<Self> {
-        let list = ob.downcast::<PyList>()?;
-        list.iter()
-            .try_fold(Vec::with_capacity(list.len()), |mut order, name| {
-                let name = {
-                    let name = name.extract::<PyBackedStr>()?;
-                    HeaderName::from_bytes(name.as_bytes()).map_err(Error::from)?
-                };
-
-                order.push(name);
-                Ok(order)
-            })
-            .map(Self)
     }
 }

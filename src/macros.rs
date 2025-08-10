@@ -46,13 +46,13 @@ macro_rules! apply_option {
     };
 }
 
-macro_rules! define_enum_with_conversion {
+macro_rules! define_enum {
     ($(#[$meta:meta])* $enum_type:ident, $ffi_type:ty, $($variant:ident),* $(,)?) => {
-        define_enum_with_conversion!($(#[$meta])* $enum_type, $ffi_type, $( ($variant, $variant) ),*);
+        define_enum!($(#[$meta])* $enum_type, $ffi_type, $( ($variant, $variant) ),*);
     };
 
     ($(#[$meta:meta])* const, $enum_type:ident, $ffi_type:ty, $($variant:ident),* $(,)?) => {
-        define_enum_with_conversion!($(#[$meta])* const, $enum_type, $ffi_type, $( ($variant, $variant) ),*);
+        define_enum!($(#[$meta])* const, $enum_type, $ffi_type, $( ($variant, $variant) ),*);
     };
 
     ($(#[$meta:meta])* $enum_type:ident, $ffi_type:ty, $(($rust_variant:ident, $ffi_variant:ident)),* $(,)?) => {

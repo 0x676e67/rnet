@@ -58,6 +58,7 @@ pub enum Error {
     InvalidHeaderValue(header::InvalidHeaderValue),
     UrlParse(url::ParseError),
     IO(std::io::Error),
+    Decode(cookie_crate::ParseError),
     Request(wreq::Error),
 }
 
@@ -78,6 +79,7 @@ impl From<Error> for PyErr {
             }
             Error::UrlParse(err) => URLParseError::new_err(format!("URL parse error: {err:?}")),
             Error::IO(err) => PyRuntimeError::new_err(format!("IO error: {err:?}")),
+            Error::Decode(err) => MIMEParseError::new_err(format!("Decode error: {err:?}")),
             Error::Request(err) => wrap_error!(err,
                 is_body => BodyError,
                 is_connect => ConnectionError,

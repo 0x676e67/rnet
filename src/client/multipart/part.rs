@@ -8,7 +8,7 @@ use pyo3::{
 use wreq::Body;
 
 use crate::{
-    client::typing::stream::{AsyncStream, SyncStream},
+    client::body::{AsyncStream, SyncStream},
     error::{Error, MIMEParseError},
 };
 

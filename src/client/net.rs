@@ -1,15 +1,5 @@
 use pyo3::{IntoPyObjectExt, prelude::*};
 
-/// An IP address.
-#[derive(Clone, Copy, PartialEq, Eq, Hash)]
-pub struct IpAddrExtractor(pub std::net::IpAddr);
-
-impl FromPyObject<'_> for IpAddrExtractor {
-    fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
-        ob.extract().map(IpAddrExtractor)
-    }
-}
-
 /// A IP socket address.
 #[pyclass(eq)]
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]

@@ -1,10 +1,10 @@
-from rnet import Impersonate
+from rnet import Emulation
 from rnet import BlockingClient
 
 
 def main():
     client = BlockingClient(
-        impersonate=Impersonate.Firefox135,
+        emulation=Emulation.Firefox135,
         user_agent="rnet",
     )
     with client.get("https://tls.peet.ws/api/all") as resp:

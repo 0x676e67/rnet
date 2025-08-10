@@ -1,22 +1,27 @@
-#[macro_use]
-mod macros;
-
 pub mod async_impl;
 pub mod blocking;
-pub mod typing;
+
+mod body;
+mod multipart;
 
 mod dns;
+mod json;
+mod net;
 mod opts;
 mod param;
 
 use pyo3::{PyResult, prelude::*, pybacked::PyBackedStr};
 use pyo3_async_runtimes::tokio::future_into_py;
 
+pub use self::{
+    multipart::{Multipart, Part},
+    net::SocketAddr,
+};
 use self::{
     opts::{shortcut_request, shortcut_websocket_request},
     param::{RequestParams, WebSocketParams},
-    typing::Method,
 };
+use crate::http::Method;
 
 /// Make a GET request with the given parameters.
 #[pyfunction]

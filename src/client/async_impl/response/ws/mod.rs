@@ -11,15 +11,20 @@ pub use message::Message;
 use pyo3::{IntoPyObjectExt, prelude::*, pybacked::PyBackedStr};
 use pyo3_async_runtimes::tokio::future_into_py;
 use tokio::sync::Mutex;
-use wreq::{Utf8Bytes, header::HeaderValue};
-
-use crate::{
-    client::typing::{Cookie, HeaderMap, SocketAddr, StatusCode, Version},
-    error::Error,
+use wreq::{
+    header::HeaderValue,
+    ws::{self, WebSocketRequestBuilder, message::Utf8Bytes},
 };
 
-type Sender = Arc<Mutex<Option<SplitSink<wreq::WebSocket, wreq::Message>>>>;
-type Receiver = Arc<Mutex<Option<SplitStream<wreq::WebSocket>>>>;
+use crate::{
+    client::SocketAddr,
+    cookie::Cookie,
+    error::Error,
+    http::{StatusCode, Version, header::HeaderMap},
+};
+
+type Sender = Arc<Mutex<Option<SplitSink<ws::WebSocket, ws::message::Message>>>>;
+type Receiver = Arc<Mutex<Option<SplitStream<ws::WebSocket>>>>;
 
 /// A WebSocket response.
 #[pyclass(subclass)]
@@ -34,7 +39,7 @@ pub struct WebSocket {
 }
 
 impl WebSocket {
-    pub async fn new(builder: wreq::WebSocketRequestBuilder) -> wreq::Result<WebSocket> {
+    pub async fn new(builder: WebSocketRequestBuilder) -> wreq::Result<WebSocket> {
         let response = builder.send().await?;
 
         let version = Version::from_ffi(response.version());
@@ -104,10 +109,12 @@ impl WebSocket {
             let reason = reason
                 .map(Bytes::from_owner)
                 .map(Utf8Bytes::from_bytes_unchecked)
-                .unwrap_or_else(|| wreq::Utf8Bytes::from_static("Goodbye"));
+                .unwrap_or_else(|| Utf8Bytes::from_static("Goodbye"));
             sender
-                .send(wreq::Message::Close(Some(wreq::CloseFrame {
-                    code: code.map(wreq::CloseCode).unwrap_or(wreq::CloseCode::NORMAL),
+                .send(ws::message::Message::Close(Some(ws::message::CloseFrame {
+                    code: code
+                        .map(ws::message::CloseCode)
+                        .unwrap_or(ws::message::CloseCode::NORMAL),
 
                     reason,
                 })))
@@ -174,7 +181,7 @@ impl WebSocket {
     /// Returns the cookies of the response.
     #[getter]
     pub fn cookies(&self, py: Python) -> Vec<Cookie> {
-        py.allow_threads(|| Cookie::extract_cookies(&self.headers.0))
+        py.allow_threads(|| Cookie::extract_headers_cookies(&self.headers.0))
     }
 
     /// Returns the remote address of the response.

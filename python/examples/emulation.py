@@ -1,6 +1,6 @@
 import asyncio
 from rnet import Client, Response
-from rnet.impersonate import Impersonate, ImpersonateOS, ImpersonateOption
+from rnet.emulation import Emulation, EmulationOS, EmulationOption
 
 
 async def print_response_info(resp: Response):
@@ -24,14 +24,13 @@ async def print_response_info(resp: Response):
 
 
 async def request_firefox():
-    """Test request using Firefox browser impersonation
+    """Test request using Firefox browser Emulation
 
-    Demonstrates basic browser impersonation with custom header order
+    Demonstrates basic browser Emulation with custom header order
     """
-    print("\n[Testing Firefox Impersonation]")
+    print("\n[Testing Firefox Emulation]")
     client = Client(
-        impersonate=Impersonate.Firefox135,
-        headers_order=["accept-encoding", "user-agent", "accept"],
+        emulation=Emulation.Firefox135,
         tls_info=True,
     )
     resp = await client.get("https://tls.peet.ws/api/all")
@@ -40,28 +39,30 @@ async def request_firefox():
 
 
 async def request_chrome_android(client: Client):
-    """Test request using Chrome on Android impersonation
+    """Test request using Chrome on Android Emulation
 
-    Demonstrates advanced impersonation with OS specification
+    Demonstrates advanced Emulation with OS specification
 
     Args:
         client: Existing client instance to update
     """
-    print("\n[Testing Chrome on Android Impersonation]")
-    client.update(
-        impersonate=ImpersonateOption(
-            impersonate=Impersonate.Chrome134,
-            impersonate_os=ImpersonateOS.Android,
-        )
+    print("\n[Testing Chrome on Android Emulation]")
+    resp = await client.get(
+        "https://tls.peet.ws/api/all",
+        emulation=EmulationOption(
+            emulation=Emulation.Chrome134,
+            emulation_os=EmulationOS.Android,
+        ),
+        # Disable client default headers
+        default_headers=False,  
     )
-    resp = await client.get("https://tls.peet.ws/api/all")
     await print_response_info(resp)
 
 
 async def main():
-    """Main function to run the impersonation examples
+    """Main function to run the Emulation examples
 
-    Demonstrates different browser impersonation scenarios:
+    Demonstrates different browser Emulation scenarios:
     1. Firefox with custom header order
     2. Chrome on Android with OS specification
     """

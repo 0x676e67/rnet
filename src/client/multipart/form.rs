@@ -28,17 +28,3 @@ impl Multipart {
         Ok(Multipart(Some(new_form)))
     }
 }
-
-pub struct MultipartExtractor(pub Form);
-
-impl FromPyObject<'_> for MultipartExtractor {
-    fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
-        let form = ob.downcast::<Multipart>()?;
-        form.borrow_mut()
-            .0
-            .take()
-            .map(Self)
-            .ok_or_else(|| Error::Memory)
-            .map_err(Into::into)
-    }
-}

@@ -1,60 +1,74 @@
-use std::sync::{Arc, OnceLock};
+//! DNS resolution via the [hickory-resolver](https://github.com/hickory-dns/hickory-dns) crate
 
-use pyo3::PyResult;
-use wreq::dns::HickoryDnsResolver;
+use std::{net::SocketAddr, sync::LazyLock};
 
-use super::typing::LookupIpStrategy;
-use crate::error::DNSResolverError;
+use hickory_resolver::{
+    TokioResolver,
+    config::{LookupIpStrategy, ResolverConfig},
+    lookup_ip::LookupIpIntoIter,
+    name_server::TokioConnectionProvider,
+};
+use wreq::dns::{Addrs, Name, Resolve, Resolving};
 
-macro_rules! dns_resolver {
-    ($strategy:expr) => {{
-        static DNS_RESOLVER: OnceLock<Result<Arc<HickoryDnsResolver>, &'static str>> =
-            OnceLock::new();
-        init(&DNS_RESOLVER, $strategy)
-    }};
+/// Wrapper around an [`TokioResolver`], which implements the `Resolve` trait.
+#[derive(Debug, Clone)]
+pub struct HickoryDnsResolver {
+    /// Shared, lazily-initialized Tokio-based DNS resolver.
+    ///
+    /// Backed by [`LazyLock`] to guarantee thread-safe, one-time creation.
+    /// On initialization, it attempts to load the system's DNS configuration;
+    /// if unavailable, it falls back to sensible default settings.
+    resolver: &'static LazyLock<TokioResolver>,
 }
 
-/// Initializes and returns a DNS resolver with the specified strategy.
-///
-/// This function initializes a global DNS resolver using the provided lookup IP strategy.
-/// If the DNS resolver has already been initialized, it returns the existing instance.
-///
-/// # Returns
-///
-/// A `Result` containing an `Arc` to the `HickoryDnsResolver` instance, or an error if
-/// initialization fails.
-///
-/// # Errors
-///
-/// This function returns an error if the DNS resolver fails to initialize.
-pub fn get_or_try_init<S>(strategy: S) -> PyResult<Arc<HickoryDnsResolver>>
-where
-    S: Into<Option<LookupIpStrategy>>,
-{
-    let strategy = strategy.into().unwrap_or(LookupIpStrategy::Ipv4AndIpv6);
-    match strategy {
-        LookupIpStrategy::Ipv4Only => dns_resolver!(strategy),
-        LookupIpStrategy::Ipv6Only => dns_resolver!(strategy),
-        LookupIpStrategy::Ipv4AndIpv6 => dns_resolver!(strategy),
-        LookupIpStrategy::Ipv6thenIpv4 => dns_resolver!(strategy),
-        LookupIpStrategy::Ipv4thenIpv6 => dns_resolver!(strategy),
+impl HickoryDnsResolver {
+    /// Create a new resolver with the default configuration,
+    /// which reads from `/etc/resolve.conf`. The options are
+    /// overriden to look up for both IPv4 and IPv6 addresses
+    /// to work with "happy eyeballs" algorithm.
+    pub fn new() -> HickoryDnsResolver {
+        static RESOLVER: LazyLock<TokioResolver> = LazyLock::new(|| {
+            let mut builder = match TokioResolver::builder_tokio() {
+                Ok(resolver) => resolver,
+                Err(err) => {
+                    eprintln!("error reading DNS system conf: {}, using defaults", err);
+                    TokioResolver::builder_with_config(
+                        ResolverConfig::default(),
+                        TokioConnectionProvider::default(),
+                    )
+                }
+            };
+            builder.options_mut().ip_strategy = LookupIpStrategy::Ipv4AndIpv6;
+            builder.build()
+        });
+
+        HickoryDnsResolver {
+            resolver: &RESOLVER,
+        }
     }
 }
 
-fn init(
-    dns_resolver: &'static OnceLock<Result<Arc<HickoryDnsResolver>, &'static str>>,
-    strategy: LookupIpStrategy,
-) -> PyResult<Arc<HickoryDnsResolver>> {
-    dns_resolver
-        .get_or_init(move || {
-            HickoryDnsResolver::new(strategy.into_ffi())
-                .map(Arc::new)
-                .map_err(|err| {
-                    eprintln!("failed to initialize the DNS resolver: {err}");
-                    "failed to initialize the DNS resolver"
-                })
+struct SocketAddrs {
+    iter: LookupIpIntoIter,
+}
+
+impl Resolve for HickoryDnsResolver {
+    fn resolve(&self, name: Name) -> Resolving {
+        let resolver = self.clone();
+        Box::pin(async move {
+            let lookup = resolver.resolver.lookup_ip(name.as_str()).await?;
+            let addrs: Addrs = Box::new(SocketAddrs {
+                iter: lookup.into_iter(),
+            });
+            Ok(addrs)
         })
-        .as_ref()
-        .map(Arc::clone)
-        .map_err(DNSResolverError::new_err)
+    }
+}
+
+impl Iterator for SocketAddrs {
+    type Item = SocketAddr;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.iter.next().map(|ip_addr| SocketAddr::new(ip_addr, 0))
+    }
 }

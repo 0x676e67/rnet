@@ -1,26 +1,37 @@
-use pyo3::{prelude::*, pybacked::PyBackedStr};
+use std::net::IpAddr;
 
-use crate::client::typing::{
-    CookieExtractor, HeaderMapExtractor, IpAddrExtractor, ProxyExtractor, UrlEncodedValuesExtractor,
+use pyo3::{prelude::*, pybacked::PyBackedStr};
+use wreq::{
+    Proxy,
+    header::{HeaderMap, HeaderValue},
 };
+use wreq_util::EmulationOption;
+
+use crate::extractor::Extractor;
 
 /// The parameters for a WebSocket request.
 #[derive(Default)]
 pub struct WebSocketParams {
+    /// The Emulation settings for the request.
+    pub emulation: Option<Extractor<EmulationOption>>,
+
     /// The proxy to use for the request.
-    pub proxy: Option<ProxyExtractor>,
+    pub proxy: Option<Extractor<Proxy>>,
 
     /// Bind to a local IP Address.
-    pub local_address: Option<IpAddrExtractor>,
+    pub local_address: Option<Extractor<IpAddr>>,
 
     /// Bind to an interface by `SO_BINDTODEVICE`.
     pub interface: Option<String>,
 
     /// The headers to use for the request.
-    pub headers: Option<HeaderMapExtractor>,
+    pub headers: Option<Extractor<HeaderMap>>,
+
+    /// The option enables default headers.
+    pub default_headers: Option<bool>,
 
     /// The cookies to use for the request.
-    pub cookies: Option<CookieExtractor>,
+    pub cookies: Option<Extractor<Vec<HeaderValue>>>,
 
     /// The protocols to use for the request.
     pub protocols: Option<Vec<String>>,
@@ -38,7 +49,7 @@ pub struct WebSocketParams {
     pub basic_auth: Option<(PyBackedStr, Option<PyBackedStr>)>,
 
     /// The query parameters to use for the request.
-    pub query: Option<UrlEncodedValuesExtractor>,
+    pub query: Option<Extractor<Vec<(PyBackedStr, PyBackedStr)>>>,
 
     /// Read buffer capacity. This buffer is eagerly allocated and used for receiving
     /// messages.
@@ -96,12 +107,14 @@ pub struct WebSocketParams {
 impl<'py> FromPyObject<'py> for WebSocketParams {
     fn extract_bound(ob: &Bound<'py, PyAny>) -> PyResult<Self> {
         let mut params = Self::default();
+        extract_option!(ob, params, emulation);
         extract_option!(ob, params, proxy);
         extract_option!(ob, params, local_address);
         extract_option!(ob, params, interface);
 
         extract_option!(ob, params, use_http2);
         extract_option!(ob, params, headers);
+        extract_option!(ob, params, default_headers);
         extract_option!(ob, params, cookies);
         extract_option!(ob, params, protocols);
         extract_option!(ob, params, auth);

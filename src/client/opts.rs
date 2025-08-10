@@ -1,34 +1,26 @@
-use std::{sync::LazyLock, time::Duration};
+use std::{
+    sync::{Arc, LazyLock},
+    time::Duration,
+};
 
 use pyo3::PyResult;
 use wreq::{Client, header, redirect::Policy};
 
-use super::{
-    dns,
-    param::{RequestParams, WebSocketParams},
-};
+use super::param::{RequestParams, WebSocketParams};
 use crate::{
     client::{
         async_impl::response::{Response, WebSocket},
-        typing::{LookupIpStrategy, Method, Version},
+        dns::{self},
     },
     error::Error,
+    http::{Method, Version},
 };
 
 static DEFAULT_CLIENT: LazyLock<wreq::Client> = LazyLock::new(|| {
-    let mut builder = wreq::Client::builder();
-    apply_option!(
-        apply_if_ok,
-        builder,
-        || dns::get_or_try_init(LookupIpStrategy::Ipv4AndIpv6),
-        dns_resolver
-    );
+    let builder = wreq::Client::builder();
     builder
-        .no_hickory_dns()
+        .dns_resolver(Arc::new(dns::HickoryDnsResolver::new()))
         .no_keepalive()
-        .http1(|mut http| {
-            http.title_case_headers(true);
-        })
         .build()
         .expect("Failed to build the default client.")
 });
@@ -69,6 +61,9 @@ where
     let params = params.get_or_insert_default();
     let mut builder = client.request(method.into_ffi(), url.as_ref());
 
+    // Emulation options.
+    apply_option!(apply_if_some_inner, builder, params.emulation, emulation);
+
     // Version options.
     apply_option!(
         apply_transformed_option,
@@ -105,17 +100,25 @@ where
     #[cfg(any(
         target_os = "android",
         target_os = "fuchsia",
-        target_os = "linux",
+        target_os = "illumos",
         target_os = "ios",
-        target_os = "visionos",
+        target_os = "linux",
         target_os = "macos",
+        target_os = "solaris",
         target_os = "tvos",
-        target_os = "watchos"
+        target_os = "visionos",
+        target_os = "watchos",
     ))]
     apply_option!(apply_if_some, builder, params.interface, interface);
 
     // Headers options.
     apply_option!(apply_if_some_inner, builder, params.headers, headers);
+    apply_option!(
+        apply_if_some,
+        builder,
+        params.default_headers,
+        default_headers
+    );
 
     // Authentication options.
     apply_option!(
@@ -240,7 +243,7 @@ where
         apply_option_or_default,
         builder,
         params.use_http2,
-        use_http2,
+        force_http2,
         false
     );
 
@@ -255,12 +258,14 @@ where
     #[cfg(any(
         target_os = "android",
         target_os = "fuchsia",
-        target_os = "linux",
+        target_os = "illumos",
         target_os = "ios",
-        target_os = "visionos",
+        target_os = "linux",
         target_os = "macos",
+        target_os = "solaris",
         target_os = "tvos",
-        target_os = "watchos"
+        target_os = "visionos",
+        target_os = "watchos",
     ))]
     apply_option!(apply_if_some, builder, params.interface, interface);
 
@@ -283,6 +288,12 @@ where
 
     // Headers options.
     apply_option!(apply_if_some_inner, builder, params.headers, headers);
+    apply_option!(
+        apply_if_some,
+        builder,
+        params.default_headers,
+        default_headers
+    );
 
     // Cookies options.
     if let Some(cookies) = params.cookies.take() {
