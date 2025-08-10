@@ -48,9 +48,7 @@ pub struct ClientParams {
     /// The read timeout to use for the client. (in seconds)
     pub read_timeout: Option<u64>,
 
-    /// Disable keep-alive for the client.
-    pub no_keepalive: Option<bool>,
-
+    // ========= TCP options =========
     /// Set that all sockets have `SO_KEEPALIVE` set with the supplied duration. (in seconds)
     pub tcp_keepalive: Option<u64>,
 
@@ -63,6 +61,13 @@ pub struct ClientParams {
     /// Set an optional user timeout for TCP sockets. (in seconds)    
     pub tcp_user_timeout: Option<u64>,
 
+    /// Set that all sockets have `NO_DELAY` set.
+    pub tcp_nodelay: Option<bool>,
+
+    /// Set that all sockets have `SO_REUSEADDR` set.
+    pub tcp_reuse_address: Option<bool>,
+
+    // ========= Connection pool options =========
     /// Set an optional timeout for idle sockets being kept-alive. (in seconds)
     pub pool_idle_timeout: Option<u64>,
 
@@ -71,6 +76,9 @@ pub struct ClientParams {
 
     /// Sets the maximum number of connections in the pool.
     pub pool_max_size: Option<u32>,
+
+    /// Disable keep-alive for the client.
+    pub no_keepalive: Option<bool>,
 
     // ========= Protocol options =========
     /// Whether to use the HTTP/1 protocol only.
@@ -81,9 +89,6 @@ pub struct ClientParams {
 
     /// Whether to use HTTPS only.
     pub https_only: Option<bool>,
-
-    /// Set whether sockets have `TCP_NODELAY` enabled.
-    pub tcp_nodelay: Option<bool>,
 
     /// The maximum number of times to retry a client.
     pub http2_max_retry_count: Option<usize>,
@@ -143,11 +148,18 @@ impl<'py> FromPyObject<'py> for ClientParams {
         extract_option!(ob, params, timeout);
         extract_option!(ob, params, connect_timeout);
         extract_option!(ob, params, read_timeout);
+
+        extract_option!(ob, params, tcp_keepalive);
+        extract_option!(ob, params, tcp_keepalive_interval);
+        extract_option!(ob, params, tcp_keepalive_retries);
+        extract_option!(ob, params, tcp_user_timeout);
+        extract_option!(ob, params, tcp_nodelay);
+        extract_option!(ob, params, tcp_reuse_address);
+
         extract_option!(ob, params, pool_idle_timeout);
         extract_option!(ob, params, pool_max_idle_per_host);
         extract_option!(ob, params, pool_max_size);
         extract_option!(ob, params, no_keepalive);
-        extract_option!(ob, params, tcp_keepalive);
 
         extract_option!(ob, params, no_proxy);
         extract_option!(ob, params, proxies);
@@ -157,7 +169,6 @@ impl<'py> FromPyObject<'py> for ClientParams {
         extract_option!(ob, params, http1_only);
         extract_option!(ob, params, http2_only);
         extract_option!(ob, params, https_only);
-        extract_option!(ob, params, tcp_nodelay);
         extract_option!(ob, params, verify);
         extract_option!(ob, params, http2_max_retry_count);
         extract_option!(ob, params, tls_info);
