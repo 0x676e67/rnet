@@ -122,6 +122,7 @@ fn blocking_module(m: &Bound<'_, PyModule>) -> PyResult<()> {
 #[pymodule(gil_used = false, name = "exceptions")]
 fn exceptions_module(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add("DNSResolverError", py.get_type::<DNSResolverError>())?;
+    m.add("TlsError", py.get_type::<TlsError>())?;
     m.add("BodyError", py.get_type::<BodyError>())?;
     m.add("BuilderError", py.get_type::<BuilderError>())?;
     m.add("ConnectionError", py.get_type::<ConnectionError>())?;
@@ -135,6 +136,7 @@ fn exceptions_module(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add("StatusError", py.get_type::<StatusError>())?;
     m.add("RequestError", py.get_type::<RequestError>())?;
     m.add("UpgradeError", py.get_type::<UpgradeError>())?;
+    m.add("WebSocketError", py.get_type::<WebSocketError>())?;
     m.add("URLParseError", py.get_type::<URLParseError>())?;
     m.add("MIMEParseError", py.get_type::<MIMEParseError>())?;
     Ok(())
