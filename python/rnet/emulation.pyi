@@ -1,3 +1,15 @@
+"""
+Browser and Client Emulation
+
+This module provides functionality for emulating various browsers and HTTP clients
+to bypass detection and fingerprinting. It supports emulating Chrome, Firefox, Edge,
+Safari, Opera, and OkHttp clients across different operating systems and versions.
+
+The emulation system modifies HTTP/2 settings, TLS fingerprints, and request headers
+to match the behavior of real browsers and clients, making requests appear more
+authentic and less likely to be blocked by anti-bot systems.
+"""
+
 from enum import Enum, auto
 from typing import Optional
 
@@ -6,6 +18,7 @@ class Emulation(Enum):
     An emulation.
     """
 
+    # Chrome versions
     Chrome100 = auto()
     Chrome101 = auto()
     Chrome104 = auto()
@@ -35,11 +48,15 @@ class Emulation(Enum):
     Chrome135 = auto()
     Chrome136 = auto()
     Chrome137 = auto()
+
+    # Microsoft Edge versions
     Edge101 = auto()
     Edge122 = auto()
     Edge127 = auto()
     Edge131 = auto()
     Edge134 = auto()
+
+    # Firefox versions
     Firefox109 = auto()
     Firefox117 = auto()
     Firefox128 = auto()
@@ -50,6 +67,8 @@ class Emulation(Enum):
     Firefox136 = auto()
     FirefoxPrivate136 = auto()
     Firefox139 = auto()
+
+    # Safari versions
     SafariIos17_2 = auto()
     SafariIos17_4_1 = auto()
     SafariIos16_5 = auto()
@@ -69,6 +88,8 @@ class Emulation(Enum):
     Safari18_3_1 = auto()
     SafariIos18_1_1 = auto()
     Safari18_5 = auto()
+
+    # OkHttp versions
     OkHttp3_9 = auto()
     OkHttp3_11 = auto()
     OkHttp3_13 = auto()
@@ -77,25 +98,34 @@ class Emulation(Enum):
     OkHttp4_10 = auto()
     OkHttp4_12 = auto()
     OkHttp5 = auto()
+
+    # Opera versions
     Opera116 = auto()
     Opera117 = auto()
     Opera118 = auto()
     Opera119 = auto()
 
 class EmulationOS(Enum):
-    r"""
-    An emulation operating system.
+    """
+    Operating systems that can be emulated.
+
+    This enum defines the operating systems that can be combined with
+    browser emulations to create more specific fingerprints.
     """
 
-    Windows = auto()
-    MacOS = auto()
-    Linux = auto()
-    Android = auto()
-    IOS = auto()
+    Windows = auto()  # Windows (any version)
+    MacOS = auto()  # macOS (any version)
+    Linux = auto()  # Linux (any distribution)
+    Android = auto()  # Android (mobile)
+    IOS = auto()  # iOS (iPhone/iPad)
 
 class EmulationOption:
-    r"""
-    A struct to represent the `EmulationOption` class.
+    """
+    Configuration options for browser and client emulation.
+
+    This class allows fine-grained control over emulation behavior,
+    including the ability to disable specific features or combine
+    browser types with specific operating systems.
     """
 
     def __new__(
@@ -105,43 +135,48 @@ class EmulationOption:
         skip_http2: Optional[bool] = None,
         skip_headers: Optional[bool] = None,
     ) -> EmulationOption:
-        r"""
-        Create a new Emulation option instance.
-
-        This class allows you to configure browser/client Emulation settings
-        including the browser type, operating system, and HTTP protocol options.
+        """
+        Create a new emulation configuration.
 
         Args:
-            emulation (Emulation): The browser/client type to emulation
-            emulation_os (Optional[EmulationOS]): The operating system to emulation, defaults to None
-            skip_http2 (Optional[bool]): Whether to disable HTTP/2 support, defaults to False
-            skip_headers (Optional[bool]): Whether to skip default request headers, defaults to False
+            emulation: The browser/client type to emulate
+            emulation_os: The operating system to emulate (optional)
+            skip_http2: Whether to disable HTTP/2 emulation (default: False)
+            skip_headers: Whether to skip default browser headers (default: False)
 
         Returns:
-            EmulationOption: A new Emulation option instance
+            A configured EmulationOption instance
 
-        Examples:
+        Example:
             ```python
-            from rnet import EmulationOption, Emulation, EmulationOS
+            # Basic Chrome emulation
+            option = EmulationOption(Emulation.Chrome137)
 
-            # Basic Chrome 120 Emulation
-            option = EmulationOption(Emulation.Chrome120)
-
-            # Firefox 136 on Windows with custom options
+            # Chrome on Windows with HTTP/2 disabled
             option = EmulationOption(
-                emulation=Emulation.Firefox136,
+                emulation=Emulation.Chrome137,
                 emulation_os=EmulationOS.Windows,
-                skip_http2=False,
-                skip_headers=True
+                skip_http2=True
             )
             ```
         """
 
     @staticmethod
     def random() -> EmulationOption:
-        r"""
-        Creates a new random Emulation option instance.
+        """
+        Generate a random emulation configuration.
 
-        This method generates a random browser/client Emulation option
-        with random settings for browser type and operating system options.
+        This method creates a randomized emulation setup using a random
+        browser/client type and operating system combination. Useful for
+        scenarios where you want to vary your fingerprint across requests.
+
+        Returns:
+            A randomly configured EmulationOption instance
+
+        Example:
+            ```python
+            # Use different random emulation for each client
+            client1 = rnet.Client(emulation=EmulationOption.random())
+            client2 = rnet.Client(emulation=EmulationOption.random())
+            ```
         """

@@ -1,3 +1,11 @@
+"""
+HTTP Cookie Management
+
+This module provides classes for creating, managing, and storing HTTP cookies
+in a thread-safe manner. It includes support for all standard cookie attributes
+and provides a cookie jar for automatic cookie handling during HTTP requests.
+"""
+
 import datetime
 from enum import Enum, auto
 from typing import Optional
