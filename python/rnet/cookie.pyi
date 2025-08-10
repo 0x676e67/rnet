@@ -89,6 +89,11 @@ class Jar:
         Get a cookie by name and URL.
         """
 
+    def get_all(self) -> list[Cookie]:
+        r"""
+        Get all cookies.
+        """
+
     def add(self, cookie: Cookie, url: str) -> None:
         r"""
         Add a cookie to this jar.

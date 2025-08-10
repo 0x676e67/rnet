@@ -54,7 +54,7 @@ async def request_chrome_android(client: Client):
             emulation_os=EmulationOS.Android,
         ),
         # Disable client default headers
-        default_headers=False,  
+        default_headers=False,
     )
     await print_response_info(resp)
 

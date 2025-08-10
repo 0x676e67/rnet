@@ -5,6 +5,7 @@ use std::{
 
 use bytes::BufMut;
 use cookie_crate::{Expiration, ParseError, time::Duration};
+use cookie_store::RawCookie;
 use pyo3::{prelude::*, pybacked::PyBackedStr};
 use url::Url;
 use wreq::{
@@ -13,6 +14,9 @@ use wreq::{
 };
 
 use crate::error::Error;
+
+const EMPTY_DOMAIN: &str = "";
+const COOKIE_SEPARATOR: &[u8] = b"=";
 
 define_enum!(
     /// The Cookie SameSite attribute.
@@ -27,7 +31,7 @@ define_enum!(
 /// A single HTTP cookie.
 #[pyclass(subclass)]
 #[derive(Clone)]
-pub struct Cookie(pub cookie_crate::Cookie<'static>);
+pub struct Cookie(pub RawCookie<'static>);
 
 /// A good default `CookieStore` implementation.
 ///
@@ -67,7 +71,7 @@ impl Cookie {
         secure: bool,
         same_site: Option<SameSite>,
     ) -> Cookie {
-        let mut cookie = cookie_crate::Cookie::new(name, value);
+        let mut cookie = RawCookie::new(name, value);
         if let Some(domain) = domain {
             cookie.set_domain(domain);
         }
@@ -190,15 +194,15 @@ impl Cookie {
             .iter()
             .map(Cookie::parse)
             .flat_map(Result::ok)
-            .map(cookie_crate::Cookie::into_owned)
+            .map(RawCookie::into_owned)
             .map(Cookie)
             .collect()
     }
 
-    fn parse<'a>(value: &'a HeaderValue) -> Result<cookie_crate::Cookie<'a>, ParseError> {
+    fn parse<'a>(value: &'a HeaderValue) -> Result<RawCookie<'a>, ParseError> {
         std::str::from_utf8(value.as_bytes())
             .map_err(cookie_crate::ParseError::from)
-            .and_then(cookie_crate::Cookie::parse)
+            .and_then(RawCookie::parse)
     }
 }
 
@@ -212,8 +216,6 @@ impl CookieStore for Jar {
     }
 
     fn cookies(&self, url: &url::Url) -> Vec<HeaderValue> {
-        const COOKIE_SEPARATOR: &[u8] = b"=";
-
         self.0
             .read()
             .unwrap()
@@ -248,7 +250,7 @@ impl Jar {
             let url = Url::parse(url.as_ref()).map_err(Error::UrlParse)?;
 
             let store = self.0.read().unwrap();
-            let cookie = store.get(url.host_str().unwrap_or(""), url.path(), name);
+            let cookie = store.get(url.host_str().unwrap_or(EMPTY_DOMAIN), url.path(), name);
 
             cookie
                 .map(|cookie| {
@@ -256,53 +258,76 @@ impl Jar {
                     // This is safe because we are only returning a reference to the cookie,
                     // not the underlying data.
                     let cookie = cookie.clone().into_owned();
-                    Cookie(cookie_crate::Cookie::from(cookie))
+                    Cookie(RawCookie::from(cookie))
                 })
                 .map(PyResult::Ok)
                 .transpose()
         })
     }
 
+    /// Get all cookies.
+    pub fn get_all(&self, py: Python) -> Vec<Cookie> {
+        py.allow_threads(|| {
+            let store = self.0.read().unwrap();
+            store
+                .iter_any()
+                .map(Clone::clone)
+                .map(RawCookie::from)
+                .map(Cookie)
+                .collect()
+        })
+    }
+
     /// Add a cookie to this jar.
     #[pyo3(signature = (cookie, url))]
-    pub fn add(&self, cookie: Cookie, url: PyBackedStr) -> PyResult<()> {
-        let url = Url::parse(url.as_ref()).map_err(Error::UrlParse)?;
-        self.0
-            .write()
-            .unwrap()
-            .store_response_cookies(std::iter::once(cookie.0), &url);
+    pub fn add(&self, py: Python, cookie: Cookie, url: PyBackedStr) -> PyResult<()> {
+        py.allow_threads(|| {
+            let url = Url::parse(url.as_ref()).map_err(Error::UrlParse)?;
+            self.0
+                .write()
+                .unwrap()
+                .store_response_cookies(std::iter::once(cookie.0), &url);
 
-        Ok(())
+            Ok(())
+        })
     }
 
     /// Add a cookie str to this jar.
     #[pyo3(signature = (cookie, url))]
-    pub fn add_cookie_str(&self, cookie: &str, url: PyBackedStr) -> PyResult<()> {
-        let url = Url::parse(url.as_ref()).map_err(Error::UrlParse)?;
-        let cookies = cookie_crate::Cookie::parse(cookie)
-            .ok()
-            .map(|c| c.into_owned())
-            .into_iter();
-        self.0
-            .write()
-            .unwrap()
-            .store_response_cookies(cookies, &url);
+    pub fn add_cookie_str(&self, py: Python, cookie: &str, url: PyBackedStr) -> PyResult<()> {
+        py.allow_threads(|| {
+            let url = Url::parse(url.as_ref()).map_err(Error::UrlParse)?;
+            let cookies = RawCookie::parse(cookie)
+                .ok()
+                .map(RawCookie::into_owned)
+                .into_iter();
+            self.0
+                .write()
+                .unwrap()
+                .store_response_cookies(cookies, &url);
 
-        Ok(())
+            Ok(())
+        })
     }
 
     /// Remove a cookie from this jar by name and URL.
     #[pyo3(signature = (name, url))]
-    pub fn remove(&self, name: &str, url: PyBackedStr) -> PyResult<()> {
-        let url = Url::parse(url.as_ref()).map_err(Error::UrlParse)?;
-        if let Some(domain) = url.host_str() {
-            self.0.write().unwrap().remove(domain, url.path(), name);
-        }
-        Ok(())
+    pub fn remove(&self, py: Python, name: &str, url: PyBackedStr) -> PyResult<()> {
+        py.allow_threads(|| {
+            let url = Url::parse(url.as_ref()).map_err(Error::UrlParse)?;
+            self.0.write().unwrap().remove(
+                url.host_str().unwrap_or(EMPTY_DOMAIN),
+                url.path(),
+                name,
+            );
+            Ok(())
+        })
     }
 
     /// Clear all cookies in this jar.
-    pub fn clear(&self) {
-        self.0.write().unwrap().clear();
+    pub fn clear(&self, py: Python) {
+        py.allow_threads(|| {
+            self.0.write().unwrap().clear();
+        });
     }
 }
