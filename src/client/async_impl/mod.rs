@@ -236,6 +236,13 @@ impl Client {
                 tcp_user_timeout,
                 Duration::from_secs
             );
+            apply_option!(apply_if_some, builder, params.tcp_nodelay, tcp_nodelay);
+            apply_option!(
+                apply_if_some,
+                builder,
+                params.tcp_reuse_address,
+                tcp_reuse_address
+            );
 
             // Timeout options.
             apply_option!(
@@ -292,7 +299,6 @@ impl Client {
                 false
             );
             apply_option!(apply_if_some, builder, params.https_only, https_only);
-            apply_option!(apply_if_some, builder, params.tcp_nodelay, tcp_nodelay);
             apply_option!(
                 apply_if_some,
                 builder,
