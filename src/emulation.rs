@@ -95,8 +95,8 @@ define_enum!(
 );
 
 /// A struct to represent the `EmulationOption` class.
-#[pyclass(subclass)]
 #[derive(Clone)]
+#[pyclass(subclass)]
 pub struct EmulationOption(pub wreq_util::EmulationOption);
 
 #[pymethods]

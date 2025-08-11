@@ -11,9 +11,8 @@ use wreq::{Url, header, tls::TlsInfo};
 use crate::{
     buffer::{Buffer, BytesBuffer, PyBufferProtocol},
     client::{SocketAddr, json::Json},
-    cookie::Cookie,
     error::Error,
-    http::{StatusCode, Version, header::HeaderMap},
+    http::{Version, cookie::Cookie, header::HeaderMap, status::StatusCode},
 };
 
 /// A response from a request.
@@ -224,8 +223,8 @@ type InnerStreamer = Pin<Box<dyn Stream<Item = wreq::Result<bytes::Bytes>> + Sen
 /// Used to stream response content.
 /// Implemented in the `stream` method of the `Response` class.
 /// Can be used in an asynchronous for loop in Python.
-#[pyclass(subclass)]
 #[derive(Clone)]
+#[pyclass(subclass)]
 pub struct Streamer(Arc<Mutex<Option<InnerStreamer>>>);
 
 impl Deref for Streamer {

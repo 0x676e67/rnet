@@ -81,7 +81,6 @@ class Cookie:
         """
 
     def __str__(self) -> str: ...
-    def __repr__(self) -> str: ...
 
 class Jar:
     r"""

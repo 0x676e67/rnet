@@ -1,9 +1,8 @@
+pub mod cookie;
 pub mod header;
-mod status;
+pub mod status;
 
 use pyo3::prelude::*;
-
-pub use self::status::StatusCode;
 
 define_enum!(
     /// An HTTP version.

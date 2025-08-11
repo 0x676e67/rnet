@@ -1,8 +1,10 @@
+use std::fmt;
+
 use pyo3::prelude::*;
 
 /// HTTP status code.
-#[pyclass(eq)]
 #[derive(Clone, Copy, PartialEq, Eq, Hash)]
+#[pyclass(eq, str)]
 pub struct StatusCode(wreq::StatusCode);
 
 #[pymethods]
@@ -44,19 +46,14 @@ impl StatusCode {
     }
 }
 
-#[pymethods]
-impl StatusCode {
-    fn __str__(&self) -> &str {
-        self.0.as_str()
-    }
-
-    fn __repr__(&self) -> &str {
-        self.__str__()
-    }
-}
-
 impl From<wreq::StatusCode> for StatusCode {
     fn from(status: wreq::StatusCode) -> Self {
         Self(status)
+    }
+}
+
+impl fmt::Display for StatusCode {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.0)
     }
 }

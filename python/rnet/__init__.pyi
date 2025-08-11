@@ -575,7 +575,6 @@ class SocketAddr:
     """
 
     def __str__(self) -> str: ...
-    def __repr__(self) -> str: ...
     def ip(self) -> Union[ipaddress.IPv4Address, ipaddress.IPv6Address]:
         r"""
         Returns the IP address of the socket address.
@@ -592,7 +591,6 @@ class StatusCode:
     """
 
     def __str__(self) -> str: ...
-    def __repr__(self) -> str: ...
     def as_int(self) -> int:
         r"""
         Return the status code as an integer.
@@ -1002,7 +1000,6 @@ class Message:
     Returns the close code and reason of the message if it is a close message.
     """
     def __str__(self) -> str: ...
-    def __repr__(self) -> str: ...
     @staticmethod
     def text_from_json(json: Dict[str, Any]) -> Message:
         r"""
