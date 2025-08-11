@@ -8,15 +8,15 @@
 
 > 🚀 Help me work seamlessly with open source sharing by [sponsoring me on GitHub](https://github.com/0x676e67/0x676e67/blob/main/SPONSOR.md)
 
-A blazing-fast Python HTTP client with advanced browser fingerprinting that accurately emulates **Chrome**, **Firefox**, **Safari**, **Opera**, and **OkHttp**, with precise **TLS/HTTP2** signatures, and powered by [wreq](https://github.com/0x676e67/wreq) for high performance, outperforming `requests`, `httpx`, and `curl_cffi` (see [benchmark](https://github.com/0x676e67/rnet/tree/main/benchmark)).
+A blazing-fast Python HTTP client with advanced browser fingerprinting that accurately emulates **Chrome**, **Firefox**, **Safari**, **Opera**, and **OkHttp**, with precise **TLS/HTTP2** signatures, and powered by [wreq](https://github.com/0x676e67/wreq) for high performance.
 
 ## Features
 
 - Async and Blocking `Client`s
 - Plain bodies, JSON, urlencoded, multipart
 - Cookie Store
-- Header Order
 - Redirect Policy
+- Original Header
 - Rotating Proxies
 - Connection Pooling
 - Streaming Transfers
@@ -92,23 +92,25 @@ source .venv/bin/activate
 2. Development
 
 ```bash
+# build and install the package
 maturin develop --uv
 python3 examples/client.py
 ```
 
 3. Compile wheels
 
-- Local Compilation
-
 Install the BoringSSL build environment by referring to [boring](https://github.com/cloudflare/boring/blob/master/.github/workflows/ci.yml) and [boringssl](https://github.com/google/boringssl/blob/master/BUILDING.md#build-prerequisites).
 
 ```bash
+# on ubuntu or debian
+sudo apt-get install build-essential cmake perl pkg-config libclang-dev musl-tools git -y
 maturin build --release
 ```
 
 - Musllinux
 
-Make sure the Docker environment is installed. The provided image may be outdated, so you might need to build it yourself. Refer to [rust-cross-musl](https://github.com/0x676e67/toolchain/blob/master/rust-musl-cross/Dockerfile) and the upstream [rust-cross/rust-musl-cross](https://github.com/rust-cross/rust-musl-cross). Note that the upstream image lacks certain platform-specific linker environment variables, which you’ll need to add manually.
+Make sure you have Docker installed. The provided image may be outdated, so you might need to build it yourself. See [rust-cross-musl](https://github.com/0x676e67/toolchain/blob/master/rust-musl-cross/Dockerfile) and the upstream [rust-cross/rust-musl-cross](https://github.com/rust-cross/rust-musl-cross) for reference.  
+**Note:** The upstream image does not include some platform-specific linker environment variables; you may need to add these manually.
 
 ```bash
 bash .github/musl_build.sh x86_64-unknown-linux-musl
@@ -120,6 +122,14 @@ bash .github/musl_build.sh i686-unknown-linux-musl
 - Manylinux
 
 For Manylinux compilation, refer to [manylinux](https://github.com/PyO3/maturin?tab=readme-ov-file#manylinux-and-auditwheel).
+
+## Benchmark
+
+Outperforms `requests`, `httpx`, `Python-TLS-Client`, and `curl_cffi`. See the [benchmark results](https://github.com/0x676e67/rnet/tree/main/benchmark) for details. Benchmark data is for reference only—actual performance may vary based on your environment and use case.
+
+## Documentation
+
+For a comprehensive introduction to this library, refer to the [DeepWiki](https://deepwiki.com/0x676e67/rnet) documentation. This AI-generated guide, created by a third party, offers a solid overview and allows interaction with the AI to explore specific APIs.
 
 ## Emulation
 
@@ -133,10 +143,6 @@ In fact, most device models share the same `TLS`/`HTTP2` configuration, with the
 | **OkHttp**  | `OkHttp3_9`, `OkHttp3_11`, `OkHttp3_13`, `OkHttp3_14`, `OkHttp4_9`, `OkHttp4_10`, `OkHttp4_12`, `OkHttp5`                                                                                                                                                                                                                                                                               |
 | **Edge**    | `Edge101`, `Edge122`, `Edge127`, `Edge131`, `Edge134`                                                                                                                                                                                                                                                                                                                                   |
 | **Opera**   | `Opera116`, `Opera117`, `Opera118`, `Opera119`                                                                                                                                                                                                                                                                                                                                          |
-
-## Documentation
-
-For a comprehensive introduction to this library, refer to the [DeepWiki](https://deepwiki.com/0x676e67/rnet) documentation. This AI-generated guide, created by a third party, offers a solid overview and allows interaction with the AI to explore specific APIs.
 
 ## Contributing
 
