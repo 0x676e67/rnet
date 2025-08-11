@@ -54,10 +54,6 @@ class HeaderMap:
         """Return a string representation of all headers."""
         ...
 
-    def __repr__(self) -> str:
-        """Return a detailed string representation."""
-        ...
-
     def __new__(
         cls, init: Optional[dict] = None, capacity: Optional[int] = None
     ) -> HeaderMap:

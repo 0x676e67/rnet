@@ -9,9 +9,8 @@ use crate::{
         async_impl::response::{Response, Streamer},
         json::Json,
     },
-    cookie::Cookie,
     error::Error,
-    http::{StatusCode, Version, header::HeaderMap},
+    http::{Version, cookie::Cookie, header::HeaderMap, status::StatusCode},
 };
 
 /// A blocking response from a request.

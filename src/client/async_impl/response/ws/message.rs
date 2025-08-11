@@ -1,3 +1,5 @@
+use std::fmt;
+
 use bytes::Bytes;
 use pyo3::{
     prelude::*,
@@ -12,8 +14,8 @@ use crate::{
 };
 
 /// A WebSocket message.
-#[pyclass(subclass)]
 #[derive(Clone)]
+#[pyclass(subclass, str)]
 pub struct Message(pub message::Message);
 
 #[pymethods]
@@ -164,12 +166,10 @@ impl Message {
         });
         Message(msg)
     }
+}
 
-    fn __str__(&self) -> String {
-        format!("{:?}", self.0)
-    }
-
-    fn __repr__(&self) -> String {
-        self.__str__()
+impl fmt::Display for Message {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{:?}", self.0)
     }
 }

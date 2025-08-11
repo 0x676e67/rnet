@@ -18,9 +18,8 @@ use wreq::{
 
 use crate::{
     client::SocketAddr,
-    cookie::Cookie,
     error::Error,
-    http::{StatusCode, Version, header::HeaderMap},
+    http::{Version, cookie::Cookie, header::HeaderMap, status::StatusCode},
 };
 
 type Sender = Arc<Mutex<Option<SplitSink<ws::WebSocket, ws::message::Message>>>>;

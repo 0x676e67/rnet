@@ -119,3 +119,15 @@ def test_get_with_default():
     assert h.get("C") is None
     assert h.get("C", b"default") == b"default"
     assert h.get("A", b"default") == b"1"
+
+
+@pytest.mark.flaky(reruns=3, reruns_delay=2)
+def test_init_with_dict():
+    h = HeaderMap({"A": "1", "B": "2"})
+    assert h["A"] == b"1"
+    assert h["B"] == b"2"
+    assert len(h) == 2
+    assert h.keys_len() == 2
+    assert not h.is_empty()
+    assert h.contains_key("A")
+    assert h.contains_key("B")

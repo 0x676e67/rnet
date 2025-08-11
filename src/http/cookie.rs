@@ -1,4 +1,5 @@
 use std::{
+    fmt,
     sync::{Arc, RwLock},
     time::SystemTime,
 };
@@ -29,8 +30,9 @@ define_enum!(
 );
 
 /// A single HTTP cookie.
-#[pyclass(subclass)]
+
 #[derive(Clone)]
+#[pyclass(subclass, str)]
 pub struct Cookie(pub RawCookie<'static>);
 
 /// A good default `CookieStore` implementation.
@@ -38,8 +40,8 @@ pub struct Cookie(pub RawCookie<'static>);
 /// This is the implementation used when simply calling `cookie_store(true)`.
 /// This type is exposed to allow creating one and filling it with some
 /// existing cookies more easily, before creating a `Client`.
-#[pyclass(subclass)]
 #[derive(Clone, Default)]
+#[pyclass(subclass)]
 pub struct Jar(Arc<RwLock<cookie_store::CookieStore>>);
 
 // ===== impl Cookie =====
@@ -177,17 +179,10 @@ impl Cookie {
             None | Some(Expiration::Session) => None,
         }
     }
-
-    fn __str__(&self) -> String {
-        self.0.to_string()
-    }
-
-    fn __repr__(&self) -> String {
-        self.__str__()
-    }
 }
 
 impl Cookie {
+    /// Parse cookies from a `HeaderMap`.
     pub fn extract_headers_cookies(headers: &HeaderMap) -> Vec<Cookie> {
         headers
             .get_all(header::SET_COOKIE)
@@ -203,6 +198,12 @@ impl Cookie {
         std::str::from_utf8(value.as_bytes())
             .map_err(cookie_crate::ParseError::from)
             .and_then(RawCookie::parse)
+    }
+}
+
+impl fmt::Display for Cookie {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.0)
     }
 }
 

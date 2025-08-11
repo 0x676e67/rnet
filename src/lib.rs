@@ -2,7 +2,7 @@
 mod macros;
 mod buffer;
 mod client;
-mod cookie;
+
 mod emulation;
 mod error;
 mod extractor;
@@ -22,17 +22,17 @@ use self::{
         blocking::{BlockingClient, BlockingResponse, BlockingStreamer, BlockingWebSocket},
         delete, get, head, options, patch, post, put, request, trace, websocket,
     },
-    cookie::{Cookie, SameSite},
     emulation::{Emulation, EmulationOS, EmulationOption},
     error::*,
     http::{
-        Method, StatusCode, Version,
+        Method, Version,
+        cookie::{Cookie, Jar, SameSite},
         header::{HeaderMap, HeaderMapItemsIter, HeaderMapKeysIter, HeaderMapValuesIter},
+        status::StatusCode,
     },
     proxy::Proxy,
     tls::TlsVersion,
 };
-use crate::cookie::Jar;
 
 #[cfg(all(
     not(target_env = "msvc"),

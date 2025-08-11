@@ -1,8 +1,10 @@
+use std::fmt;
+
 use pyo3::{IntoPyObjectExt, prelude::*};
 
 /// A IP socket address.
-#[pyclass(eq)]
-#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
+#[derive(Clone, Copy, PartialEq, Eq)]
+#[pyclass(eq, str)]
 pub struct SocketAddr(pub std::net::SocketAddr);
 
 #[pymethods]
@@ -16,12 +18,10 @@ impl SocketAddr {
     fn port(&self) -> u16 {
         self.0.port()
     }
+}
 
-    fn __str__(&self) -> String {
-        self.0.to_string()
-    }
-
-    fn __repr__(&self) -> String {
-        self.__str__()
+impl fmt::Display for SocketAddr {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.0)
     }
 }

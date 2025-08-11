@@ -5,9 +5,8 @@ use crate::{
         SocketAddr,
         async_impl::response::{Message, WebSocket},
     },
-    cookie::Cookie,
     error::Error,
-    http::{StatusCode, Version, header::HeaderMap},
+    http::{Version, cookie::Cookie, header::HeaderMap, status::StatusCode},
 };
 
 /// A blocking WebSocket response.

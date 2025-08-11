@@ -5,8 +5,8 @@ use wreq::{Proxy, header::HeaderMap};
 use wreq_util::EmulationOption;
 
 use crate::{
-    cookie::Jar,
     extractor::Extractor,
+    http::cookie::Jar,
     tls::{SslVerify, TlsVersion},
 };
 

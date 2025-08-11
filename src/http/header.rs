@@ -1,3 +1,5 @@
+use std::fmt;
+
 use pyo3::{
     prelude::*,
     pybacked::{PyBackedBytes, PyBackedStr},
@@ -8,32 +10,43 @@ use wreq::header::{self, HeaderName, HeaderValue};
 use crate::buffer::{HeaderNameBuffer, HeaderValueBuffer, PyBufferProtocol};
 
 /// A HTTP header map.
-#[pyclass(subclass)]
+#[pyclass(subclass, str)]
 #[derive(Clone)]
 pub struct HeaderMap(pub header::HeaderMap);
 
 #[pymethods]
 impl HeaderMap {
+    /// Creates a new `HeaderMap` from an optional dictionary.
     #[new]
-    #[pyo3(signature = (init=None, capacity=None))]
-    fn new(init: Option<&Bound<'_, PyDict>>, capacity: Option<usize>) -> Self {
+    #[pyo3(signature = (dict=None, capacity=None))]
+    fn new(dict: Option<&Bound<'_, PyDict>>, capacity: Option<usize>) -> Self {
         let mut headers = capacity
             .map(header::HeaderMap::with_capacity)
             .unwrap_or_default();
 
         // This section of memory might be retained by the Rust object,
         // and we want to prevent Python's garbage collector from managing it.
-        if let Some(dict) = init {
+        if let Some(dict) = dict {
             for (name, value) in dict.iter() {
-                if let (Ok(Ok(name)), Ok(Ok(value))) = (
-                    name.extract::<PyBackedStr>()
-                        .map(|n| HeaderName::from_bytes(n.as_bytes())),
-                    value
-                        .extract::<PyBackedStr>()
-                        .map(HeaderValue::from_maybe_shared),
-                ) {
-                    headers.insert(name, value);
-                }
+                let name = match name
+                    .extract::<PyBackedStr>()
+                    .ok()
+                    .and_then(|n| HeaderName::from_bytes(n.as_bytes()).ok())
+                {
+                    Some(n) => n,
+                    None => continue,
+                };
+
+                let value = match value
+                    .extract::<PyBackedStr>()
+                    .ok()
+                    .and_then(|v| HeaderValue::from_maybe_shared(v).ok())
+                {
+                    Some(v) => v,
+                    None => continue,
+                };
+
+                headers.insert(name, value);
             }
         }
 
@@ -52,16 +65,13 @@ impl HeaderMap {
         key: PyBackedStr,
         default: Option<PyBackedBytes>,
     ) -> Option<Bound<'py, PyAny>> {
-        match self.0.get::<&str>(key.as_ref()).cloned().or_else(|| {
-            default
-                .map(HeaderValue::from_maybe_shared)
-                .transpose()
-                .ok()
-                .flatten()
-        }) {
-            Some(value) => HeaderValueBuffer::new(value).into_bytes_ref(py).ok(),
-            None => None,
-        }
+        let value = self
+            .0
+            .get::<&str>(key.as_ref())
+            .cloned()
+            .or_else(|| default.and_then(|d| HeaderValue::from_maybe_shared(d).ok()));
+
+        value.and_then(|v| HeaderValueBuffer::new(v).into_bytes_ref(py).ok())
     }
 
     /// Returns a view of all values associated with a key.
@@ -150,8 +160,7 @@ impl HeaderMap {
         self.0.is_empty()
     }
 
-    /// Clears the map, removing all key-value pairs. Keeps the allocated memory
-    /// for reuse.
+    /// Clears the map, removing all key-value pairs. Keeps the allocated memory for reuse.
     #[inline]
     fn clear(&mut self) {
         self.0.clear();
@@ -191,15 +200,11 @@ impl HeaderMap {
             inner: self.0.keys().cloned().collect(),
         }
     }
+}
 
-    #[inline]
-    fn __str__(&self) -> String {
-        format!("{:?}", self.0)
-    }
-
-    #[inline]
-    fn __repr__(&self) -> String {
-        self.__str__()
+impl fmt::Display for HeaderMap {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{:?}", self.0)
     }
 }
 
