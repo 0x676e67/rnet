@@ -91,7 +91,11 @@ class Jar:
     to automatically handle cookies during HTTP requests and responses.
     """
 
-    def __init__(self) -> None: ...
+    def __new__(cls) -> Jar:
+        r"""
+        Create a new cookie jar.
+        """
+
     def get(self, name: str, url: str) -> Optional[Cookie]:
         r"""
         Get a cookie by name and URL.
