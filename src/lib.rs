@@ -34,12 +34,13 @@ use self::{
     tls::TlsVersion,
 };
 
-#[cfg(all(
-    not(target_env = "msvc"),
-    not(all(target_os = "linux", target_env = "gnu"))
-))]
+#[cfg(all(feature = "jemalloc", not(feature = "mimalloc"),))]
 #[global_allocator]
-static ALLOC: jemallocator::Jemalloc = jemallocator::Jemalloc;
+static GLOBAL: tikv_jemallocator::Jemalloc = tikv_jemallocator::Jemalloc;
+
+#[cfg(all(feature = "mimalloc", not(feature = "jemalloc")))]
+#[global_allocator]
+static GLOBAL: mimalloc::MiMalloc = mimalloc::MiMalloc;
 
 #[pymodule(gil_used = false)]
 fn rnet(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {

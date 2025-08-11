@@ -16,6 +16,8 @@ doctest = false
 
 [features]
 default = ["abi3"]
+jemalloc = ["dep:tikv-jemallocator"]
+mimalloc = ["dep:mimalloc"]
 
 # we build cp311-abi3 and cp310 wheels now, move this to pyo3 after we drop cp310
 abi3 = ["pyo3/abi3-py311"]
@@ -24,6 +26,7 @@ abi3 = ["pyo3/abi3-py311"]
 tokio = "1.47.1"
 pyo3 = { version = "0.25.1", features = [
     "indexmap",
+    "extension-module",
     "multiple-pymethods",
     "generate-import-lib",
 ] }
@@ -59,15 +62,20 @@ hickory-resolver = "0.25.2"
 cookie_crate = { version = "0.18", package = "cookie" }
 cookie_store = { version = "0.22" }
 
+## malloc
+mimalloc = { version = "0.1.43", default-features = false, features = [
+    "local_dynamic_tls",
+], optional = true }
 [target.'cfg(all(not(target_env = "msvc"), not(all(target_os = "linux", target_env = "gnu"))) )'.dependencies]
-jemallocator = { package = "tikv-jemallocator", version = "0.6", features = [
+tikv-jemallocator = { version = "0.6", default-features = false, features = [
     "disable_initial_exec_tls",
-    "unprefixed_malloc_on_supported_platforms",
-] }
+], optional = true }
 
 [profile.release]
+codegen-units = 1
+debug = false
+incremental = false
 lto = "fat"
 opt-level = 3
-codegen-units = 1
-strip = true
 panic = "abort"
+strip = true
