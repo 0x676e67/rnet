@@ -173,10 +173,11 @@ jobs:
         platform:
           - runner: windows-latest
             target: x64
-            python-architecture: x64
             allocator: jemalloc
+            python-architecture: x64
           - runner: windows-latest
             target: x86
+            allocator: jemalloc
             python-architecture: x86
           - runner: windows-latest
             target: aarch64
