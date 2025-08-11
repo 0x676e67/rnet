@@ -81,10 +81,12 @@ jobs:
         platform:
           - runner: ubuntu-latest
             target: x86_64
+            allocator: jemalloc
             apt_packages: ''
             custom_env: {}
           - runner: ubuntu-latest
             target: x86
+            allocator: jemalloc
             apt_packages: crossbuild-essential-i386
             custom_env:
               CC: i686-linux-gnu-gcc
@@ -92,6 +94,7 @@ jobs:
               CARGO_TARGET_I686_UNKNOWN_LINUX_GNU_LINKER: i686-linux-gnu-g++
           - runner: ubuntu-latest
             target: aarch64
+            allocator: jemalloc
             apt_packages: crossbuild-essential-arm64
             custom_env:
               CC: aarch64-linux-gnu-gcc
@@ -99,6 +102,7 @@ jobs:
               CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER: aarch64-linux-gnu-g++
           - runner: ubuntu-latest
             target: armv7
+            allocator: jemalloc
             apt_packages: crossbuild-essential-armhf
             custom_env:
               CC: arm-linux-gnueabihf-gcc
@@ -121,7 +125,7 @@ jobs:
         with:
           rust-toolchain: stable
           target: ${{ matrix.platform.target }}
-          args: ${{ matrix.platform.target == 'x86_64' && '--release --out dist --zig' || '--release --out dist' }} ${{ env.MATURIIN_ARGS }}
+          args: ${{ matrix.platform.target == 'x86_64' && '--release --out dist --zig' || '--release --out dist' }} ${{ env.MATURIIN_ARGS }} --features ${{ matrix.platform.allocator }}
           sccache: 'false'
           manylinux: auto
           container: 'off'
@@ -140,17 +144,21 @@ jobs:
         platform:
           - runner: ubuntu-22.04
             target: x86_64-unknown-linux-musl
+            allocator: jemalloc
           - runner: ubuntu-22.04
             target: aarch64-unknown-linux-musl
+            allocator: jemalloc
           - runner: ubuntu-22.04
             target: armv7-unknown-linux-musleabihf
+            allocator: jemalloc
           - runner: ubuntu-22.04
             target: i686-unknown-linux-musl
+            allocator: jemalloc
     steps:
       - uses: actions/checkout@v4
       - name: Build wheels
         run: 
-          bash .github/musl_build.sh ${{ matrix.platform.target }} "${{ env.MATURIIN_ARGS }}"
+          bash .github/musl_build.sh ${{ matrix.platform.target }} "${{ env.MATURIIN_ARGS }}" --features "${{ matrix.platform.allocator }}"
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
@@ -165,12 +173,15 @@ jobs:
         platform:
           - runner: windows-latest
             target: x64
+            allocator: mimalloc
             python-architecture: x64
           - runner: windows-latest
             target: x86
+            allocator: mimalloc
             python-architecture: x86
           - runner: windows-latest
             target: aarch64
+            allocator: mimalloc
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -185,7 +196,7 @@ jobs:
         uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.platform.target }}
-          args: --release --out dist ${{ env.MATURIIN_ARGS }}
+          args: --release --out dist ${{ env.MATURIIN_ARGS }} --features ${{ matrix.platform.allocator || '' }}
           sccache: 'true'
       - name: Upload wheels
         uses: actions/upload-artifact@v4
@@ -201,8 +212,10 @@ jobs:
         platform:
           - runner: macos-13
             target: x86_64
+            allocator: jemalloc
           - runner: macos-14
             target: aarch64
+            allocator: jemalloc
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -216,7 +229,7 @@ jobs:
         uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.platform.target }}
-          args: --release --out dist ${{ env.MATURIIN_ARGS }}
+          args: --release --out dist ${{ env.MATURIIN_ARGS }} --features ${{ matrix.platform.allocator || '' }}
           sccache: 'true'
       - name: Upload wheels
         uses: actions/upload-artifact@v4
