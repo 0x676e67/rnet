@@ -1,10 +1,11 @@
 mod identity;
+mod store;
 
 use std::path::PathBuf;
 
 use pyo3::prelude::*;
 
-pub use self::identity::Identity;
+pub use self::{identity::Identity, store::CertStore};
 
 define_enum!(
     /// The TLS version.
@@ -21,4 +22,5 @@ define_enum!(
 pub enum TlsVerify {
     Verification(bool),
     CertificatePath(PathBuf),
+    CertificateStore(CertStore),
 }

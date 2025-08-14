@@ -28,7 +28,7 @@ use self::{
         status::StatusCode,
     },
     proxy::Proxy,
-    tls::{Identity, TlsVersion},
+    tls::{CertStore, Identity, TlsVersion},
 };
 use crate::client::{
     SocketAddr,
@@ -185,6 +185,14 @@ fn rnet(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     Ok(())
 }
 
+#[pymodule(gil_used = false, name = "tls")]
+fn tls_module(m: &Bound<'_, PyModule>) -> PyResult<()> {
+    m.add_class::<TlsVersion>()?;
+    m.add_class::<Identity>()?;
+    m.add_class::<CertStore>()?;
+    Ok(())
+}
+
 #[pymodule(gil_used = false, name = "header")]
 fn header_module(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<HeaderMap>()?;
@@ -215,13 +223,6 @@ fn blocking_module(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<BlockingClient>()?;
     m.add_class::<BlockingResponse>()?;
     m.add_class::<BlockingWebSocket>()?;
-    Ok(())
-}
-
-#[pymodule(gil_used = false, name = "tls")]
-fn tls_module(m: &Bound<'_, PyModule>) -> PyResult<()> {
-    m.add_class::<TlsVersion>()?;
-    m.add_class::<Identity>()?;
     Ok(())
 }
 
