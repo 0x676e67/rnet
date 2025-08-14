@@ -138,9 +138,7 @@ impl WebSocket {
     ) -> PyResult<Bound<'py, PyAny>> {
         let sender = self.sender.clone();
         let receiver = self.receiver.clone();
-        let fut = AllowThreads::new_future(py, async move {
-            util::close(receiver, sender, code, reason).await
-        });
+        let fut = AllowThreads::new_future(py, util::close(receiver, sender, code, reason));
         future_into_py(py, fut)
     }
 }
