@@ -83,13 +83,14 @@ class Client:
             tcp_keepalive_interval: TCP keepalive interval (seconds).
             tcp_keepalive_retries: TCP keepalive retry count.
             tcp_user_timeout: TCP user timeout (seconds).
+            tcp_nodelay: Enable TCP_NODELAY.
+            tcp_reuse_address: Enable SO_REUSEADDR.
             pool_idle_timeout: Connection pool idle timeout (seconds).
             pool_max_idle_per_host: Max idle connections per host.
             pool_max_size: Max total connections in pool.
             http1_only: Enable HTTP/1.1 only.
             http2_only: Enable HTTP/2 only.
             https_only: Enable HTTPS only.
-            tcp_nodelay: Enable TCP_NODELAY.
             http2_max_retry_count: Max HTTP/2 retry count.
             verify: Verify SSL or specify CA path.
             tls_info: Return TLS info.
