@@ -147,7 +147,7 @@ impl Response {
 
         future_into_py(
             py,
-            AllowThreads::new_future(py, resp.text())
+            AllowThreads::new_future(resp.text())
                 .map_err(Error::Request)
                 .map_err(Into::into),
         )
@@ -160,7 +160,7 @@ impl Response {
         encoding: PyBackedStr,
     ) -> PyResult<Bound<'py, PyAny>> {
         let resp = self.inner()?;
-        let fut = AllowThreads::new_future(py, async move {
+        let fut = AllowThreads::new_future(async move {
             resp.text_with_charset(&encoding)
                 .await
                 .map_err(Error::Request)
@@ -172,7 +172,7 @@ impl Response {
     /// Returns the JSON content of the response.
     pub fn json<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
         let resp = self.inner()?;
-        let fut = AllowThreads::new_future(py, resp.json::<Json>())
+        let fut = AllowThreads::new_future(resp.json::<Json>())
             .map_err(Error::Request)
             .map_err(Into::into);
         future_into_py(py, fut)
@@ -181,7 +181,7 @@ impl Response {
     /// Returns the bytes content of the response.
     pub fn bytes<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
         let resp = self.inner()?;
-        let fut = AllowThreads::new_future(py, async move {
+        let fut = AllowThreads::new_future(async move {
             let buffer = resp
                 .bytes()
                 .await
@@ -204,7 +204,7 @@ impl Response {
     /// Closes the response connection.
     pub fn close<'py>(&'py self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
         let inner = self.inner();
-        let fut = AllowThreads::new_closure(py, || Ok(inner.ok().map(drop)));
+        let fut = AllowThreads::new_closure(|| Ok(inner.ok().map(drop)));
         future_into_py(py, fut)
     }
 }
@@ -214,7 +214,7 @@ impl Response {
     #[inline]
     fn __aenter__<'py>(slf: PyRef<'py, Self>, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
         let slf = slf.into_py_any(py)?;
-        let fut = AllowThreads::new_closure(py, || Ok(slf));
+        let fut = AllowThreads::new_closure(|| Ok(slf));
         future_into_py(py, fut)
     }
 

@@ -57,17 +57,16 @@ impl Streamer {
 
     #[inline]
     fn __anext__<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
-        let fut = AllowThreads::new_future(
-            py,
-            Streamer::_anext(self.0.clone(), || Error::StopAsyncIteration.into()),
-        );
+        let fut = AllowThreads::new_future(Streamer::_anext(self.0.clone(), || {
+            Error::StopAsyncIteration.into()
+        }));
         future_into_py(py, fut)
     }
 
     #[inline]
     fn __aenter__<'py>(slf: PyRef<'py, Self>, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
         let slf = slf.into_py_any(py)?;
-        future_into_py(py, AllowThreads::new_closure(py, || Ok(slf)))
+        future_into_py(py, AllowThreads::new_closure(|| Ok(slf)))
     }
 
     #[inline]
@@ -79,7 +78,7 @@ impl Streamer {
         _traceback: &Bound<'py, PyAny>,
     ) -> PyResult<Bound<'py, PyAny>> {
         let streamer = self.0.clone();
-        let fut = AllowThreads::new_future(py, async move {
+        let fut = AllowThreads::new_future(async move {
             let mut lock = streamer.lock().await;
             Ok(drop(lock.take()))
         });

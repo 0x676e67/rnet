@@ -27,9 +27,9 @@ where
     Fut::Output: Send,
 {
     /// Create [`AllowThreads`] from a future
-    #[inline]
-    pub fn new_future(py: Python, future: Fut) -> Self {
-        py.allow_threads(|| AllowThreads::Future { inner: future })
+    #[inline(always)]
+    pub fn new_future(future: Fut) -> Self {
+        AllowThreads::Future { inner: future }
     }
 }
 
@@ -39,11 +39,11 @@ where
     R: Send,
 {
     /// Create [`AllowThreads`] from a closure
-    #[inline]
-    pub fn new_closure(py: Python, closure: F) -> Self {
-        py.allow_threads(|| AllowThreads::Closure {
+    #[inline(always)]
+    pub fn new_closure(closure: F) -> Self {
+        AllowThreads::Closure {
             inner: Some(closure),
-        })
+        }
     }
 }
 

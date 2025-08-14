@@ -353,7 +353,7 @@ impl Client {
         let client = self.clone();
         future_into_py(
             py,
-            AllowThreads::new_future(py, client.execute_request(method, url, kwds)),
+            AllowThreads::new_future(client.execute_request(method, url, kwds)),
         )
     }
 
@@ -369,7 +369,7 @@ impl Client {
         let client = self.clone();
         future_into_py(
             py,
-            AllowThreads::new_future(py, client.execute_websocket_request(url, kwds)),
+            AllowThreads::new_future(client.execute_websocket_request(url, kwds)),
         )
     }
 }

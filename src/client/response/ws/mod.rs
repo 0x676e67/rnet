@@ -116,7 +116,7 @@ impl WebSocket {
     /// Receives a message from the WebSocket.
     #[inline]
     pub fn recv<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
-        let fut = AllowThreads::new_future(py, util::recv(self.receiver.clone()));
+        let fut = AllowThreads::new_future(util::recv(self.receiver.clone()));
         future_into_py(py, fut)
     }
 
@@ -124,7 +124,7 @@ impl WebSocket {
     #[inline]
     #[pyo3(signature = (message))]
     pub fn send<'py>(&self, py: Python<'py>, message: Message) -> PyResult<Bound<'py, PyAny>> {
-        let fut = AllowThreads::new_future(py, util::send(self.sender.clone(), message));
+        let fut = AllowThreads::new_future(util::send(self.sender.clone(), message));
         future_into_py(py, fut)
     }
 
@@ -138,7 +138,7 @@ impl WebSocket {
     ) -> PyResult<Bound<'py, PyAny>> {
         let sender = self.sender.clone();
         let receiver = self.receiver.clone();
-        let fut = AllowThreads::new_future(py, util::close(receiver, sender, code, reason));
+        let fut = AllowThreads::new_future(util::close(receiver, sender, code, reason));
         future_into_py(py, fut)
     }
 }
@@ -159,7 +159,7 @@ impl WebSocket {
     #[inline]
     fn __aenter__<'py>(slf: PyRef<'py, Self>, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
         let slf = slf.into_py_any(py)?;
-        let fut = AllowThreads::new_closure(py, || Ok(slf));
+        let fut = AllowThreads::new_closure(|| Ok(slf));
         future_into_py(py, fut)
     }
 
