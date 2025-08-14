@@ -9,12 +9,13 @@ client = rnet.Client(tls_info=True)
 @pytest.mark.asyncio
 @pytest.mark.flaky(reruns=3, reruns_delay=2)
 async def test_websocket():
-    ws: WebSocket = await client.websocket("wss://echo.websocket.org")
-    await ws.recv()
-    await ws.send(Message.from_text("Hello, World!"))
-    message: Message = await ws.recv()
-    assert message.data == b"Hello, World!"
-    await ws.close()
+    ws = await client.websocket("wss://echo.websocket.org")
+    async with ws:
+        await ws.recv()
+        await ws.send(Message.from_text("Hello, World!"))
+        message = await ws.recv()
+        assert message.data == b"Hello, World!"
+        await ws.close()
 
 
 @pytest.mark.asyncio
@@ -44,79 +45,87 @@ async def test_multiple_requests():
             ),
         ),
     )
-    assert resp.status.is_success() is True
-    text = await resp.text()
-    assert "111" in text
-    assert "000" in text
-    assert "rnet" in text
+    async with resp:
+        assert resp.status.is_success() is True
+        text = await resp.text()
+        assert "111" in text
+        assert "000" in text
+        assert "rnet" in text
 
 
 @pytest.mark.asyncio
 @pytest.mark.flaky(reruns=3, reruns_delay=2)
 async def test_get_cookies():
     url = "https://httpbin.org/cookies/set?mycookie=testvalue"
-    response: rnet.Response = await client.get(url)
-    assert any(cookie.name == "mycookie" for cookie in response.cookies)
+    resp = await client.get(url)
+    async with resp:
+        assert any(cookie.name == "mycookie" for cookie in resp.cookies)
 
 
 @pytest.mark.asyncio
 @pytest.mark.flaky(reruns=3, reruns_delay=2)
 async def test_get_headers():
     url = "https://httpbin.org/headers"
-    response = await client.get(url)
-    headers = response.headers
-    assert headers is not None
+    resp = await client.get(url)
+    async with resp:
+        assert resp.headers is not None
 
 
 @pytest.mark.asyncio
 @pytest.mark.flaky(reruns=3, reruns_delay=2)
 async def test_getters():
     url = "https://httpbin.org/anything"
-    response = await client.get(url, version=Version.HTTP_11)
-    assert response.url == url
-    assert response.status.is_success()
-    assert response.version == Version.HTTP_11
+    resp = await client.get(url, version=Version.HTTP_11)
+    async with resp:
+        assert resp.url == url
+        assert resp.status.is_success()
+        assert resp.version == Version.HTTP_11
 
 
 @pytest.mark.asyncio
 @pytest.mark.flaky(reruns=3, reruns_delay=2)
 async def test_get_json():
     url = "https://httpbin.org/json"
-    response = await client.get(url)
-    json = await response.json()
-    assert json is not None
+    resp = await client.get(url)
+    async with resp:
+        json = await resp.json()
+        assert json is not None
 
 
 @pytest.mark.asyncio
 @pytest.mark.flaky(reruns=3, reruns_delay=2)
 async def test_get_text():
     url = "https://httpbin.org/html"
-    response = await client.get(url)
-    text = await response.text()
-    assert text is not None
+    resp = await client.get(url)
+    async with resp:
+        text = await resp.text()
+        assert text is not None
 
 
 @pytest.mark.asyncio
 @pytest.mark.flaky(reruns=3, reruns_delay=2)
 async def test_get_bytes():
     url = "https://httpbin.org/image/png"
-    response = await client.get(url)
-    bytes = await response.bytes()
-    assert bytes is not None
+    resp = await client.get(url)
+    async with resp:
+        bytes = await resp.bytes()
+        assert bytes is not None
 
 
 @pytest.mark.asyncio
 @pytest.mark.flaky(reruns=3, reruns_delay=2)
 async def test_get_stream():
     url = "https://httpbin.org/stream/1"
-    response = await client.get(url)
-    async with response.stream() as streamer:
-        async for bytes in streamer:
-            assert bytes is not None
+    resp = await client.get(url)
+    async with resp:
+        async with resp.stream() as streamer:
+            async for bytes in streamer:
+                assert bytes is not None
 
 
 @pytest.mark.asyncio
 @pytest.mark.flaky(reruns=3, reruns_delay=2)
 async def test_peer_certificate():
     resp = await client.get("https://httpbin.org/anything")
-    assert resp.peer_certificate() is not None
+    async with resp:
+        assert resp.peer_certificate() is not None

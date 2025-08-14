@@ -1,6 +1,4 @@
 import asyncio
-import queue
-import threading
 import time
 from io import BytesIO
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -409,8 +407,8 @@ def plot_benchmark_multi(df, filename):
 
 def main():
     response_sizes = ["20k", "50k", "200k"]
-    requests_number = 200
-    thread_counts = [1, 8, 32]
+    requests_number = 400
+    thread_counts = [1, 4, 8, 16]
 
     sync_packages = [
         ("tls_client", tls_client.Session),

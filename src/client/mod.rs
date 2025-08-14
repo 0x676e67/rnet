@@ -4,11 +4,12 @@ pub mod request;
 pub mod response;
 
 mod dns;
-use std::{fmt, net::IpAddr, sync::Arc, time::Duration};
+mod future;
 
 use pyo3::{IntoPyObjectExt, prelude::*, pybacked::PyBackedStr};
 use pyo3_async_runtimes::tokio::future_into_py;
 use request::{Request, WebSocketRequest};
+use std::{fmt, net::IpAddr, sync::Arc, time::Duration};
 use wreq::{
     Proxy,
     header::{self, HeaderMap},
@@ -22,7 +23,10 @@ use self::{
     response::{BlockingResponse, BlockingWebSocket},
 };
 use crate::{
-    client::response::{Response, WebSocket},
+    client::{
+        future::AllowThreads,
+        response::{Response, WebSocket},
+    },
     error::Error,
     extractor::Extractor,
     http::{Method, Version, cookie::Jar},
@@ -346,7 +350,10 @@ impl Client {
         kwds: Option<Request>,
     ) -> PyResult<Bound<'py, PyAny>> {
         let client = self.clone();
-        future_into_py(py, client.execute_request(method, url, kwds))
+        future_into_py(
+            py,
+            AllowThreads::new_future(py, client.execute_request(method, url, kwds)),
+        )
     }
 
     /// Make a WebSocket request to the given URL.
@@ -359,7 +366,10 @@ impl Client {
         kwds: Option<WebSocketRequest>,
     ) -> PyResult<Bound<'py, PyAny>> {
         let client = self.clone();
-        future_into_py(py, client.execute_websocket_request(url, kwds))
+        future_into_py(
+            py,
+            AllowThreads::new_future(py, client.execute_websocket_request(url, kwds)),
+        )
     }
 }
 
