@@ -148,7 +148,7 @@ impl Response {
         future_into_py(
             py,
             AllowThreads::new_future(resp.text())
-                .map_err(Error::Request)
+                .map_err(Error::Library)
                 .map_err(Into::into),
         )
     }
@@ -163,7 +163,7 @@ impl Response {
         let fut = AllowThreads::new_future(async move {
             resp.text_with_charset(&encoding)
                 .await
-                .map_err(Error::Request)
+                .map_err(Error::Library)
                 .map_err(Into::into)
         });
         future_into_py(py, fut)
@@ -173,7 +173,7 @@ impl Response {
     pub fn json<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
         let resp = self.inner()?;
         let fut = AllowThreads::new_future(resp.json::<Json>())
-            .map_err(Error::Request)
+            .map_err(Error::Library)
             .map_err(Into::into);
         future_into_py(py, fut)
     }
@@ -186,7 +186,7 @@ impl Response {
                 .bytes()
                 .await
                 .map(BytesBuffer::new)
-                .map_err(Error::Request)?;
+                .map_err(Error::Library)?;
             Python::with_gil(|py| buffer.into_bytes(py))
         });
         future_into_py(py, fut)
@@ -305,7 +305,7 @@ impl BlockingResponse {
             let resp = self.0.inner()?;
             pyo3_async_runtimes::tokio::get_runtime()
                 .block_on(resp.text())
-                .map_err(Error::Request)
+                .map_err(Error::Library)
                 .map_err(Into::into)
         })
     }
@@ -316,7 +316,7 @@ impl BlockingResponse {
             let resp = self.0.inner()?;
             pyo3_async_runtimes::tokio::get_runtime()
                 .block_on(resp.text_with_charset(&encoding))
-                .map_err(Error::Request)
+                .map_err(Error::Library)
                 .map_err(Into::into)
         })
     }
@@ -327,7 +327,7 @@ impl BlockingResponse {
             let resp = self.0.inner()?;
             pyo3_async_runtimes::tokio::get_runtime()
                 .block_on(resp.json::<Json>())
-                .map_err(Error::Request)
+                .map_err(Error::Library)
                 .map_err(Into::into)
         })
     }
@@ -339,7 +339,7 @@ impl BlockingResponse {
             let buffer = pyo3_async_runtimes::tokio::get_runtime()
                 .block_on(resp.bytes())
                 .map(BytesBuffer::new)
-                .map_err(Error::Request)?;
+                .map_err(Error::Library)?;
 
             Python::with_gil(|py| buffer.into_bytes(py))
         })

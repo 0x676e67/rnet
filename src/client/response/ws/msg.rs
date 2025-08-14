@@ -25,7 +25,7 @@ impl Message {
         py.allow_threads(|| {
             self.0
                 .json::<Json>()
-                .map_err(Error::Request)
+                .map_err(Error::Library)
                 .map_err(Into::into)
         })
     }
@@ -103,7 +103,7 @@ impl Message {
         py.allow_threads(|| {
             message::Message::text_from_json(&json)
                 .map(Message)
-                .map_err(Error::Request)
+                .map_err(Error::Library)
                 .map_err(Into::into)
         })
     }
@@ -115,7 +115,7 @@ impl Message {
         py.allow_threads(|| {
             message::Message::binary_from_json(&json)
                 .map(Message)
-                .map_err(Error::Request)
+                .map_err(Error::Library)
                 .map_err(Into::into)
         })
     }

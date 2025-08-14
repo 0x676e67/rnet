@@ -113,7 +113,7 @@ impl FromPyObject<'_> for Extractor<wreq::Proxy> {
         if let Ok(proxy_str) = ob.extract::<PyBackedStr>() {
             let proxy = wreq::Proxy::all(proxy_str.as_ref() as &str)
                 .map(Self)
-                .map_err(Error::Request)?;
+                .map_err(Error::Library)?;
 
             return Ok(proxy);
         }

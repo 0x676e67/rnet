@@ -309,7 +309,7 @@ mod util {
             .try_next()
             .await
             .map(|val| val.map(Message))
-            .map_err(Error::Request)
+            .map_err(Error::Library)
             .map_err(Into::into)
     }
 
@@ -321,7 +321,7 @@ mod util {
             .ok_or_else(|| Error::WebSocketDisconnect)?
             .send(message.0)
             .await
-            .map_err(Error::Request)
+            .map_err(Error::Library)
             .map_err(Into::into)
     }
 
@@ -353,9 +353,9 @@ mod util {
                 .unwrap_or_else(|| Utf8Bytes::from_static("Goodbye"));
             let msg = ws::message::Message::Close(Some(ws::message::CloseFrame { code, reason }));
 
-            sender.send(msg).await.map_err(Error::Request)?;
-            sender.flush().await.map_err(Error::Request)?;
-            sender.close().await.map_err(Error::Request)?;
+            sender.send(msg).await.map_err(Error::Library)?;
+            sender.flush().await.map_err(Error::Library)?;
+            sender.close().await.map_err(Error::Library)?;
         }
 
         Ok(())
@@ -374,7 +374,7 @@ mod util {
         };
 
         val.map(|opt| opt.map(Message))
-            .map_err(Error::Request)?
+            .map_err(Error::Library)?
             .ok_or_else(py_stop_iteration_error)
     }
 }
