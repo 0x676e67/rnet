@@ -22,6 +22,7 @@ impl Identity {
     /// openssl pkcs12 -export -out identity.pfx -inkey key.pem -in cert.pem -certfile chain_certs.pem
     /// ```
     #[staticmethod]
+    #[pyo3(signature = (buf, pass))]
     pub fn from_pkcs12_der(buf: &[u8], pass: &str) -> PyResult<Identity> {
         wreq::tls::Identity::from_pkcs12_der(buf, pass)
             .map(Identity)
@@ -37,6 +38,7 @@ impl Identity {
     ///
     /// A certificate chain here means a series of PEM encoded certificates concatenated together.
     #[staticmethod]
+    #[pyo3(signature = (buf, key))]
     pub fn from_pkcs8_pem(buf: &[u8], key: &[u8]) -> PyResult<Identity> {
         wreq::tls::Identity::from_pkcs8_pem(buf, key)
             .map(Identity)
