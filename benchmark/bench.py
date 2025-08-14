@@ -52,7 +52,7 @@ def session_get_test(session_class, url, requests_number):
     s = session_class()
     try:
         for _ in range(requests_number):
-            if session_class.__name__ == "BlockingClient":
+            if session_class.__module__ == "rnet.blocking":
                 s.get(url).bytes()
             else:
                 s.get(url).text
@@ -65,7 +65,7 @@ def non_session_get_test(session_class, url, requests_number):
     for _ in range(requests_number):
         s = session_class()
         try:
-            if session_class.__name__ == "BlockingClient":
+            if session_class.__module__ == "rnet.blocking":
                 s.get(url).bytes()
             else:
                 s.get(url).text
@@ -417,7 +417,7 @@ def main():
         ("httpx", httpx.Client),
         ("requests", requests.Session),
         ("niquests", niquests.Session),
-        ("rnet", rnet.BlockingClient),
+        ("rnet", rnet.blocking.Client),
         ("curl_cffi", curl_cffi.requests.Session),
         ("pycurl", PycurlSession),
     ]

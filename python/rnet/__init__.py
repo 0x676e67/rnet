@@ -3,7 +3,6 @@
 from .rnet import *
 from .rnet import __all__
 
-from .blocking import *
 from .cookie import *
 from .exceptions import *
 from .header import *

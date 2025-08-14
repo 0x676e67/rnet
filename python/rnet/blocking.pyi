@@ -1,5 +1,5 @@
 from typing import Unpack
-from rnet import Message, Proxy, RequestParams, WebSocketParams
+from rnet import Message, Proxy, Request, Streamer, WebSocketRequest
 import ipaddress
 from typing import (
     Optional,
@@ -16,7 +16,7 @@ from rnet.header import HeaderMap
 from rnet.cookie import Cookie, Jar
 from rnet.emulation import EmulationOption, Emulation
 
-class BlockingClient:
+class Client:
     r"""
     A blocking client for making HTTP requests.
     """
@@ -62,9 +62,9 @@ class BlockingClient:
         brotli: Optional[bool] = None,
         deflate: Optional[bool] = None,
         zstd: Optional[bool] = None,
-    ) -> BlockingClient:
+    ) -> Client:
         r"""
-        Creates a new BlockingClient instance.
+        Creates a new blocking Client instance.
 
         Args:
             emulation: Browser fingerprint/Emulation config.
@@ -110,7 +110,7 @@ class BlockingClient:
         import asyncio
         import rnet
 
-        client = rnet.BlockingClient(
+        client = rnet.blocking.Client(
             user_agent="my-app/0.0.1",
             timeout=10,
         )
@@ -123,8 +123,8 @@ class BlockingClient:
         self,
         method: Method,
         url: str,
-        **kwargs: Unpack[RequestParams],
-    ) -> BlockingResponse:
+        **kwargs: Unpack[Request],
+    ) -> Response:
         r"""
         Sends a request with the given method and URL.
 
@@ -136,7 +136,7 @@ class BlockingClient:
         from rnet import Method
 
         async def main():
-            client = rnet.BlockingClient()
+            client = rnet.blocking.Client()
             response = client.request(Method.GET, "https://httpbin.org/anything")
             print(response.text())
 
@@ -144,9 +144,7 @@ class BlockingClient:
         ```
         """
 
-    def websocket(
-        self, url: str, **kwargs: Unpack[WebSocketParams]
-    ) -> BlockingWebSocket:
+    def websocket(self, url: str, **kwargs: Unpack[WebSocketRequest]) -> WebSocket:
         r"""
         Sends a WebSocket request.
 
@@ -157,7 +155,7 @@ class BlockingClient:
         import asyncio
 
         async def main():
-            client = rnet.BlockingClient()
+            client = rnet.blocking.Client()
             ws = client.websocket("wss://echo.websocket.org")
             ws.send(rnet.Message.from_text("Hello, WebSocket!"))
             message = ws.recv()
@@ -171,8 +169,8 @@ class BlockingClient:
     def trace(
         self,
         url: str,
-        **kwargs: Unpack[RequestParams],
-    ) -> BlockingResponse:
+        **kwargs: Unpack[Request],
+    ) -> Response:
         r"""
         Sends a request with the given URL.
 
@@ -184,7 +182,7 @@ class BlockingClient:
         from rnet import Method
 
         async def main():
-            client = rnet.BlockingClient()
+            client = rnet.blocking.Client()
             response = client.trace("https://httpbin.org/anything")
             print(response.text())
 
@@ -195,8 +193,8 @@ class BlockingClient:
     def options(
         self,
         url: str,
-        **kwargs: Unpack[RequestParams],
-    ) -> BlockingResponse:
+        **kwargs: Unpack[Request],
+    ) -> Response:
         r"""
         Sends a request with the given URL.
 
@@ -208,7 +206,7 @@ class BlockingClient:
         from rnet import Method
 
         async def main():
-            client = rnet.BlockingClient()
+            client = rnet.blocking.Client()
             response = client.options("https://httpbin.org/anything")
             print(response.text())
 
@@ -219,8 +217,8 @@ class BlockingClient:
     def head(
         self,
         url: str,
-        **kwargs: Unpack[RequestParams],
-    ) -> BlockingResponse:
+        **kwargs: Unpack[Request],
+    ) -> Response:
         r"""
         Sends a request with the given URL.
 
@@ -232,7 +230,7 @@ class BlockingClient:
         from rnet import Method
 
         async def main():
-            client = rnet.BlockingClient()
+            client = rnet.blocking.Client()
             response = client.head("https://httpbin.org/anything")
             print(response.text())
 
@@ -243,8 +241,8 @@ class BlockingClient:
     def delete(
         self,
         url: str,
-        **kwargs: Unpack[RequestParams],
-    ) -> BlockingResponse:
+        **kwargs: Unpack[Request],
+    ) -> Response:
         r"""
         Sends a request with the given URL.
 
@@ -256,7 +254,7 @@ class BlockingClient:
         from rnet import Method
 
         async def main():
-            client = rnet.BlockingClient()
+            client = rnet.blocking.Client()
             response = client.delete("https://httpbin.org/anything")
             print(response.text())
 
@@ -267,8 +265,8 @@ class BlockingClient:
     def patch(
         self,
         url: str,
-        **kwargs: Unpack[RequestParams],
-    ) -> BlockingResponse:
+        **kwargs: Unpack[Request],
+    ) -> Response:
         r"""
         Sends a request with the given URL.
 
@@ -280,7 +278,7 @@ class BlockingClient:
         from rnet import Method
 
         async def main():
-            client = rnet.BlockingClient()
+            client = rnet.blocking.Client()
             response = client.patch("https://httpbin.org/anything", json={"key": "value"})
             print(response.text())
 
@@ -291,8 +289,8 @@ class BlockingClient:
     def put(
         self,
         url: str,
-        **kwargs: Unpack[RequestParams],
-    ) -> BlockingResponse:
+        **kwargs: Unpack[Request],
+    ) -> Response:
         r"""
         Sends a request with the given URL.
 
@@ -304,7 +302,7 @@ class BlockingClient:
         from rnet import Method
 
         async def main():
-            client = rnet.BlockingClient()
+            client = rnet.blocking.Client()
             response = client.put("https://httpbin.org/anything", json={"key": "value"})
             print(response.text())
 
@@ -315,8 +313,8 @@ class BlockingClient:
     def post(
         self,
         url: str,
-        **kwargs: Unpack[RequestParams],
-    ) -> BlockingResponse:
+        **kwargs: Unpack[Request],
+    ) -> Response:
         r"""
         Sends a request with the given URL.
 
@@ -328,7 +326,7 @@ class BlockingClient:
         from rnet import Method
 
         async def main():
-            client = rnet.BlockingClient()
+            client = rnet.blocking.Client()
             response = client.post("https://httpbin.org/anything", json={"key": "value"})
             print(response.text())
 
@@ -339,8 +337,8 @@ class BlockingClient:
     def get(
         self,
         url: str,
-        **kwargs: Unpack[RequestParams],
-    ) -> BlockingResponse:
+        **kwargs: Unpack[Request],
+    ) -> Response:
         r"""
         Sends a request with the given URL.
 
@@ -352,7 +350,7 @@ class BlockingClient:
         from rnet import Method
 
         async def main():
-            client = rnet.BlockingClient()
+            client = rnet.blocking.Client()
             response = client.get("https://httpbin.org/anything")
             print(response.text())
 
@@ -360,7 +358,7 @@ class BlockingClient:
         ```
         """
 
-class BlockingResponse:
+class Response:
     r"""
     A blocking response from a request.
     """
@@ -397,7 +395,7 @@ class BlockingResponse:
     r"""
     Encoding to decode with when accessing text.
     """
-    def __enter__(self) -> BlockingResponse: ...
+    def __enter__(self) -> Response: ...
     def __exit__(self, _exc_type: Any, _exc_value: Any, _traceback: Any) -> None: ...
     def peer_certificate(self) -> Optional[bytes]:
         r"""
@@ -428,7 +426,7 @@ class BlockingResponse:
         Returns the bytes content of the response.
         """
 
-    def stream(self) -> BlockingStreamer:
+    def stream(self) -> Streamer:
         r"""
         Convert the response into a `Stream` of `Bytes` from the body.
         """
@@ -438,21 +436,7 @@ class BlockingResponse:
         Closes the response connection.
         """
 
-class BlockingStreamer:
-    r"""
-    A blocking byte stream response.
-    An asynchronous iterator yielding data chunks from the response stream.
-    Used for streaming response content.
-    Employed in the `stream` method of the `Response` class.
-    Utilized in an asynchronous for loop in Python.
-    """
-
-    def __iter__(self) -> BlockingStreamer: ...
-    def __next__(self) -> Any: ...
-    def __enter__(self) -> BlockingStreamer: ...
-    def __exit__(self, _exc_type: Any, _exc_value: Any, _traceback: Any) -> None: ...
-
-class BlockingWebSocket:
+class WebSocket:
     r"""
     A blocking WebSocket response.
     """
@@ -481,9 +465,9 @@ class BlockingWebSocket:
     r"""
     Returns the WebSocket protocol.
     """
-    def __iter__(self) -> BlockingWebSocket: ...
+    def __iter__(self) -> WebSocket: ...
     def __next__(self) -> Message: ...
-    def __enter__(self) -> BlockingWebSocket: ...
+    def __enter__(self) -> WebSocket: ...
     def __exit__(self, _exc_type: Any, _exc_value: Any, _traceback: Any) -> None: ...
     def recv(self) -> Optional[Message]:
         r"""

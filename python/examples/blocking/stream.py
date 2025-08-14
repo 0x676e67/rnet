@@ -1,9 +1,10 @@
 import time
-from rnet import BlockingClient
+
+from rnet.blocking import Client
 
 
 def main():
-    client = BlockingClient()
+    client = Client()
     with client.get("https://httpbin.org/stream/20") as resp:
         with resp.stream() as streamer:
             for chunk in streamer:

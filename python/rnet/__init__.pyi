@@ -12,7 +12,6 @@ from typing import (
 from pathlib import Path
 from enum import Enum, auto
 
-from .blocking import *
 from .cookie import *
 from .exceptions import *
 from .header import *
@@ -23,7 +22,7 @@ try:
 except ImportError:
     from typing_extensions import Unpack, NotRequired
 
-class RequestParams(TypedDict, closed=True):
+class Request(TypedDict, closed=True):
     emulation: NotRequired[Union[Emulation, EmulationOption]]
     proxy: NotRequired[Union[str, Proxy]]
     local_address: NotRequired[Union[ipaddress.IPv4Address, ipaddress.IPv6Address]]
@@ -56,7 +55,7 @@ class RequestParams(TypedDict, closed=True):
     ]
     multipart: NotRequired[Multipart]
 
-class WebSocketParams(TypedDict, closed=True):
+class WebSocketRequest(TypedDict, closed=True):
     emulation: NotRequired[Union[Emulation, EmulationOption]]
     proxy: NotRequired[Union[str, Proxy]]
     local_address: NotRequired[Union[str, ipaddress.IPv4Address, ipaddress.IPv6Address]]
@@ -191,7 +190,7 @@ class Client:
         self,
         method: Method,
         url: str,
-        **kwargs: Unpack[RequestParams],
+        **kwargs: Unpack[Request],
     ) -> Response:
         r"""
         Sends a request with the given method and URL.
@@ -215,7 +214,7 @@ class Client:
     async def websocket(
         self,
         url: str,
-        **kwargs: Unpack[WebSocketParams],
+        **kwargs: Unpack[WebSocketRequest],
     ) -> WebSocket:
         r"""
         Sends a WebSocket request.
@@ -241,7 +240,7 @@ class Client:
     async def trace(
         self,
         url: str,
-        **kwargs: Unpack[RequestParams],
+        **kwargs: Unpack[Request],
     ) -> Response:
         r"""
         Sends a request with the given URL
@@ -265,7 +264,7 @@ class Client:
     async def options(
         self,
         url: str,
-        **kwargs: Unpack[RequestParams],
+        **kwargs: Unpack[Request],
     ) -> Response:
         r"""
         Sends a request with the given URL
@@ -289,7 +288,7 @@ class Client:
     async def patch(
         self,
         url: str,
-        **kwargs: Unpack[RequestParams],
+        **kwargs: Unpack[Request],
     ) -> Response:
         r"""
         Sends a request with the given URL
@@ -313,7 +312,7 @@ class Client:
     async def delete(
         self,
         url: str,
-        **kwargs: Unpack[RequestParams],
+        **kwargs: Unpack[Request],
     ) -> Response:
         r"""
         Sends a request with the given URL
@@ -337,7 +336,7 @@ class Client:
     async def put(
         self,
         url: str,
-        **kwargs: Unpack[RequestParams],
+        **kwargs: Unpack[Request],
     ) -> Response:
         r"""
         Sends a request with the given URL
@@ -361,7 +360,7 @@ class Client:
     async def post(
         self,
         url: str,
-        **kwargs: Unpack[RequestParams],
+        **kwargs: Unpack[Request],
     ) -> Response:
         r"""
         Sends a request with the given URL
@@ -385,7 +384,7 @@ class Client:
     async def head(
         self,
         url: str,
-        **kwargs: Unpack[RequestParams],
+        **kwargs: Unpack[Request],
     ) -> Response:
         r"""
         Sends a request with the given URL
@@ -409,7 +408,7 @@ class Client:
     async def get(
         self,
         url: str,
-        **kwargs: Unpack[RequestParams],
+        **kwargs: Unpack[Request],
     ) -> Response:
         r"""
         Sends a request with the given URL
@@ -660,10 +659,14 @@ class Streamer:
     def __anext__(self) -> Any: ...
     def __aenter__(self) -> Any: ...
     def __aexit__(self, _exc_type: Any, _exc_value: Any, _traceback: Any) -> Any: ...
+    def __iter__(self) -> Streamer: ...
+    def __next__(self) -> Any: ...
+    def __enter__(self) -> Streamer: ...
+    def __exit__(self, _exc_type: Any, _exc_value: Any, _traceback: Any) -> None: ...
 
 async def delete(
     url: str,
-    **kwargs: Unpack[RequestParams],
+    **kwargs: Unpack[Request],
 ) -> Response:
     r"""
     Shortcut method to quickly make a request.
@@ -685,7 +688,7 @@ async def delete(
 
 async def get(
     url: str,
-    **kwargs: Unpack[RequestParams],
+    **kwargs: Unpack[Request],
 ) -> Response:
     r"""
     Shortcut method to quickly make a request.
@@ -707,7 +710,7 @@ async def get(
 
 async def head(
     url: str,
-    **kwargs: Unpack[RequestParams],
+    **kwargs: Unpack[Request],
 ) -> Response:
     r"""
     Shortcut method to quickly make a request.
@@ -728,7 +731,7 @@ async def head(
 
 async def options(
     url: str,
-    **kwargs: Unpack[RequestParams],
+    **kwargs: Unpack[Request],
 ) -> Response:
     r"""
     Shortcut method to quickly make a request.
@@ -749,7 +752,7 @@ async def options(
 
 async def patch(
     url: str,
-    **kwargs: Unpack[RequestParams],
+    **kwargs: Unpack[Request],
 ) -> Response:
     r"""
     Shortcut method to quickly make a request.
@@ -771,7 +774,7 @@ async def patch(
 
 async def post(
     url: str,
-    **kwargs: Unpack[RequestParams],
+    **kwargs: Unpack[Request],
 ) -> Response:
     r"""
     Shortcut method to quickly make a request.
@@ -793,7 +796,7 @@ async def post(
 
 async def put(
     url: str,
-    **kwargs: Unpack[RequestParams],
+    **kwargs: Unpack[Request],
 ) -> Response:
     r"""
     Shortcut method to quickly make a request.
@@ -816,7 +819,7 @@ async def put(
 async def request(
     method: Method,
     url: str,
-    **kwargs: Unpack[RequestParams],
+    **kwargs: Unpack[Request],
 ) -> Response:
     r"""
     Make a request with the given parameters.
@@ -845,7 +848,7 @@ async def request(
 
 async def trace(
     url: str,
-    **kwargs: Unpack[RequestParams],
+    **kwargs: Unpack[Request],
 ) -> Response:
     r"""
     Shortcut method to quickly make a request.
@@ -866,7 +869,7 @@ async def trace(
 
 async def websocket(
     url: str,
-    **kwargs: Unpack[WebSocketParams],
+    **kwargs: Unpack[WebSocketRequest],
 ) -> WebSocket:
     r"""
     Make a WebSocket connection with the given parameters.
