@@ -9,7 +9,7 @@ use wreq::ws::message::{self, CloseCode, CloseFrame, Utf8Bytes};
 
 use crate::{
     buffer::{BytesBuffer, PyBufferProtocol},
-    client::json::Json,
+    client::body::Json,
     error::Error,
 };
 

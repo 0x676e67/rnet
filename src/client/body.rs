@@ -2,11 +2,13 @@ use std::{pin::Pin, task::Context};
 
 use bytes::Bytes;
 use futures_util::Stream;
+use indexmap::IndexMap;
 use pyo3::{
     FromPyObject, PyAny, PyObject, PyResult, Python,
     prelude::*,
     pybacked::{PyBackedBytes, PyBackedStr},
 };
+use serde::{Deserialize, Serialize};
 
 /// The body to use for the request.
 pub enum Body {
@@ -46,6 +48,18 @@ impl FromPyObject<'_> for Body {
                 .map(Self::SyncStream)
         }
     }
+}
+
+#[derive(Clone, FromPyObject, IntoPyObject, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum Json {
+    Object(IndexMap<String, Json>),
+    Boolean(bool),
+    Number(isize),
+    Float(f64),
+    String(String),
+    Null(Option<isize>),
+    Array(Vec<Json>),
 }
 
 pub struct SyncStream {

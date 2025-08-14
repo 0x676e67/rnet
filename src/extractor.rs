@@ -9,7 +9,7 @@ use serde::ser::{Serialize, SerializeSeq, Serializer};
 use wreq::header::{self, HeaderName, HeaderValue};
 
 use crate::{
-    client::Multipart,
+    client::multipart::Multipart,
     emulation::{Emulation, EmulationOption},
     error::Error,
     http::header::HeaderMap,

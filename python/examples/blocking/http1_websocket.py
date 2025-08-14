@@ -1,7 +1,8 @@
 import signal
 import time
 import threading
-from rnet import Message, BlockingClient
+from rnet import Message
+from rnet.blocking import Client
 
 
 def send_message(ws, stop_event):
@@ -24,14 +25,15 @@ def receive_message(ws, stop_event):
 
 
 def main():
-    client = BlockingClient()
+    client = Client()
     with client.websocket("wss://echo.websocket.org") as ws:
         print("Status Code: ", ws.status)
         print("Version: ", ws.version)
         print("Headers: ", ws.headers)
         print("Remote Address: ", ws.remote_addr)
 
-        if ws.ok:
+        if ws.status.as_int() == 101:
+            print("WebSocket connection established.")
             stop_event = threading.Event()
             send_task = threading.Thread(target=send_message, args=(ws, stop_event))
             receive_task = threading.Thread(

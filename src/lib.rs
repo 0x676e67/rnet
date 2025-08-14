@@ -10,17 +10,14 @@ mod http;
 mod proxy;
 mod tls;
 
-use pyo3::{prelude::*, types::PyDict, wrap_pymodule};
+use pyo3::{prelude::*, pybacked::PyBackedStr, types::PyDict, wrap_pymodule};
+use pyo3_async_runtimes::tokio::future_into_py;
 
 use self::{
     client::{
-        Multipart, Part, SocketAddr,
-        async_impl::{
-            Client,
-            response::{Message, Response, Streamer, WebSocket},
-        },
-        blocking::{BlockingClient, BlockingResponse, BlockingStreamer, BlockingWebSocket},
-        delete, get, head, options, patch, post, put, request, trace, websocket,
+        BlockingClient, Client,
+        multipart::{Multipart, Part},
+        response::{BlockingResponse, BlockingWebSocket, Message, Response, Streamer, WebSocket},
     },
     emulation::{Emulation, EmulationOS, EmulationOption},
     error::*,
@@ -33,6 +30,11 @@ use self::{
     proxy::Proxy,
     tls::TlsVersion,
 };
+use crate::client::{
+    SocketAddr,
+    request::{Request, WebSocketRequest},
+    short::{shortcut_request, shortcut_websocket_request},
+};
 
 #[cfg(all(feature = "jemalloc", not(feature = "mimalloc"),))]
 #[global_allocator]
@@ -41,6 +43,101 @@ static GLOBAL: tikv_jemallocator::Jemalloc = tikv_jemallocator::Jemalloc;
 #[cfg(all(feature = "mimalloc", not(feature = "jemalloc")))]
 #[global_allocator]
 static GLOBAL: mimalloc::MiMalloc = mimalloc::MiMalloc;
+
+/// Make a GET request with the given parameters.
+#[pyfunction]
+#[pyo3(signature = (url, **kwds))]
+pub fn get(py: Python<'_>, url: PyBackedStr, kwds: Option<Request>) -> PyResult<Bound<'_, PyAny>> {
+    future_into_py(py, shortcut_request(Method::GET, url, kwds))
+}
+
+/// Make a POST request with the given parameters.
+#[pyfunction]
+#[pyo3(signature = (url, **kwds))]
+pub fn post(py: Python<'_>, url: PyBackedStr, kwds: Option<Request>) -> PyResult<Bound<'_, PyAny>> {
+    future_into_py(py, shortcut_request(Method::POST, url, kwds))
+}
+
+/// Make a PUT request with the given parameters.
+#[pyfunction]
+#[pyo3(signature = (url, **kwds))]
+pub fn put(py: Python<'_>, url: PyBackedStr, kwds: Option<Request>) -> PyResult<Bound<'_, PyAny>> {
+    future_into_py(py, shortcut_request(Method::PUT, url, kwds))
+}
+
+/// Make a PATCH request with the given parameters.
+#[pyfunction]
+#[pyo3(signature = (url, **kwds))]
+pub fn patch(
+    py: Python<'_>,
+    url: PyBackedStr,
+    kwds: Option<Request>,
+) -> PyResult<Bound<'_, PyAny>> {
+    future_into_py(py, shortcut_request(Method::PATCH, url, kwds))
+}
+
+/// Make a DELETE request with the given parameters.
+#[pyfunction]
+#[pyo3(signature = (url, **kwds))]
+pub fn delete(
+    py: Python<'_>,
+    url: PyBackedStr,
+    kwds: Option<Request>,
+) -> PyResult<Bound<'_, PyAny>> {
+    future_into_py(py, shortcut_request(Method::DELETE, url, kwds))
+}
+
+/// Make a HEAD request with the given parameters.
+#[pyfunction]
+#[pyo3(signature = (url, **kwds))]
+pub fn head(py: Python<'_>, url: PyBackedStr, kwds: Option<Request>) -> PyResult<Bound<'_, PyAny>> {
+    future_into_py(py, shortcut_request(Method::HEAD, url, kwds))
+}
+
+/// Make a OPTIONS request with the given parameters.
+#[pyfunction]
+#[pyo3(signature = (url, **kwds))]
+pub fn options(
+    py: Python<'_>,
+    url: PyBackedStr,
+    kwds: Option<Request>,
+) -> PyResult<Bound<'_, PyAny>> {
+    future_into_py(py, shortcut_request(Method::OPTIONS, url, kwds))
+}
+
+/// Make a TRACE request with the given parameters.
+#[pyfunction]
+#[pyo3(signature = (url, **kwds))]
+pub fn trace(
+    py: Python<'_>,
+    url: PyBackedStr,
+    kwds: Option<Request>,
+) -> PyResult<Bound<'_, PyAny>> {
+    future_into_py(py, shortcut_request(Method::TRACE, url, kwds))
+}
+
+/// Make a request with the given parameters.
+#[pyfunction]
+#[pyo3(signature = (method, url, **kwds))]
+pub fn request(
+    py: Python<'_>,
+    method: Method,
+    url: PyBackedStr,
+    kwds: Option<Request>,
+) -> PyResult<Bound<'_, PyAny>> {
+    future_into_py(py, shortcut_request(method, url, kwds))
+}
+
+/// Make a WebSocket connection with the given parameters.
+#[pyfunction]
+#[pyo3(signature = (url, **kwds))]
+pub fn websocket(
+    py: Python<'_>,
+    url: PyBackedStr,
+    kwds: Option<WebSocketRequest>,
+) -> PyResult<Bound<'_, PyAny>> {
+    future_into_py(py, shortcut_websocket_request(url, kwds))
+}
 
 #[pymodule(gil_used = false)]
 fn rnet(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
@@ -116,7 +213,6 @@ fn blocking_module(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<BlockingClient>()?;
     m.add_class::<BlockingResponse>()?;
     m.add_class::<BlockingWebSocket>()?;
-    m.add_class::<BlockingStreamer>()?;
     Ok(())
 }
 

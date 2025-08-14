@@ -1,8 +1,8 @@
-from rnet import BlockingClient, Method
+from rnet.blocking import Client, Method
 
 
 def main():
-    client = BlockingClient()
+    client = Client()
     resp = client.request(Method.GET, "https://www.google.com/")
     for resp in resp.cookies:
         print(f"{resp.name}: {resp.value}")

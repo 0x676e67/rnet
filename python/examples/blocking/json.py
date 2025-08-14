@@ -1,8 +1,8 @@
-from rnet import BlockingClient
+from rnet.blocking import Client
 
 
 def main():
-    client = BlockingClient()
+    client = Client()
     resp = client.post(
         "https://httpbin.org/anything",
         json={"key": "value"},

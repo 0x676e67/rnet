@@ -1,11 +1,13 @@
-from rnet import BlockingClient
+from rnet.blocking import Client
+from rnet.emulation import Emulation
 
 
 def main():
-    client = BlockingClient()
+    client = Client()
     resp = client.get(
         "https://tls.peet.ws/api/all",
         timeout=10,
+        emulation=Emulation.Firefox139,
     )
     print(resp.text())
 

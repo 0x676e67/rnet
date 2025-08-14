@@ -1,5 +1,6 @@
 from pathlib import Path
-from rnet import BlockingClient, Multipart, Part
+from rnet.blocking import Client
+from rnet import Multipart, Part
 
 
 def file_to_bytes_stream(file_path):
@@ -9,7 +10,7 @@ def file_to_bytes_stream(file_path):
 
 
 def main():
-    client = BlockingClient()
+    client = Client()
     resp = client.post(
         "https://httpbin.org/anything",
         multipart=Multipart(
