@@ -559,6 +559,7 @@ impl Client {
                         let store = CertStore::from_pem_stack(pem_data).map_err(Error::Library)?;
                         builder.cert_store(store)
                     }
+                    TlsVerify::CertificateStore(cert_store) => builder.cert_store(cert_store.0),
                 }
             }
             apply_option!(apply_if_some_inner, builder, params.identity, identity);

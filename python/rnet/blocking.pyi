@@ -12,7 +12,7 @@ from typing import (
 from pathlib import Path
 
 from rnet import Version, Method, SocketAddr, StatusCode
-from rnet.tls import TlsVersion, Identity
+from rnet.tls import CertStore, TlsVersion, Identity
 from rnet.header import HeaderMap
 from rnet.cookie import Cookie, Jar
 from rnet.emulation import EmulationOption, Emulation
@@ -49,7 +49,7 @@ class Client:
         http2_only: Optional[bool] = None,
         https_only: Optional[bool] = None,
         http2_max_retry_count: Optional[int] = None,
-        verify: Optional[Union[bool, Path]] = None,
+        verify: Optional[Union[bool, Path, CertStore]] = None,
         identity: Optional[Identity] = None,
         tls_info: Optional[bool] = None,
         min_tls_version: Optional[TlsVersion] = None,

@@ -1,4 +1,5 @@
 from enum import Enum, auto
+from typing import List, Optional
 
 class TlsVersion(Enum):
     r"""
@@ -41,5 +42,56 @@ class Identity:
         clients to allow them to build a chain to a trusted root.
 
         A certificate chain here means a series of PEM encoded certificates concatenated together.
+        """
+        ...
+
+class CertStore:
+    """
+    Represents a certificate store for verifying TLS connections.
+    """
+
+    def __new__(
+        self,
+        der_certs: Optional[List[bytes]] = None,
+        pem_certs: Optional[List[str]] = None,
+        default_paths: Optional[bool] = None,
+    ) -> None:
+        """
+        Creates a new CertStore.
+
+        Args:
+            der_certs: Optional list of DER-encoded certificates (as bytes).
+            pem_certs: Optional list of PEM-encoded certificates (as str).
+            default_paths: If True, use system default certificate paths.
+        """
+        ...
+
+    @staticmethod
+    def from_der_certs(certs: List[bytes]) -> "CertStore":
+        """
+        Creates a CertStore from a collection of DER-encoded certificates.
+
+        Args:
+            certs: List of DER-encoded certificates (as bytes).
+        """
+        ...
+
+    @staticmethod
+    def from_pem_certs(certs: List[str]) -> "CertStore":
+        """
+        Creates a CertStore from a collection of PEM-encoded certificates.
+
+        Args:
+            certs: List of PEM-encoded certificates (as str).
+        """
+        ...
+
+    @staticmethod
+    def from_pem_stack(certs: bytes) -> "CertStore":
+        """
+        Creates a CertStore from a PEM-encoded certificate stack.
+
+        Args:
+            certs: PEM-encoded certificate stack (as bytes).
         """
         ...
