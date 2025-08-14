@@ -1,10 +1,11 @@
-use pin_project_lite::pin_project;
-use pyo3::prelude::*;
 use std::{
     future::Future,
     pin::Pin,
     task::{Context, Poll},
 };
+
+use pin_project_lite::pin_project;
+use pyo3::prelude::*;
 
 pin_project! {
     /// A future that allows Python threads to run while it is being polled or executed.
@@ -25,7 +26,7 @@ where
     Fut: Future + Send,
     Fut::Output: Send,
 {
-    /// Create from a future
+    /// Create [`AllowThreads`] from a future
     #[inline]
     pub fn new_future(py: Python, future: Fut) -> Self {
         py.allow_threads(|| AllowThreads::Future { inner: future })
@@ -37,7 +38,7 @@ where
     F: FnOnce() -> R + Send,
     R: Send,
 {
-    /// Create from a closure
+    /// Create [`AllowThreads`] from a closure
     #[inline]
     pub fn new_closure(py: Python, closure: F) -> Self {
         py.allow_threads(|| AllowThreads::Closure {

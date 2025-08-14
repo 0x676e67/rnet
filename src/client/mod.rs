@@ -6,10 +6,11 @@ pub mod response;
 mod dns;
 mod future;
 
+use std::{fmt, net::IpAddr, sync::Arc, time::Duration};
+
 use pyo3::{IntoPyObjectExt, prelude::*, pybacked::PyBackedStr};
 use pyo3_async_runtimes::tokio::future_into_py;
 use request::{Request, WebSocketRequest};
-use std::{fmt, net::IpAddr, sync::Arc, time::Duration};
 use wreq::{
     Proxy,
     header::{self, HeaderMap},
