@@ -240,6 +240,7 @@ pub struct BlockingClient(Client);
 #[pymethods]
 impl Client {
     /// Make a GET request to the given URL.
+    #[inline]
     #[pyo3(signature = (url, **kwds))]
     pub fn get<'py>(
         &self,
@@ -251,6 +252,7 @@ impl Client {
     }
 
     /// Make a HEAD request to the given URL.
+    #[inline]
     #[pyo3(signature = (url, **kwds))]
     pub fn head<'py>(
         &self,
@@ -262,6 +264,7 @@ impl Client {
     }
 
     /// Make a POST request to the given URL.
+    #[inline]
     #[pyo3(signature = (url, **kwds))]
     pub fn post<'py>(
         &self,
@@ -273,6 +276,7 @@ impl Client {
     }
 
     /// Make a PUT request to the given URL.
+    #[inline]
     #[pyo3(signature = (url, **kwds))]
     pub fn put<'py>(
         &self,
@@ -284,6 +288,7 @@ impl Client {
     }
 
     /// Make a DELETE request to the given URL.
+    #[inline]
     #[pyo3(signature = (url, **kwds))]
     pub fn delete<'py>(
         &self,
@@ -295,6 +300,7 @@ impl Client {
     }
 
     /// Make a PATCH request to the given URL.
+    #[inline]
     #[pyo3(signature = (url, **kwds))]
     pub fn patch<'py>(
         &self,
@@ -306,6 +312,7 @@ impl Client {
     }
 
     /// Make a OPTIONS request to the given URL.
+    #[inline]
     #[pyo3(signature = (url, **kwds))]
     pub fn options<'py>(
         &self,
@@ -317,6 +324,7 @@ impl Client {
     }
 
     /// Make a TRACE request to the given URL.
+    #[inline]
     #[pyo3(signature = (url, **kwds))]
     pub fn trace<'py>(
         &self,
@@ -328,6 +336,7 @@ impl Client {
     }
 
     /// Make a request with the given method and URL.
+    #[inline]
     #[pyo3(signature = (method, url, **kwds))]
     pub fn request<'py>(
         &self,
@@ -341,6 +350,7 @@ impl Client {
     }
 
     /// Make a WebSocket request to the given URL.
+    #[inline]
     #[pyo3(signature = (url, **kwds))]
     pub fn websocket<'py>(
         &self,
@@ -858,6 +868,7 @@ impl Client {
 #[pymethods]
 impl BlockingClient {
     /// Make a GET request to the specified URL.
+    #[inline]
     #[pyo3(signature = (url, **kwds))]
     pub fn get(
         &self,
@@ -869,6 +880,7 @@ impl BlockingClient {
     }
 
     /// Make a POST request to the specified URL.
+    #[inline]
     #[pyo3(signature = (url, **kwds))]
     pub fn post(
         &self,
@@ -880,6 +892,7 @@ impl BlockingClient {
     }
 
     /// Make a PUT request to the specified URL.
+    #[inline]
     #[pyo3(signature = (url, **kwds))]
     pub fn put(
         &self,
@@ -891,6 +904,7 @@ impl BlockingClient {
     }
 
     /// Make a PATCH request to the specified URL.
+    #[inline]
     #[pyo3(signature = (url, **kwds))]
     pub fn patch(
         &self,
@@ -902,6 +916,7 @@ impl BlockingClient {
     }
 
     /// Make a DELETE request to the specified URL.
+    #[inline]
     #[pyo3(signature = (url, **kwds))]
     pub fn delete(
         &self,
@@ -913,6 +928,7 @@ impl BlockingClient {
     }
 
     /// Make a HEAD request to the specified URL.
+    #[inline]
     #[pyo3(signature = (url, **kwds))]
     pub fn head(
         &self,
@@ -924,6 +940,7 @@ impl BlockingClient {
     }
 
     /// Make a OPTIONS request to the specified URL.
+    #[inline]
     #[pyo3(signature = (url, **kwds))]
     pub fn options(
         &self,
@@ -935,6 +952,7 @@ impl BlockingClient {
     }
 
     /// Make a TRACE request to the specified URL.
+    #[inline]
     #[pyo3(signature = (url, **kwds))]
     pub fn trace(
         &self,
