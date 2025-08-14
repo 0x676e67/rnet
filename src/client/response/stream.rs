@@ -7,6 +7,7 @@ use tokio::sync::Mutex;
 
 use crate::{
     buffer::{BytesBuffer, PyBufferProtocol},
+    client::future::AllowThreads,
     error::Error,
 };
 
@@ -24,6 +25,7 @@ pub struct Streamer(InnerStreamer);
 
 impl Streamer {
     /// Create a new `Streamer` instance.
+    #[inline]
     pub fn new(
         stream: impl Stream<Item = wreq::Result<bytes::Bytes>> + Send + 'static,
     ) -> Streamer {
@@ -48,22 +50,26 @@ impl Streamer {
 /// Asynchronous iterator implementation for `Streamer`.
 #[pymethods]
 impl Streamer {
+    #[inline]
     fn __aiter__(slf: PyRef<Self>) -> PyRef<Self> {
         slf
     }
 
+    #[inline]
     fn __anext__<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
-        future_into_py(
-            py,
-            Streamer::_anext(self.0.clone(), || Error::StopAsyncIteration.into()),
-        )
+        let fut = AllowThreads::new_future(Streamer::_anext(self.0.clone(), || {
+            Error::StopAsyncIteration.into()
+        }));
+        future_into_py(py, fut)
     }
 
+    #[inline]
     fn __aenter__<'py>(slf: PyRef<'py, Self>, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
         let slf = slf.into_py_any(py)?;
-        future_into_py(py, async move { Ok(slf) })
+        future_into_py(py, AllowThreads::new_closure(|| Ok(slf)))
     }
 
+    #[inline]
     fn __aexit__<'py>(
         &self,
         py: Python<'py>,
@@ -72,20 +78,23 @@ impl Streamer {
         _traceback: &Bound<'py, PyAny>,
     ) -> PyResult<Bound<'py, PyAny>> {
         let streamer = self.0.clone();
-        future_into_py(py, async move {
-            drop(streamer.lock().await.take());
-            Ok(())
-        })
+        let fut = AllowThreads::new_future(async move {
+            let mut lock = streamer.lock().await;
+            Ok(drop(lock.take()))
+        });
+        future_into_py(py, fut)
     }
 }
 
 /// Synchronous iterator implementation for `Streamer`.
 #[pymethods]
 impl Streamer {
+    #[inline]
     fn __iter__(slf: PyRef<Self>) -> PyRef<Self> {
         slf
     }
 
+    #[inline]
     fn __next__(&self, py: Python) -> PyResult<Py<PyAny>> {
         py.allow_threads(|| {
             pyo3_async_runtimes::tokio::get_runtime()
@@ -95,10 +104,12 @@ impl Streamer {
         })
     }
 
+    #[inline]
     fn __enter__(slf: PyRef<Self>) -> PyRef<Self> {
         slf
     }
 
+    #[inline]
     fn __exit__<'py>(
         &self,
         py: Python<'py>,

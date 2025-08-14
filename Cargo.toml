@@ -40,6 +40,7 @@ indexmap = { version = "2.10.0", features = ["serde"] }
 arc-swap = "1.7.1"
 url = "2.5.4"
 bytes = "1.10.1"
+pin-project-lite = "0.2.16"
 futures-util = { version = "0.3.31", default-features = false }
 wreq = { version = "6.0.0-rc.8", features = [
     "json",

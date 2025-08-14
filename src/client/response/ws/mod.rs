@@ -16,7 +16,7 @@ use wreq::{
 };
 
 use crate::{
-    client::SocketAddr,
+    client::{SocketAddr, future::AllowThreads},
     error::Error,
     http::{Version, cookie::Cookie, header::HeaderMap, status::StatusCode},
 };
@@ -67,36 +67,42 @@ impl WebSocket {
 #[pymethods]
 impl WebSocket {
     /// Returns the status code of the response.
+    #[inline]
     #[getter]
     pub fn status(&self) -> StatusCode {
         self.status
     }
 
     /// Returns the HTTP version of the response.
+    #[inline]
     #[getter]
     pub fn version(&self) -> Version {
         self.version
     }
 
     /// Returns the headers of the response.
+    #[inline]
     #[getter]
     pub fn headers(&self) -> HeaderMap {
         self.headers.clone()
     }
 
     /// Returns the cookies of the response.
+    #[inline]
     #[getter]
     pub fn cookies(&self, py: Python) -> Vec<Cookie> {
         py.allow_threads(|| Cookie::extract_headers_cookies(&self.headers.0))
     }
 
     /// Returns the remote address of the response.
+    #[inline]
     #[getter]
     pub fn remote_addr(&self) -> Option<SocketAddr> {
         self.remote_addr
     }
 
     /// Returns the WebSocket protocol.
+    #[inline]
     #[getter]
     pub fn protocol(&self) -> Option<&str> {
         self.protocol
@@ -108,14 +114,18 @@ impl WebSocket {
     }
 
     /// Receives a message from the WebSocket.
+    #[inline]
     pub fn recv<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
-        future_into_py(py, util::_recv(self.receiver.clone()))
+        let fut = AllowThreads::new_future(util::recv(self.receiver.clone()));
+        future_into_py(py, fut)
     }
 
     /// Sends a message to the WebSocket.
+    #[inline]
     #[pyo3(signature = (message))]
     pub fn send<'py>(&self, py: Python<'py>, message: Message) -> PyResult<Bound<'py, PyAny>> {
-        future_into_py(py, util::_send(self.sender.clone(), message))
+        let fut = AllowThreads::new_future(util::send(self.sender.clone(), message));
+        future_into_py(py, fut)
     }
 
     /// Closes the WebSocket connection.
@@ -128,7 +138,8 @@ impl WebSocket {
     ) -> PyResult<Bound<'py, PyAny>> {
         let sender = self.sender.clone();
         let receiver = self.receiver.clone();
-        future_into_py(py, util::_close(receiver, sender, code, reason))
+        let fut = AllowThreads::new_future(util::close(receiver, sender, code, reason));
+        future_into_py(py, fut)
     }
 }
 
@@ -141,16 +152,15 @@ impl WebSocket {
 
     #[inline]
     fn __anext__<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
-        future_into_py(
-            py,
-            util::_anext(self.receiver.clone(), || Error::StopAsyncIteration.into()),
-        )
+        let fut = util::anext(self.receiver.clone(), || Error::StopAsyncIteration.into());
+        future_into_py(py, fut)
     }
 
     #[inline]
     fn __aenter__<'py>(slf: PyRef<'py, Self>, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
         let slf = slf.into_py_any(py)?;
-        future_into_py(py, async move { Ok(slf) })
+        let fut = AllowThreads::new_closure(|| Ok(slf));
+        future_into_py(py, fut)
     }
 
     #[inline]
@@ -210,7 +220,7 @@ impl BlockingWebSocket {
     /// Receives a message from the WebSocket.
     pub fn recv(&self, py: Python) -> PyResult<Option<Message>> {
         py.allow_threads(|| {
-            pyo3_async_runtimes::tokio::get_runtime().block_on(util::_recv(self.0.receiver.clone()))
+            pyo3_async_runtimes::tokio::get_runtime().block_on(util::recv(self.0.receiver.clone()))
         })
     }
 
@@ -219,7 +229,7 @@ impl BlockingWebSocket {
     pub fn send(&self, py: Python, message: Message) -> PyResult<()> {
         py.allow_threads(|| {
             pyo3_async_runtimes::tokio::get_runtime()
-                .block_on(util::_send(self.0.sender.clone(), message))
+                .block_on(util::send(self.0.sender.clone(), message))
         })
     }
 
@@ -232,7 +242,7 @@ impl BlockingWebSocket {
         reason: Option<PyBackedStr>,
     ) -> PyResult<()> {
         py.allow_threads(|| {
-            pyo3_async_runtimes::tokio::get_runtime().block_on(util::_close(
+            pyo3_async_runtimes::tokio::get_runtime().block_on(util::close(
                 self.0.receiver.clone(),
                 self.0.sender.clone(),
                 code,
@@ -253,7 +263,7 @@ impl BlockingWebSocket {
     fn __next__(&self, py: Python) -> PyResult<Message> {
         py.allow_threads(|| {
             pyo3_async_runtimes::tokio::get_runtime()
-                .block_on(util::_anext(self.0.receiver.clone(), || {
+                .block_on(util::anext(self.0.receiver.clone(), || {
                     Error::StopIteration.into()
                 }))
         })
@@ -290,7 +300,7 @@ mod util {
 
     use super::{Error, Message, Receiver, Sender, Utf8Bytes, ws};
 
-    pub async fn _recv(receiver: Receiver) -> PyResult<Option<Message>> {
+    pub async fn recv(receiver: Receiver) -> PyResult<Option<Message>> {
         receiver
             .lock()
             .await
@@ -303,7 +313,7 @@ mod util {
             .map_err(Into::into)
     }
 
-    pub async fn _send(sender: Sender, message: Message) -> PyResult<()> {
+    pub async fn send(sender: Sender, message: Message) -> PyResult<()> {
         sender
             .lock()
             .await
@@ -315,7 +325,7 @@ mod util {
             .map_err(Into::into)
     }
 
-    pub async fn _close(
+    pub async fn close(
         receiver: Receiver,
         sender: Sender,
         code: Option<u16>,
@@ -351,7 +361,7 @@ mod util {
         Ok(())
     }
 
-    pub async fn _anext(
+    pub async fn anext(
         receiver: Receiver,
         py_stop_iteration_error: fn() -> PyErr,
     ) -> PyResult<Message> {
