@@ -104,7 +104,7 @@ async def test_send_headers():
     async with resp:
         json = await resp.json()
         assert json["headers"]["Foo"] == "bar"
-        
+
 
 @pytest.mark.asyncio
 @pytest.mark.flaky(reruns=3, reruns_delay=2)
@@ -116,7 +116,7 @@ async def test_disable_default_headers():
     async with resp:
         json = await resp.json()
         assert json["headers"]["Foo"] == "bar"
-        
+
     resp = await client.get(url, default_headers=False)
     async with resp:
         json = await resp.json()

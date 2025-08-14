@@ -28,7 +28,7 @@ use self::{
         status::StatusCode,
     },
     proxy::Proxy,
-    tls::TlsVersion,
+    tls::{Identity, TlsVersion},
 };
 use crate::client::{
     SocketAddr,
@@ -167,6 +167,7 @@ fn rnet(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(request, m)?)?;
     m.add_function(wrap_pyfunction!(websocket, m)?)?;
 
+    m.add_wrapped(wrap_pymodule!(tls_module))?;
     m.add_wrapped(wrap_pymodule!(header_module))?;
     m.add_wrapped(wrap_pymodule!(cookie_module))?;
     m.add_wrapped(wrap_pymodule!(emulation_module))?;
@@ -175,6 +176,7 @@ fn rnet(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
 
     let sys = PyModule::import(py, "sys")?;
     let sys_modules: Bound<'_, PyDict> = sys.getattr("modules")?.downcast_into()?;
+    sys_modules.set_item("rnet.tls", m.getattr("tls")?)?;
     sys_modules.set_item("rnet.header", m.getattr("header")?)?;
     sys_modules.set_item("rnet.cookie", m.getattr("cookie")?)?;
     sys_modules.set_item("rnet.emulation", m.getattr("emulation")?)?;
@@ -213,6 +215,13 @@ fn blocking_module(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<BlockingClient>()?;
     m.add_class::<BlockingResponse>()?;
     m.add_class::<BlockingWebSocket>()?;
+    Ok(())
+}
+
+#[pymodule(gil_used = false, name = "tls")]
+fn tls_module(m: &Bound<'_, PyModule>) -> PyResult<()> {
+    m.add_class::<TlsVersion>()?;
+    m.add_class::<Identity>()?;
     Ok(())
 }
 

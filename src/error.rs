@@ -72,7 +72,7 @@ pub enum Error {
     UrlParse(url::ParseError),
     IO(std::io::Error),
     Decode(cookie_crate::ParseError),
-    Request(wreq::Error),
+    Library(wreq::Error),
 }
 
 impl From<Error> for PyErr {
@@ -93,7 +93,7 @@ impl From<Error> for PyErr {
             Error::UrlParse(err) => URLParseError::new_err(format!("URL parse error: {err:?}")),
             Error::IO(err) => PyRuntimeError::new_err(format!("IO error: {err:?}")),
             Error::Decode(err) => MIMEParseError::new_err(format!("Decode error: {err:?}")),
-            Error::Request(err) => wrap_error!(err,
+            Error::Library(err) => wrap_error!(err,
                 is_body => BodyError,
                 is_tls => TlsError,
                 is_websocket => WebSocketError,
@@ -136,6 +136,6 @@ impl From<std::io::Error> for Error {
 
 impl From<wreq::Error> for Error {
     fn from(err: wreq::Error) -> Self {
-        Error::Request(err)
+        Error::Library(err)
     }
 }

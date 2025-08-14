@@ -39,7 +39,7 @@ impl Streamer {
         drop(lock);
 
         let buffer = val
-            .map_err(Error::Request)?
+            .map_err(Error::Library)?
             .map(BytesBuffer::new)
             .ok_or_else(error)?;
 

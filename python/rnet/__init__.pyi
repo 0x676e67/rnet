@@ -16,6 +16,7 @@ from .cookie import *
 from .exceptions import *
 from .header import *
 from .emulation import *
+from .tls import *
 
 try:
     from typing import Unpack, NotRequired
@@ -116,6 +117,7 @@ class Client:
         https_only: Optional[bool] = None,
         http2_max_retry_count: Optional[int] = None,
         verify: Optional[Union[bool, Path]] = None,
+        identity: Optional[Identity] = None,
         tls_info: Optional[bool] = None,
         min_tls_version: Optional[TlsVersion] = None,
         max_tls_version: Optional[TlsVersion] = None,
@@ -160,6 +162,7 @@ class Client:
             https_only: Enable HTTPS only.
             http2_max_retry_count: Max HTTP/2 retry count.
             verify: Verify SSL or specify CA path.
+            identity: Represents a private key and X509 cert as a client certificate.
             tls_info: Return TLS info.
             min_tls_version: Minimum TLS version.
             max_tls_version: Maximum TLS version.
@@ -1152,16 +1155,6 @@ class Method(Enum):
     OPTIONS = auto()
     TRACE = auto()
     PATCH = auto()
-
-class TlsVersion(Enum):
-    r"""
-    The TLS version.
-    """
-
-    TLS_1_0 = auto()
-    TLS_1_1 = auto()
-    TLS_1_2 = auto()
-    TLS_1_3 = auto()
 
 class Version(Enum):
     r"""

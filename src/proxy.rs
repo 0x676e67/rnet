@@ -125,7 +125,7 @@ fn create_proxy<'py>(
 ) -> PyResult<Proxy> {
     py.allow_threads(|| {
         // Create base proxy using the provided constructor (http, https, all)
-        let mut proxy = proxy_fn(url).map_err(Error::Request)?;
+        let mut proxy = proxy_fn(url).map_err(Error::Library)?;
 
         // Convert the username and password to a basic auth header value.
         if let (Some(username), Some(password)) = (username, password) {

@@ -31,7 +31,7 @@ use crate::{
     error::Error,
     extractor::Extractor,
     http::{Method, Version, cookie::Jar},
-    tls::{SslVerify, TlsVersion},
+    tls::{Identity, TlsVerify, TlsVersion},
 };
 
 /// A IP socket address.
@@ -143,7 +143,10 @@ pub struct Builder {
 
     // ========= TLS options =========
     /// Whether to verify the SSL certificate or root certificate file path.
-    pub verify: Option<SslVerify>,
+    pub verify: Option<TlsVerify>,
+
+    /// Represents a private key and X509 cert as a client certificate.
+    pub identity: Option<Identity>,
 
     /// Add TLS information as `TlsInfo` extension to responses.
     pub tls_info: Option<bool>,
@@ -214,11 +217,14 @@ impl<'py> FromPyObject<'py> for Builder {
         extract_option!(ob, params, local_address);
         extract_option!(ob, params, interface);
 
+        extract_option!(ob, params, https_only);
         extract_option!(ob, params, http1_only);
         extract_option!(ob, params, http2_only);
-        extract_option!(ob, params, https_only);
-        extract_option!(ob, params, verify);
         extract_option!(ob, params, http2_max_retry_count);
+
+        extract_option!(ob, params, verify);
+        extract_option!(ob, params, identity);
+
         extract_option!(ob, params, tls_info);
         extract_option!(ob, params, min_tls_version);
         extract_option!(ob, params, max_tls_version);
@@ -544,17 +550,18 @@ impl Client {
             );
             apply_option!(apply_if_some, builder, params.tls_info, tls_info);
 
-            // SSL Verification options.
+            // TLS Verification options.
             if let Some(verify) = params.verify.take() {
                 builder = match verify {
-                    SslVerify::DisableSslVerification(verify) => builder.cert_verification(verify),
-                    SslVerify::RootCertificateFilepath(path_buf) => {
+                    TlsVerify::Verification(verify) => builder.cert_verification(verify),
+                    TlsVerify::CertificatePath(path_buf) => {
                         let pem_data = std::fs::read(path_buf)?;
-                        let store = CertStore::from_pem_stack(pem_data).map_err(Error::Request)?;
+                        let store = CertStore::from_pem_stack(pem_data).map_err(Error::Library)?;
                         builder.cert_store(store)
                     }
                 }
             }
+            apply_option!(apply_if_some_inner, builder, params.identity, identity);
 
             // Network options.
             if let Some(proxies) = params.proxies.take() {
@@ -597,7 +604,7 @@ impl Client {
                 .dns_resolver(HickoryDnsResolver::new())
                 .build()
                 .map(Client)
-                .map_err(Error::Request)
+                .map_err(Error::Library)
                 .map_err(Into::into)
         })
     }
@@ -742,7 +749,7 @@ impl Client {
             .send()
             .await
             .map(Response::new)
-            .map_err(Error::Request)
+            .map_err(Error::Library)
             .map_err(Into::into)
     }
 
@@ -866,10 +873,10 @@ impl Client {
         apply_option!(apply_if_some_ref, builder, params.query, query);
 
         // Send the WebSocket request.
-        let response = builder.send().await.map_err(Error::Request)?;
+        let response = builder.send().await.map_err(Error::Library)?;
         WebSocket::new(response)
             .await
-            .map_err(Error::Request)
+            .map_err(Error::Library)
             .map_err(Into::into)
     }
 }

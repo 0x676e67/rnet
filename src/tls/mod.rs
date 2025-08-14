@@ -1,6 +1,10 @@
+mod identity;
+
 use std::path::PathBuf;
 
 use pyo3::prelude::*;
+
+pub use self::identity::Identity;
 
 define_enum!(
     /// The TLS version.
@@ -14,7 +18,7 @@ define_enum!(
 );
 
 #[derive(FromPyObject)]
-pub enum SslVerify {
-    DisableSslVerification(bool),
-    RootCertificateFilepath(PathBuf),
+pub enum TlsVerify {
+    Verification(bool),
+    CertificatePath(PathBuf),
 }
