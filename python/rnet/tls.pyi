@@ -51,11 +51,11 @@ class CertStore:
     """
 
     def __new__(
-        self,
+        cls,
         der_certs: Optional[List[bytes]] = None,
         pem_certs: Optional[List[str]] = None,
         default_paths: Optional[bool] = None,
-    ) -> None:
+    ) -> CertStore:
         """
         Creates a new CertStore.
 
@@ -67,7 +67,7 @@ class CertStore:
         ...
 
     @staticmethod
-    def from_der_certs(certs: List[bytes]) -> "CertStore":
+    def from_der_certs(certs: List[bytes]) -> CertStore:
         """
         Creates a CertStore from a collection of DER-encoded certificates.
 
@@ -77,7 +77,7 @@ class CertStore:
         ...
 
     @staticmethod
-    def from_pem_certs(certs: List[str]) -> "CertStore":
+    def from_pem_certs(certs: List[str]) -> CertStore:
         """
         Creates a CertStore from a collection of PEM-encoded certificates.
 
@@ -87,7 +87,7 @@ class CertStore:
         ...
 
     @staticmethod
-    def from_pem_stack(certs: bytes) -> "CertStore":
+    def from_pem_stack(certs: bytes) -> CertStore:
         """
         Creates a CertStore from a PEM-encoded certificate stack.
 
