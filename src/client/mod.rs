@@ -127,6 +127,7 @@ pub struct Builder {
     verify: Option<TlsVerify>,
     /// Represents a private key and X509 cert as a client certificate.
     identity: Option<Identity>,
+    /// Key logging policy for TLS session keys.
     keylog: Option<KeyLogPolicy>,
     /// Add TLS information as `TlsInfo` extension to responses.
     tls_info: Option<bool>,
