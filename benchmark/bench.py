@@ -16,6 +16,7 @@ import tls_client
 import curl_cffi
 import curl_cffi.requests
 import rnet
+import rnet.blocking
 
 
 class PycurlSession:
