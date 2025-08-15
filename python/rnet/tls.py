@@ -7,6 +7,7 @@ These types are typically used to configure client-side TLS authentication and c
 """
 
 from enum import Enum, auto
+from pathlib import Path
 from typing import List, Optional
 
 
@@ -104,5 +105,57 @@ class CertStore:
 
         Args:
             certs: PEM-encoded certificate stack (as bytes).
+        """
+        ...
+
+
+class KeyLogPolicy:
+    """
+    Specifies the intent for a (TLS) keylogger to be used in a client or server configuration.
+
+    This type allows you to control how TLS session keys are logged for debugging or analysis.
+    You can either use the default environment variable (SSLKEYLOGFILE) or specify a file path
+    directly. This is useful for tools like Wireshark that can decrypt TLS traffic if provided
+    with the correct session keys.
+
+    Static Methods:
+        environment() -> KeyLogPolicy
+            Use the SSLKEYLOGFILE environment variable for key logging.
+        file(path: Path) -> KeyLogPolicy
+            Log keys to the specified file path.
+
+    Methods:
+        is_environment() -> bool
+            Returns True if this policy uses the environment variable.
+        is_file() -> bool
+            Returns True if this policy logs to a specific file.
+    """
+
+    @staticmethod
+    def environment() -> "KeyLogPolicy":
+        """
+        Use the SSLKEYLOGFILE environment variable for key logging.
+        """
+        ...
+
+    @staticmethod
+    def file(path: Path) -> "KeyLogPolicy":
+        """
+        Log keys to the specified file path.
+
+        Args:
+            path: The file path to log TLS keys to.
+        """
+        ...
+
+    def is_environment(self) -> bool:
+        """
+        Returns True if this policy uses the environment variable.
+        """
+        ...
+
+    def is_file(self) -> bool:
+        """
+        Returns True if this policy logs to a specific file.
         """
         ...

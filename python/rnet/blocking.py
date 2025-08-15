@@ -12,7 +12,7 @@ from typing import (
 from pathlib import Path
 
 from rnet import Version, Method, SocketAddr, StatusCode
-from rnet.tls import CertStore, TlsVersion, Identity
+from rnet.tls import CertStore, KeyLogPolicy, TlsVersion, Identity
 from rnet.header import HeaderMap
 from rnet.cookie import Cookie, Jar
 from rnet.emulation import EmulationOption, Emulation
@@ -52,6 +52,7 @@ class Client:
         http2_max_retry_count: Optional[int] = None,
         verify: Optional[Union[bool, Path, CertStore]] = None,
         identity: Optional[Identity] = None,
+        keylog: Optional[KeyLogPolicy] = None,
         tls_info: Optional[bool] = None,
         min_tls_version: Optional[TlsVersion] = None,
         max_tls_version: Optional[TlsVersion] = None,
@@ -97,6 +98,7 @@ class Client:
             http2_max_retry_count: Max HTTP/2 retry count.
             verify: Verify SSL or specify CA path.
             identity: Represents a private key and X509 cert as a client certificate.
+            keylog: Key logging policy (environment or file).
             tls_info: Return TLS info.
             min_tls_version: Minimum TLS version.
             max_tls_version: Maximum TLS version.
