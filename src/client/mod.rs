@@ -31,7 +31,7 @@ use crate::{
     error::Error,
     extractor::Extractor,
     http::{Method, Version, cookie::Jar},
-    tls::{Identity, TlsVerify, TlsVersion},
+    tls::{Identity, KeyLogPolicy, TlsVerify, TlsVersion},
 };
 
 /// A IP socket address.
@@ -62,126 +62,98 @@ impl fmt::Display for SocketAddr {
 #[derive(Default)]
 pub struct Builder {
     /// The Emulation settings for the client.
-    pub emulation: Option<Extractor<EmulationOption>>,
-
+    emulation: Option<Extractor<EmulationOption>>,
     /// The user agent to use for the client.
-    pub user_agent: Option<PyBackedStr>,
-
+    user_agent: Option<PyBackedStr>,
     /// The headers to use for the client.
-    pub default_headers: Option<Extractor<HeaderMap>>,
-
+    default_headers: Option<Extractor<HeaderMap>>,
     /// Whether to use referer.
-    pub referer: Option<bool>,
-
+    referer: Option<bool>,
     /// Whether to allow redirects.
-    pub allow_redirects: Option<bool>,
-
+    allow_redirects: Option<bool>,
     /// The maximum number of redirects to follow.
-    pub max_redirects: Option<usize>,
+    max_redirects: Option<usize>,
 
     // ========= Cookie options =========
     /// Whether to use cookie store.
-    pub cookie_store: Option<bool>,
-
+    cookie_store: Option<bool>,
     /// Whether to use cookie store provider.
-    pub cookie_provider: Option<Jar>,
+    cookie_provider: Option<Jar>,
 
     // ========= Timeout options =========
     /// The timeout to use for the client. (in seconds)
-    pub timeout: Option<u64>,
-
+    timeout: Option<u64>,
     /// The connect timeout to use for the client. (in seconds)
-    pub connect_timeout: Option<u64>,
-
+    connect_timeout: Option<u64>,
     /// The read timeout to use for the client. (in seconds)
-    pub read_timeout: Option<u64>,
+    read_timeout: Option<u64>,
 
     // ========= TCP options =========
     /// Set that all sockets have `SO_KEEPALIVE` set with the supplied duration. (in seconds)
-    pub tcp_keepalive: Option<u64>,
-
+    tcp_keepalive: Option<u64>,
     /// Set the interval between TCP keepalive probes. (in seconds)
-    pub tcp_keepalive_interval: Option<u64>,
-
+    tcp_keepalive_interval: Option<u64>,
     /// Set the number of retries for TCP keepalive.
-    pub tcp_keepalive_retries: Option<u32>,
-
+    tcp_keepalive_retries: Option<u32>,
     /// Set an optional user timeout for TCP sockets. (in seconds)    
-    pub tcp_user_timeout: Option<u64>,
-
+    tcp_user_timeout: Option<u64>,
     /// Set that all sockets have `NO_DELAY` set.
-    pub tcp_nodelay: Option<bool>,
-
+    tcp_nodelay: Option<bool>,
     /// Set that all sockets have `SO_REUSEADDR` set.
-    pub tcp_reuse_address: Option<bool>,
+    tcp_reuse_address: Option<bool>,
 
     // ========= Connection pool options =========
     /// Set an optional timeout for idle sockets being kept-alive. (in seconds)
-    pub pool_idle_timeout: Option<u64>,
-
+    pool_idle_timeout: Option<u64>,
     /// Sets the maximum idle connection per host allowed in the pool.
-    pub pool_max_idle_per_host: Option<usize>,
-
+    pool_max_idle_per_host: Option<usize>,
     /// Sets the maximum number of connections in the pool.
-    pub pool_max_size: Option<u32>,
-
+    pool_max_size: Option<u32>,
     /// Disable keep-alive for the client.
-    pub no_keepalive: Option<bool>,
+    no_keepalive: Option<bool>,
 
     // ========= Protocol options =========
     /// Whether to use the HTTP/1 protocol only.
-    pub http1_only: Option<bool>,
-
+    http1_only: Option<bool>,
     /// Whether to use the HTTP/2 protocol only.
-    pub http2_only: Option<bool>,
-
+    http2_only: Option<bool>,
     /// Whether to use HTTPS only.
-    pub https_only: Option<bool>,
-
+    https_only: Option<bool>,
     /// The maximum number of times to retry a client.
-    pub http2_max_retry_count: Option<usize>,
+    http2_max_retry_count: Option<usize>,
 
     // ========= TLS options =========
     /// Whether to verify the SSL certificate or root certificate file path.
-    pub verify: Option<TlsVerify>,
-
+    verify: Option<TlsVerify>,
     /// Represents a private key and X509 cert as a client certificate.
-    pub identity: Option<Identity>,
-
+    identity: Option<Identity>,
+    keylog: Option<KeyLogPolicy>,
     /// Add TLS information as `TlsInfo` extension to responses.
-    pub tls_info: Option<bool>,
-
+    tls_info: Option<bool>,
     /// The minimum TLS version to use for the client.
-    pub min_tls_version: Option<TlsVersion>,
-
+    min_tls_version: Option<TlsVersion>,
     /// The maximum TLS version to use for the client.
-    pub max_tls_version: Option<TlsVersion>,
+    max_tls_version: Option<TlsVersion>,
 
     // ========= Network options =========
     /// Whether to disable the proxy for the client.
-    pub no_proxy: Option<bool>,
-
+    no_proxy: Option<bool>,
     /// The proxy to use for the client.
-    pub proxies: Option<Extractor<Vec<Proxy>>>,
-
+    proxies: Option<Extractor<Vec<Proxy>>>,
     /// Bind to a local IP Address.
-    pub local_address: Option<Extractor<IpAddr>>,
-
+    local_address: Option<Extractor<IpAddr>>,
     /// Bind to an interface by `SO_BINDTODEVICE`.
-    pub interface: Option<String>,
+    interface: Option<String>,
 
     // ========= Compression options =========
     /// Sets gzip as an accepted encoding.
-    pub gzip: Option<bool>,
-
+    gzip: Option<bool>,
     /// Sets brotli as an accepted encoding.
-    pub brotli: Option<bool>,
-
+    brotli: Option<bool>,
     /// Sets deflate as an accepted encoding.
-    pub deflate: Option<bool>,
-
+    deflate: Option<bool>,
     /// Sets zstd as an accepted encoding.
-    pub zstd: Option<bool>,
+    zstd: Option<bool>,
 }
 
 impl<'py> FromPyObject<'py> for Builder {
@@ -224,7 +196,7 @@ impl<'py> FromPyObject<'py> for Builder {
 
         extract_option!(ob, params, verify);
         extract_option!(ob, params, identity);
-
+        extract_option!(ob, params, keylog);
         extract_option!(ob, params, tls_info);
         extract_option!(ob, params, min_tls_version);
         extract_option!(ob, params, max_tls_version);
@@ -563,6 +535,7 @@ impl Client {
                 }
             }
             apply_option!(apply_if_some_inner, builder, params.identity, identity);
+            apply_option!(apply_if_some_inner, builder, params.keylog, keylog);
 
             // Network options.
             if let Some(proxies) = params.proxies.take() {

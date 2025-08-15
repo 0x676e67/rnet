@@ -15,9 +15,11 @@ use pyo3_async_runtimes::tokio::future_into_py;
 
 use self::{
     client::{
-        BlockingClient, Client,
+        BlockingClient, Client, SocketAddr,
         multipart::{Multipart, Part},
+        request::{Request, WebSocketRequest},
         response::{BlockingResponse, BlockingWebSocket, Message, Response, Streamer, WebSocket},
+        short::{shortcut_request, shortcut_websocket_request},
     },
     emulation::{Emulation, EmulationOS, EmulationOption},
     error::*,
@@ -28,12 +30,7 @@ use self::{
         status::StatusCode,
     },
     proxy::Proxy,
-    tls::{CertStore, Identity, TlsVersion},
-};
-use crate::client::{
-    SocketAddr,
-    request::{Request, WebSocketRequest},
-    short::{shortcut_request, shortcut_websocket_request},
+    tls::{CertStore, Identity, KeyLogPolicy, TlsVersion},
 };
 
 #[cfg(all(feature = "jemalloc", not(feature = "mimalloc"),))]
@@ -190,6 +187,7 @@ fn tls_module(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<TlsVersion>()?;
     m.add_class::<Identity>()?;
     m.add_class::<CertStore>()?;
+    m.add_class::<KeyLogPolicy>()?;
     Ok(())
 }
 

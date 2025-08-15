@@ -1,11 +1,10 @@
 mod identity;
+mod keylog;
 mod store;
-
-use std::path::PathBuf;
 
 use pyo3::prelude::*;
 
-pub use self::{identity::Identity, store::CertStore};
+pub use self::{identity::Identity, keylog::KeyLogPolicy, store::CertStore};
 
 define_enum!(
     /// The TLS version.
@@ -21,6 +20,6 @@ define_enum!(
 #[derive(FromPyObject)]
 pub enum TlsVerify {
     Verification(bool),
-    CertificatePath(PathBuf),
+    CertificatePath(std::path::PathBuf),
     CertificateStore(CertStore),
 }
