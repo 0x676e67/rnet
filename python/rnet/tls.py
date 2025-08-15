@@ -1,3 +1,11 @@
+"""
+TLS Utilities and Types
+
+This module provides types and utilities for configuring TLS (Transport Layer Security) in HTTP clients.
+
+These types are typically used to configure client-side TLS authentication and certificate verification in HTTP requests.
+"""
+
 from enum import Enum, auto
 from typing import List, Optional
 
