@@ -57,7 +57,7 @@ impl FromPyObject<'_> for Extractor<Vec<HeaderValue>> {
                 cookies.push(cookie);
                 Ok(cookies)
             })
-            .map(Extractor)
+            .map(Self)
     }
 }
 
@@ -156,6 +156,6 @@ impl FromPyObject<'_> for Extractor<wreq::multipart::Form> {
 /// Extractor for a single IP address as [`std::net::IpAddr`].
 impl FromPyObject<'_> for Extractor<std::net::IpAddr> {
     fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
-        ob.extract().map(Extractor)
+        ob.extract().map(Self)
     }
 }
