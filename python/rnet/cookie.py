@@ -114,7 +114,7 @@ class Jar:
         Add a cookie to this jar.
         """
 
-    def add_cookie_str(self, cookie: Cookie, url: str) -> None:
+    def add_cookie_str(self, cookie: str, url: str) -> None:
         r"""
         Add a cookie str to this jar.
         """
