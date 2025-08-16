@@ -151,7 +151,6 @@ fn rnet(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<Proxy>()?;
     m.add_class::<Method>()?;
     m.add_class::<Version>()?;
-    m.add_class::<TlsVersion>()?;
 
     m.add_function(wrap_pyfunction!(get, m)?)?;
     m.add_function(wrap_pyfunction!(post, m)?)?;
