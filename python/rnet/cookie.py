@@ -114,12 +114,12 @@ class Jar:
         Add a cookie to this jar.
         """
 
-    def add_cookie_str(self, cookie: Cookie, url: str) -> None:
+    def add_cookie_str(self, cookie: str, url: str) -> None:
         r"""
         Add a cookie str to this jar.
         """
 
-    def remove(self, cookie: Cookie, url: str) -> None:
+    def remove(self, name: str, url: str) -> None:
         r"""
         Remove a cookie from this jar by name and URL.
         """

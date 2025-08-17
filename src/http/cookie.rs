@@ -246,12 +246,15 @@ impl Jar {
 
     /// Get a cookie by name and URL.
     #[pyo3(signature = (name, url))]
-    pub fn get(&self, py: Python, name: &str, url: PyBackedStr) -> PyResult<Option<Cookie>> {
+    pub fn get(&self, py: Python, name: PyBackedStr, url: PyBackedStr) -> PyResult<Option<Cookie>> {
         py.allow_threads(|| {
             let url = Url::parse(url.as_ref()).map_err(Error::UrlParse)?;
-
             let store = self.0.read().unwrap();
-            let cookie = store.get(url.host_str().unwrap_or(EMPTY_DOMAIN), url.path(), name);
+            let cookie = store.get(
+                url.host_str().unwrap_or(EMPTY_DOMAIN),
+                url.path(),
+                name.as_ref(),
+            );
 
             cookie
                 .map(|cookie| {
@@ -288,38 +291,40 @@ impl Jar {
                 .write()
                 .unwrap()
                 .store_response_cookies(std::iter::once(cookie.0), &url);
-
             Ok(())
         })
     }
 
     /// Add a cookie str to this jar.
     #[pyo3(signature = (cookie, url))]
-    pub fn add_cookie_str(&self, py: Python, cookie: &str, url: PyBackedStr) -> PyResult<()> {
+    pub fn add_cookie_str(
+        &self,
+        py: Python,
+        cookie: PyBackedStr,
+        url: PyBackedStr,
+    ) -> PyResult<()> {
         py.allow_threads(|| {
             let url = Url::parse(url.as_ref()).map_err(Error::UrlParse)?;
-            let cookies = RawCookie::parse(cookie)
-                .ok()
+            let cookies = RawCookie::parse::<&str>(cookie.as_ref())
                 .map(RawCookie::into_owned)
                 .into_iter();
             self.0
                 .write()
                 .unwrap()
                 .store_response_cookies(cookies, &url);
-
             Ok(())
         })
     }
 
     /// Remove a cookie from this jar by name and URL.
     #[pyo3(signature = (name, url))]
-    pub fn remove(&self, py: Python, name: &str, url: PyBackedStr) -> PyResult<()> {
+    pub fn remove(&self, py: Python, name: PyBackedStr, url: PyBackedStr) -> PyResult<()> {
         py.allow_threads(|| {
             let url = Url::parse(url.as_ref()).map_err(Error::UrlParse)?;
             self.0.write().unwrap().remove(
                 url.host_str().unwrap_or(EMPTY_DOMAIN),
                 url.path(),
-                name,
+                name.as_ref(),
             );
             Ok(())
         })
