@@ -4,7 +4,7 @@ use std::{
     time::SystemTime,
 };
 
-use bytes::BufMut;
+use bytes::{BufMut, Bytes};
 use cookie_crate::{Expiration, ParseError, time::Duration};
 use cookie_store::RawCookie;
 use pyo3::{prelude::*, pybacked::PyBackedStr};
@@ -230,7 +230,7 @@ impl CookieStore for Jar {
                 cookie.put(COOKIE_SEPARATOR);
                 cookie.put(value);
 
-                HeaderValue::from_maybe_shared(cookie).ok()
+                HeaderValue::from_maybe_shared(Bytes::from(cookie)).ok()
             })
             .collect()
     }
