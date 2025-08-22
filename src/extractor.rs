@@ -80,7 +80,8 @@ impl FromPyObject<'_> for Extractor<wreq::header::HeaderMap> {
 
                     let value = {
                         let value = value.extract::<PyBackedStr>()?;
-                        HeaderValue::from_maybe_shared(value).map_err(Error::from)?
+                        HeaderValue::from_maybe_shared(Bytes::from_owner(value))
+                            .map_err(Error::from)?
                     };
 
                     headers.insert(name, value);

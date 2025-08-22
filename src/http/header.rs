@@ -1,5 +1,6 @@
 use std::fmt;
 
+use bytes::Bytes;
 use pyo3::{
     prelude::*,
     pybacked::{PyBackedBytes, PyBackedStr},
@@ -39,11 +40,11 @@ impl HeaderMap {
 
                 let value = match value
                     .extract::<PyBackedStr>()
-                    .ok()
-                    .and_then(|v| HeaderValue::from_maybe_shared(v).ok())
+                    .map(Bytes::from_owner)
+                    .map(HeaderValue::from_maybe_shared)
                 {
-                    Some(v) => v,
-                    None => continue,
+                    Ok(Ok(v)) => v,
+                    _ => continue,
                 };
 
                 headers.insert(name, value);
@@ -65,11 +66,11 @@ impl HeaderMap {
         key: PyBackedStr,
         default: Option<PyBackedBytes>,
     ) -> Option<Bound<'py, PyAny>> {
-        let value = self
-            .0
-            .get::<&str>(key.as_ref())
-            .cloned()
-            .or_else(|| default.and_then(|d| HeaderValue::from_maybe_shared(d).ok()));
+        let value = self.0.get::<&str>(key.as_ref()).cloned().or_else(|| {
+            default
+                .map(Bytes::from_owner)
+                .and_then(|b| HeaderValue::from_maybe_shared(b).ok())
+        });
 
         value.and_then(|v| HeaderValueBuffer::new(v).into_bytes_ref(py).ok())
     }
@@ -93,7 +94,7 @@ impl HeaderMap {
         py.allow_threads(|| {
             if let (Ok(name), Ok(value)) = (
                 HeaderName::from_bytes(key.as_bytes()),
-                HeaderValue::from_maybe_shared(value),
+                HeaderValue::from_maybe_shared(Bytes::from_owner(value)),
             ) {
                 self.0.insert(name, value);
             }
@@ -106,7 +107,7 @@ impl HeaderMap {
         py.allow_threads(|| {
             if let (Ok(name), Ok(value)) = (
                 HeaderName::from_bytes(key.as_bytes()),
-                HeaderValue::from_maybe_shared(value),
+                HeaderValue::from_maybe_shared(Bytes::from_owner(value)),
             ) {
                 self.0.append(name, value);
             }
