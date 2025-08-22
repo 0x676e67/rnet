@@ -125,7 +125,7 @@ For Manylinux compilation, refer to [manylinux](https://github.com/PyO3/maturin?
 
 ## Benchmark
 
-Outperforms `requests`, `httpx`, `Python-TLS-Client`, and `curl_cffi`. See the [benchmark results](https://github.com/0x676e67/rnet/tree/main/benchmark) for details. Benchmark data is for reference only—actual performance may vary based on your environment and use case.
+Outperforms `requests`, `httpx`, `Python-TLS-Client`, and `curl_cffi`. See the [benchmark](https://github.com/0x676e67/rnet/tree/main/python/benchmark) for details. Benchmark data is for reference only—actual performance may vary based on your environment and use case.
 
 ## Documentation
 
