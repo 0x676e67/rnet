@@ -31,11 +31,10 @@ impl HeaderMap {
             for (name, value) in dict.iter() {
                 let name = match name
                     .extract::<PyBackedStr>()
-                    .ok()
-                    .and_then(|n| HeaderName::from_bytes(n.as_bytes()).ok())
+                    .map(|n| HeaderName::from_bytes(n.as_bytes()))
                 {
-                    Some(n) => n,
-                    None => continue,
+                    Ok(Ok(n)) => n,
+                    _ => continue,
                 };
 
                 let value = match value
@@ -66,10 +65,16 @@ impl HeaderMap {
         key: PyBackedStr,
         default: Option<PyBackedBytes>,
     ) -> Option<Bound<'py, PyAny>> {
-        let value = self.0.get::<&str>(key.as_ref()).cloned().or_else(|| {
-            default
-                .map(Bytes::from_owner)
-                .and_then(|b| HeaderValue::from_maybe_shared(b).ok())
+        let value = py.allow_threads(|| {
+            self.0.get::<&str>(key.as_ref()).cloned().or_else(|| {
+                match default
+                    .map(Bytes::from_owner)
+                    .map(HeaderValue::from_maybe_shared)
+                {
+                    Some(Ok(v)) => Some(v),
+                    _ => None,
+                }
+            })
         });
 
         value.and_then(|v| HeaderValueBuffer::new(v).into_bytes_ref(py).ok())
@@ -77,15 +82,15 @@ impl HeaderMap {
 
     /// Returns a view of all values associated with a key.
     #[pyo3(signature = (key))]
-    fn get_all(&self, key: PyBackedStr) -> HeaderMapValuesIter {
-        HeaderMapValuesIter {
+    fn get_all(&self, py: Python, key: PyBackedStr) -> HeaderMapValuesIter {
+        py.allow_threads(|| HeaderMapValuesIter {
             inner: self
                 .0
                 .get_all::<&str>(key.as_ref())
                 .iter()
                 .cloned()
                 .collect(),
-        }
+        })
     }
 
     /// Insert a key-value pair into the header map.
@@ -130,10 +135,10 @@ impl HeaderMap {
 
     /// Returns key-value pairs in the order they were added.
     #[inline]
-    fn items(&self) -> HeaderMapItemsIter {
-        HeaderMapItemsIter {
+    fn items(&self, py: Python) -> HeaderMapItemsIter {
+        py.allow_threads(|| HeaderMapItemsIter {
             inner: self.0.iter().map(|(k, v)| (k.clone(), v.clone())).collect(),
-        }
+        })
     }
 
     /// Returns the number of headers stored in the map.
@@ -267,9 +272,10 @@ impl HeaderMapItemsIter {
         mut slf: PyRefMut<'_, Self>,
     ) -> Option<(Bound<'_, PyAny>, Option<Bound<'_, PyAny>>)> {
         if let Some((k, v)) = slf.inner.pop() {
-            let key = HeaderNameBuffer::new(k).into_bytes_ref(slf.py()).ok()?;
-            let value = HeaderValueBuffer::new(v).into_bytes_ref(slf.py()).ok();
-            return Some((key, value));
+            if let Ok(key) = HeaderNameBuffer::new(k).into_bytes_ref(slf.py()) {
+                let value = HeaderValueBuffer::new(v).into_bytes_ref(slf.py()).ok();
+                return Some((key, value));
+            }
         }
         None
     }
