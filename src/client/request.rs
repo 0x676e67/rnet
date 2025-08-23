@@ -3,7 +3,7 @@ use std::net::IpAddr;
 use pyo3::{PyResult, prelude::*, pybacked::PyBackedStr};
 use wreq::{
     Proxy,
-    header::{HeaderMap, HeaderValue},
+    header::{HeaderMap, HeaderValue, OrigHeaderMap},
     multipart::Form,
 };
 use wreq_util::EmulationOption;
@@ -33,6 +33,8 @@ pub struct Request {
     pub version: Option<Version>,
     /// The headers to use for the request.
     pub headers: Option<Extractor<HeaderMap>>,
+    /// The original headers to use for the request.
+    pub orig_headers: Option<Extractor<OrigHeaderMap>>,
     /// The option enables default headers.
     pub default_headers: Option<bool>,
     /// The cookies to use for the request.
@@ -79,6 +81,7 @@ impl<'py> FromPyObject<'py> for Request {
 
         extract_option!(ob, params, version);
         extract_option!(ob, params, headers);
+        extract_option!(ob, params, orig_headers);
         extract_option!(ob, params, default_headers);
         extract_option!(ob, params, cookies);
         extract_option!(ob, params, allow_redirects);
@@ -114,6 +117,8 @@ pub struct WebSocketRequest {
     pub interface: Option<String>,
     /// The headers to use for the request.
     pub headers: Option<Extractor<HeaderMap>>,
+    /// The original headers to use for the request.
+    pub orig_headers: Option<Extractor<OrigHeaderMap>>,
     /// The option enables default headers.
     pub default_headers: Option<bool>,
     /// The cookies to use for the request.
@@ -189,6 +194,7 @@ impl<'py> FromPyObject<'py> for WebSocketRequest {
 
         extract_option!(ob, params, force_http2);
         extract_option!(ob, params, headers);
+        extract_option!(ob, params, orig_headers);
         extract_option!(ob, params, default_headers);
         extract_option!(ob, params, cookies);
         extract_option!(ob, params, protocols);

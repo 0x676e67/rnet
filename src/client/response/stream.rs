@@ -1,5 +1,6 @@
 use std::{pin::Pin, sync::Arc};
 
+use bytes::Bytes;
 use futures_util::{Stream, TryStreamExt};
 use pyo3::{IntoPyObjectExt, prelude::*};
 use pyo3_async_runtimes::tokio::future_into_py;
@@ -11,8 +12,7 @@ use crate::{
     error::Error,
 };
 
-type InnerStreamer =
-    Arc<Mutex<Option<Pin<Box<dyn Stream<Item = wreq::Result<bytes::Bytes>> + Send + 'static>>>>>;
+type BytesStream = Pin<Box<dyn Stream<Item = wreq::Result<Bytes>> + Send + 'static>>;
 
 /// A byte stream response.
 /// An asynchronous iterator yielding data chunks from the response stream.
@@ -21,29 +21,13 @@ type InnerStreamer =
 /// Can be used in an asynchronous for loop in Python.
 #[derive(Clone)]
 #[pyclass(subclass)]
-pub struct Streamer(InnerStreamer);
+pub struct Streamer(Arc<Mutex<Option<BytesStream>>>);
 
 impl Streamer {
     /// Create a new `Streamer` instance.
     #[inline]
-    pub fn new(
-        stream: impl Stream<Item = wreq::Result<bytes::Bytes>> + Send + 'static,
-    ) -> Streamer {
+    pub fn new(stream: impl Stream<Item = wreq::Result<Bytes>> + Send + 'static) -> Streamer {
         Streamer(Arc::new(Mutex::new(Some(Box::pin(stream)))))
-    }
-
-    pub async fn _anext(streamer: InnerStreamer, error: fn() -> PyErr) -> PyResult<Py<PyAny>> {
-        let mut lock = streamer.lock().await;
-        let val = lock.as_mut().ok_or_else(error)?.try_next().await;
-
-        drop(lock);
-
-        let buffer = val
-            .map_err(Error::Library)?
-            .map(BytesBuffer::new)
-            .ok_or_else(error)?;
-
-        Python::with_gil(|py| buffer.into_bytes(py))
     }
 }
 
@@ -57,9 +41,8 @@ impl Streamer {
 
     #[inline]
     fn __anext__<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
-        let fut = AllowThreads::new_future(Streamer::_anext(self.0.clone(), || {
-            Error::StopAsyncIteration.into()
-        }));
+        let fut =
+            AllowThreads::new_future(anext(self.0.clone(), || Error::StopAsyncIteration.into()));
         future_into_py(py, fut)
     }
 
@@ -98,9 +81,7 @@ impl Streamer {
     fn __next__(&self, py: Python) -> PyResult<Py<PyAny>> {
         py.allow_threads(|| {
             pyo3_async_runtimes::tokio::get_runtime()
-                .block_on(Streamer::_anext(self.0.clone(), || {
-                    Error::StopIteration.into()
-                }))
+                .block_on(anext(self.0.clone(), || Error::StopIteration.into()))
         })
     }
 
@@ -126,4 +107,21 @@ impl Streamer {
             })
         })
     }
+}
+
+async fn anext(
+    streamer: Arc<Mutex<Option<BytesStream>>>,
+    error: fn() -> PyErr,
+) -> PyResult<Py<PyAny>> {
+    let mut lock = streamer.lock().await;
+    let val = lock.as_mut().ok_or_else(error)?.try_next().await;
+
+    drop(lock);
+
+    let buffer = val
+        .map_err(Error::Library)?
+        .map(BytesBuffer::new)
+        .ok_or_else(error)?;
+
+    Python::with_gil(|py| buffer.into_bytes(py))
 }

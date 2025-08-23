@@ -12,7 +12,7 @@ use crate::{
     client::multipart::Multipart,
     emulation::{Emulation, EmulationOption},
     error::Error,
-    http::header::HeaderMap,
+    http::header::{HeaderMap, OrigHeaderMap},
     proxy::Proxy,
 };
 
@@ -85,6 +85,30 @@ impl FromPyObject<'_> for Extractor<wreq::header::HeaderMap> {
                     };
 
                     headers.insert(name, value);
+                    Ok(headers)
+                },
+            )
+            .map(Self)
+    }
+}
+
+/// Extractor for headers as [`wreq::header::OrigHeaderMap`].
+impl FromPyObject<'_> for Extractor<wreq::header::OrigHeaderMap> {
+    fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
+        if let Ok(headers) = ob.downcast::<OrigHeaderMap>() {
+            return Ok(Self(headers.borrow().0.clone()));
+        }
+
+        let list = ob.downcast::<PyList>()?;
+        list.iter()
+            .try_fold(
+                header::OrigHeaderMap::with_capacity(list.len()),
+                |mut headers, name| {
+                    let name = {
+                        let name = name.extract::<PyBackedStr>()?;
+                        HeaderName::from_bytes(name.as_bytes()).map_err(Error::from)?
+                    };
+                    headers.insert(name);
                     Ok(headers)
                 },
             )

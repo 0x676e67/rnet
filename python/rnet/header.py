@@ -11,7 +11,7 @@ including proper support for headers that can have multiple values (like
 Set-Cookie, Accept-Encoding, etc.).
 """
 
-from typing import Optional, Tuple
+from typing import List, Optional, Tuple
 
 
 class HeaderMap:
@@ -252,6 +252,90 @@ class HeaderMap:
         """
 
 
+class OrigHeaderMap:
+    """
+    A map from header names to their original casing as received in an HTTP message.
+
+    OrigHeaderMap not only preserves the original case of each header name as it appeared
+    in the HTTP message, but also maintains the insertion order of headers. This makes
+    it suitable for use cases where the order of headers matters, such as HTTP/1.x message
+    serialization, proxying, or reproducing requests/responses exactly as received.
+
+    The map stores a mapping between the case-insensitive (standard) header name and the
+    original case-sensitive header name as it appeared in the HTTP message.
+
+    Example:
+        If an HTTP message included the following headers:
+
+            x-Bread: Baguette
+            X-BREAD: Pain
+            x-bread: Ficelle
+
+        Then the OrigHeaderMap would preserve both the exact casing and order of these headers:
+        - Standard name "x-bread" maps to original "x-Bread"
+        - Standard name "x-bread" maps to original "X-BREAD"
+        - Standard name "x-bread" maps to original "x-bread"
+
+        This allows the client to reproduce the exact header casing when forwarding or
+        reconstructing the HTTP message.
+    """
+
+    def __init__(
+        self,
+        init: Optional[List[str]] = None,
+        capacity: Optional[int] = None,
+    ) -> None:
+        """
+        Creates a new OrigHeaderMap from an optional list of header names.
+
+        Args:
+            init: Optional list of header names to initialize with.
+            capacity: Optional initial capacity for the map.
+        """
+        ...
+
+    def insert(self, value: str) -> bool:
+        """
+        Insert a new header name into the collection.
+
+        If the map did not previously have this key present, then False is returned.
+        If the map did have this key present, the new value is pushed to the end
+        of the list of values currently associated with the key. The key is not
+        updated, though; this matters for types that can be == without being identical.
+
+        Args:
+            value: The header name to insert.
+
+        Returns:
+            True if the key was newly inserted, False if it already existed.
+        """
+        ...
+
+    def extend(self, other: "OrigHeaderMap") -> None:
+        """
+        Extends the map with all entries from another OrigHeaderMap, preserving order.
+
+        Args:
+            other: Another OrigHeaderMap to extend from.
+        """
+        ...
+
+    def items(self) -> "OrigHeaderMapIter":
+        """
+        Returns an iterator over the (standard_name, original_name) pairs.
+
+        Returns:
+            An iterator over header name pairs.
+        """
+        ...
+
+    def __len__(self) -> int:
+        """
+        Returns the number of header names stored in the map.
+        """
+        ...
+
+
 class HeaderMapItemsIter:
     r"""
     Iterator over header name-value pairs in a HeaderMap.
@@ -264,7 +348,7 @@ class HeaderMapItemsIter:
         """Return self as iterator."""
         ...
 
-    def __next__(self) -> Optional[Tuple[bytes, Optional[bytes]]]:
+    def __next__(self) -> Optional[Tuple[bytes, bytes]]:
         """
         Get the next header name-value pair.
 
@@ -315,5 +399,33 @@ class HeaderMapValuesIter:
 
         Returns:
             Header value as bytes, or None when exhausted
+        """
+        ...
+
+
+class OrigHeaderMapIter:
+    """
+    An iterator over the items in an OrigHeaderMap.
+
+    Yields tuples of (standard_header_name, original_header_name) where:
+    - standard_header_name is the normalized header name
+    - original_header_name is the header name as originally received/specified
+    """
+
+    def __iter__(self) -> "OrigHeaderMapIter":
+        """
+        Returns the iterator itself.
+        """
+        ...
+
+    def __next__(self) -> Tuple[bytes, bytes]:
+        """
+        Returns the next (standard_name, original_name) pair.
+
+        Returns:
+            A tuple of (standard_header_name, original_header_name) as bytes.
+
+        Raises:
+            StopIteration: When there are no more items.
         """
         ...
