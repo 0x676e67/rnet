@@ -106,7 +106,7 @@ impl FromPyObject<'_> for Extractor<wreq::header::OrigHeaderMap> {
                 |mut headers, name| {
                     let name = {
                         let name = name.extract::<PyBackedStr>()?;
-                        HeaderName::from_bytes(name.as_bytes()).map_err(Error::from)?
+                        Bytes::from_owner(name)
                     };
                     headers.insert(name);
                     Ok(headers)

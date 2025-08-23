@@ -32,7 +32,7 @@ class Request(TypedDict, closed=True):
     read_timeout: NotRequired[int]
     version: NotRequired[Version]
     headers: NotRequired[Union[Dict[str, str], HeaderMap]]
-    orig_headers: Optional[Union[List[str], OrigHeaderMap]] = (None,)
+    orig_headers: NotRequired[Union[List[str], OrigHeaderMap]]
     default_headers: NotRequired[bool]
     cookies: NotRequired[Dict[str, str]]
     allow_redirects: NotRequired[bool]
@@ -63,7 +63,7 @@ class WebSocketRequest(TypedDict, closed=True):
     local_address: NotRequired[Union[str, ipaddress.IPv4Address, ipaddress.IPv6Address]]
     interface: NotRequired[str]
     headers: NotRequired[Union[Dict[str, str], HeaderMap]]
-    orig_headers: Optional[Union[List[str], OrigHeaderMap]] = (None,)
+    orig_headers: NotRequired[Union[List[str], OrigHeaderMap]]
     default_headers: NotRequired[bool]
     cookies: NotRequired[Dict[str, str]]
     protocols: NotRequired[List[str]]
