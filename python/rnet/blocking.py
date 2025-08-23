@@ -13,7 +13,7 @@ from pathlib import Path
 
 from rnet import Version, Method, SocketAddr, StatusCode
 from rnet.tls import CertStore, KeyLogPolicy, TlsVersion, Identity
-from rnet.header import HeaderMap
+from rnet.header import HeaderMap, OrigHeaderMap
 from rnet.cookie import Cookie, Jar
 from rnet.emulation import EmulationOption, Emulation
 
@@ -27,7 +27,8 @@ class Client:
         cls,
         emulation: Optional[Union[Emulation, EmulationOption]] = None,
         user_agent: Optional[str] = None,
-        default_headers: Optional[Union[Dict[str, str], HeaderMap]] = None,
+        headers: Optional[Union[Dict[str, str], HeaderMap]] = None,
+        orig_headers: Optional[Union[List[str], OrigHeaderMap]] = None,
         referer: Optional[bool] = None,
         allow_redirects: Optional[bool] = None,
         max_redirects: Optional[int] = None,
@@ -73,7 +74,8 @@ class Client:
         Args:
             emulation: Browser fingerprint/Emulation config.
             user_agent: Default User-Agent string.
-            default_headers: Default request headers.
+            headers: Default request headers.
+            orig_headers: Original request headers (case-sensitive and order).
             referer: Automatically set Referer.
             allow_redirects: Allow automatic redirects.
             max_redirects: Maximum number of redirects.

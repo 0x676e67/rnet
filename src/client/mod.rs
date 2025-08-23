@@ -13,7 +13,7 @@ use pyo3_async_runtimes::tokio::future_into_py;
 use request::{Request, WebSocketRequest};
 use wreq::{
     Proxy,
-    header::{self, HeaderMap},
+    header::{self, HeaderMap, OrigHeaderMap},
     redirect::Policy,
     tls::CertStore,
 };
@@ -66,7 +66,9 @@ pub struct Builder {
     /// The user agent to use for the client.
     user_agent: Option<PyBackedStr>,
     /// The headers to use for the client.
-    default_headers: Option<Extractor<HeaderMap>>,
+    headers: Option<Extractor<HeaderMap>>,
+    /// The original headers to use for the client.
+    orig_headers: Option<Extractor<OrigHeaderMap>>,
     /// Whether to use referer.
     referer: Option<bool>,
     /// Whether to allow redirects.
@@ -162,7 +164,8 @@ impl<'py> FromPyObject<'py> for Builder {
         let mut params = Self::default();
         extract_option!(ob, params, emulation);
         extract_option!(ob, params, user_agent);
-        extract_option!(ob, params, default_headers);
+        extract_option!(ob, params, headers);
+        extract_option!(ob, params, orig_headers);
         extract_option!(ob, params, referer);
         extract_option!(ob, params, allow_redirects);
 
@@ -379,8 +382,14 @@ impl Client {
             apply_option!(
                 apply_if_some_inner,
                 builder,
-                params.default_headers,
+                params.headers,
                 default_headers
+            );
+            apply_option!(
+                apply_if_some_inner,
+                builder,
+                params.orig_headers,
+                orig_headers
             );
 
             // Referer options.
@@ -651,6 +660,12 @@ impl Client {
         // Headers options.
         apply_option!(apply_if_some_inner, builder, params.headers, headers);
         apply_option!(
+            apply_if_some_inner,
+            builder,
+            params.orig_headers,
+            orig_headers
+        );
+        apply_option!(
             apply_if_some,
             builder,
             params.default_headers,
@@ -811,6 +826,21 @@ impl Client {
         ))]
         apply_option!(apply_if_some, builder, params.interface, interface);
 
+        // Headers options.
+        apply_option!(apply_if_some_inner, builder, params.headers, headers);
+        apply_option!(
+            apply_if_some_inner,
+            builder,
+            params.orig_headers,
+            orig_headers
+        );
+        apply_option!(
+            apply_if_some,
+            builder,
+            params.default_headers,
+            default_headers
+        );
+
         // Authentication options.
         apply_option!(
             apply_transformed_option_ref,
@@ -827,15 +857,6 @@ impl Client {
         if let Some(basic_auth) = params.basic_auth.take() {
             builder = builder.basic_auth(basic_auth.0, basic_auth.1);
         }
-
-        // Headers options.
-        apply_option!(apply_if_some_inner, builder, params.headers, headers);
-        apply_option!(
-            apply_if_some,
-            builder,
-            params.default_headers,
-            default_headers
-        );
 
         // Cookies options.
         if let Some(cookies) = params.cookies.take() {
