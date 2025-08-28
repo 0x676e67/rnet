@@ -23,6 +23,55 @@ try:
 except ImportError:
     from typing_extensions import Unpack, NotRequired
 
+class ClientParams(TypedDict, closed=True):
+    emulation: NotRequired[Union[Emulation, EmulationOption]]
+    user_agent: NotRequired[str]
+    headers: NotRequired[Union[Dict[str, str], HeaderMap]]
+    orig_headers: NotRequired[Union[List[str], OrigHeaderMap]]
+    referer: NotRequired[bool]
+    allow_redirects: NotRequired[bool]
+    max_redirects: NotRequired[int]
+    cookie_store: NotRequired[bool]
+    cookie_provider: NotRequired[Jar]
+    timeout: NotRequired[int]
+    connect_timeout: NotRequired[int]
+    read_timeout: NotRequired[int]
+    no_keepalive: NotRequired[bool]
+    tcp_keepalive: NotRequired[int]
+    tcp_keepalive_interval: NotRequired[int]
+    tcp_keepalive_retries: NotRequired[int]
+    tcp_user_timeout: NotRequired[int]
+    tcp_nodelay: NotRequired[bool]
+    tcp_reuse_address: NotRequired[bool]
+    pool_idle_timeout: NotRequired[int]
+    pool_max_idle_per_host: NotRequired[int]
+    pool_max_size: NotRequired[int]
+    http1_only: NotRequired[bool]
+    http2_only: NotRequired[bool]
+    https_only: NotRequired[bool]
+    http2_max_retry_count: NotRequired[int]
+    verify: NotRequired[Union[bool, Path, CertStore]]
+    identity: NotRequired[Identity]
+    keylog: NotRequired[KeyLogPolicy]
+    tls_info: NotRequired[bool]
+    min_tls_version: NotRequired[TlsVersion]
+    max_tls_version: NotRequired[TlsVersion]
+    no_proxy: NotRequired[bool]
+    proxies: NotRequired[List[Proxy]]
+    local_address: NotRequired[Union[str, ipaddress.IPv4Address, ipaddress.IPv6Address]]
+    interface: NotRequired[str]
+    gzip: NotRequired[bool]
+    brotli: NotRequired[bool]
+    deflate: NotRequired[bool]
+    zstd: NotRequired[bool]
+
+class ProxyParams(TypedDict, closed=True):
+    username: NotRequired[str]
+    password: NotRequired[str]
+    custom_http_auth: NotRequired[str]
+    custom_http_headers: NotRequired[Union[Dict[str, str], HeaderMap]]
+    exclusion: NotRequired[str]
+
 class Request(TypedDict, closed=True):
     emulation: NotRequired[Union[Emulation, EmulationOption]]
     proxy: NotRequired[Proxy]
@@ -79,62 +128,14 @@ class WebSocketRequest(TypedDict, closed=True):
     max_frame_size: NotRequired[int]
     accept_unmasked_frames: NotRequired[bool]
 
-class ProxyParams(TypedDict, closed=True):
-    username: NotRequired[str]
-    password: NotRequired[str]
-    custom_http_auth: NotRequired[str]
-    custom_http_headers: NotRequired[Union[Dict[str, str], HeaderMap]]
-    exclusion: NotRequired[str]
-
 class Client:
     r"""
     A client for making HTTP requests.
     """
 
-    def __new__(
+    def __init__(
         cls,
-        emulation: Optional[Union[Emulation, EmulationOption]] = None,
-        user_agent: Optional[str] = None,
-        headers: Optional[Union[Dict[str, str], HeaderMap]] = None,
-        orig_headers: Optional[Union[List[str], OrigHeaderMap]] = None,
-        referer: Optional[bool] = None,
-        allow_redirects: Optional[bool] = None,
-        max_redirects: Optional[int] = None,
-        cookie_store: Optional[bool] = None,
-        cookie_provider: Optional[Jar] = None,
-        timeout: Optional[int] = None,
-        connect_timeout: Optional[int] = None,
-        read_timeout: Optional[int] = None,
-        no_keepalive: Optional[bool] = None,
-        tcp_keepalive: Optional[int] = None,
-        tcp_keepalive_interval: Optional[int] = None,
-        tcp_keepalive_retries: Optional[int] = None,
-        tcp_user_timeout: Optional[int] = None,
-        tcp_nodelay: Optional[bool] = None,
-        tcp_reuse_address: Optional[bool] = None,
-        pool_idle_timeout: Optional[int] = None,
-        pool_max_idle_per_host: Optional[int] = None,
-        pool_max_size: Optional[int] = None,
-        http1_only: Optional[bool] = None,
-        http2_only: Optional[bool] = None,
-        https_only: Optional[bool] = None,
-        http2_max_retry_count: Optional[int] = None,
-        verify: Optional[Union[bool, Path, CertStore]] = None,
-        identity: Optional[Identity] = None,
-        keylog: Optional[KeyLogPolicy] = None,
-        tls_info: Optional[bool] = None,
-        min_tls_version: Optional[TlsVersion] = None,
-        max_tls_version: Optional[TlsVersion] = None,
-        no_proxy: Optional[bool] = None,
-        proxies: Optional[List[Proxy]] = None,
-        local_address: Optional[
-            Union[str, ipaddress.IPv4Address, ipaddress.IPv6Address]
-        ] = None,
-        interface: Optional[str] = None,
-        gzip: Optional[bool] = None,
-        brotli: Optional[bool] = None,
-        deflate: Optional[bool] = None,
-        zstd: Optional[bool] = None,
+        **kwargs: Unpack[ClientParams],
     ) -> Client:
         r"""
         Creates a new Client instance.
@@ -444,7 +445,7 @@ class Multipart:
     A multipart form for a request.
     """
 
-    def __new__(cls, *parts) -> Multipart:
+    def __init__(cls, *parts) -> Multipart:
         r"""
         Creates a new multipart form.
         """
@@ -454,7 +455,7 @@ class Part:
     A part of a multipart form.
     """
 
-    def __new__(
+    def __init__(
         cls,
         name: str,
         value: Union[
