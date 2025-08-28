@@ -532,6 +532,10 @@ class Response:
     r"""
     Returns the remote address of the response.
     """
+    local_addr: Optional[SocketAddr]
+    r"""
+    Returns the local address of the response.
+    """
     encoding: str
     r"""
     Encoding to decode with when accessing text.
