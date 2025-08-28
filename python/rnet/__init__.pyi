@@ -36,7 +36,6 @@ class ClientParams(TypedDict, closed=True):
     timeout: NotRequired[int]
     connect_timeout: NotRequired[int]
     read_timeout: NotRequired[int]
-    no_keepalive: NotRequired[bool]
     tcp_keepalive: NotRequired[int]
     tcp_keepalive_interval: NotRequired[int]
     tcp_keepalive_retries: NotRequired[int]
@@ -153,7 +152,6 @@ class Client:
             timeout: Total timeout (seconds).
             connect_timeout: Connection timeout (seconds).
             read_timeout: Read timeout (seconds).
-            no_keepalive: Disable HTTP keep-alive.
             tcp_keepalive: TCP keepalive time (seconds).
             tcp_keepalive_interval: TCP keepalive interval (seconds).
             tcp_keepalive_retries: TCP keepalive retry count.

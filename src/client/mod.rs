@@ -111,8 +111,6 @@ pub struct Builder {
     pool_max_idle_per_host: Option<usize>,
     /// Sets the maximum number of connections in the pool.
     pool_max_size: Option<u32>,
-    /// Disable keep-alive for the client.
-    no_keepalive: Option<bool>,
 
     // ========= Protocol options =========
     /// Whether to use the HTTP/1 protocol only.
@@ -186,7 +184,6 @@ impl<'py> FromPyObject<'py> for Builder {
         extract_option!(ob, params, pool_idle_timeout);
         extract_option!(ob, params, pool_max_idle_per_host);
         extract_option!(ob, params, pool_max_size);
-        extract_option!(ob, params, no_keepalive);
 
         extract_option!(ob, params, no_proxy);
         extract_option!(ob, params, proxies);
