@@ -22,6 +22,7 @@ pub struct Response {
     version: Version,
     status: StatusCode,
     remote_addr: Option<SocketAddr>,
+    local_addr: Option<SocketAddr>,
     content_length: Option<u64>,
     headers: HeaderMap,
     response: ArcSwapOption<wreq::Response>,
@@ -41,6 +42,7 @@ impl Response {
             version: Version::from_ffi(response.version()),
             status: StatusCode::from(response.status()),
             remote_addr: response.remote_addr().map(SocketAddr),
+            local_addr: response.local_addr().map(SocketAddr),
             content_length: response.content_length(),
             headers: HeaderMap(std::mem::take(response.headers_mut())),
             response: ArcSwapOption::from_pointee(response),
@@ -105,6 +107,13 @@ impl Response {
     #[getter]
     pub fn remote_addr(&self) -> Option<SocketAddr> {
         self.remote_addr
+    }
+
+    /// Returns the local address of the response.
+    #[inline]
+    #[getter]
+    pub fn local_addr(&self) -> Option<SocketAddr> {
+        self.local_addr
     }
 
     /// Encoding to decode with when accessing text.
@@ -281,6 +290,13 @@ impl BlockingResponse {
     #[getter]
     pub fn remote_addr(&self) -> Option<SocketAddr> {
         self.0.remote_addr()
+    }
+
+    /// Returns the local address of the response.
+    #[inline]
+    #[getter]
+    pub fn local_addr(&self) -> Option<SocketAddr> {
+        self.0.local_addr()
     }
 
     /// Encoding to decode with when accessing text.

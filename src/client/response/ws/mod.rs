@@ -33,6 +33,7 @@ pub struct WebSocket {
     version: Version,
     status: StatusCode,
     remote_addr: Option<SocketAddr>,
+    local_addr: Option<SocketAddr>,
     headers: HeaderMap,
     protocol: Option<HeaderValue>,
     sender: Sender,
@@ -42,10 +43,11 @@ pub struct WebSocket {
 impl WebSocket {
     /// Creates a new [`WebSocket`] instance.
     pub async fn new(response: WebSocketResponse) -> wreq::Result<WebSocket> {
-        let (version, status, remote_addr, headers) = (
+        let (version, status, remote_addr, local_addr, headers) = (
             Version::from_ffi(response.version()),
             StatusCode::from(response.status()),
             response.remote_addr().map(SocketAddr),
+            response.local_addr().map(SocketAddr),
             HeaderMap(response.headers().clone()),
         );
         let websocket = response.into_websocket().await?;
@@ -56,6 +58,7 @@ impl WebSocket {
             version,
             status,
             remote_addr,
+            local_addr,
             headers,
             protocol,
             sender: Arc::new(Mutex::new(Some(sender))),
@@ -99,6 +102,13 @@ impl WebSocket {
     #[getter]
     pub fn remote_addr(&self) -> Option<SocketAddr> {
         self.remote_addr
+    }
+
+    /// Returns the local address of the response.
+    #[inline]
+    #[getter]
+    pub fn local_addr(&self) -> Option<SocketAddr> {
+        self.local_addr
     }
 
     /// Returns the WebSocket protocol.
@@ -209,6 +219,12 @@ impl BlockingWebSocket {
     #[getter]
     pub fn remote_addr(&self) -> Option<SocketAddr> {
         self.0.remote_addr()
+    }
+
+    /// Returns the local address of the response.
+    #[getter]
+    pub fn local_addr(&self) -> Option<SocketAddr> {
+        self.0.local_addr()
     }
 
     /// Returns the WebSocket protocol.
