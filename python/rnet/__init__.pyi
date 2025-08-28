@@ -25,7 +25,7 @@ except ImportError:
 
 class Request(TypedDict, closed=True):
     emulation: NotRequired[Union[Emulation, EmulationOption]]
-    proxy: NotRequired[Union[str, Proxy]]
+    proxy: NotRequired[Proxy]
     local_address: NotRequired[Union[ipaddress.IPv4Address, ipaddress.IPv6Address]]
     interface: NotRequired[str]
     timeout: NotRequired[int]
@@ -59,7 +59,7 @@ class Request(TypedDict, closed=True):
 
 class WebSocketRequest(TypedDict, closed=True):
     emulation: NotRequired[Union[Emulation, EmulationOption]]
-    proxy: NotRequired[Union[str, Proxy]]
+    proxy: NotRequired[Proxy]
     local_address: NotRequired[Union[str, ipaddress.IPv4Address, ipaddress.IPv6Address]]
     interface: NotRequired[str]
     headers: NotRequired[Union[Dict[str, str], HeaderMap]]

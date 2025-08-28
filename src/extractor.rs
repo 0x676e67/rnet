@@ -135,14 +135,6 @@ impl FromPyObject<'_> for Extractor<wreq_util::EmulationOption> {
 /// Extractor for a single proxy as [`wreq::Proxy`].
 impl FromPyObject<'_> for Extractor<wreq::Proxy> {
     fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
-        if let Ok(proxy_str) = ob.extract::<PyBackedStr>() {
-            let proxy = wreq::Proxy::all(proxy_str.as_ref() as &str)
-                .map(Self)
-                .map_err(Error::Library)?;
-
-            return Ok(proxy);
-        }
-
         let proxy = ob.downcast::<Proxy>()?;
         let proxy = proxy.borrow().0.clone();
         Ok(Self(proxy))
