@@ -4,7 +4,6 @@ pub mod request;
 pub mod response;
 
 mod dns;
-mod future;
 
 use std::{fmt, net::IpAddr, sync::Arc, time::Duration};
 
@@ -24,10 +23,7 @@ use self::{
     response::{BlockingResponse, BlockingWebSocket},
 };
 use crate::{
-    client::{
-        future::AllowThreads,
-        response::{Response, WebSocket},
-    },
+    client::response::{Response, WebSocket},
     error::Error,
     extractor::Extractor,
     http::{Method, Version, cookie::Jar},
@@ -330,10 +326,7 @@ impl Client {
         kwds: Option<Request>,
     ) -> PyResult<Bound<'py, PyAny>> {
         let client = self.clone();
-        future_into_py(
-            py,
-            AllowThreads::new_future(client.execute_request(method, url, kwds)),
-        )
+        future_into_py(py, client.execute_request(method, url, kwds))
     }
 
     /// Make a WebSocket request to the given URL.
@@ -346,10 +339,7 @@ impl Client {
         kwds: Option<WebSocketRequest>,
     ) -> PyResult<Bound<'py, PyAny>> {
         let client = self.clone();
-        future_into_py(
-            py,
-            AllowThreads::new_future(client.execute_websocket_request(url, kwds)),
-        )
+        future_into_py(py, client.execute_websocket_request(url, kwds))
     }
 }
 

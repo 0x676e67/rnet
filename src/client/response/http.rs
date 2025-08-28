@@ -10,7 +10,7 @@ use wreq::{Url, header, tls::TlsInfo};
 use super::Streamer;
 use crate::{
     buffer::{Buffer, BytesBuffer, PyBufferProtocol},
-    client::{SocketAddr, body::Json, future::AllowThreads},
+    client::{SocketAddr, body::Json},
     error::Error,
     http::{Version, cookie::Cookie, header::HeaderMap, status::StatusCode},
 };
@@ -154,12 +154,7 @@ impl Response {
     pub fn text<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
         let resp = self.inner()?;
 
-        future_into_py(
-            py,
-            AllowThreads::new_future(resp.text())
-                .map_err(Error::Library)
-                .map_err(Into::into),
-        )
+        future_into_py(py, resp.text().map_err(Error::Library).map_err(Into::into))
     }
 
     /// Returns the text content of the response with a specific charset.
@@ -169,35 +164,37 @@ impl Response {
         encoding: PyBackedStr,
     ) -> PyResult<Bound<'py, PyAny>> {
         let resp = self.inner()?;
-        let fut = AllowThreads::new_future(async move {
+        let fut = async move {
             resp.text_with_charset(&encoding)
                 .await
                 .map_err(Error::Library)
                 .map_err(Into::into)
-        });
+        };
         future_into_py(py, fut)
     }
 
     /// Returns the JSON content of the response.
     pub fn json<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
         let resp = self.inner()?;
-        let fut = AllowThreads::new_future(resp.json::<Json>())
-            .map_err(Error::Library)
-            .map_err(Into::into);
-        future_into_py(py, fut)
+        future_into_py(
+            py,
+            resp.json::<Json>()
+                .map_err(Error::Library)
+                .map_err(Into::into),
+        )
     }
 
     /// Returns the bytes content of the response.
     pub fn bytes<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
         let resp = self.inner()?;
-        let fut = AllowThreads::new_future(async move {
+        let fut = async move {
             let buffer = resp
                 .bytes()
                 .await
                 .map(BytesBuffer::new)
                 .map_err(Error::Library)?;
             Python::with_gil(|py| buffer.into_bytes(py))
-        });
+        };
         future_into_py(py, fut)
     }
 
@@ -213,8 +210,7 @@ impl Response {
     /// Closes the response connection.
     pub fn close<'py>(&'py self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
         let inner = self.inner();
-        let fut = AllowThreads::new_closure(|| Ok(inner.ok().map(drop)));
-        future_into_py(py, fut)
+        future_into_py(py, async move { Ok(inner.ok().map(drop)) })
     }
 }
 
@@ -223,8 +219,7 @@ impl Response {
     #[inline]
     fn __aenter__<'py>(slf: PyRef<'py, Self>, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
         let slf = slf.into_py_any(py)?;
-        let fut = AllowThreads::new_closure(|| Ok(slf));
-        future_into_py(py, fut)
+        future_into_py(py, async move { Ok(slf) })
     }
 
     #[inline]

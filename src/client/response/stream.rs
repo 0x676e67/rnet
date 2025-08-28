@@ -8,7 +8,6 @@ use tokio::sync::Mutex;
 
 use crate::{
     buffer::{BytesBuffer, PyBufferProtocol},
-    client::future::AllowThreads,
     error::Error,
 };
 
@@ -41,15 +40,16 @@ impl Streamer {
 
     #[inline]
     fn __anext__<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
-        let fut =
-            AllowThreads::new_future(anext(self.0.clone(), || Error::StopAsyncIteration.into()));
-        future_into_py(py, fut)
+        future_into_py(
+            py,
+            anext(self.0.clone(), || Error::StopAsyncIteration.into()),
+        )
     }
 
     #[inline]
     fn __aenter__<'py>(slf: PyRef<'py, Self>, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
         let slf = slf.into_py_any(py)?;
-        future_into_py(py, AllowThreads::new_closure(|| Ok(slf)))
+        future_into_py(py, async move { Ok(slf) })
     }
 
     #[inline]
@@ -61,10 +61,10 @@ impl Streamer {
         _traceback: &Bound<'py, PyAny>,
     ) -> PyResult<Bound<'py, PyAny>> {
         let streamer = self.0.clone();
-        let fut = AllowThreads::new_future(async move {
+        let fut = async move {
             let mut lock = streamer.lock().await;
             Ok(drop(lock.take()))
-        });
+        };
         future_into_py(py, fut)
     }
 }

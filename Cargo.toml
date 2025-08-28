@@ -42,12 +42,14 @@ url = "2.5.4"
 bytes = "1.10.1"
 pin-project-lite = "0.2.16"
 futures-util = { version = "0.3.31", default-features = false }
-wreq = { version = "6.0.0-rc.8", features = [
+wreq = { version = "6.0.0-rc.8", default-features = false, features = [
+    "webpki-roots",
     "json",
     "socks",
     "stream",
     "multipart",
     "cookies",
+    "charset",
     "gzip",
     "brotli",
     "deflate",
