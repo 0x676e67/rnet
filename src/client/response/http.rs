@@ -1,6 +1,3 @@
-use std::sync::Arc;
-
-use arc_swap::ArcSwapOption;
 use futures_util::TryFutureExt;
 use mime::Mime;
 use pyo3::{IntoPyObjectExt, prelude::*, pybacked::PyBackedStr};
@@ -25,7 +22,7 @@ pub struct Response {
     local_addr: Option<SocketAddr>,
     content_length: Option<u64>,
     headers: HeaderMap,
-    response: ArcSwapOption<wreq::Response>,
+    response: Option<wreq::Response>,
 }
 
 /// A blocking response from a request.
@@ -45,14 +42,13 @@ impl Response {
             local_addr: response.local_addr().map(SocketAddr),
             content_length: response.content_length(),
             headers: HeaderMap(std::mem::take(response.headers_mut())),
-            response: ArcSwapOption::from_pointee(response),
+            response: Some(response),
         }
     }
 
-    fn inner(&self) -> PyResult<wreq::Response> {
+    fn inner(&mut self) -> PyResult<wreq::Response> {
         self.response
-            .swap(None)
-            .and_then(Arc::into_inner)
+            .take()
             .ok_or_else(|| Error::Memory)
             .map_err(Into::into)
     }
@@ -139,8 +135,7 @@ impl Response {
         py: Python<'py>,
     ) -> PyResult<Option<Bound<'py, PyAny>>> {
         let s = py.allow_threads(|| {
-            let resp_ref = self.response.load();
-            let resp = resp_ref.as_ref()?;
+            let resp = self.response.as_ref()?;
             let val = resp.extensions().get::<TlsInfo>()?;
             val.peer_certificate()
                 .map(ToOwned::to_owned)
@@ -151,15 +146,14 @@ impl Response {
     }
 
     /// Returns the text content of the response.
-    pub fn text<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
+    pub fn text<'py>(&mut self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
         let resp = self.inner()?;
-
         future_into_py(py, resp.text().map_err(Error::Library).map_err(Into::into))
     }
 
     /// Returns the text content of the response with a specific charset.
     pub fn text_with_charset<'py>(
-        &self,
+        &mut self,
         py: Python<'py>,
         encoding: PyBackedStr,
     ) -> PyResult<Bound<'py, PyAny>> {
@@ -174,7 +168,7 @@ impl Response {
     }
 
     /// Returns the JSON content of the response.
-    pub fn json<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
+    pub fn json<'py>(&mut self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
         let resp = self.inner()?;
         future_into_py(
             py,
@@ -185,7 +179,7 @@ impl Response {
     }
 
     /// Returns the bytes content of the response.
-    pub fn bytes<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
+    pub fn bytes<'py>(&mut self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
         let resp = self.inner()?;
         let fut = async move {
             let buffer = resp
@@ -199,7 +193,7 @@ impl Response {
     }
 
     /// Convert the response into a `Stream` of `Bytes` from the body.
-    pub fn stream(&self, py: Python) -> PyResult<Streamer> {
+    pub fn stream(&mut self, py: Python) -> PyResult<Streamer> {
         py.allow_threads(|| {
             self.inner()
                 .map(wreq::Response::bytes_stream)
@@ -208,7 +202,7 @@ impl Response {
     }
 
     /// Closes the response connection.
-    pub fn close<'py>(&'py self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
+    pub fn close<'py>(&'py mut self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
         let inner = self.inner();
         future_into_py(py, async move { Ok(inner.ok().map(drop)) })
     }
@@ -224,7 +218,7 @@ impl Response {
 
     #[inline]
     fn __aexit__<'py>(
-        &'py self,
+        &'py mut self,
         py: Python<'py>,
         _exc_type: &Bound<'py, PyAny>,
         _exc_value: &Bound<'py, PyAny>,
@@ -311,7 +305,7 @@ impl BlockingResponse {
     }
 
     /// Returns the text content of the response.
-    pub fn text(&self, py: Python) -> PyResult<String> {
+    pub fn text(&mut self, py: Python) -> PyResult<String> {
         py.allow_threads(|| {
             let resp = self.0.inner()?;
             pyo3_async_runtimes::tokio::get_runtime()
@@ -322,7 +316,7 @@ impl BlockingResponse {
     }
 
     /// Returns the text content of the response with a specific charset.
-    pub fn text_with_charset(&self, py: Python, encoding: PyBackedStr) -> PyResult<String> {
+    pub fn text_with_charset(&mut self, py: Python, encoding: PyBackedStr) -> PyResult<String> {
         py.allow_threads(|| {
             let resp = self.0.inner()?;
             pyo3_async_runtimes::tokio::get_runtime()
@@ -333,7 +327,7 @@ impl BlockingResponse {
     }
 
     /// Returns the JSON content of the response.
-    pub fn json(&self, py: Python) -> PyResult<Json> {
+    pub fn json(&mut self, py: Python) -> PyResult<Json> {
         py.allow_threads(|| {
             let resp = self.0.inner()?;
             pyo3_async_runtimes::tokio::get_runtime()
@@ -344,7 +338,7 @@ impl BlockingResponse {
     }
 
     /// Returns the bytes content of the response.
-    pub fn bytes(&self, py: Python) -> PyResult<Py<PyAny>> {
+    pub fn bytes(&mut self, py: Python) -> PyResult<Py<PyAny>> {
         py.allow_threads(|| {
             let resp = self.0.inner()?;
             let buffer = pyo3_async_runtimes::tokio::get_runtime()
@@ -358,13 +352,13 @@ impl BlockingResponse {
 
     /// Convert the response into a `Stream` of `Bytes` from the body.
     #[inline]
-    pub fn stream(&self, py: Python) -> PyResult<Streamer> {
+    pub fn stream(&mut self, py: Python) -> PyResult<Streamer> {
         self.0.stream(py)
     }
 
     /// Closes the response connection.
     #[inline]
-    pub fn close(&self, py: Python) {
+    pub fn close(&mut self, py: Python) {
         py.allow_threads(|| {
             let _ = self.0.inner().map(drop);
         })
@@ -380,7 +374,7 @@ impl BlockingResponse {
 
     #[inline]
     fn __exit__<'py>(
-        &self,
+        &mut self,
         py: Python<'py>,
         _exc_type: &Bound<'py, PyAny>,
         _exc_value: &Bound<'py, PyAny>,

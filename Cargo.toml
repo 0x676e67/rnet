@@ -37,7 +37,6 @@ pyo3-async-runtimes = { version = "0.25.0", features = [
 serde = { version = "1.0.219", features = ["derive"] }
 mime = "0.3.17"
 indexmap = { version = "2.10.0", features = ["serde"] }
-arc-swap = "1.7.1"
 url = "2.5.4"
 bytes = "1.10.1"
 pin-project-lite = "0.2.16"
