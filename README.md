@@ -32,7 +32,7 @@ A blazing-fast Python HTTP client with advanced browser fingerprinting that accu
 This asynchronous example demonstrates how to make a simple GET request using the `rnet` library. So you need install `rnet` and run the following code:
 
 ```bash
-pip install asyncio rnet==3.0.0rc1
+pip install asyncio rnet==3.0.0rc2
 ```
 
 And then the code:
