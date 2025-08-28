@@ -131,12 +131,12 @@ class EmulationOption:
     browser types with specific operating systems.
     """
 
-    def __new__(
+    def __init__(
         cls,
         emulation: Emulation,
-        emulation_os: Optional[EmulationOS] = None,
-        skip_http2: Optional[bool] = None,
-        skip_headers: Optional[bool] = None,
+        emulation_os: EmulationOS | None = None,
+        skip_http2: bool | None = None,
+        skip_headers: bool | None = None,
     ) -> "EmulationOption":
         """
         Create a new emulation configuration.

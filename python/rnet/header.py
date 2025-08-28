@@ -55,7 +55,7 @@ class HeaderMap:
         """Return a string representation of all headers."""
         ...
 
-    def __new__(
+    def __init__(
         cls, init: Optional[dict] = None, capacity: Optional[int] = None
     ) -> "HeaderMap":
         """
@@ -108,12 +108,6 @@ class HeaderMap:
         Args:
             key: The header name (case-insensitive)
             value: The header value to set
-
-        Example:
-            ```python
-            headers.insert('Content-Type', 'application/json')
-            # Replaces any existing Content-Type header
-            ```
         """
 
     def append(self, key: str, value: str) -> None:
@@ -127,13 +121,6 @@ class HeaderMap:
         Args:
             key: The header name (case-insensitive)
             value: The header value to append
-
-        Example:
-            ```python
-            headers.append('Accept-Encoding', 'gzip')
-            headers.append('Accept-Encoding', 'deflate')
-            # Results in: Accept-Encoding: gzip, deflate
-            ```
         """
 
     def remove(self, key: str) -> None:
@@ -161,12 +148,6 @@ class HeaderMap:
 
         Returns:
             The first header value as bytes, or the default value
-
-        Example:
-            ```python
-            content_type = headers.get('Content-Type', b'text/plain')
-            auth = headers.get('Authorization')  # Returns None if missing
-            ```
         """
 
     def get_all(self, key: str) -> "HeaderMapValuesIter":
@@ -182,16 +163,6 @@ class HeaderMap:
 
         Returns:
             An iterator over all header values
-
-        Example:
-            ```python
-            # Get all Set-Cookie headers
-            cookies = list(headers.get_all('Set-Cookie'))
-
-            # Process multiple Accept-Encoding values
-            for encoding in headers.get_all('Accept-Encoding'):
-                print(f"Accepts: {encoding.decode()}")
-            ```
         """
 
     def len(self) -> int:
@@ -243,12 +214,6 @@ class HeaderMap:
 
         Returns:
             Iterator over (name, value) tuples
-
-        Example:
-            ```python
-            for name, value in headers.items():
-                print(f"{name.decode()}: {value.decode()}")
-            ```
         """
 
 

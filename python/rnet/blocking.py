@@ -1,21 +1,15 @@
 from typing import Unpack
-from rnet import Message, Proxy, Request, Streamer, WebSocketRequest
-import ipaddress
+from rnet import ClientParams, Message, Request, Streamer, WebSocketRequest
 from typing import (
     Optional,
-    Union,
     Any,
-    Dict,
     List,
     Unpack,
 )
-from pathlib import Path
 
 from rnet import Version, Method, SocketAddr, StatusCode
-from rnet.tls import CertStore, KeyLogPolicy, TlsVersion, Identity
-from rnet.header import HeaderMap, OrigHeaderMap
-from rnet.cookie import Cookie, Jar
-from rnet.emulation import EmulationOption, Emulation
+from rnet.header import HeaderMap
+from rnet.cookie import Cookie
 
 
 class Client:
@@ -23,50 +17,9 @@ class Client:
     A blocking client for making HTTP requests.
     """
 
-    def __new__(
+    def __init__(
         cls,
-        emulation: Optional[Union[Emulation, EmulationOption]] = None,
-        user_agent: Optional[str] = None,
-        headers: Optional[Union[Dict[str, str], HeaderMap]] = None,
-        orig_headers: Optional[Union[List[str], OrigHeaderMap]] = None,
-        referer: Optional[bool] = None,
-        allow_redirects: Optional[bool] = None,
-        max_redirects: Optional[int] = None,
-        cookie_store: Optional[bool] = None,
-        cookie_provider: Optional[Jar] = None,
-        timeout: Optional[int] = None,
-        connect_timeout: Optional[int] = None,
-        read_timeout: Optional[int] = None,
-        no_keepalive: Optional[bool] = None,
-        tcp_keepalive: Optional[int] = None,
-        tcp_keepalive_interval: Optional[int] = None,
-        tcp_keepalive_retries: Optional[int] = None,
-        tcp_user_timeout: Optional[int] = None,
-        tcp_nodelay: Optional[bool] = None,
-        tcp_reuse_address: Optional[bool] = None,
-        pool_idle_timeout: Optional[int] = None,
-        pool_max_idle_per_host: Optional[int] = None,
-        pool_max_size: Optional[int] = None,
-        http1_only: Optional[bool] = None,
-        http2_only: Optional[bool] = None,
-        https_only: Optional[bool] = None,
-        http2_max_retry_count: Optional[int] = None,
-        verify: Optional[Union[bool, Path, CertStore]] = None,
-        identity: Optional[Identity] = None,
-        keylog: Optional[KeyLogPolicy] = None,
-        tls_info: Optional[bool] = None,
-        min_tls_version: Optional[TlsVersion] = None,
-        max_tls_version: Optional[TlsVersion] = None,
-        no_proxy: Optional[bool] = None,
-        proxies: Optional[List[Proxy]] = None,
-        local_address: Optional[
-            Union[str, ipaddress.IPv4Address, ipaddress.IPv6Address]
-        ] = None,
-        interface: Optional[str] = None,
-        gzip: Optional[bool] = None,
-        brotli: Optional[bool] = None,
-        deflate: Optional[bool] = None,
-        zstd: Optional[bool] = None,
+        **kwargs: Unpack[ClientParams],
     ) -> "Client":
         r"""
         Creates a new blocking Client instance.

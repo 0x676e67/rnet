@@ -62,11 +62,11 @@ class CertStore:
     Represents a certificate store for verifying TLS connections.
     """
 
-    def __new__(
+    def __init__(
         cls,
-        der_certs: Optional[List[bytes]] = None,
-        pem_certs: Optional[List[str]] = None,
-        default_paths: Optional[bool] = None,
+        der_certs: List[bytes] | None = None,
+        pem_certs: List[str] | None = None,
+        default_paths: bool | None = None,
     ) -> "CertStore":
         """
         Creates a new CertStore.

@@ -21,7 +21,7 @@ async def main():
         ],
     )
 
-    resp = await client.get("https://money-tourism.gr/en")
+    resp = await client.get("https://tls.peet.ws/api/all")
     print("Status Code: ", resp.status)
     print("Version: ", resp.version)
     print("Response URL: ", resp.url)

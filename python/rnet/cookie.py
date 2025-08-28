@@ -8,7 +8,7 @@ and provides a cookie jar for automatic cookie handling during HTTP requests.
 
 import datetime
 from enum import Enum, auto
-from typing import Optional
+from typing import List, Optional
 
 
 class SameSite(Enum):
@@ -67,17 +67,17 @@ class Cookie:
     The cookie expiration time.
     """
 
-    def __new__(
+    def __init__(
         cls,
         name: str,
         value: str,
-        domain: Optional[str] = None,
-        path: Optional[str] = None,
-        max_age: Optional[datetime.timedelta] = None,
-        expires: Optional[datetime.datetime] = None,
+        domain: str | None = None,
+        path: str | None = None,
+        max_age: datetime.timedelta | None = None,
+        expires: datetime.datetime | None = None,
         http_only: bool = False,
         secure: bool = False,
-        same_site: Optional[SameSite] = None,
+        same_site: SameSite | None = None,
     ) -> "Cookie":
         r"""
         Create a new cookie.
@@ -94,7 +94,7 @@ class Jar:
     to automatically handle cookies during HTTP requests and responses.
     """
 
-    def __new__(cls) -> "Jar":
+    def __init__(cls) -> "Jar":
         r"""
         Create a new cookie jar.
         """
@@ -104,7 +104,7 @@ class Jar:
         Get a cookie by name and URL.
         """
 
-    def get_all(self) -> list[Cookie]:
+    def get_all(self) -> List[Cookie]:
         r"""
         Get all cookies.
         """
