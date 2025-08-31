@@ -8,14 +8,17 @@
 use std::time::Duration;
 
 use bytes::Bytes;
-use futures_util::{SinkExt, StreamExt, TryStreamExt};
+use futures_util::TryStreamExt;
 use pyo3::{prelude::*, pybacked::PyBackedStr};
 use tokio::sync::{
     mpsc::{UnboundedReceiver, UnboundedSender},
     oneshot::{self, Sender},
 };
 
-use super::{Error, Message, Utf8Bytes, ws};
+use super::{
+    Error, Message, Utf8Bytes,
+    ws::{self, WebSocket},
+};
 
 /// Commands for WebSocket operations.
 pub enum Command {
@@ -38,16 +41,14 @@ pub enum Command {
 /// The main background task that processes incoming [`Command`]s and interacts with the WebSocket.
 ///
 /// Handles sending, receiving, and closing the WebSocket connection based on received commands.
-pub async fn task(websocket: ws::WebSocket, mut command_rx: UnboundedReceiver<Command>) {
-    let (mut sender, mut receiver) = websocket.split();
-
+pub async fn task(mut ws: WebSocket, mut cmd: UnboundedReceiver<Command>) {
     loop {
         tokio::select! {
-            command = command_rx.recv() => {
+            command = cmd.recv() => {
                 match command {
                     // Handle sending a message
                     Some(Command::Send(msg, tx)) => {
-                        let res = sender
+                        let res = ws
                             .send(msg.0)
                             .await
                             .map_err(Error::Library)
@@ -58,8 +59,7 @@ pub async fn task(websocket: ws::WebSocket, mut command_rx: UnboundedReceiver<Co
                     // Handle receiving a message
                     Some(Command::Recv(timeout, tx)) => {
                         let fut = async {
-                            receiver
-                                .try_next()
+                            ws.try_next()
                                 .await
                                 .map(|opt| opt.map(Message))
                                 .map_err(Error::Library)
@@ -80,7 +80,7 @@ pub async fn task(websocket: ws::WebSocket, mut command_rx: UnboundedReceiver<Co
                         }
                     }
                     // Handle closing the connection
-                    Some(Command::Close(code, reason, response_tx)) => {
+                    Some(Command::Close(code, reason, tx)) => {
                         let code = code
                             .map(ws::message::CloseCode)
                             .unwrap_or(ws::message::CloseCode::NORMAL);
@@ -88,13 +88,13 @@ pub async fn task(websocket: ws::WebSocket, mut command_rx: UnboundedReceiver<Co
                             .map(Bytes::from_owner)
                             .and_then(|b| Utf8Bytes::try_from(b).ok())
                             .unwrap_or_else(|| Utf8Bytes::from_static("Goodbye"));
-                        let msg =
-                            ws::message::Message::Close(Some(ws::message::CloseFrame { code, reason }));
 
-                        let _ = sender.send(msg).await;
-                        let _ = sender.flush().await;
-                        let _ = sender.close().await;
-                        let _ = response_tx.send(Ok(()));
+                        let res = ws
+                            .close(code, reason)
+                            .await
+                            .map_err(Error::Library)
+                            .map_err(Into::into);
+                        let _ = tx.send(res);
                         break;
                     }
 
@@ -110,7 +110,7 @@ pub async fn task(websocket: ws::WebSocket, mut command_rx: UnboundedReceiver<Co
 
 /// Sends a [`Command::Recv`] to the background task and awaits a message from the WebSocket.
 ///
-/// Returns the received message or an error if the connection is closed or times out.
+/// Returns the received message or an error if the connection is closed or timeout.
 pub async fn recv(
     tx: UnboundedSender<Command>,
     timeout: Option<Duration>,
