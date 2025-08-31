@@ -30,6 +30,12 @@ pub struct WebSocket {
     tx: mpsc::UnboundedSender<cmd::Command>,
 }
 
+/// A blocking WebSocket response.
+#[pyclass(name = "WebSocket", subclass)]
+pub struct BlockingWebSocket(WebSocket);
+
+// ===== impl WebSocket =====
+
 impl WebSocket {
     /// Creates a new [`WebSocket`] instance.
     pub async fn new(response: WebSocketResponse) -> wreq::Result<WebSocket> {
@@ -149,16 +155,6 @@ impl WebSocket {
 #[pymethods]
 impl WebSocket {
     #[inline]
-    fn __aiter__(slf: PyRef<'_, Self>) -> PyRef<'_, Self> {
-        slf
-    }
-
-    #[inline]
-    fn __anext__<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
-        self.recv(py, None)
-    }
-
-    #[inline]
     fn __aenter__<'py>(slf: PyRef<'py, Self>, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
         let slf = slf.into_py_any(py)?;
         future_into_py(py, async move { Ok(slf) })
@@ -176,9 +172,7 @@ impl WebSocket {
     }
 }
 
-/// A blocking WebSocket response.
-#[pyclass(name = "WebSocket", subclass)]
-pub struct BlockingWebSocket(WebSocket);
+// ===== impl BlockingWebSocket =====
 
 #[pymethods]
 impl BlockingWebSocket {
@@ -262,18 +256,6 @@ impl BlockingWebSocket {
 
 #[pymethods]
 impl BlockingWebSocket {
-    #[inline]
-    fn __iter__(slf: PyRef<'_, Self>) -> PyRef<'_, Self> {
-        slf
-    }
-
-    #[inline]
-    fn __next__(&self, py: Python) -> PyResult<Option<Message>> {
-        py.allow_threads(|| {
-            pyo3_async_runtimes::tokio::get_runtime().block_on(cmd::recv(self.0.tx.clone(), None))
-        })
-    }
-
     #[inline]
     fn __enter__(slf: PyRef<Self>) -> PyRef<Self> {
         slf

@@ -158,10 +158,8 @@ pub async fn close(
     }
 
     let (response_tx, response_rx) = oneshot::channel();
-    tx.send(Command::Close(code, reason, response_tx))
-        .map_err(|_| Error::WebSocketDisconnected)?;
+    let _ = tx.send(Command::Close(code, reason, response_tx));
+    let _ = response_rx.await;
 
-    response_rx
-        .await
-        .map_err(|_| Error::WebSocketDisconnected)?
+    Ok(())
 }
