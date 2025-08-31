@@ -12,7 +12,7 @@ async def test_get_cookie():
     jar = rnet.Jar()
     url = "https://httpbin.org/cookies"
     cookie = Cookie("test_cookie", "12345", domain="httpbin.org", path="/cookies")
-    jar.add(cookie, url)
+    jar.add_cookie(cookie, url)
     cookie = jar.get("test_cookie", url)
     assert cookie is not None
     assert cookie.name == "test_cookie"
@@ -43,8 +43,8 @@ async def test_get_all_cookies():
     url = "https://httpbin.org/cookies"
     cookie1 = Cookie("test_cookie1", "12345", domain="httpbin.org", path="/cookies")
     cookie2 = Cookie("test_cookie2", "67890", domain="httpbin.org", path="/cookies")
-    jar.add(cookie1, url)
-    jar.add(cookie2, url)
+    jar.add_cookie(cookie1, url)
+    jar.add_cookie(cookie2, url)
 
     cookies = jar.get_all()
     assert len(cookies) == 2
@@ -67,7 +67,7 @@ async def test_remove_cookie():
     client = rnet.Client(cookie_provider=jar)
     url = "https://httpbin.org/cookies"
     cookie = Cookie("test_cookie", "12345", domain="httpbin.org", path="/cookies")
-    jar.add(cookie, url)
+    jar.add_cookie(cookie, url)
 
     # Verify the cookie is set
     response = await client.get(url)
@@ -95,8 +95,8 @@ async def test_clear_cookies():
     cookie1 = Cookie("test_cookie1", "12345", domain="httpbin.org", path="/cookies")
     cookie2 = Cookie("test_cookie2", "67890", domain="httpbin.org", path="/cookies")
 
-    jar.add(cookie1, url)
-    jar.add(cookie2, url)
+    jar.add_cookie(cookie1, url)
+    jar.add_cookie(cookie2, url)
 
     # Verify cookies are set
 

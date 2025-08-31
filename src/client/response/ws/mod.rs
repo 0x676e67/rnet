@@ -51,7 +51,7 @@ impl WebSocket {
             HeaderMap(response.headers().clone()),
         );
         let websocket = response.into_websocket().await?;
-        let protocol = websocket.protocol().cloned();
+        let protocol = websocket.protocol();
         let (sender, receiver) = websocket.split();
 
         Ok(WebSocket {
@@ -361,7 +361,7 @@ mod util {
                 .unwrap_or(ws::message::CloseCode::NORMAL);
             let reason = reason
                 .map(Bytes::from_owner)
-                .map(Utf8Bytes::from_bytes_unchecked)
+                .and_then(|b| Utf8Bytes::try_from(b).ok())
                 .unwrap_or_else(|| Utf8Bytes::from_static("Goodbye"));
             let msg = ws::message::Message::Close(Some(ws::message::CloseFrame { code, reason }));
 

@@ -69,9 +69,8 @@ pub enum Error {
     WebSocketDisconnect,
     InvalidHeaderName(header::InvalidHeaderName),
     InvalidHeaderValue(header::InvalidHeaderValue),
-    UrlParse(url::ParseError),
     IO(std::io::Error),
-    Decode(cookie_crate::ParseError),
+    Decode(cookie::ParseError),
     Library(wreq::Error),
 }
 
@@ -90,7 +89,6 @@ impl From<Error> for PyErr {
             Error::InvalidHeaderValue(err) => {
                 PyRuntimeError::new_err(format!("Invalid header value: {err:?}"))
             }
-            Error::UrlParse(err) => URLParseError::new_err(format!("URL parse error: {err:?}")),
             Error::IO(err) => PyRuntimeError::new_err(format!("IO error: {err:?}")),
             Error::Decode(err) => MIMEParseError::new_err(format!("Decode error: {err:?}")),
             Error::Library(err) => wrap_error!(err,
@@ -119,12 +117,6 @@ impl From<header::InvalidHeaderName> for Error {
 impl From<header::InvalidHeaderValue> for Error {
     fn from(err: header::InvalidHeaderValue) -> Self {
         Error::InvalidHeaderValue(err)
-    }
-}
-
-impl From<url::ParseError> for Error {
-    fn from(err: url::ParseError) -> Self {
-        Error::UrlParse(err)
     }
 }
 

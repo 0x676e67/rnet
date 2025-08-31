@@ -37,12 +37,9 @@ pyo3-async-runtimes = { version = "0.25.0", features = [
 serde = { version = "1.0.219", features = ["derive"] }
 mime = "0.3.17"
 indexmap = { version = "2.10.0", features = ["serde"] }
-url = "2.5.4"
 bytes = "1.10.1"
-pin-project-lite = "0.2.16"
 futures-util = { version = "0.3.31", default-features = false }
-wreq = { version = "6.0.0-rc.8", default-features = false, features = [
-    "webpki-roots",
+wreq = { version = "6.0.0-rc.11", features = [
     "json",
     "socks",
     "stream",
@@ -56,13 +53,8 @@ wreq = { version = "6.0.0-rc.8", default-features = false, features = [
     "ws",
 ] }
 wreq-util = { version = "3.0.0-rc.1", features = ["emulation-rand"] }
-
-## hickory-dns
 hickory-resolver = "0.25.2"
-
-## cookies
-cookie_crate = { version = "0.18", package = "cookie" }
-cookie_store = { version = "0.22" }
+cookie = "0.18"
 
 ## malloc
 mimalloc = { version = "0.1.43", default-features = false, features = [
@@ -80,3 +72,6 @@ lto = "fat"
 opt-level = 3
 panic = "abort"
 strip = true
+
+[patch.crates-io]
+wreq = { path = "../wreq" }

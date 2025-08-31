@@ -109,7 +109,7 @@ class Jar:
         Get all cookies.
         """
 
-    def add(self, cookie: Cookie, url: str) -> None:
+    def add_cookie(self, cookie: Cookie, url: str) -> None:
         r"""
         Add a cookie to this jar.
         """

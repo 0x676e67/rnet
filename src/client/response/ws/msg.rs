@@ -124,7 +124,10 @@ impl Message {
     #[staticmethod]
     #[pyo3(signature = (text))]
     pub fn from_text(text: PyBackedStr) -> Self {
-        let msg = message::Message::text(Utf8Bytes::from_bytes_unchecked(Bytes::from_owner(text)));
+        // If the string is not valid UTF-8, this will panic.
+        let msg = message::Message::text(
+            Utf8Bytes::try_from(Bytes::from_owner(text)).expect("valid UTF-8"),
+        );
         Message(msg)
     }
 
@@ -158,7 +161,7 @@ impl Message {
     pub fn from_close(code: u16, reason: Option<PyBackedStr>) -> Self {
         let reason = reason
             .map(Bytes::from_owner)
-            .map(Utf8Bytes::from_bytes_unchecked)
+            .and_then(|b| Utf8Bytes::try_from(b).ok())
             .unwrap_or_else(|| Utf8Bytes::from_static("Goodbye"));
         let msg = message::Message::close(CloseFrame {
             code: CloseCode(code),

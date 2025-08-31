@@ -2,7 +2,7 @@ use futures_util::TryFutureExt;
 use mime::Mime;
 use pyo3::{IntoPyObjectExt, prelude::*, pybacked::PyBackedStr};
 use pyo3_async_runtimes::tokio::future_into_py;
-use wreq::{Url, header, tls::TlsInfo};
+use wreq::{Uri, header, tls::TlsInfo};
 
 use super::Streamer;
 use crate::{
@@ -15,7 +15,7 @@ use crate::{
 /// A response from a request.
 #[pyclass(subclass)]
 pub struct Response {
-    url: Url,
+    url: Uri,
     version: Version,
     status: StatusCode,
     remote_addr: Option<SocketAddr>,
@@ -35,7 +35,7 @@ impl Response {
     /// Create a new [`Response`] instance.
     pub fn new(mut response: wreq::Response) -> Self {
         Response {
-            url: response.url().clone(),
+            url: response.uri().clone(),
             version: Version::from_ffi(response.version()),
             status: StatusCode::from(response.status()),
             remote_addr: response.remote_addr().map(SocketAddr),
@@ -59,8 +59,8 @@ impl Response {
     /// Returns the URL of the response.
     #[inline]
     #[getter]
-    pub fn url(&self) -> &str {
-        self.url.as_str()
+    pub fn url(&self) -> String {
+        self.url.to_string()
     }
 
     /// Returns the status code of the response.
@@ -235,7 +235,7 @@ impl BlockingResponse {
     /// Returns the URL of the response.
     #[inline]
     #[getter]
-    pub fn url(&self) -> &str {
+    pub fn url(&self) -> String {
         self.0.url()
     }
 
