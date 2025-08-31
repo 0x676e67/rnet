@@ -14,7 +14,7 @@ use crate::{
 };
 
 /// A WebSocket message.
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 #[pyclass(subclass, str)]
 pub struct Message(pub message::Message);
 
