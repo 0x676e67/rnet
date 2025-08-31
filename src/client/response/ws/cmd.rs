@@ -45,6 +45,7 @@ pub async fn task(websocket: ws::WebSocket, mut command_rx: UnboundedReceiver<Co
         tokio::select! {
             command = command_rx.recv() => {
                 match command {
+                    // Handle sending a message
                     Some(Command::Send(msg, tx)) => {
                         let res = sender
                             .send(msg.0)
@@ -54,7 +55,7 @@ pub async fn task(websocket: ws::WebSocket, mut command_rx: UnboundedReceiver<Co
 
                         let _ = tx.send(res);
                     }
-
+                    // Handle receiving a message
                     Some(Command::Recv(timeout, tx)) => {
                         let fut = async {
                             receiver
@@ -78,7 +79,7 @@ pub async fn task(websocket: ws::WebSocket, mut command_rx: UnboundedReceiver<Co
                             let _ = tx.send(fut.await);
                         }
                     }
-
+                    // Handle closing the connection
                     Some(Command::Close(code, reason, response_tx)) => {
                         let code = code
                             .map(ws::message::CloseCode)
