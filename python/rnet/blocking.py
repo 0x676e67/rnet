@@ -1,4 +1,3 @@
-from typing import Unpack
 from rnet import ClientParams, Message, Request, Streamer, WebSocketRequest
 from typing import (
     Optional,

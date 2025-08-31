@@ -1,7 +1,7 @@
 import pytest
 import rnet
 from pathlib import Path
-from rnet import Version, Multipart, Part, WebSocket, Message
+from rnet import Version, Multipart, Part, Message
 
 client = rnet.Client(tls_info=True)
 

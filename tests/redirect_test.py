@@ -1,6 +1,5 @@
 import pytest
 import rnet
-from rnet import Version, HeaderMap
 
 client = rnet.Client(allow_redirects=True)
 
