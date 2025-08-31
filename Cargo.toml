@@ -72,6 +72,3 @@ lto = "fat"
 opt-level = 3
 panic = "abort"
 strip = true
-
-[patch.crates-io]
-wreq = { path = "../wreq" }

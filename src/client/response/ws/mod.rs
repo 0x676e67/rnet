@@ -1,15 +1,12 @@
+mod cmd;
 pub mod msg;
 
-use std::sync::Arc;
+use std::time::Duration;
 
-use futures_util::{
-    StreamExt,
-    stream::{SplitSink, SplitStream},
-};
 use msg::Message;
 use pyo3::{IntoPyObjectExt, prelude::*, pybacked::PyBackedStr};
 use pyo3_async_runtimes::tokio::future_into_py;
-use tokio::sync::Mutex;
+use tokio::sync::mpsc;
 use wreq::{
     header::HeaderValue,
     ws::{self, WebSocketResponse, message::Utf8Bytes},
@@ -21,12 +18,6 @@ use crate::{
     http::{Version, cookie::Cookie, header::HeaderMap, status::StatusCode},
 };
 
-/// Type aliases for WebSocket sender and receiver.
-type Sender = Arc<Mutex<Option<SplitSink<ws::WebSocket, ws::message::Message>>>>;
-
-/// Type alias for WebSocket receiver.
-type Receiver = Arc<Mutex<Option<SplitStream<ws::WebSocket>>>>;
-
 /// A WebSocket response.
 #[pyclass(subclass)]
 pub struct WebSocket {
@@ -36,8 +27,7 @@ pub struct WebSocket {
     local_addr: Option<SocketAddr>,
     headers: HeaderMap,
     protocol: Option<HeaderValue>,
-    sender: Sender,
-    receiver: Receiver,
+    tx: mpsc::UnboundedSender<cmd::Command>,
 }
 
 impl WebSocket {
@@ -52,7 +42,8 @@ impl WebSocket {
         );
         let websocket = response.into_websocket().await?;
         let protocol = websocket.protocol();
-        let (sender, receiver) = websocket.split();
+        let (command_tx, command_rx) = mpsc::unbounded_channel();
+        tokio::spawn(cmd::task(websocket, command_rx));
 
         Ok(WebSocket {
             version,
@@ -61,8 +52,7 @@ impl WebSocket {
             local_addr,
             headers,
             protocol,
-            sender: Arc::new(Mutex::new(Some(sender))),
-            receiver: Arc::new(Mutex::new(Some(receiver))),
+            tx: command_tx,
         })
     }
 }
@@ -125,15 +115,22 @@ impl WebSocket {
 
     /// Receives a message from the WebSocket.
     #[inline]
-    pub fn recv<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
-        future_into_py(py, util::recv(self.receiver.clone()))
+    #[pyo3(signature = (timeout=None))]
+    pub fn recv<'py>(
+        &self,
+        py: Python<'py>,
+        timeout: Option<Duration>,
+    ) -> PyResult<Bound<'py, PyAny>> {
+        let tx = self.tx.clone();
+        future_into_py(py, cmd::recv(tx, timeout))
     }
 
     /// Sends a message to the WebSocket.
     #[inline]
     #[pyo3(signature = (message))]
     pub fn send<'py>(&self, py: Python<'py>, message: Message) -> PyResult<Bound<'py, PyAny>> {
-        future_into_py(py, util::send(self.sender.clone(), message))
+        let tx = self.tx.clone();
+        future_into_py(py, cmd::send(tx, message))
     }
 
     /// Closes the WebSocket connection.
@@ -144,9 +141,8 @@ impl WebSocket {
         code: Option<u16>,
         reason: Option<PyBackedStr>,
     ) -> PyResult<Bound<'py, PyAny>> {
-        let sender = self.sender.clone();
-        let receiver = self.receiver.clone();
-        future_into_py(py, util::close(receiver, sender, code, reason))
+        let tx = self.tx.clone();
+        future_into_py(py, cmd::close(tx, code, reason))
     }
 }
 
@@ -159,8 +155,7 @@ impl WebSocket {
 
     #[inline]
     fn __anext__<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
-        let fut = util::anext(self.receiver.clone(), || Error::StopAsyncIteration.into());
-        future_into_py(py, fut)
+        self.recv(py, None)
     }
 
     #[inline]
@@ -230,9 +225,11 @@ impl BlockingWebSocket {
     }
 
     /// Receives a message from the WebSocket.
-    pub fn recv(&self, py: Python) -> PyResult<Option<Message>> {
+    #[pyo3(signature = (timeout=None))]
+    pub fn recv(&self, py: Python, timeout: Option<Duration>) -> PyResult<Option<Message>> {
         py.allow_threads(|| {
-            pyo3_async_runtimes::tokio::get_runtime().block_on(util::recv(self.0.receiver.clone()))
+            pyo3_async_runtimes::tokio::get_runtime()
+                .block_on(cmd::recv(self.0.tx.clone(), timeout))
         })
     }
 
@@ -241,7 +238,7 @@ impl BlockingWebSocket {
     pub fn send(&self, py: Python, message: Message) -> PyResult<()> {
         py.allow_threads(|| {
             pyo3_async_runtimes::tokio::get_runtime()
-                .block_on(util::send(self.0.sender.clone(), message))
+                .block_on(cmd::send(self.0.tx.clone(), message))
         })
     }
 
@@ -254,9 +251,8 @@ impl BlockingWebSocket {
         reason: Option<PyBackedStr>,
     ) -> PyResult<()> {
         py.allow_threads(|| {
-            pyo3_async_runtimes::tokio::get_runtime().block_on(util::close(
-                self.0.receiver.clone(),
-                self.0.sender.clone(),
+            pyo3_async_runtimes::tokio::get_runtime().block_on(cmd::close(
+                self.0.tx.clone(),
                 code,
                 reason,
             ))
@@ -272,12 +268,9 @@ impl BlockingWebSocket {
     }
 
     #[inline]
-    fn __next__(&self, py: Python) -> PyResult<Message> {
+    fn __next__(&self, py: Python) -> PyResult<Option<Message>> {
         py.allow_threads(|| {
-            pyo3_async_runtimes::tokio::get_runtime()
-                .block_on(util::anext(self.0.receiver.clone(), || {
-                    Error::StopIteration.into()
-                }))
+            pyo3_async_runtimes::tokio::get_runtime().block_on(cmd::recv(self.0.tx.clone(), None))
         })
     }
 
@@ -301,92 +294,5 @@ impl BlockingWebSocket {
 impl From<WebSocket> for BlockingWebSocket {
     fn from(inner: WebSocket) -> Self {
         Self(inner)
-    }
-}
-
-mod util {
-
-    use bytes::Bytes;
-    use futures_util::{SinkExt, TryStreamExt};
-    use pyo3::{prelude::*, pybacked::PyBackedStr};
-
-    use super::{Error, Message, Receiver, Sender, Utf8Bytes, ws};
-
-    pub async fn recv(receiver: Receiver) -> PyResult<Option<Message>> {
-        receiver
-            .lock()
-            .await
-            .as_mut()
-            .ok_or_else(|| Error::WebSocketDisconnect)?
-            .try_next()
-            .await
-            .map(|val| val.map(Message))
-            .map_err(Error::Library)
-            .map_err(Into::into)
-    }
-
-    pub async fn send(sender: Sender, message: Message) -> PyResult<()> {
-        sender
-            .lock()
-            .await
-            .as_mut()
-            .ok_or_else(|| Error::WebSocketDisconnect)?
-            .send(message.0)
-            .await
-            .map_err(Error::Library)
-            .map_err(Into::into)
-    }
-
-    pub async fn close(
-        receiver: Receiver,
-        sender: Sender,
-        code: Option<u16>,
-        reason: Option<PyBackedStr>,
-    ) -> PyResult<()> {
-        // Take and drop receiver to close the stream
-        {
-            let mut lock = receiver.lock().await;
-            lock.take();
-        }
-
-        // Take sender for closing handshake
-        let sender = {
-            let mut lock = sender.lock().await;
-            lock.take()
-        };
-
-        if let Some(mut sender) = sender {
-            let code = code
-                .map(ws::message::CloseCode)
-                .unwrap_or(ws::message::CloseCode::NORMAL);
-            let reason = reason
-                .map(Bytes::from_owner)
-                .and_then(|b| Utf8Bytes::try_from(b).ok())
-                .unwrap_or_else(|| Utf8Bytes::from_static("Goodbye"));
-            let msg = ws::message::Message::Close(Some(ws::message::CloseFrame { code, reason }));
-
-            sender.send(msg).await.map_err(Error::Library)?;
-            sender.flush().await.map_err(Error::Library)?;
-            sender.close().await.map_err(Error::Library)?;
-        }
-
-        Ok(())
-    }
-
-    pub async fn anext(
-        receiver: Receiver,
-        py_stop_iteration_error: fn() -> PyErr,
-    ) -> PyResult<Message> {
-        let val = {
-            let mut lock = receiver.lock().await;
-            lock.as_mut()
-                .ok_or_else(py_stop_iteration_error)?
-                .try_next()
-                .await
-        };
-
-        val.map(|opt| opt.map(Message))
-            .map_err(Error::Library)?
-            .ok_or_else(py_stop_iteration_error)
     }
 }

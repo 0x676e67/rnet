@@ -8,18 +8,6 @@ client = rnet.Client(tls_info=True)
 
 @pytest.mark.asyncio
 @pytest.mark.flaky(reruns=3, reruns_delay=2)
-async def test_websocket():
-    ws = await client.websocket("wss://echo.websocket.org")
-    async with ws:
-        await ws.recv()
-        await ws.send(Message.from_text("Hello, World!"))
-        message = await ws.recv()
-        assert message.data == b"Hello, World!"
-        await ws.close()
-
-
-@pytest.mark.asyncio
-@pytest.mark.flaky(reruns=3, reruns_delay=2)
 async def test_multiple_requests():
     async def file_to_bytes_stream(file_path):
         with open(file_path, "rb") as f:

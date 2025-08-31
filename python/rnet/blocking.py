@@ -1,3 +1,4 @@
+import datetime
 from rnet import ClientParams, Message, Request, Streamer, WebSocketRequest
 from typing import (
     Optional,
@@ -437,7 +438,7 @@ class WebSocket:
     def __next__(self) -> Message: ...
     def __enter__(self) -> "WebSocket": ...
     def __exit__(self, _exc_type: Any, _exc_value: Any, _traceback: Any) -> None: ...
-    def recv(self) -> Optional[Message]:
+    def recv(self, timeout: datetime.timedelta | None = None) -> Optional[Message]:
         r"""
         Receives a message from the WebSocket.
         """

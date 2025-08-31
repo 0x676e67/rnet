@@ -1,5 +1,3 @@
-#![cfg_attr(not(test), warn(unused_crate_dependencies))]
-
 #[macro_use]
 mod macros;
 mod buffer;

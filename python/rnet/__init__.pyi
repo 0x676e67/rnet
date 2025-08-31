@@ -1123,7 +1123,9 @@ class WebSocket:
     def __anext__(self) -> Any: ...
     def __aenter__(self) -> Any: ...
     def __aexit__(self, _exc_type: Any, _exc_value: Any, _traceback: Any) -> Any: ...
-    async def recv(self) -> Optional[Message]:
+    async def recv(
+        self, timeout: datetime.timedelta | None = None
+    ) -> Optional[Message]:
         r"""
         Receives a message from the WebSocket.
         """

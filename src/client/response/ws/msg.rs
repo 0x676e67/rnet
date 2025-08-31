@@ -1,3 +1,12 @@
+//! WebSocket Message Utilities
+//!
+//! This module provides the `Message` type for representing WebSocket messages,
+//! including text, binary, ping, pong, and close frames. It offers constructors
+//! for creating messages of various types, as well as methods and getters for
+//! extracting message content (such as text, binary data, ping/pong payloads, and close reason).
+//!
+//! The `Message` type is used for sending and receiving WebSocket messages in a unified way.
+
 use std::fmt;
 
 use bytes::Bytes;
@@ -14,7 +23,7 @@ use crate::{
 };
 
 /// A WebSocket message.
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 #[pyclass(subclass, str)]
 pub struct Message(pub message::Message);
 

@@ -66,9 +66,10 @@ pub enum Error {
     Memory,
     StopIteration,
     StopAsyncIteration,
-    WebSocketDisconnect,
+    WebSocketDisconnected,
     InvalidHeaderName(header::InvalidHeaderName),
     InvalidHeaderValue(header::InvalidHeaderValue),
+    Timeout(tokio::time::error::Elapsed),
     IO(std::io::Error),
     Decode(cookie::ParseError),
     Library(wreq::Error),
@@ -80,7 +81,7 @@ impl From<Error> for PyErr {
             Error::Memory => PyRuntimeError::new_err(RACE_CONDITION_ERROR_MSG),
             Error::StopIteration => PyStopIteration::new_err("The iterator is exhausted"),
             Error::StopAsyncIteration => PyStopAsyncIteration::new_err("The iterator is exhausted"),
-            Error::WebSocketDisconnect => {
+            Error::WebSocketDisconnected => {
                 PyRuntimeError::new_err("The WebSocket has been disconnected")
             }
             Error::InvalidHeaderName(err) => {
@@ -89,6 +90,7 @@ impl From<Error> for PyErr {
             Error::InvalidHeaderValue(err) => {
                 PyRuntimeError::new_err(format!("Invalid header value: {err:?}"))
             }
+            Error::Timeout(err) => TimeoutError::new_err(format!("Timeout error: {err:?}")),
             Error::IO(err) => PyRuntimeError::new_err(format!("IO error: {err:?}")),
             Error::Decode(err) => MIMEParseError::new_err(format!("Decode error: {err:?}")),
             Error::Library(err) => wrap_error!(err,
@@ -129,5 +131,11 @@ impl From<std::io::Error> for Error {
 impl From<wreq::Error> for Error {
     fn from(err: wreq::Error) -> Self {
         Error::Library(err)
+    }
+}
+
+impl From<tokio::time::error::Elapsed> for Error {
+    fn from(err: tokio::time::error::Elapsed) -> Self {
+        Error::Timeout(err)
     }
 }

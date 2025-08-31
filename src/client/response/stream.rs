@@ -63,7 +63,8 @@ impl Streamer {
         let streamer = self.0.clone();
         let fut = async move {
             let mut lock = streamer.lock().await;
-            Ok(drop(lock.take()))
+            drop(lock.take());
+            Ok(())
         };
         future_into_py(py, fut)
     }
