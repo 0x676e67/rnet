@@ -11,7 +11,6 @@ authentic and less likely to be blocked by anti-bot systems.
 """
 
 from enum import Enum, auto
-from typing import Optional
 
 
 class Emulation(Enum):

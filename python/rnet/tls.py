@@ -8,7 +8,7 @@ These types are typically used to configure client-side TLS authentication and c
 
 from enum import Enum, auto
 from pathlib import Path
-from typing import List, Optional
+from typing import List
 
 
 class TlsVersion(Enum):

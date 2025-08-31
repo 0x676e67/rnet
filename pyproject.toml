@@ -45,3 +45,7 @@ dev = [
   "pytest-asyncio>=0.25.3; python_version >= '3.9'",
   "pytest-rerunfailures>=15.0; python_version >= '3.9'",
 ]
+
+[tool.ruff]
+[tool.ruff.lint]
+ignore = ["F403", "F405"]
