@@ -1,3 +1,10 @@
+//! WebSocket Command Utilities
+//!
+//! This module defines the `Command` enum for representing WebSocket operations
+//! (send, receive, close) and provides async helpers for sending commands to the
+//! WebSocket background task. It enables safe, concurrent, and ergonomic control
+//! of WebSocket communication from Python bindings.
+
 use std::time::Duration;
 
 use bytes::Bytes;
@@ -10,12 +17,27 @@ use tokio::sync::{
 
 use super::{Error, Message, Utf8Bytes, ws};
 
+/// Commands for WebSocket operations.
 pub enum Command {
+    /// Send a WebSocket message.
+    ///
+    /// Contains the message to send and a oneshot sender for the result.
     Send(Message, Sender<PyResult<()>>),
+
+    /// Receive a WebSocket message.
+    ///
+    /// Contains an optional timeout and a oneshot sender for the result.
     Recv(Option<Duration>, Sender<PyResult<Option<Message>>>),
+
+    /// Close the WebSocket connection.
+    ///
+    /// Contains an optional close code, optional reason, and a oneshot sender for the result.
     Close(Option<u16>, Option<PyBackedStr>, Sender<PyResult<()>>),
 }
 
+/// The main background task that processes incoming [`Command`]s and interacts with the WebSocket.
+///
+/// Handles sending, receiving, and closing the WebSocket connection based on received commands.
 pub async fn task(websocket: ws::WebSocket, mut command_rx: UnboundedReceiver<Command>) {
     let (mut sender, mut receiver) = websocket.split();
 
@@ -85,6 +107,9 @@ pub async fn task(websocket: ws::WebSocket, mut command_rx: UnboundedReceiver<Co
     }
 }
 
+/// Sends a [`Command::Recv`] to the background task and awaits a message from the WebSocket.
+///
+/// Returns the received message or an error if the connection is closed or times out.
 pub async fn recv(
     tx: UnboundedSender<Command>,
     timeout: Option<Duration>,
@@ -102,6 +127,9 @@ pub async fn recv(
         .map_err(|_| Error::WebSocketDisconnected)?
 }
 
+/// Sends a [`Command::Send`] to the background task to transmit a message over the WebSocket.
+///
+/// Returns Ok if the message was sent successfully, or an error otherwise.
 pub async fn send(tx: UnboundedSender<Command>, message: Message) -> PyResult<()> {
     if tx.is_closed() {
         return Err(Error::WebSocketDisconnected.into());
@@ -116,6 +144,9 @@ pub async fn send(tx: UnboundedSender<Command>, message: Message) -> PyResult<()
         .map_err(|_| Error::WebSocketDisconnected)?
 }
 
+/// Sends a [`Command::Close`] to the background task to gracefully close the WebSocket connection.
+///
+/// Returns Ok if the connection was closed successfully, or an error otherwise.
 pub async fn close(
     tx: UnboundedSender<Command>,
     code: Option<u16>,
