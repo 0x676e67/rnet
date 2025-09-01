@@ -1,3 +1,4 @@
+mod future;
 mod http;
 
 mod stream;
