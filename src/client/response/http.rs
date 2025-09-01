@@ -1,5 +1,5 @@
 use futures_util::TryFutureExt;
-use http::response::{Parts, Response as HttpResponse};
+use http::{Extensions, response::Response as HttpResponse};
 use mime::Mime;
 use pyo3::{IntoPyObjectExt, prelude::*, pybacked::PyBackedStr};
 use wreq::{self, ResponseBuilderExt, Uri, header, tls::TlsInfo};
@@ -15,9 +15,21 @@ use crate::{
 /// A response from a request.
 #[pyclass(subclass)]
 pub struct Response {
-    uri: Uri,
-    parts: Parts,
-    body: Body,
+    /// Returns the status code of the response.
+    #[pyo3(get)]
+    version: Version,
+
+    /// Returns the HTTP version of the response.
+    #[pyo3(get)]
+    status: StatusCode,
+
+    /// Returns the content length of the response.
+    #[pyo3(get)]
+    content_length: u64,
+
+    /// Returns the headers of the response.
+    #[pyo3(get)]
+    headers: HeaderMap,
 
     /// Returns the content length of the response.
     #[pyo3(get)]
@@ -27,9 +39,11 @@ pub struct Response {
     #[pyo3(get)]
     local_addr: Option<SocketAddr>,
 
-    /// Returns the content length of the response.
-    #[pyo3(get)]
-    content_length: u64,
+    uri: Uri,
+
+    extensions: Extensions,
+
+    body: Body,
 }
 
 /// Represents the state of the HTTP response body.
@@ -59,10 +73,13 @@ impl Response {
         let (parts, body) = response.into_parts();
         Response {
             uri,
-            parts,
+            content_length,
             remote_addr,
             local_addr,
-            content_length,
+            version: Version::from_ffi(parts.version),
+            status: StatusCode::from(parts.status),
+            headers: HeaderMap(parts.headers),
+            extensions: parts.extensions,
             body: Body::Streamable(body),
         }
     }
@@ -115,39 +132,18 @@ impl Response {
         self.uri.to_string()
     }
 
-    /// Returns the status code of the response.
-    #[inline]
-    #[getter]
-    pub fn status(&self) -> StatusCode {
-        StatusCode::from(self.parts.status)
-    }
-
-    /// Returns the HTTP version of the response.
-    #[inline]
-    #[getter]
-    pub fn version(&self) -> Version {
-        Version::from_ffi(self.parts.version)
-    }
-
-    /// Returns the headers of the response.
-    #[inline]
-    #[getter]
-    pub fn headers(&self) -> HeaderMap {
-        HeaderMap(self.parts.headers.clone())
-    }
-
     /// Returns the cookies of the response.
     #[inline]
     #[getter]
     pub fn cookies(&self) -> Vec<Cookie> {
-        Cookie::extract_headers_cookies(&self.parts.headers)
+        Cookie::extract_headers_cookies(&self.headers.0)
     }
 
     /// Encoding to decode with when accessing text.
     #[getter]
     pub fn encoding(&self) -> String {
-        self.parts
-            .headers
+        self.headers
+            .0
             .get(header::CONTENT_TYPE)
             .and_then(|value| value.to_str().ok())
             .and_then(|value| value.parse::<Mime>().ok())
@@ -164,8 +160,7 @@ impl Response {
         py: Python<'py>,
     ) -> PyResult<Option<Bound<'py, PyAny>>> {
         let buf = py.allow_threads(|| {
-            self.parts
-                .extensions
+            self.extensions
                 .get::<TlsInfo>()?
                 .peer_certificate()
                 .map(ToOwned::to_owned)
@@ -275,21 +270,21 @@ impl BlockingResponse {
     #[inline]
     #[getter]
     pub fn status(&self) -> StatusCode {
-        self.0.status()
+        self.0.status
     }
 
     /// Returns the HTTP version of the response.
     #[inline]
     #[getter]
     pub fn version(&self) -> Version {
-        self.0.version()
+        self.0.version
     }
 
     /// Returns the headers of the response.
     #[inline]
     #[getter]
     pub fn headers(&self) -> HeaderMap {
-        self.0.headers()
+        self.0.headers.clone()
     }
 
     /// Returns the cookies of the response.

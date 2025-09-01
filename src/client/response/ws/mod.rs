@@ -3,7 +3,6 @@ pub mod msg;
 
 use std::time::Duration;
 
-use http::Uri;
 use msg::Message;
 use pyo3::{IntoPyObjectExt, prelude::*, pybacked::PyBackedStr};
 use pyo3_async_runtimes::tokio::future_into_py;
@@ -22,9 +21,6 @@ use crate::{
 /// A WebSocket response.
 #[pyclass(subclass)]
 pub struct WebSocket {
-    /// Returns the URL of the response.
-    url: Uri,
-
     /// Returns the status code of the response.
     #[pyo3(get)]
     version: Version,
@@ -57,8 +53,7 @@ pub struct BlockingWebSocket(WebSocket);
 impl WebSocket {
     /// Creates a new [`WebSocket`] instance.
     pub async fn new(response: WebSocketResponse) -> wreq::Result<WebSocket> {
-        let (url, version, status, remote_addr, local_addr, headers) = (
-            response.uri().clone(),
+        let (version, status, remote_addr, local_addr, headers) = (
             Version::from_ffi(response.version()),
             StatusCode::from(response.status()),
             response.remote_addr().map(SocketAddr),
@@ -71,7 +66,6 @@ impl WebSocket {
         tokio::spawn(cmd::task(websocket, rx));
 
         Ok(WebSocket {
-            url,
             version,
             status,
             remote_addr,
@@ -85,12 +79,6 @@ impl WebSocket {
 
 #[pymethods]
 impl WebSocket {
-    /// Returns the URL of the response.
-    #[getter]
-    pub fn url(&self) -> String {
-        self.url.to_string()
-    }
-
     /// Returns the cookies of the response.
     #[getter]
     pub fn cookies(&self, py: Python) -> Vec<Cookie> {
@@ -163,12 +151,6 @@ impl WebSocket {
 
 #[pymethods]
 impl BlockingWebSocket {
-    /// Returns the URL of the response.
-    #[getter]
-    pub fn url(&self) -> String {
-        self.0.url()
-    }
-
     /// Returns the status code of the response.
     #[getter]
     pub fn status(&self) -> StatusCode {
