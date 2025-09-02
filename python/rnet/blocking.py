@@ -365,11 +365,6 @@ class Response:
     Get the local address of the response.
     """
 
-    encoding: str
-    r"""
-    Get encoding to decode with when accessing text.
-    """
-
     def history(self) -> List[History]:
         r"""
         Get the redirect history of the Response.
