@@ -2,7 +2,7 @@ use std::net::IpAddr;
 
 use pyo3::{PyResult, prelude::*, pybacked::PyBackedStr};
 use wreq::{
-    Proxy,
+    Proxy, Version,
     header::{HeaderMap, HeaderValue, OrigHeaderMap},
     multipart::Form,
 };
@@ -11,7 +11,6 @@ use wreq_util::EmulationOption;
 use crate::{
     client::body::{Body, Json},
     extractor::Extractor,
-    http::Version,
 };
 
 /// The parameters for a request.
@@ -30,7 +29,7 @@ pub struct Request {
     /// The read timeout to use for the request.
     pub read_timeout: Option<u64>,
     /// The HTTP version to use for the request.
-    pub version: Option<Version>,
+    pub version: Option<Extractor<Version>>,
     /// The headers to use for the request.
     pub headers: Option<Extractor<HeaderMap>>,
     /// The original headers to use for the request.

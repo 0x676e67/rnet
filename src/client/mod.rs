@@ -26,7 +26,7 @@ use crate::{
     client::response::{Response, WebSocket},
     error::Error,
     extractor::Extractor,
-    http::{Method, Version, cookie::Jar},
+    http::{Method, cookie::Jar},
     tls::{Identity, KeyLogPolicy, TlsVerify, TlsVersion},
 };
 
@@ -325,8 +325,7 @@ impl Client {
         url: PyBackedStr,
         kwds: Option<Request>,
     ) -> PyResult<Bound<'py, PyAny>> {
-        let client = self.clone();
-        future_into_py(py, client.execute_request(method, url, kwds))
+        future_into_py(py, execute_request(self.clone().0, method, url, kwds))
     }
 
     /// Make a WebSocket request to the given URL.
@@ -338,8 +337,7 @@ impl Client {
         url: PyBackedStr,
         kwds: Option<WebSocketRequest>,
     ) -> PyResult<Bound<'py, PyAny>> {
-        let client = self.clone();
-        future_into_py(py, client.execute_websocket_request(url, kwds))
+        future_into_py(py, execute_websocket_request(self.clone().0, url, kwds))
     }
 }
 
@@ -354,11 +352,11 @@ impl Client {
             let mut builder = wreq::Client::builder();
 
             // Emulation options.
-            apply_option!(apply_if_some_inner, builder, params.emulation, emulation);
+            apply_option!(set_if_some_inner, builder, params.emulation, emulation);
 
             // User agent options.
             apply_option!(
-                apply_transformed_option_ref,
+                set_if_some_map_ref,
                 builder,
                 params.user_agent,
                 user_agent,
@@ -366,25 +364,20 @@ impl Client {
             );
 
             // Default headers options.
+            apply_option!(set_if_some_inner, builder, params.headers, default_headers);
             apply_option!(
-                apply_if_some_inner,
-                builder,
-                params.headers,
-                default_headers
-            );
-            apply_option!(
-                apply_if_some_inner,
+                set_if_some_inner,
                 builder,
                 params.orig_headers,
                 orig_headers
             );
 
             // Referer options.
-            apply_option!(apply_if_some, builder, params.referer, referer);
+            apply_option!(set_if_some, builder, params.referer, referer);
 
             // Allow redirects options.
             apply_option!(
-                apply_option_or_default_with_value,
+                set_if_true_with,
                 builder,
                 params.allow_redirects,
                 redirect,
@@ -400,41 +393,41 @@ impl Client {
             if let Some(cookie_provider) = params.cookie_provider.take() {
                 builder = builder.cookie_provider(Arc::new(cookie_provider));
             } else {
-                apply_option!(apply_if_some, builder, params.cookie_store, cookie_store);
+                apply_option!(set_if_some, builder, params.cookie_store, cookie_store);
             }
 
             // TCP options.
             apply_option!(
-                apply_transformed_option,
+                set_if_some_map,
                 builder,
                 params.tcp_keepalive,
                 tcp_keepalive,
                 Duration::from_secs
             );
             apply_option!(
-                apply_transformed_option,
+                set_if_some_map,
                 builder,
                 params.tcp_keepalive_interval,
                 tcp_keepalive_interval,
                 Duration::from_secs
             );
             apply_option!(
-                apply_if_some,
+                set_if_some,
                 builder,
                 params.tcp_keepalive_retries,
                 tcp_keepalive_retries
             );
             #[cfg(any(target_os = "android", target_os = "fuchsia", target_os = "linux"))]
             apply_option!(
-                apply_transformed_option,
+                set_if_some_map,
                 builder,
                 params.tcp_user_timeout,
                 tcp_user_timeout,
                 Duration::from_secs
             );
-            apply_option!(apply_if_some, builder, params.tcp_nodelay, tcp_nodelay);
+            apply_option!(set_if_some, builder, params.tcp_nodelay, tcp_nodelay);
             apply_option!(
-                apply_if_some,
+                set_if_some,
                 builder,
                 params.tcp_reuse_address,
                 tcp_reuse_address
@@ -442,21 +435,21 @@ impl Client {
 
             // Timeout options.
             apply_option!(
-                apply_transformed_option,
+                set_if_some_map,
                 builder,
                 params.timeout,
                 timeout,
                 Duration::from_secs
             );
             apply_option!(
-                apply_transformed_option,
+                set_if_some_map,
                 builder,
                 params.connect_timeout,
                 connect_timeout,
                 Duration::from_secs
             );
             apply_option!(
-                apply_transformed_option,
+                set_if_some_map,
                 builder,
                 params.read_timeout,
                 read_timeout,
@@ -465,38 +458,26 @@ impl Client {
 
             // Pool options.
             apply_option!(
-                apply_transformed_option,
+                set_if_some_map,
                 builder,
                 params.pool_idle_timeout,
                 pool_idle_timeout,
                 Duration::from_secs
             );
             apply_option!(
-                apply_if_some,
+                set_if_some,
                 builder,
                 params.pool_max_idle_per_host,
                 pool_max_idle_per_host
             );
-            apply_option!(apply_if_some, builder, params.pool_max_size, pool_max_size);
+            apply_option!(set_if_some, builder, params.pool_max_size, pool_max_size);
 
             // Protocol options.
+            apply_option!(set_if_true, builder, params.http1_only, http1_only, false);
+            apply_option!(set_if_true, builder, params.http2_only, http2_only, false);
+            apply_option!(set_if_some, builder, params.https_only, https_only);
             apply_option!(
-                apply_option_or_default,
-                builder,
-                params.http1_only,
-                http1_only,
-                false
-            );
-            apply_option!(
-                apply_option_or_default,
-                builder,
-                params.http2_only,
-                http2_only,
-                false
-            );
-            apply_option!(apply_if_some, builder, params.https_only, https_only);
-            apply_option!(
-                apply_if_some,
+                set_if_some,
                 builder,
                 params.http2_max_retry_count,
                 http2_max_retry
@@ -504,20 +485,20 @@ impl Client {
 
             // TLS options.
             apply_option!(
-                apply_transformed_option,
+                set_if_some_map,
                 builder,
                 params.min_tls_version,
                 min_tls_version,
                 TlsVersion::into_ffi
             );
             apply_option!(
-                apply_transformed_option,
+                set_if_some_map,
                 builder,
                 params.max_tls_version,
                 max_tls_version,
                 TlsVersion::into_ffi
             );
-            apply_option!(apply_if_some, builder, params.tls_info, tls_info);
+            apply_option!(set_if_some, builder, params.tls_info, tls_info);
 
             // TLS Verification options.
             if let Some(verify) = params.verify.take() {
@@ -531,8 +512,8 @@ impl Client {
                     TlsVerify::CertificateStore(cert_store) => builder.cert_store(cert_store.0),
                 }
             }
-            apply_option!(apply_if_some_inner, builder, params.identity, identity);
-            apply_option!(apply_if_some_inner, builder, params.keylog, keylog);
+            apply_option!(set_if_some_inner, builder, params.identity, identity);
+            apply_option!(set_if_some_inner, builder, params.keylog, keylog);
 
             // Network options.
             if let Some(proxies) = params.proxies.take() {
@@ -540,15 +521,9 @@ impl Client {
                     builder = builder.proxy(proxy);
                 }
             }
+            apply_option!(set_if_true, builder, params.no_proxy, no_proxy, false);
             apply_option!(
-                apply_option_or_default,
-                builder,
-                params.no_proxy,
-                no_proxy,
-                false
-            );
-            apply_option!(
-                apply_if_some_inner,
+                set_if_some_inner,
                 builder,
                 params.local_address,
                 local_address
@@ -563,13 +538,13 @@ impl Client {
                 target_os = "tvos",
                 target_os = "watchos"
             ))]
-            apply_option!(apply_if_some, builder, params.interface, interface);
+            apply_option!(set_if_some, builder, params.interface, interface);
 
             // Compression options.
-            apply_option!(apply_if_some, builder, params.gzip, gzip);
-            apply_option!(apply_if_some, builder, params.brotli, brotli);
-            apply_option!(apply_if_some, builder, params.deflate, deflate);
-            apply_option!(apply_if_some, builder, params.zstd, zstd);
+            apply_option!(set_if_some, builder, params.gzip, gzip);
+            apply_option!(set_if_some, builder, params.brotli, brotli);
+            apply_option!(set_if_some, builder, params.deflate, deflate);
+            apply_option!(set_if_some, builder, params.zstd, zstd);
 
             builder
                 .dns_resolver(HickoryDnsResolver::new())
@@ -578,289 +553,6 @@ impl Client {
                 .map_err(Error::Library)
                 .map_err(Into::into)
         })
-    }
-}
-
-impl Client {
-    async fn execute_request<U>(
-        self,
-        method: Method,
-        url: U,
-        mut params: Option<Request>,
-    ) -> PyResult<Response>
-    where
-        U: AsRef<str>,
-    {
-        let params = params.get_or_insert_default();
-        let mut builder = self.0.request(method.into_ffi(), url.as_ref());
-
-        // Emulation options.
-        apply_option!(apply_if_some_inner, builder, params.emulation, emulation);
-
-        // Version options.
-        apply_option!(
-            apply_transformed_option,
-            builder,
-            params.version,
-            version,
-            Version::into_ffi
-        );
-
-        // Timeout options.
-        apply_option!(
-            apply_transformed_option,
-            builder,
-            params.timeout,
-            timeout,
-            Duration::from_secs
-        );
-        apply_option!(
-            apply_transformed_option,
-            builder,
-            params.read_timeout,
-            read_timeout,
-            Duration::from_secs
-        );
-
-        // Network options.
-        apply_option!(apply_if_some_inner, builder, params.proxy, proxy);
-        apply_option!(
-            apply_if_some_inner,
-            builder,
-            params.local_address,
-            local_address
-        );
-        #[cfg(any(
-            target_os = "android",
-            target_os = "fuchsia",
-            target_os = "illumos",
-            target_os = "ios",
-            target_os = "linux",
-            target_os = "macos",
-            target_os = "solaris",
-            target_os = "tvos",
-            target_os = "visionos",
-            target_os = "watchos",
-        ))]
-        apply_option!(apply_if_some, builder, params.interface, interface);
-
-        // Headers options.
-        apply_option!(apply_if_some_inner, builder, params.headers, headers);
-        apply_option!(
-            apply_if_some_inner,
-            builder,
-            params.orig_headers,
-            orig_headers
-        );
-        apply_option!(
-            apply_if_some,
-            builder,
-            params.default_headers,
-            default_headers
-        );
-
-        // Authentication options.
-        apply_option!(
-            apply_transformed_option_ref,
-            builder,
-            params.auth,
-            auth,
-            AsRef::<str>::as_ref
-        );
-
-        // Bearer authentication options.
-        apply_option!(apply_if_some, builder, params.bearer_auth, bearer_auth);
-
-        // Basic authentication options.
-        if let Some(basic_auth) = params.basic_auth.take() {
-            builder = builder.basic_auth(basic_auth.0, basic_auth.1);
-        }
-
-        // Cookies options.
-        if let Some(cookies) = params.cookies.take() {
-            for cookie in cookies.0 {
-                builder = builder.header_append(header::COOKIE, cookie);
-            }
-        }
-
-        // Allow redirects options.
-        match params.allow_redirects {
-            Some(false) => {
-                builder = builder.redirect(Policy::none());
-            }
-            Some(true) => {
-                builder = builder.redirect(
-                    params
-                        .max_redirects
-                        .take()
-                        .map(Policy::limited)
-                        .unwrap_or_default(),
-                );
-            }
-            None => {}
-        };
-
-        // Compression options.
-        apply_option!(apply_if_some, builder, params.gzip, gzip);
-        apply_option!(apply_if_some, builder, params.brotli, brotli);
-        apply_option!(apply_if_some, builder, params.deflate, deflate);
-        apply_option!(apply_if_some, builder, params.zstd, zstd);
-
-        // Query options.
-        apply_option!(apply_if_some_ref, builder, params.query, query);
-
-        // Form options.
-        apply_option!(apply_if_some_ref, builder, params.form, form);
-
-        // JSON options.
-        apply_option!(apply_if_some_ref, builder, params.json, json);
-
-        // Body options.
-        apply_option!(apply_if_some, builder, params.body, body);
-
-        // Multipart options.
-        apply_option!(apply_if_some_inner, builder, params.multipart, multipart);
-
-        // Send request.
-        builder
-            .send()
-            .await
-            .map(Response::new)
-            .map_err(Error::Library)
-            .map_err(Into::into)
-    }
-
-    async fn execute_websocket_request<U>(
-        self,
-        url: U,
-        mut params: Option<WebSocketRequest>,
-    ) -> PyResult<WebSocket>
-    where
-        U: AsRef<str>,
-    {
-        let params = params.get_or_insert_default();
-        let mut builder = self.0.websocket(url.as_ref());
-
-        // The protocols to use for the request.
-        apply_option!(apply_if_some, builder, params.protocols, protocols);
-
-        // The WebSocket config
-        apply_option!(
-            apply_if_some,
-            builder,
-            params.read_buffer_size,
-            read_buffer_size
-        );
-        apply_option!(
-            apply_if_some,
-            builder,
-            params.write_buffer_size,
-            write_buffer_size
-        );
-        apply_option!(
-            apply_if_some,
-            builder,
-            params.max_write_buffer_size,
-            max_write_buffer_size
-        );
-        apply_option!(
-            apply_if_some,
-            builder,
-            params.max_frame_size,
-            max_frame_size
-        );
-        apply_option!(
-            apply_if_some,
-            builder,
-            params.max_message_size,
-            max_message_size
-        );
-        apply_option!(
-            apply_if_some,
-            builder,
-            params.accept_unmasked_frames,
-            accept_unmasked_frames
-        );
-
-        // Use http2 options.
-        apply_option!(
-            apply_option_or_default,
-            builder,
-            params.force_http2,
-            force_http2,
-            false
-        );
-
-        // Network options.
-        apply_option!(apply_if_some_inner, builder, params.proxy, proxy);
-        apply_option!(
-            apply_if_some_inner,
-            builder,
-            params.local_address,
-            local_address
-        );
-        #[cfg(any(
-            target_os = "android",
-            target_os = "fuchsia",
-            target_os = "illumos",
-            target_os = "ios",
-            target_os = "linux",
-            target_os = "macos",
-            target_os = "solaris",
-            target_os = "tvos",
-            target_os = "visionos",
-            target_os = "watchos",
-        ))]
-        apply_option!(apply_if_some, builder, params.interface, interface);
-
-        // Headers options.
-        apply_option!(apply_if_some_inner, builder, params.headers, headers);
-        apply_option!(
-            apply_if_some_inner,
-            builder,
-            params.orig_headers,
-            orig_headers
-        );
-        apply_option!(
-            apply_if_some,
-            builder,
-            params.default_headers,
-            default_headers
-        );
-
-        // Authentication options.
-        apply_option!(
-            apply_transformed_option_ref,
-            builder,
-            params.auth,
-            auth,
-            AsRef::<str>::as_ref
-        );
-
-        // Bearer authentication options.
-        apply_option!(apply_if_some, builder, params.bearer_auth, bearer_auth);
-
-        // Basic authentication options.
-        if let Some(basic_auth) = params.basic_auth.take() {
-            builder = builder.basic_auth(basic_auth.0, basic_auth.1);
-        }
-
-        // Cookies options.
-        if let Some(cookies) = params.cookies.take() {
-            for cookie in cookies.0 {
-                builder = builder.header_append(header::COOKIE, cookie);
-            }
-        }
-
-        // Query options.
-        apply_option!(apply_if_some_ref, builder, params.query, query);
-
-        // Send the WebSocket request.
-        let response = builder.send().await.map_err(Error::Library)?;
-        WebSocket::new(response)
-            .await
-            .map_err(Error::Library)
-            .map_err(Into::into)
     }
 }
 
@@ -974,9 +666,8 @@ impl BlockingClient {
         kwds: Option<Request>,
     ) -> PyResult<BlockingResponse> {
         py.allow_threads(|| {
-            let client = self.0.clone();
             pyo3_async_runtimes::tokio::get_runtime()
-                .block_on(client.execute_request(method, url, kwds))
+                .block_on(execute_request(self.0.clone().0, method, url, kwds))
                 .map(Into::into)
         })
     }
@@ -990,9 +681,8 @@ impl BlockingClient {
         kwds: Option<WebSocketRequest>,
     ) -> PyResult<BlockingWebSocket> {
         py.allow_threads(|| {
-            let client = self.0.clone();
             pyo3_async_runtimes::tokio::get_runtime()
-                .block_on(client.execute_websocket_request(url, kwds))
+                .block_on(execute_websocket_request(self.0.clone().0, url, kwds))
                 .map(Into::into)
         })
     }
@@ -1008,22 +698,272 @@ impl BlockingClient {
     }
 }
 
-pub mod short {
-    use std::sync::LazyLock;
-
-    use super::{
-        Client, HickoryDnsResolver, Method, PyResult, Request, Response, WebSocket,
-        WebSocketRequest,
+async fn execute_request<C, U>(
+    client: C,
+    method: Method,
+    url: U,
+    mut params: Option<Request>,
+) -> PyResult<Response>
+where
+    C: Into<Option<wreq::Client>>,
+    U: AsRef<str>,
+{
+    let params = params.get_or_insert_default();
+    let mut builder = match client.into() {
+        Some(client) => client.request(method.into_ffi(), url.as_ref()),
+        None => wreq::request(method.into_ffi(), url.as_ref()),
     };
 
-    static DEFAULT_CLIENT: LazyLock<wreq::Client> = LazyLock::new(|| {
-        let builder = wreq::Client::builder();
-        builder
-            .dns_resolver(HickoryDnsResolver::new())
-            .pool_max_idle_per_host(0)
-            .build()
-            .expect("Failed to build the default client.")
-    });
+    // Emulation options.
+    apply_option!(set_if_some_inner, builder, params.emulation, emulation);
+
+    // Version options.
+    apply_option!(set_if_some_inner, builder, params.version, version);
+
+    // Timeout options.
+    apply_option!(
+        set_if_some_map,
+        builder,
+        params.timeout,
+        timeout,
+        Duration::from_secs
+    );
+    apply_option!(
+        set_if_some_map,
+        builder,
+        params.read_timeout,
+        read_timeout,
+        Duration::from_secs
+    );
+
+    // Network options.
+    apply_option!(set_if_some_inner, builder, params.proxy, proxy);
+    apply_option!(
+        set_if_some_inner,
+        builder,
+        params.local_address,
+        local_address
+    );
+    #[cfg(any(
+        target_os = "android",
+        target_os = "fuchsia",
+        target_os = "illumos",
+        target_os = "ios",
+        target_os = "linux",
+        target_os = "macos",
+        target_os = "solaris",
+        target_os = "tvos",
+        target_os = "visionos",
+        target_os = "watchos",
+    ))]
+    apply_option!(set_if_some, builder, params.interface, interface);
+
+    // Headers options.
+    apply_option!(set_if_some_inner, builder, params.headers, headers);
+    apply_option!(
+        set_if_some_inner,
+        builder,
+        params.orig_headers,
+        orig_headers
+    );
+    apply_option!(
+        set_if_some,
+        builder,
+        params.default_headers,
+        default_headers
+    );
+
+    // Authentication options.
+    apply_option!(
+        set_if_some_map_ref,
+        builder,
+        params.auth,
+        auth,
+        AsRef::<str>::as_ref
+    );
+    apply_option!(set_if_some, builder, params.bearer_auth, bearer_auth);
+    if let Some(basic_auth) = params.basic_auth.take() {
+        builder = builder.basic_auth(basic_auth.0, basic_auth.1);
+    }
+
+    // Cookies options.
+    if let Some(cookies) = params.cookies.take() {
+        for cookie in cookies.0 {
+            builder = builder.header_append(header::COOKIE, cookie);
+        }
+    }
+
+    // Allow redirects options.
+    match params.allow_redirects {
+        Some(false) => {
+            builder = builder.redirect(Policy::none());
+        }
+        Some(true) => {
+            builder = builder.redirect(
+                params
+                    .max_redirects
+                    .take()
+                    .map(Policy::limited)
+                    .unwrap_or_default(),
+            );
+        }
+        None => {}
+    };
+
+    // Compression options.
+    apply_option!(set_if_some, builder, params.gzip, gzip);
+    apply_option!(set_if_some, builder, params.brotli, brotli);
+    apply_option!(set_if_some, builder, params.deflate, deflate);
+    apply_option!(set_if_some, builder, params.zstd, zstd);
+
+    // Query options.
+    apply_option!(set_if_some_ref, builder, params.query, query);
+
+    // Form options.
+    apply_option!(set_if_some_ref, builder, params.form, form);
+
+    // JSON options.
+    apply_option!(set_if_some_ref, builder, params.json, json);
+
+    // Body options.
+    apply_option!(set_if_some, builder, params.body, body);
+
+    // Multipart options.
+    apply_option!(set_if_some_inner, builder, params.multipart, multipart);
+
+    // Send request.
+    builder
+        .send()
+        .await
+        .map(Response::new)
+        .map_err(Error::Library)
+        .map_err(Into::into)
+}
+
+async fn execute_websocket_request<C, U>(
+    client: C,
+    url: U,
+    mut params: Option<WebSocketRequest>,
+) -> PyResult<WebSocket>
+where
+    C: Into<Option<wreq::Client>>,
+    U: AsRef<str>,
+{
+    let params = params.get_or_insert_default();
+    let mut builder = match client.into() {
+        Some(client) => client.websocket(url.as_ref()),
+        None => wreq::websocket(url.as_ref()),
+    };
+
+    // The protocols to use for the request.
+    apply_option!(set_if_some, builder, params.protocols, protocols);
+
+    // The WebSocket config
+    apply_option!(
+        set_if_some,
+        builder,
+        params.read_buffer_size,
+        read_buffer_size
+    );
+    apply_option!(
+        set_if_some,
+        builder,
+        params.write_buffer_size,
+        write_buffer_size
+    );
+    apply_option!(
+        set_if_some,
+        builder,
+        params.max_write_buffer_size,
+        max_write_buffer_size
+    );
+    apply_option!(set_if_some, builder, params.max_frame_size, max_frame_size);
+    apply_option!(
+        set_if_some,
+        builder,
+        params.max_message_size,
+        max_message_size
+    );
+    apply_option!(
+        set_if_some,
+        builder,
+        params.accept_unmasked_frames,
+        accept_unmasked_frames
+    );
+
+    // Use http2 options.
+    apply_option!(set_if_true, builder, params.force_http2, force_http2, false);
+
+    // Network options.
+    apply_option!(set_if_some_inner, builder, params.proxy, proxy);
+    apply_option!(
+        set_if_some_inner,
+        builder,
+        params.local_address,
+        local_address
+    );
+    #[cfg(any(
+        target_os = "android",
+        target_os = "fuchsia",
+        target_os = "illumos",
+        target_os = "ios",
+        target_os = "linux",
+        target_os = "macos",
+        target_os = "solaris",
+        target_os = "tvos",
+        target_os = "visionos",
+        target_os = "watchos",
+    ))]
+    apply_option!(set_if_some, builder, params.interface, interface);
+
+    // Headers options.
+    apply_option!(set_if_some_inner, builder, params.headers, headers);
+    apply_option!(
+        set_if_some_inner,
+        builder,
+        params.orig_headers,
+        orig_headers
+    );
+    apply_option!(
+        set_if_some,
+        builder,
+        params.default_headers,
+        default_headers
+    );
+
+    // Authentication options.
+    apply_option!(
+        set_if_some_map_ref,
+        builder,
+        params.auth,
+        auth,
+        AsRef::<str>::as_ref
+    );
+    apply_option!(set_if_some, builder, params.bearer_auth, bearer_auth);
+    if let Some(basic_auth) = params.basic_auth.take() {
+        builder = builder.basic_auth(basic_auth.0, basic_auth.1);
+    }
+
+    // Cookies options.
+    if let Some(cookies) = params.cookies.take() {
+        for cookie in cookies.0 {
+            builder = builder.header_append(header::COOKIE, cookie);
+        }
+    }
+
+    // Query options.
+    apply_option!(set_if_some_ref, builder, params.query, query);
+
+    // Send the WebSocket request.
+    let response = builder.send().await.map_err(Error::Library)?;
+    WebSocket::new(response)
+        .await
+        .map_err(Error::Library)
+        .map_err(Into::into)
+}
+
+pub mod short {
+    use super::{Method, PyResult, Request, Response, WebSocket, WebSocketRequest};
 
     #[inline]
     pub async fn shortcut_request<U>(
@@ -1034,9 +974,7 @@ pub mod short {
     where
         U: AsRef<str>,
     {
-        Client(DEFAULT_CLIENT.clone())
-            .execute_request(method, url, params)
-            .await
+        super::execute_request(None, method, url, params).await
     }
 
     #[inline]
@@ -1047,8 +985,6 @@ pub mod short {
     where
         U: AsRef<str>,
     {
-        Client(DEFAULT_CLIENT.clone())
-            .execute_websocket_request(url, params)
-            .await
+        super::execute_websocket_request(None, url, params).await
     }
 }

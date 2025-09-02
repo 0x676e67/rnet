@@ -12,7 +12,10 @@ use crate::{
     client::multipart::Multipart,
     emulation::{Emulation, EmulationOption},
     error::Error,
-    http::header::{HeaderMap, OrigHeaderMap},
+    http::{
+        Version,
+        header::{HeaderMap, OrigHeaderMap},
+    },
     proxy::Proxy,
 };
 
@@ -37,6 +40,13 @@ impl Serialize for Extractor<Vec<(PyBackedStr, PyBackedStr)>> {
 impl FromPyObject<'_> for Extractor<Vec<(PyBackedStr, PyBackedStr)>> {
     fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
         ob.extract().map(Self)
+    }
+}
+
+/// Extractor for HTTP Version as [`wreq::Version`].
+impl FromPyObject<'_> for Extractor<wreq::Version> {
+    fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
+        ob.extract::<Version>().map(Version::into_ffi).map(Self)
     }
 }
 
