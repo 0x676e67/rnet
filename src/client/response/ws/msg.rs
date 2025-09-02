@@ -14,13 +14,10 @@ use pyo3::{
     prelude::*,
     pybacked::{PyBackedBytes, PyBackedStr},
 };
+use pyo3_bytes::PyBytes;
 use wreq::ws::message::{self, CloseCode, CloseFrame, Utf8Bytes};
 
-use crate::{
-    buffer::{BytesBuffer, PyBufferProtocol},
-    client::body::Json,
-    error::Error,
-};
+use crate::{client::body::Json, error::Error};
 
 /// A WebSocket message.
 #[derive(Debug, Clone)]
@@ -41,7 +38,7 @@ impl Message {
 
     /// Returns the data of the message as bytes.
     #[getter]
-    pub fn data<'py>(&self, py: Python<'py>) -> Option<Bound<'py, PyAny>> {
+    pub fn data(&self) -> Option<PyBytes> {
         let bytes = match &self.0 {
             message::Message::Text(text) => text.clone().into(),
             message::Message::Binary(bytes)
@@ -49,7 +46,7 @@ impl Message {
             | message::Message::Pong(bytes) => bytes.clone(),
             _ => return None,
         };
-        BytesBuffer::new(bytes).into_bytes_ref(py).ok()
+        Some(PyBytes::new(bytes))
     }
 
     /// Returns the text content of the message if it is a text message.
@@ -64,9 +61,9 @@ impl Message {
 
     /// Returns the binary data of the message if it is a binary message.
     #[getter]
-    pub fn binary<'py>(&self, py: Python<'py>) -> Option<Bound<'py, PyAny>> {
+    pub fn binary(&self) -> Option<PyBytes> {
         if let message::Message::Binary(data) = &self.0 {
-            BytesBuffer::new(data.clone()).into_bytes_ref(py).ok()
+            Some(PyBytes::new(data.clone()))
         } else {
             None
         }
@@ -74,9 +71,9 @@ impl Message {
 
     /// Returns the ping data of the message if it is a ping message.
     #[getter]
-    pub fn ping<'py>(&self, py: Python<'py>) -> Option<Bound<'py, PyAny>> {
+    pub fn ping(&self) -> Option<PyBytes> {
         if let message::Message::Ping(data) = &self.0 {
-            BytesBuffer::new(data.clone()).into_bytes_ref(py).ok()
+            Some(PyBytes::new(data.clone()))
         } else {
             None
         }
@@ -84,9 +81,9 @@ impl Message {
 
     /// Returns the pong data of the message if it is a pong message.
     #[getter]
-    pub fn pong<'py>(&self, py: Python<'py>) -> Option<Bound<'py, PyAny>> {
+    pub fn pong(&self) -> Option<PyBytes> {
         if let message::Message::Pong(data) = &self.0 {
-            BytesBuffer::new(data.clone()).into_bytes_ref(py).ok()
+            Some(PyBytes::new(data.clone()))
         } else {
             None
         }

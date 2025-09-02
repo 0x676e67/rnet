@@ -30,6 +30,7 @@ pyo3 = { version = "0.25.1", features = [
     "multiple-pymethods",
     "generate-import-lib",
 ] }
+pyo3-bytes = "0.3.0"
 pyo3-async-runtimes = { version = "0.25.0", features = [
     "tokio-runtime",
     "unstable-streams",
