@@ -31,9 +31,7 @@ struct BufferView(Bytes);
 
 impl<'a> IntoPyObject<'a> for PyBuffer {
     type Target = PyAny;
-
     type Output = Bound<'a, Self::Target>;
-
     type Error = PyErr;
 
     fn into_pyobject(self, py: Python<'a>) -> Result<Self::Output, Self::Error> {

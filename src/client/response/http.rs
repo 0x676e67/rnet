@@ -1,4 +1,3 @@
-use crate::buffer::PyBuffer;
 use futures_util::TryFutureExt;
 use http::{Extensions, response::Response as HttpResponse};
 use mime::Mime;
@@ -7,6 +6,7 @@ use wreq::{self, ResponseBuilderExt, Uri, header, tls::TlsInfo};
 
 use super::Streamer;
 use crate::{
+    buffer::PyBuffer,
     client::{SocketAddr, body::Json, response::future::AllowThreads},
     error::Error,
     http::{Version, cookie::Cookie, header::HeaderMap, status::StatusCode},

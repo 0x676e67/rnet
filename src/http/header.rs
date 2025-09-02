@@ -1,6 +1,5 @@
 use std::fmt;
 
-use crate::buffer::PyBuffer;
 use bytes::Bytes;
 use pyo3::{
     prelude::*,
@@ -8,6 +7,8 @@ use pyo3::{
     types::{PyDict, PyList},
 };
 use wreq::header::{self, HeaderName, HeaderValue};
+
+use crate::buffer::PyBuffer;
 
 // use crate::buffer::{BytesBuffer, HeaderNameBuffer, HeaderValueBuffer, PyBufferProtocol};
 

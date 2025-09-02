@@ -1,13 +1,12 @@
 use std::{pin::Pin, sync::Arc};
 
-use crate::buffer::PyBuffer;
 use bytes::Bytes;
 use futures_util::{Stream, TryStreamExt};
 use pyo3::{IntoPyObjectExt, prelude::*};
 use pyo3_async_runtimes::tokio::future_into_py;
 use tokio::sync::Mutex;
 
-use crate::error::Error;
+use crate::{buffer::PyBuffer, error::Error};
 
 type BytesStream = Pin<Box<dyn Stream<Item = wreq::Result<Bytes>> + Send + 'static>>;
 

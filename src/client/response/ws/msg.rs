@@ -9,7 +9,6 @@
 
 use std::fmt;
 
-use crate::buffer::PyBuffer;
 use bytes::Bytes;
 use pyo3::{
     prelude::*,
@@ -17,7 +16,7 @@ use pyo3::{
 };
 use wreq::ws::message::{self, CloseCode, CloseFrame, Utf8Bytes};
 
-use crate::{client::body::Json, error::Error};
+use crate::{buffer::PyBuffer, client::body::Json, error::Error};
 
 /// A WebSocket message.
 #[derive(Debug, Clone)]
