@@ -1,8 +1,8 @@
+use crate::buffer::PyBuffer;
 use futures_util::TryFutureExt;
 use http::{Extensions, response::Response as HttpResponse};
 use mime::Mime;
 use pyo3::{IntoPyObjectExt, prelude::*, pybacked::PyBackedStr};
-use pyo3_bytes::PyBytes;
 use wreq::{self, ResponseBuilderExt, Uri, header, tls::TlsInfo};
 
 use super::Streamer;
@@ -157,13 +157,13 @@ impl Response {
     }
 
     /// Returns the TLS peer certificate of the response.
-    pub fn peer_certificate(&self, py: Python) -> Option<PyBytes> {
+    pub fn peer_certificate(&self, py: Python) -> Option<PyBuffer> {
         py.allow_threads(|| {
             self.extensions
                 .get::<TlsInfo>()?
                 .peer_certificate()
                 .map(ToOwned::to_owned)
-                .map(PyBytes::from)
+                .map(PyBuffer::from)
         })
     }
 
@@ -209,7 +209,7 @@ impl Response {
         AllowThreads::future(
             self.response(py, false)?
                 .bytes()
-                .map_ok(PyBytes::new)
+                .map_ok(PyBuffer::from)
                 .map_err(Error::Library)
                 .map_err(Into::into),
         )
@@ -319,7 +319,7 @@ impl BlockingResponse {
 
     /// Returns the TLS peer certificate of the response.
     #[inline]
-    pub fn peer_certificate(&self, py: Python) -> Option<PyBytes> {
+    pub fn peer_certificate(&self, py: Python) -> Option<PyBuffer> {
         self.0.peer_certificate(py)
     }
 
@@ -358,12 +358,12 @@ impl BlockingResponse {
     }
 
     /// Returns the bytes content of the response.
-    pub fn bytes(&mut self, py: Python) -> PyResult<PyBytes> {
+    pub fn bytes(&mut self, py: Python) -> PyResult<PyBuffer> {
         let resp = self.0.response(py, false)?;
         py.allow_threads(|| {
             pyo3_async_runtimes::tokio::get_runtime()
                 .block_on(resp.bytes())
-                .map(PyBytes::new)
+                .map(PyBuffer::from)
                 .map_err(Error::Library)
                 .map_err(Into::into)
         })

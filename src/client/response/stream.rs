@@ -1,10 +1,10 @@
 use std::{pin::Pin, sync::Arc};
 
+use crate::buffer::PyBuffer;
 use bytes::Bytes;
 use futures_util::{Stream, TryStreamExt};
 use pyo3::{IntoPyObjectExt, prelude::*};
 use pyo3_async_runtimes::tokio::future_into_py;
-use pyo3_bytes::PyBytes;
 use tokio::sync::Mutex;
 
 use crate::error::Error;
@@ -77,7 +77,7 @@ impl Streamer {
     }
 
     #[inline]
-    fn __next__(&self, py: Python) -> PyResult<PyBytes> {
+    fn __next__(&self, py: Python) -> PyResult<PyBuffer> {
         py.allow_threads(|| {
             pyo3_async_runtimes::tokio::get_runtime()
                 .block_on(anext(self.0.clone(), || Error::StopIteration.into()))
@@ -111,7 +111,7 @@ impl Streamer {
 async fn anext(
     streamer: Arc<Mutex<Option<BytesStream>>>,
     error: fn() -> PyErr,
-) -> PyResult<PyBytes> {
+) -> PyResult<PyBuffer> {
     streamer
         .lock()
         .await
@@ -120,6 +120,6 @@ async fn anext(
         .try_next()
         .await
         .map_err(Error::Library)?
-        .map(PyBytes::new)
+        .map(PyBuffer::from)
         .ok_or_else(error)
 }
