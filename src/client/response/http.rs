@@ -1,8 +1,7 @@
 use futures_util::TryFutureExt;
 use http::{Extensions, response::Response as HttpResponse};
-use mime::Mime;
 use pyo3::{IntoPyObjectExt, prelude::*, pybacked::PyBackedStr};
-use wreq::{self, ResponseBuilderExt, Uri, header, tls::TlsInfo};
+use wreq::{self, ResponseBuilderExt, Uri, tls::TlsInfo};
 
 use super::Streamer;
 use crate::{
@@ -150,23 +149,6 @@ impl Response {
     #[getter]
     pub fn cookies(&self) -> Vec<Cookie> {
         Cookie::extract_headers_cookies(&self.headers.0)
-    }
-
-    /// Encoding to decode with when accessing text.
-    #[getter]
-    pub fn encoding(&self, py: Python) -> String {
-        py.allow_threads(|| {
-            self.headers
-                .0
-                .get(header::CONTENT_TYPE)
-                .and_then(|value| value.to_str().ok())
-                .and_then(|value| value.parse::<Mime>().ok())
-                .and_then(|mime| {
-                    mime.get_param("charset")
-                        .map(|charset| charset.as_str().to_owned())
-                })
-                .unwrap_or_else(|| "utf-8".to_owned())
-        })
     }
 
     /// Get the redirect history of the Response.
@@ -330,12 +312,6 @@ impl BlockingResponse {
     #[getter]
     pub fn history(&self, py: Python) -> Vec<History> {
         self.0.history(py)
-    }
-
-    /// Get encoding to decode with when accessing text.
-    #[getter]
-    pub fn encoding(&self, py: Python) -> String {
-        self.0.encoding(py)
     }
 
     /// Get the TLS peer certificate of the response.
