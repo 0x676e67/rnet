@@ -4,13 +4,11 @@ use bytes::Bytes;
 use pyo3::{
     prelude::*,
     pybacked::{PyBackedBytes, PyBackedStr},
-    types::{PyDict, PyList},
+    types::{PyDict, PyIterator, PyList},
 };
 use wreq::header::{self, HeaderName, HeaderValue};
 
 use crate::buffer::PyBuffer;
-
-// use crate::buffer::{BytesBuffer, HeaderNameBuffer, HeaderValueBuffer, PyBufferProtocol};
 
 /// A HTTP header map.
 #[pyclass(subclass, str)]
@@ -21,30 +19,6 @@ pub struct HeaderMap(pub header::HeaderMap);
 #[pyclass(subclass, str)]
 #[derive(Clone)]
 pub struct OrigHeaderMap(pub header::OrigHeaderMap);
-
-/// An iterator over the keys in a HeaderMap.
-#[pyclass(subclass)]
-pub struct HeaderMapKeysIter {
-    inner: Vec<HeaderName>,
-}
-
-/// An iterator over the values in a HeaderMap.
-#[pyclass(subclass)]
-pub struct HeaderMapValuesIter {
-    inner: Vec<HeaderValue>,
-}
-
-/// An iterator over the items in a HeaderMap.
-#[pyclass]
-pub struct HeaderMapItemsIter {
-    inner: Vec<(HeaderName, HeaderValue)>,
-}
-
-/// An iterator over the items in a OrigHeaderMap.
-#[pyclass]
-pub struct OrigHeaderMapIter {
-    inner: Vec<(HeaderName, header::OrigHeaderName)>,
-}
 
 // ===== impl HeaderMap =====
 
@@ -114,15 +88,17 @@ impl HeaderMap {
 
     /// Returns a view of all values associated with a key.
     #[pyo3(signature = (key))]
-    fn get_all(&self, py: Python, key: PyBackedStr) -> HeaderMapValuesIter {
-        py.allow_threads(|| HeaderMapValuesIter {
-            inner: self
-                .0
+    fn get_all<'py>(&self, py: Python<'py>, key: PyBackedStr) -> PyResult<Bound<'py, PyIterator>> {
+        let values: Vec<_> = py.allow_threads(|| {
+            self.0
                 .get_all::<&str>(key.as_ref())
                 .iter()
                 .cloned()
-                .collect(),
-        })
+                .map(PyBuffer::from)
+                .collect()
+        });
+        let pylist = PyList::new(py, values)?;
+        PyIterator::from_object(&pylist)
     }
 
     /// Insert a key-value pair into the header map.
@@ -165,12 +141,30 @@ impl HeaderMap {
         py.allow_threads(|| self.0.contains_key::<&str>(key.as_ref()))
     }
 
-    /// Returns key-value pairs in the order they were added.
+    /// An iterator visiting all keys.
     #[inline]
-    fn items(&self, py: Python) -> HeaderMapItemsIter {
-        py.allow_threads(|| HeaderMapItemsIter {
-            inner: self.0.iter().map(|(k, v)| (k.clone(), v.clone())).collect(),
-        })
+    fn keys<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyIterator>> {
+        let items = py.allow_threads(|| {
+            self.0
+                .keys()
+                .map(|k| PyBuffer::from(k.clone()))
+                .collect::<Vec<_>>()
+        });
+        let pylist = PyList::new(py, items)?;
+        PyIterator::from_object(&pylist)
+    }
+
+    ///  An iterator visiting all values.
+    #[inline]
+    fn values<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyIterator>> {
+        let items = py.allow_threads(|| {
+            self.0
+                .values()
+                .map(|v| PyBuffer::from(v.clone()))
+                .collect::<Vec<_>>()
+        });
+        let pylist = PyList::new(py, items)?;
+        PyIterator::from_object(&pylist)
     }
 
     /// Returns the number of headers stored in the map.
@@ -232,11 +226,15 @@ impl HeaderMap {
         self.0.len()
     }
 
-    #[inline]
-    fn __iter__(&self) -> HeaderMapKeysIter {
-        HeaderMapKeysIter {
-            inner: self.0.keys().cloned().collect(),
-        }
+    fn __iter__<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyIterator>> {
+        let items: Vec<_> = py.allow_threads(|| {
+            self.0
+                .iter()
+                .map(|(k, v)| (PyBuffer::from(k.clone()), PyBuffer::from(v.clone())))
+                .collect()
+        });
+        let pylist = PyList::new(py, items)?;
+        PyIterator::from_object(&pylist)
     }
 }
 
@@ -295,14 +293,6 @@ impl OrigHeaderMap {
     pub fn extend(&mut self, iter: &Bound<'_, OrigHeaderMap>) {
         self.0.extend(iter.borrow().0.clone());
     }
-
-    /// Returns key-value pairs in the order they were added.
-    #[inline]
-    pub fn items(&self, py: Python) -> OrigHeaderMapIter {
-        py.allow_threads(|| OrigHeaderMapIter {
-            inner: self.0.iter().map(|(k, v)| (k.clone(), v.clone())).collect(),
-        })
-    }
 }
 
 #[pymethods]
@@ -311,80 +301,28 @@ impl OrigHeaderMap {
     fn __len__(&self) -> usize {
         self.0.len()
     }
+
+    fn __iter__<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyIterator>> {
+        let items: Vec<_> = py.allow_threads(|| {
+            self.0
+                .iter()
+                .map(|(name, orig_name)| {
+                    let name = PyBuffer::from(name.clone());
+                    let orig_name = match orig_name.clone() {
+                        header::OrigHeaderName::Cased(bytes) => PyBuffer::from(bytes),
+                        header::OrigHeaderName::Standard(name) => PyBuffer::from(name),
+                    };
+                    (name, orig_name)
+                })
+                .collect()
+        });
+        let pylist = PyList::new(py, items)?;
+        PyIterator::from_object(&pylist)
+    }
 }
 
 impl fmt::Display for OrigHeaderMap {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{:?}", self.0)
-    }
-}
-
-// ===== impl HeaderMapKeysIter =====
-
-#[pymethods]
-impl HeaderMapKeysIter {
-    #[inline]
-    fn __iter__(slf: PyRefMut<'_, Self>) -> PyRefMut<'_, Self> {
-        slf
-    }
-
-    #[inline]
-    fn __next__(mut slf: PyRefMut<'_, Self>) -> Option<PyBuffer> {
-        slf.inner.pop().map(PyBuffer::from)
-    }
-}
-
-// ===== impl HeaderMapValuesIter =====
-
-#[pymethods]
-impl HeaderMapValuesIter {
-    #[inline]
-    fn __iter__(slf: PyRefMut<'_, Self>) -> PyRefMut<'_, Self> {
-        slf
-    }
-
-    #[inline]
-    fn __next__(mut slf: PyRefMut<'_, Self>) -> Option<PyBuffer> {
-        slf.inner.pop().map(PyBuffer::from)
-    }
-}
-
-// ===== impl HeaderMapItemsIter =====
-
-#[pymethods]
-impl HeaderMapItemsIter {
-    #[inline]
-    fn __iter__(slf: PyRefMut<Self>) -> PyRefMut<Self> {
-        slf
-    }
-
-    fn __next__(mut slf: PyRefMut<'_, Self>) -> Option<(PyBuffer, PyBuffer)> {
-        if let Some((k, v)) = slf.inner.pop() {
-            let name = PyBuffer::from(k);
-            let value = PyBuffer::from(v);
-            return Some((name, value));
-        }
-        None
-    }
-}
-
-// ===== impl OrigHeaderMapItemsIter =====
-#[pymethods]
-impl OrigHeaderMapIter {
-    #[inline]
-    fn __iter__(slf: PyRefMut<'_, Self>) -> PyRefMut<'_, Self> {
-        slf
-    }
-
-    fn __next__(mut slf: PyRefMut<'_, Self>) -> Option<(PyBuffer, PyBuffer)> {
-        if let Some((name, orig_name)) = slf.inner.pop() {
-            let name = PyBuffer::from(name);
-            let orig_name = match orig_name {
-                header::OrigHeaderName::Cased(bytes) => PyBuffer::from(bytes),
-                header::OrigHeaderName::Standard(name) => PyBuffer::from(name),
-            };
-            return Some((name, orig_name));
-        }
-        None
     }
 }

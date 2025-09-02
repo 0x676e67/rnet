@@ -25,7 +25,7 @@ use self::{
     http::{
         Method, Version,
         cookie::{Cookie, Jar, SameSite},
-        header::{HeaderMap, HeaderMapItemsIter, HeaderMapKeysIter, HeaderMapValuesIter},
+        header::{HeaderMap, OrigHeaderMap},
         status::StatusCode,
     },
     proxy::Proxy,
@@ -192,9 +192,7 @@ fn tls_module(m: &Bound<'_, PyModule>) -> PyResult<()> {
 #[pymodule(gil_used = false, name = "header")]
 fn header_module(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<HeaderMap>()?;
-    m.add_class::<HeaderMapItemsIter>()?;
-    m.add_class::<HeaderMapKeysIter>()?;
-    m.add_class::<HeaderMapValuesIter>()?;
+    m.add_class::<OrigHeaderMap>()?;
     Ok(())
 }
 

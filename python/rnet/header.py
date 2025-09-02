@@ -11,7 +11,7 @@ including proper support for headers that can have multiple values (like
 Set-Cookie, Accept-Encoding, etc.).
 """
 
-from typing import List, Optional, Tuple
+from typing import Iterator, List, Optional, Tuple
 
 
 class HeaderMap:
@@ -47,8 +47,8 @@ class HeaderMap:
         """Return the total number of header values (not unique names)."""
         ...
 
-    def __iter__(self) -> "HeaderMapKeysIter":
-        """Iterate over unique header names."""
+    def __iter__(self) -> Iterator[Tuple[bytes, bytes]]:
+        """Iterate all header(name, value) pairs, including duplicates for multiple values."""
         ...
 
     def __str__(self) -> str:
@@ -150,7 +150,7 @@ class HeaderMap:
             The first header value as bytes, or the default value
         """
 
-    def get_all(self, key: str) -> "HeaderMapValuesIter":
+    def get_all(self, key: str) -> Iterator[bytes]:
         r"""
         Get all values for a header name.
 
@@ -163,6 +163,22 @@ class HeaderMap:
 
         Returns:
             An iterator over all header values
+        """
+
+    def values(self) -> Iterator[bytes]:
+        """
+        Iterate over all header values.
+
+        Returns:
+            An iterator over all header values as bytes.
+        """
+
+    def keys(self) -> Iterator[bytes]:
+        """
+        Iterate over unique header names.
+
+        Returns:
+            An iterator over unique header names as bytes.
         """
 
     def len(self) -> int:
@@ -202,18 +218,6 @@ class HeaderMap:
 
         After calling this method, the header map will be empty and
         is_empty() will return True.
-        """
-
-    def items(self) -> "HeaderMapItemsIter":
-        r"""
-        Get an iterator over all header name-value pairs.
-
-        Returns an iterator that yields tuples of (name, value) for each
-        header value. Headers with multiple values will appear multiple
-        times with different values.
-
-        Returns:
-            Iterator over (name, value) tuples
         """
 
 
@@ -259,6 +263,21 @@ class OrigHeaderMap:
         """
         ...
 
+    def __iter__(self) -> Iterator[Tuple[bytes, bytes]]:
+        """
+        Returns an iterator over the (standard_name, original_name) pairs.
+
+        Returns:
+            An iterator over header name pairs.
+        """
+        ...
+
+    def __len__(self) -> int:
+        """
+        Returns the number of header names stored in the map.
+        """
+        ...
+
     def insert(self, value: str) -> bool:
         """
         Insert a new header name into the collection.
@@ -282,115 +301,5 @@ class OrigHeaderMap:
 
         Args:
             other: Another OrigHeaderMap to extend from.
-        """
-        ...
-
-    def items(self) -> "OrigHeaderMapIter":
-        """
-        Returns an iterator over the (standard_name, original_name) pairs.
-
-        Returns:
-            An iterator over header name pairs.
-        """
-        ...
-
-    def __len__(self) -> int:
-        """
-        Returns the number of header names stored in the map.
-        """
-        ...
-
-
-class HeaderMapItemsIter:
-    r"""
-    Iterator over header name-value pairs in a HeaderMap.
-
-    Yields tuples of (header_name, header_value) where both are bytes.
-    Headers with multiple values will appear as separate tuples.
-    """
-
-    def __iter__(self) -> "HeaderMapItemsIter":
-        """Return self as iterator."""
-        ...
-
-    def __next__(self) -> Optional[Tuple[bytes, bytes]]:
-        """
-        Get the next header name-value pair.
-
-        Returns:
-            Tuple of (header_name, header_value) or None when exhausted
-        """
-        ...
-
-
-class HeaderMapKeysIter:
-    r"""
-    Iterator over unique header names in a HeaderMap.
-
-    Yields each unique header name as bytes, regardless of how many
-    values each header has.
-    """
-
-    def __iter__(self) -> "HeaderMapKeysIter":
-        """Return self as iterator."""
-        ...
-
-    def __next__(self) -> Optional[bytes]:
-        """
-        Get the next unique header name.
-
-        Returns:
-            Header name as bytes, or None when exhausted
-        """
-        ...
-
-
-class HeaderMapValuesIter:
-    r"""
-    Iterator over header values in a HeaderMap.
-
-    Yields header values as bytes. When used with get_all(), yields
-    all values for a specific header name. When used independently,
-    yields all values in the entire map.
-    """
-
-    def __iter__(self) -> "HeaderMapValuesIter":
-        """Return self as iterator."""
-        ...
-
-    def __next__(self) -> Optional[bytes]:
-        """
-        Get the next header value.
-
-        Returns:
-            Header value as bytes, or None when exhausted
-        """
-        ...
-
-
-class OrigHeaderMapIter:
-    """
-    An iterator over the items in an OrigHeaderMap.
-
-    Yields tuples of (standard_header_name, original_header_name) where:
-    - standard_header_name is the normalized header name
-    - original_header_name is the header name as originally received/specified
-    """
-
-    def __iter__(self) -> "OrigHeaderMapIter":
-        """
-        Returns the iterator itself.
-        """
-        ...
-
-    def __next__(self) -> Tuple[bytes, bytes]:
-        """
-        Returns the next (standard_name, original_name) pair.
-
-        Returns:
-            A tuple of (standard_header_name, original_header_name) as bytes.
-
-        Raises:
-            StopIteration: When there are no more items.
         """
         ...

@@ -18,7 +18,7 @@ async def main():
     for key in resp.headers:
         print(key)
 
-    for key, value in resp.headers.items():
+    for key, value in resp.headers:
         print(f"{key}: {value}")
 
     for cookie in resp.cookies:
