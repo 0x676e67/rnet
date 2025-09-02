@@ -1,10 +1,9 @@
 use bytes::Bytes;
 use futures_util::{Stream, StreamExt};
 use pyo3::{IntoPyObjectExt, prelude::*};
-use pyo3_async_runtimes::tokio::future_into_py;
 use tokio::sync::mpsc;
 
-use crate::{buffer::PyBuffer, error::Error};
+use crate::{buffer::PyBuffer, client::response::future::AllowThreads, error::Error};
 
 /// A byte stream response.
 /// An asynchronous iterator yielding data chunks from the response stream.
@@ -42,20 +41,14 @@ impl Streamer {
 
     #[inline]
     fn __anext__<'py>(&mut self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
-        let bytes = py.allow_threads(|| {
-            self.0
-                .try_recv()
-                .map_err(Error::StopAsyncIteration)?
-                .map(PyBuffer::from)
-                .map_err(Error::Library)
-        })?;
-        future_into_py(py, async move { Ok(bytes) })
+        let res = next(py, &mut self.0, Error::StopAsyncIteration);
+        AllowThreads::closure(move || res).future_into_py(py)
     }
 
     #[inline]
     fn __aenter__<'py>(slf: PyRef<'py, Self>, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
         let slf = slf.into_py_any(py)?;
-        future_into_py(py, async move { Ok(slf) })
+        AllowThreads::closure(move || Ok(slf)).future_into_py(py)
     }
 
     #[inline]
@@ -67,7 +60,7 @@ impl Streamer {
         _traceback: &Bound<'py, PyAny>,
     ) -> PyResult<Bound<'py, PyAny>> {
         self.0.close();
-        future_into_py(py, async { Ok(()) })
+        AllowThreads::closure(move || Ok(())).future_into_py(py)
     }
 }
 
@@ -81,14 +74,7 @@ impl Streamer {
 
     #[inline]
     fn __next__(&mut self, py: Python) -> PyResult<PyBuffer> {
-        py.allow_threads(|| {
-            self.0
-                .blocking_recv()
-                .ok_or_else(|| Error::StopIteration)?
-                .map(PyBuffer::from)
-                .map_err(Error::Library)
-                .map_err(Into::into)
-        })
+        next(py, &mut self.0, Error::StopIteration)
     }
 
     #[inline]
@@ -105,4 +91,18 @@ impl Streamer {
     ) {
         self.0.close();
     }
+}
+
+fn next(
+    py: Python,
+    rx: &mut mpsc::Receiver<wreq::Result<Bytes>>,
+    error: Error,
+) -> PyResult<PyBuffer> {
+    py.allow_threads(|| {
+        rx.blocking_recv()
+            .ok_or(error)?
+            .map(PyBuffer::from)
+            .map_err(Error::Library)
+            .map_err(Into::into)
+    })
 }

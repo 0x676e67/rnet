@@ -2,7 +2,6 @@ use pyo3::{
     PyErr, create_exception,
     exceptions::{PyException, PyRuntimeError, PyStopAsyncIteration, PyStopIteration},
 };
-use tokio::sync::mpsc::error::TryRecvError;
 use wreq::header;
 
 const RACE_CONDITION_ERROR_MSG: &str = r#"Due to Rust's memory management with borrowing,
@@ -66,7 +65,7 @@ macro_rules! wrap_error {
 pub enum Error {
     Memory,
     StopIteration,
-    StopAsyncIteration(TryRecvError),
+    StopAsyncIteration,
     WebSocketDisconnected,
     InvalidHeaderName(header::InvalidHeaderName),
     InvalidHeaderValue(header::InvalidHeaderValue),
@@ -82,14 +81,9 @@ impl From<Error> for PyErr {
         match err {
             Error::Memory => PyRuntimeError::new_err(RACE_CONDITION_ERROR_MSG),
             Error::StopIteration => PyStopIteration::new_err("The iterator is exhausted"),
-            Error::StopAsyncIteration(err) => match err {
-                TryRecvError::Empty => {
-                    PyStopAsyncIteration::new_err("The async iterator is exhausted")
-                }
-                TryRecvError::Disconnected => PyStopAsyncIteration::new_err(
-                    "The async iterator channel has been disconnected",
-                ),
-            },
+            Error::StopAsyncIteration => {
+                PyStopAsyncIteration::new_err("The async iterator is exhausted")
+            }
             Error::WebSocketDisconnected => {
                 PyRuntimeError::new_err("The WebSocket has been disconnected")
             }
