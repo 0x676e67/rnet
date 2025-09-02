@@ -57,7 +57,7 @@ macro_rules! define_enum {
 
     ($(#[$meta:meta])* $enum_type:ident, $ffi_type:ty, $(($rust_variant:ident, $ffi_variant:ident)),* $(,)?) => {
         $(#[$meta])*
-        #[pyclass(eq, eq_int)]
+        #[pyclass(eq, eq_int, frozen)]
         #[derive(Clone, Copy, PartialEq, Eq, Hash)]
         #[allow(non_camel_case_types)]
         #[allow(clippy::upper_case_acronyms)]

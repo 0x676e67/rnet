@@ -5,7 +5,7 @@ use crate::{error::Error, extractor::Extractor};
 
 /// A proxy server for a request.
 /// Supports HTTP, HTTPS, SOCKS4, SOCKS4a, SOCKS5, and SOCKS5h protocols.
-#[pyclass(subclass)]
+#[pyclass(subclass, frozen)]
 pub struct Proxy(pub wreq::Proxy);
 
 #[pymethods]
