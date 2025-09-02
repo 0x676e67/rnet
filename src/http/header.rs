@@ -245,6 +245,7 @@ impl fmt::Display for HeaderMap {
 }
 
 // ===== impl OrigHeaderMap =====
+
 #[pymethods]
 impl OrigHeaderMap {
     /// Creates a new `OrigHeaderMap` from an optional list of header names.

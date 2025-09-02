@@ -17,7 +17,9 @@ use self::{
         BlockingClient, Client, SocketAddr, execute_request, execute_websocket_request,
         multipart::{Multipart, Part},
         request::{Request, WebSocketRequest},
-        response::{BlockingResponse, BlockingWebSocket, Message, Response, Streamer, WebSocket},
+        response::{
+            BlockingResponse, BlockingWebSocket, History, Message, Response, Streamer, WebSocket,
+        },
     },
     emulation::{Emulation, EmulationOS, EmulationOption},
     error::*,
@@ -144,6 +146,7 @@ fn rnet(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<Multipart>()?;
     m.add_class::<Client>()?;
     m.add_class::<Response>()?;
+    m.add_class::<History>()?;
     m.add_class::<WebSocket>()?;
     m.add_class::<Streamer>()?;
     m.add_class::<Proxy>()?;

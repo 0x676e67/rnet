@@ -1,5 +1,5 @@
 import datetime
-from rnet import ClientParams, Message, Request, Streamer, WebSocketRequest
+from rnet import ClientParams, History, Message, Request, Streamer, WebSocketRequest
 from typing import (
     Optional,
     Any,
@@ -327,56 +327,67 @@ class Response:
 
     url: str
     r"""
-    Returns the URL of the response.
-    """
-    status: StatusCode
-    r"""
-    Returns the status code of the response.
-    """
-    version: Version
-    r"""
-    Returns the HTTP version of the response.
-    """
-    headers: HeaderMap
-    r"""
-    Returns the headers of the response.
-    """
-    cookies: List[Cookie]
-    r"""
-    Returns the cookies of the response.
-    """
-    content_length: int
-    r"""
-    Returns the content length of the response.
-    """
-    remote_addr: Optional[SocketAddr]
-    r"""
-    Returns the remote address of the response.
-    """
-    local_addr: Optional[SocketAddr]
-    r"""
-    Returns the local address of the response.
-    """
-    encoding: str
-    r"""
-    Encoding to decode with when accessing text.
+    Get the URL of the response.
     """
 
-    def __enter__(self) -> "Response": ...
-    def __exit__(self, _exc_type: Any, _exc_value: Any, _traceback: Any) -> None: ...
+    status: StatusCode
+    r"""
+    Get the status code of the response.
+    """
+
+    version: Version
+    r"""
+    Get the HTTP version of the response.
+    """
+
+    headers: HeaderMap
+    r"""
+    Get the headers of the response.
+    """
+
+    cookies: List[Cookie]
+    r"""
+    Get the cookies of the response.
+    """
+
+    content_length: int
+    r"""
+    Get the content length of the response.
+    """
+
+    remote_addr: Optional[SocketAddr]
+    r"""
+    Get the remote address of the response.
+    """
+
+    local_addr: Optional[SocketAddr]
+    r"""
+    Get the local address of the response.
+    """
+
+    encoding: str
+    r"""
+    Get encoding to decode with when accessing text.
+    """
+
+    def history(self) -> List[History]:
+        r"""
+        Get the redirect history of the Response.
+        """
+
     def peer_certificate(self) -> Optional[bytes]:
         r"""
-        Returns the TLS peer certificate of the response.
+        Get the TLS peer certificate of the response.
         """
 
     def text(self) -> str:
         r"""
-        Returns the text content of the response.
+        Get the text content of the response.
         """
 
     def text_with_charset(self, encoding: str) -> str:
         r"""
-        Returns the text content of the response with a specific charset.
+        Get the text content of the response with a specific charset.
 
         # Arguments
 
@@ -385,23 +396,26 @@ class Response:
 
     def json(self) -> Any:
         r"""
-        Returns the JSON content of the response.
+        Get the JSON content of the response.
         """
 
     def bytes(self) -> bytes:
         r"""
-        Returns the bytes content of the response.
+        Get the bytes content of the response.
         """
 
     def stream(self) -> Streamer:
         r"""
-        Convert the response into a `Stream` of `Bytes` from the body.
+        Get the response into a `Stream` of `Bytes` from the body.
         """
 
     def close(self) -> None:
         r"""
-        Closes the response connection.
+        Close the response connection.
         """
+
+    def __enter__(self) -> "Response": ...
+    def __exit__(self, _exc_type: Any, _exc_value: Any, _traceback: Any) -> None: ...
 
 
 class WebSocket:
@@ -411,27 +425,27 @@ class WebSocket:
 
     status: StatusCode
     r"""
-    Returns the status code of the response.
+    Get the status code of the response.
     """
     version: Version
     r"""
-    Returns the HTTP version of the response.
+    Get the HTTP version of the response.
     """
     headers: HeaderMap
     r"""
-    Returns the headers of the response.
+    Get the headers of the response.
     """
     cookies: List[Cookie]
     r"""
-    Returns the cookies of the response.
+    Get the cookies of the response.
     """
     remote_addr: Optional[SocketAddr]
     r"""
-    Returns the remote address of the response.
+    Get the remote address of the response.
     """
     protocol: Optional[str]
     r"""
-    Returns the WebSocket protocol.
+    Get the WebSocket protocol.
     """
 
     def __enter__(self) -> "WebSocket": ...

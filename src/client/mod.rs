@@ -32,7 +32,7 @@ use crate::{
 
 /// A IP socket address.
 #[derive(Clone, Copy, PartialEq, Eq)]
-#[pyclass(eq, str)]
+#[pyclass(eq, str, frozen)]
 pub struct SocketAddr(pub std::net::SocketAddr);
 
 #[pymethods]
@@ -67,6 +67,8 @@ pub struct Builder {
     orig_headers: Option<Extractor<OrigHeaderMap>>,
     /// Whether to use referer.
     referer: Option<bool>,
+    /// Whether to keep track of request history.
+    history: Option<bool>,
     /// Whether to allow redirects.
     allow_redirects: Option<bool>,
     /// The maximum number of redirects to follow.
@@ -161,7 +163,9 @@ impl<'py> FromPyObject<'py> for Builder {
         extract_option!(ob, params, headers);
         extract_option!(ob, params, orig_headers);
         extract_option!(ob, params, referer);
+        extract_option!(ob, params, history);
         extract_option!(ob, params, allow_redirects);
+        extract_option!(ob, params, max_redirects);
 
         extract_option!(ob, params, cookie_store);
         extract_option!(ob, params, cookie_provider);
@@ -208,11 +212,11 @@ impl<'py> FromPyObject<'py> for Builder {
 
 /// A client for making HTTP requests.
 #[derive(Clone)]
-#[pyclass(subclass)]
+#[pyclass(subclass, frozen)]
 pub struct Client(wreq::Client);
 
 /// A blocking client for making HTTP requests.
-#[pyclass(name = "Client", subclass)]
+#[pyclass(name = "Client", subclass, frozen)]
 pub struct BlockingClient(Client);
 
 // ====== Client =====
@@ -372,10 +376,9 @@ impl Client {
                 orig_headers
             );
 
-            // Referer options.
-            apply_option!(set_if_some, builder, params.referer, referer);
-
             // Allow redirects options.
+            apply_option!(set_if_some, builder, params.referer, referer);
+            apply_option!(set_if_some, builder, params.history, history);
             apply_option!(
                 set_if_true_with,
                 builder,

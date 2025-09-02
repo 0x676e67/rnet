@@ -29,6 +29,7 @@ class ClientParams(TypedDict, closed=True):
     headers: NotRequired[Union[Dict[str, str], HeaderMap]]
     orig_headers: NotRequired[Union[List[str], OrigHeaderMap]]
     referer: NotRequired[bool]
+    history: NotRequired[bool]
     allow_redirects: NotRequired[bool]
     max_redirects: NotRequired[int]
     cookie_store: NotRequired[bool]
@@ -506,55 +507,67 @@ class Response:
 
     url: str
     r"""
-    Returns the URL of the response.
+    Get the URL of the response.
     """
+
     status: StatusCode
     r"""
-    Returns the status code of the response.
+    Get the status code of the response.
     """
+
     version: Version
     r"""
-    Returns the HTTP version of the response.
+    Get the HTTP version of the response.
     """
+
     headers: HeaderMap
     r"""
-    Returns the headers of the response.
+    Get the headers of the response.
     """
+
     cookies: List[Cookie]
     r"""
-    Returns the cookies of the response.
+    Get the cookies of the response.
     """
+
     content_length: int
     r"""
-    Returns the content length of the response.
+    Get the content length of the response.
     """
+
     remote_addr: Optional[SocketAddr]
     r"""
-    Returns the remote address of the response.
+    Get the remote address of the response.
     """
+
     local_addr: Optional[SocketAddr]
     r"""
-    Returns the local address of the response.
+    Get the local address of the response.
     """
+
     encoding: str
     r"""
-    Encoding to decode with when accessing text.
+    Get encoding to decode with when accessing text.
     """
-    def __aenter__(self) -> Any: ...
-    def __aexit__(self, _exc_type: Any, _exc_value: Any, _traceback: Any) -> Any: ...
+
+    def history(self) -> List[History]:
+        r"""
+        Get the redirect history of the Response.
+        """
+
     def peer_certificate(self) -> Optional[bytes]:
         r"""
-        Returns the TLS peer certificate of the response.
+        Get the TLS peer certificate of the response.
         """
 
     async def text(self) -> str:
         r"""
-        Returns the text content of the response.
+        Get the text content of the response.
         """
 
     async def text_with_charset(self, encoding: str) -> str:
         r"""
-        Returns the text content of the response with a specific charset.
+        Get the text content of the response with a specific charset.
 
         # Arguments
 
@@ -563,23 +576,45 @@ class Response:
 
     async def json(self) -> Any:
         r"""
-        Returns the JSON content of the response.
+        Get the JSON content of the response.
         """
 
     async def bytes(self) -> bytes:
         r"""
-        Returns the bytes content of the response.
+        Get the bytes content of the response.
         """
 
     def stream(self) -> Streamer:
         r"""
-        Convert the response into a `Stream` of `Bytes` from the body.
+        Get the response into a `Stream` of `Bytes` from the body.
         """
 
     async def close(self) -> None:
         r"""
-        Closes the response connection.
+        Close the response connection.
         """
+
+    async def __aenter__(self) -> Any: ...
+    async def __aexit__(
+        self, _exc_type: Any, _exc_value: Any, _traceback: Any
+    ) -> Any: ...
+
+class History:
+    """
+    An entry in the redirect history.
+    """
+
+    status: int
+    """Get the status code of the redirect response."""
+
+    url: str
+    """Get the URL of the redirect response."""
+
+    previous: str
+    """Get the previous URL before the redirect response."""
+
+    headers: HeaderMap
+    """Get the headers of the redirect response."""
 
 class SocketAddr:
     r"""
@@ -1091,27 +1126,27 @@ class WebSocket:
 
     status: StatusCode
     r"""
-    Returns the status code of the response.
+    Get the status code of the response.
     """
     version: Version
     r"""
-    Returns the HTTP version of the response.
+    Get the HTTP version of the response.
     """
     headers: HeaderMap
     r"""
-    Returns the headers of the response.
+    Get the headers of the response.
     """
     cookies: List[Cookie]
     r"""
-    Returns the cookies of the response.
+    Get the cookies of the response.
     """
     remote_addr: Optional[SocketAddr]
     r"""
-    Returns the remote address of the response.
+    Get the remote address of the response.
     """
     protocol: Optional[str]
     r"""
-    Returns the WebSocket protocol.
+    Get the WebSocket protocol.
     """
 
     def __aenter__(self) -> Any: ...

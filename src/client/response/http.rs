@@ -7,7 +7,11 @@ use wreq::{self, ResponseBuilderExt, Uri, header, tls::TlsInfo};
 use super::Streamer;
 use crate::{
     buffer::PyBuffer,
-    client::{SocketAddr, body::Json, response::future::AllowThreads},
+    client::{
+        SocketAddr,
+        body::Json,
+        response::{future::AllowThreads, history::History},
+    },
     error::Error,
     http::{Version, cookie::Cookie, header::HeaderMap, status::StatusCode},
 };
@@ -15,35 +19,35 @@ use crate::{
 /// A response from a request.
 #[pyclass(subclass)]
 pub struct Response {
-    /// Returns the status code of the response.
+    /// Get the status code of the response.
     #[pyo3(get)]
     version: Version,
 
-    /// Returns the HTTP version of the response.
+    /// Get the HTTP version of the response.
     #[pyo3(get)]
     status: StatusCode,
 
-    /// Returns the content length of the response.
+    /// Get the content length of the response.
     #[pyo3(get)]
     content_length: u64,
 
-    /// Returns the headers of the response.
+    /// Get the headers of the response.
     #[pyo3(get)]
     headers: HeaderMap,
 
-    /// Returns the content length of the response.
-    #[pyo3(get)]
-    remote_addr: Option<SocketAddr>,
-
-    /// Returns the local address of the response.
+    /// Get the local address of the response.
     #[pyo3(get)]
     local_addr: Option<SocketAddr>,
 
+    /// Get the content length of the response.
+    #[pyo3(get)]
+    remote_addr: Option<SocketAddr>,
+
     uri: Uri,
 
-    extensions: Extensions,
-
     body: Body,
+
+    extensions: Extensions,
 }
 
 /// Represents the state of the HTTP response body.
@@ -66,25 +70,26 @@ impl Response {
     /// Create a new [`Response`] instance.
     pub fn new(response: wreq::Response) -> Self {
         let uri = response.uri().clone();
-        let remote_addr = response.remote_addr().map(SocketAddr);
         let local_addr = response.local_addr().map(SocketAddr);
+        let remote_addr = response.remote_addr().map(SocketAddr);
         let content_length = response.content_length().unwrap_or_default();
         let response = HttpResponse::from(response);
         let (parts, body) = response.into_parts();
+
         Response {
             uri,
             content_length,
-            remote_addr,
             local_addr,
+            remote_addr,
             version: Version::from_ffi(parts.version),
             status: StatusCode::from(parts.status),
             headers: HeaderMap(parts.headers),
-            extensions: parts.extensions,
             body: Body::Streamable(body),
+            extensions: parts.extensions,
         }
     }
 
-    fn response(&mut self, py: Python, stream: bool) -> PyResult<wreq::Response> {
+    fn reuse_response(&mut self, py: Python, stream: bool) -> PyResult<wreq::Response> {
         use http_body_util::BodyExt;
 
         // Helper to build a response from a body
@@ -121,19 +126,27 @@ impl Response {
             }
         })
     }
+
+    fn ext_response(&self) -> wreq::Response {
+        let mut response = HttpResponse::builder()
+            .uri(self.uri.clone())
+            .body(wreq::Body::default())
+            .map(wreq::Response::from)
+            .expect("build response from parts should not fail");
+        *response.extensions_mut() = self.extensions.clone();
+        response
+    }
 }
 
 #[pymethods]
 impl Response {
-    /// Returns the URL of the response.
-    #[inline]
+    /// Get the URL of the response.
     #[getter]
     pub fn url(&self) -> String {
         self.uri.to_string()
     }
 
-    /// Returns the cookies of the response.
-    #[inline]
+    /// Get the cookies of the response.
     #[getter]
     pub fn cookies(&self) -> Vec<Cookie> {
         Cookie::extract_headers_cookies(&self.headers.0)
@@ -156,7 +169,18 @@ impl Response {
         })
     }
 
-    /// Returns the TLS peer certificate of the response.
+    /// Get the redirect history of the Response.
+    pub fn history(&self, py: Python) -> Vec<History> {
+        py.allow_threads(|| {
+            self.ext_response()
+                .history()
+                .cloned()
+                .map(History::from)
+                .collect()
+        })
+    }
+
+    /// Get the TLS peer certificate of the response.
     pub fn peer_certificate(&self, py: Python) -> Option<PyBuffer> {
         py.allow_threads(|| {
             self.extensions
@@ -167,24 +191,24 @@ impl Response {
         })
     }
 
-    /// Returns the text content of the response.
+    /// Get the text content of the response.
     pub fn text<'py>(&mut self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
         let fut = self
-            .response(py, false)?
+            .reuse_response(py, false)?
             .text()
             .map_err(Error::Library)
             .map_err(Into::into);
         AllowThreads::future(fut).future_into_py(py)
     }
 
-    /// Returns the text content of the response with a specific charset.
+    /// Get the text content of the response with a specific charset.
     #[pyo3(signature = (encoding))]
     pub fn text_with_charset<'py>(
         &mut self,
         py: Python<'py>,
         encoding: PyBackedStr,
     ) -> PyResult<Bound<'py, PyAny>> {
-        let resp = self.response(py, false)?;
+        let resp = self.reuse_response(py, false)?;
         let fut = async move {
             resp.text_with_charset(&encoding)
                 .await
@@ -194,20 +218,20 @@ impl Response {
         AllowThreads::future(fut).future_into_py(py)
     }
 
-    /// Returns the JSON content of the response.
+    /// Get the JSON content of the response.
     pub fn json<'py>(&mut self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
         let fut = self
-            .response(py, false)?
+            .reuse_response(py, false)?
             .json::<Json>()
             .map_err(Error::Library)
             .map_err(Into::into);
         AllowThreads::future(fut).future_into_py(py)
     }
 
-    /// Returns the bytes content of the response.
+    /// Get the bytes content of the response.
     pub fn bytes<'py>(&mut self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
         AllowThreads::future(
-            self.response(py, false)?
+            self.reuse_response(py, false)?
                 .bytes()
                 .map_ok(PyBuffer::from)
                 .map_err(Error::Library)
@@ -216,14 +240,14 @@ impl Response {
         .future_into_py(py)
     }
 
-    /// Convert the response into a `Stream` of `Bytes` from the body.
+    /// Get the response into a `Stream` of `Bytes` from the body.
     pub fn stream(&mut self, py: Python) -> PyResult<Streamer> {
-        self.response(py, true)
+        self.reuse_response(py, true)
             .map(wreq::Response::bytes_stream)
             .map(Streamer::new)
     }
 
-    /// Closes the response connection.
+    /// Close the response connection.
     pub fn close<'py>(&'py mut self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
         self.body = Body::Consumed;
         AllowThreads::closure(|| Ok(())).future_into_py(py)
@@ -254,78 +278,74 @@ impl Response {
 
 #[pymethods]
 impl BlockingResponse {
-    /// Returns the URL of the response.
-    #[inline]
+    /// Get the URL of the response.
     #[getter]
     pub fn url(&self) -> String {
         self.0.url()
     }
 
-    /// Returns the status code of the response.
-    #[inline]
+    /// Get the status code of the response.
     #[getter]
     pub fn status(&self) -> StatusCode {
         self.0.status
     }
 
-    /// Returns the HTTP version of the response.
-    #[inline]
+    /// Get the HTTP version of the response.
     #[getter]
     pub fn version(&self) -> Version {
         self.0.version
     }
 
-    /// Returns the headers of the response.
-    #[inline]
+    /// Get the headers of the response.
     #[getter]
     pub fn headers(&self) -> HeaderMap {
         self.0.headers.clone()
     }
 
-    /// Returns the cookies of the response.
-    #[inline]
+    /// Get the cookies of the response.
     #[getter]
     pub fn cookies(&self) -> Vec<Cookie> {
         self.0.cookies()
     }
 
-    /// Returns the content length of the response.
-    #[inline]
+    /// Get the content length of the response.
     #[getter]
     pub fn content_length(&self) -> u64 {
         self.0.content_length
     }
 
-    /// Returns the remote address of the response.
-    #[inline]
+    /// Get the remote address of the response.
     #[getter]
     pub fn remote_addr(&self) -> Option<SocketAddr> {
         self.0.remote_addr
     }
 
-    /// Returns the local address of the response.
-    #[inline]
+    /// Get the local address of the response.
     #[getter]
     pub fn local_addr(&self) -> Option<SocketAddr> {
         self.0.local_addr
     }
 
-    /// Encoding to decode with when accessing text.
-    #[inline]
+    /// Get the redirect history of the Response.
+    #[getter]
+    pub fn history(&self, py: Python) -> Vec<History> {
+        self.0.history(py)
+    }
+
+    /// Get encoding to decode with when accessing text.
     #[getter]
     pub fn encoding(&self, py: Python) -> String {
         self.0.encoding(py)
     }
 
-    /// Returns the TLS peer certificate of the response.
-    #[inline]
+    /// Get the TLS peer certificate of the response.
     pub fn peer_certificate(&self, py: Python) -> Option<PyBuffer> {
         self.0.peer_certificate(py)
     }
 
-    /// Returns the text content of the response.
+    /// Get the text content of the response.
     pub fn text(&mut self, py: Python) -> PyResult<String> {
-        let resp = self.0.response(py, false)?;
+        let resp = self.0.reuse_response(py, false)?;
         py.allow_threads(|| {
             pyo3_async_runtimes::tokio::get_runtime()
                 .block_on(resp.text())
@@ -334,10 +354,10 @@ impl BlockingResponse {
         })
     }
 
-    /// Returns the text content of the response with a specific charset.
+    /// Get the text content of the response with a specific charset.
     #[pyo3(signature = (encoding))]
     pub fn text_with_charset(&mut self, py: Python, encoding: PyBackedStr) -> PyResult<String> {
-        let resp = self.0.response(py, false)?;
+        let resp = self.0.reuse_response(py, false)?;
         py.allow_threads(|| {
             pyo3_async_runtimes::tokio::get_runtime()
                 .block_on(resp.text_with_charset(&encoding))
@@ -346,9 +366,9 @@ impl BlockingResponse {
         })
     }
 
-    /// Returns the JSON content of the response.
+    /// Get the JSON content of the response.
     pub fn json(&mut self, py: Python) -> PyResult<Json> {
-        let resp = self.0.response(py, false)?;
+        let resp = self.0.reuse_response(py, false)?;
         py.allow_threads(|| {
             pyo3_async_runtimes::tokio::get_runtime()
                 .block_on(resp.json::<Json>())
@@ -357,9 +377,9 @@ impl BlockingResponse {
         })
     }
 
-    /// Returns the bytes content of the response.
+    /// Get the bytes content of the response.
     pub fn bytes(&mut self, py: Python) -> PyResult<PyBuffer> {
-        let resp = self.0.response(py, false)?;
+        let resp = self.0.reuse_response(py, false)?;
         py.allow_threads(|| {
             pyo3_async_runtimes::tokio::get_runtime()
                 .block_on(resp.bytes())
@@ -369,13 +389,13 @@ impl BlockingResponse {
         })
     }
 
-    /// Convert the response into a `Stream` of `Bytes` from the body.
+    /// Get the response into a `Stream` of `Bytes` from the body.
     #[inline]
     pub fn stream(&mut self, py: Python) -> PyResult<Streamer> {
         self.0.stream(py)
     }
 
-    /// Closes the response connection.
+    /// Close the response connection.
     #[inline]
     pub fn close(&mut self, py: Python) {
         py.allow_threads(|| {
