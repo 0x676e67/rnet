@@ -29,7 +29,7 @@ def test_append_and_get_all():
     h.insert("Accept", "application/json")
     h.append("Accept", "text/html")
     all_vals = list(h.get_all("Accept"))
-    assert all_vals == [b"text/html", b"application/json"]
+    assert all_vals == [b"application/json", b"text/html"]
     assert len(h) == 2
     assert h.keys_len() == 1
 
