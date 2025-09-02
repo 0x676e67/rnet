@@ -26,6 +26,7 @@ impl History {
         self.0.previous().to_string()
     }
 
+    /// Get the headers of the redirect response.
     #[getter]
     fn headers(&self) -> HeaderMap {
         HeaderMap(self.0.headers().clone())

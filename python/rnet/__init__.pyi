@@ -604,21 +604,17 @@ class History:
     An entry in the redirect history.
     """
 
-    @property
-    def status(self) -> int:
-        """Get the status code of the redirect response."""
+    status: int
+    """Get the status code of the redirect response."""
 
-    @property
-    def url(self) -> str:
-        """Get the URL of the redirect response."""
+    url: str
+    """Get the URL of the redirect response."""
 
-    @property
-    def previous(self) -> str:
-        """Get the previous URL before the redirect response."""
+    previous: str
+    """Get the previous URL before the redirect response."""
 
-    @property
-    def headers(self) -> HeaderMap:
-        """Get the headers of the redirect response."""
+    headers: HeaderMap
+    """Get the headers of the redirect response."""
 
 class SocketAddr:
     r"""
