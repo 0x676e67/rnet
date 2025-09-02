@@ -21,8 +21,8 @@ define_enum!(
 /// A single HTTP cookie.
 
 #[derive(Clone)]
-#[pyclass(subclass, str)]
-pub struct Cookie(pub RawCookie<'static>);
+#[pyclass(subclass, str, frozen)]
+pub struct Cookie(RawCookie<'static>);
 
 /// A good default `CookieStore` implementation.
 ///
@@ -30,7 +30,7 @@ pub struct Cookie(pub RawCookie<'static>);
 /// This type is exposed to allow creating one and filling it with some
 /// existing cookies more easily, before creating a `Client`.
 #[derive(Clone, Default)]
-#[pyclass(subclass)]
+#[pyclass(subclass, frozen)]
 pub struct Jar(Arc<wreq::cookie::Jar>);
 
 // ===== impl Cookie =====
