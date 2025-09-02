@@ -81,7 +81,9 @@ impl From<Error> for PyErr {
         match err {
             Error::Memory => PyRuntimeError::new_err(RACE_CONDITION_ERROR_MSG),
             Error::StopIteration => PyStopIteration::new_err("The iterator is exhausted"),
-            Error::StopAsyncIteration => PyStopAsyncIteration::new_err("The iterator is exhausted"),
+            Error::StopAsyncIteration => {
+                PyStopAsyncIteration::new_err("The async iterator is exhausted")
+            }
             Error::WebSocketDisconnected => {
                 PyRuntimeError::new_err("The WebSocket has been disconnected")
             }
