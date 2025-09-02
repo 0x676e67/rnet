@@ -16,7 +16,6 @@
 // under the License.
 
 // This ignores bug warnings for macro-generated code
-#![allow(unsafe_op_in_unsafe_fn)]
 
 use std::os::raw::c_int;
 
@@ -49,7 +48,22 @@ impl BufferView {
         view: *mut ffi::Py_buffer,
         flags: c_int,
     ) -> PyResult<()> {
-        unsafe { fill_buffer_info(&slf.0, slf.as_ptr(), view, flags, slf.py()) }
+        let bytes = &slf.0;
+        let ret = unsafe {
+            // Fill the Py_buffer struct with information about the buffer
+            ffi::PyBuffer_FillInfo(
+                view,
+                slf.as_ptr() as *mut _,
+                bytes.as_ptr() as *mut _,
+                bytes.len() as _,
+                1,
+                flags,
+            )
+        };
+        if ret == -1 {
+            return Err(PyErr::fetch(slf.py()));
+        }
+        Ok(())
     }
 }
 
@@ -81,28 +95,4 @@ impl From<HeaderValue> for PyBuffer {
     fn from(value: HeaderValue) -> Self {
         Self::from(Bytes::from_owner(value))
     }
-}
-
-/// A helper function to fill buffer info
-unsafe fn fill_buffer_info(
-    bytes: &[u8],
-    obj_ptr: *mut ffi::PyObject,
-    view: *mut ffi::Py_buffer,
-    flags: c_int,
-    py: Python,
-) -> PyResult<()> {
-    let ret = unsafe {
-        ffi::PyBuffer_FillInfo(
-            view,
-            obj_ptr as *mut _,
-            bytes.as_ptr() as *mut _,
-            bytes.len() as _,
-            1,
-            flags,
-        )
-    };
-    if ret == -1 {
-        return Err(PyErr::fetch(py));
-    }
-    Ok(())
 }
