@@ -28,13 +28,17 @@
 //! - Helper function to extract `Bytes` from a Python object, accepting both bytes-like and
 //!   str-like objects.
 
-use std::{pin::Pin, task::Context};
+use std::{
+    pin::Pin,
+    task::{Context, Poll},
+};
 
 use bytes::Bytes;
 use futures_util::Stream;
 use indexmap::IndexMap;
 use pyo3::{
     FromPyObject, PyAny, PyObject, PyResult, Python,
+    exceptions::PyTypeError,
     prelude::*,
     pybacked::{PyBackedBytes, PyBackedStr},
 };
@@ -115,17 +119,14 @@ impl Stream for SyncStream {
     type Item = PyResult<Bytes>;
 
     /// Yields the next chunk from the Python iterator as bytes.
-    fn poll_next(
-        self: Pin<&mut Self>,
-        _cx: &mut std::task::Context<'_>,
-    ) -> std::task::Poll<Option<Self::Item>> {
+    fn poll_next(self: Pin<&mut Self>, _cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
         Python::with_gil(|py| {
             let next = self
                 .iter
                 .call_method0(py, "__next__")
                 .ok()
                 .map(|item| extract_bytes(py, item));
-            py.allow_threads(|| std::task::Poll::Ready(next))
+            py.allow_threads(|| Poll::Ready(next))
         })
     }
 }
@@ -149,10 +150,7 @@ impl Stream for AsyncStream {
     type Item = PyResult<Bytes>;
 
     /// Yields the next chunk from the async stream as bytes.
-    fn poll_next(
-        mut self: Pin<&mut Self>,
-        cx: &mut std::task::Context<'_>,
-    ) -> std::task::Poll<Option<Self::Item>> {
+    fn poll_next(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
         let waker = cx.waker();
         Python::with_gil(|py| {
             py.allow_threads(|| {
@@ -165,17 +163,17 @@ impl Stream for AsyncStream {
     }
 }
 
-/// Extracts a `Bytes` object from a Python object.
+/// Extracts a [`Bytes`] object from a Python object.
 /// Accepts bytes-like or str-like objects, otherwise raises a `TypeError`.
 #[inline]
 fn extract_bytes(py: Python<'_>, ob: PyObject) -> PyResult<Bytes> {
-    if let Ok(str_chunk) = ob.extract::<PyBackedBytes>(py) {
-        return Ok(Bytes::from_owner(str_chunk));
+    match ob.extract::<PyBackedBytes>(py) {
+        Ok(chunk) => Ok(Bytes::from_owner(chunk)),
+        Err(_) => ob
+            .extract::<PyBackedStr>(py)
+            .map(Bytes::from_owner)
+            .map_err(|err| {
+                PyTypeError::new_err(format!("Stream must yield bytes/str - like objects: {err}"))
+            }),
     }
-
-    ob.extract::<PyBackedStr>(py)
-        .map(Bytes::from_owner)
-        .map_err(|_| {
-            pyo3::exceptions::PyTypeError::new_err("Stream must yield bytes/str - like objects")
-        })
 }
