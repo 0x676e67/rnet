@@ -16,7 +16,6 @@
 // under the License.
 
 // This ignores bug warnings for macro-generated code
-#![allow(unsafe_op_in_unsafe_fn)]
 
 use std::os::raw::c_int;
 
@@ -24,81 +23,76 @@ use bytes::Bytes;
 use pyo3::{IntoPyObjectExt, ffi, prelude::*};
 use wreq::header::{HeaderName, HeaderValue};
 
-/// A trait to define common buffer behavior
-pub trait PyBufferProtocol<'py>: IntoPyObject<'py> {
-    fn as_slice(&self) -> &[u8];
+pub struct PyBuffer(BufferView);
 
-    /// Consume self to build a bytes
-    fn into_bytes(self, py: Python<'py>) -> PyResult<Py<PyAny>> {
-        let buffer = self.into_py_any(py)?;
-        unsafe { PyObject::from_owned_ptr_or_err(py, ffi::PyBytes_FromObject(buffer.as_ptr())) }
-    }
+#[pyclass(frozen)]
+struct BufferView(Bytes);
 
-    /// Consume self to build a bytes
-    fn into_bytes_ref(self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
-        let buffer = self.into_py_any(py)?;
-        unsafe { Bound::from_owned_ptr_or_err(py, ffi::PyBytes_FromObject(buffer.as_ptr())) }
+impl<'a> IntoPyObject<'a> for PyBuffer {
+    type Target = PyAny;
+    type Output = Bound<'a, Self::Target>;
+    type Error = PyErr;
+
+    fn into_pyobject(self, py: Python<'a>) -> Result<Self::Output, Self::Error> {
+        let buffer = self.0.into_py_any(py)?;
+        let view =
+            unsafe { Bound::from_owned_ptr_or_err(py, ffi::PyBytes_FromObject(buffer.as_ptr()))? };
+        Ok(view)
     }
 }
 
-macro_rules! impl_buffer {
-    ($name:ident, $inner_type:ty) => {
-        #[pyclass]
-        pub struct $name {
-            inner: $inner_type,
+#[pymethods]
+impl BufferView {
+    unsafe fn __getbuffer__(
+        slf: PyRef<Self>,
+        view: *mut ffi::Py_buffer,
+        flags: c_int,
+    ) -> PyResult<()> {
+        let bytes = &slf.0;
+        let ret = unsafe {
+            // Fill the Py_buffer struct with information about the buffer
+            ffi::PyBuffer_FillInfo(
+                view,
+                slf.as_ptr() as *mut _,
+                bytes.as_ptr() as *mut _,
+                bytes.len() as _,
+                1,
+                flags,
+            )
+        };
+        if ret == -1 {
+            return Err(PyErr::fetch(slf.py()));
         }
-
-        impl $name {
-            pub fn new(inner: $inner_type) -> Self {
-                $name { inner }
-            }
-        }
-
-        impl PyBufferProtocol<'_> for $name {
-            #[inline(always)]
-            fn as_slice(&self) -> &[u8] {
-                self.inner.as_ref()
-            }
-        }
-
-        #[pymethods]
-        impl $name {
-            unsafe fn __getbuffer__(
-                slf: PyRefMut<Self>,
-                view: *mut ffi::Py_buffer,
-                flags: c_int,
-            ) -> PyResult<()> {
-                unsafe { fill_buffer_info(slf.as_slice(), slf.as_ptr(), view, flags, slf.py()) }
-            }
-        }
-    };
+        Ok(())
+    }
 }
 
-impl_buffer!(Buffer, Vec<u8>);
-impl_buffer!(BytesBuffer, Bytes);
-impl_buffer!(HeaderValueBuffer, HeaderValue);
-impl_buffer!(HeaderNameBuffer, HeaderName);
-
-/// A helper function to fill buffer info
-unsafe fn fill_buffer_info(
-    bytes: &[u8],
-    obj_ptr: *mut ffi::PyObject,
-    view: *mut ffi::Py_buffer,
-    flags: c_int,
-    py: Python,
-) -> PyResult<()> {
-    let ret = unsafe {
-        ffi::PyBuffer_FillInfo(
-            view,
-            obj_ptr as *mut _,
-            bytes.as_ptr() as *mut _,
-            bytes.len() as _,
-            1,
-            flags,
-        )
-    };
-    if ret == -1 {
-        return Err(PyErr::fetch(py));
+impl From<Vec<u8>> for PyBuffer {
+    fn from(value: Vec<u8>) -> Self {
+        Self::from(Bytes::from(value))
     }
-    Ok(())
+}
+
+impl From<&Bytes> for PyBuffer {
+    fn from(value: &Bytes) -> Self {
+        Self::from(value.clone())
+    }
+}
+
+impl From<Bytes> for PyBuffer {
+    fn from(value: Bytes) -> Self {
+        PyBuffer(BufferView(value))
+    }
+}
+
+impl From<HeaderName> for PyBuffer {
+    fn from(value: HeaderName) -> Self {
+        Self::from(Bytes::from_owner(value))
+    }
+}
+
+impl From<HeaderValue> for PyBuffer {
+    fn from(value: HeaderValue) -> Self {
+        Self::from(Bytes::from_owner(value))
+    }
 }

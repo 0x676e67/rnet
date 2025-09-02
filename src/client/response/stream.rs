@@ -6,10 +6,7 @@ use pyo3::{IntoPyObjectExt, prelude::*};
 use pyo3_async_runtimes::tokio::future_into_py;
 use tokio::sync::Mutex;
 
-use crate::{
-    buffer::{BytesBuffer, PyBufferProtocol},
-    error::Error,
-};
+use crate::{buffer::PyBuffer, error::Error};
 
 type BytesStream = Pin<Box<dyn Stream<Item = wreq::Result<Bytes>> + Send + 'static>>;
 
@@ -79,7 +76,7 @@ impl Streamer {
     }
 
     #[inline]
-    fn __next__(&self, py: Python) -> PyResult<Py<PyAny>> {
+    fn __next__(&self, py: Python) -> PyResult<PyBuffer> {
         py.allow_threads(|| {
             pyo3_async_runtimes::tokio::get_runtime()
                 .block_on(anext(self.0.clone(), || Error::StopIteration.into()))
@@ -113,16 +110,15 @@ impl Streamer {
 async fn anext(
     streamer: Arc<Mutex<Option<BytesStream>>>,
     error: fn() -> PyErr,
-) -> PyResult<Py<PyAny>> {
-    let mut lock = streamer.lock().await;
-    let val = lock.as_mut().ok_or_else(error)?.try_next().await;
-
-    drop(lock);
-
-    let buffer = val
+) -> PyResult<PyBuffer> {
+    streamer
+        .lock()
+        .await
+        .as_mut()
+        .ok_or_else(error)?
+        .try_next()
+        .await
         .map_err(Error::Library)?
-        .map(BytesBuffer::new)
-        .ok_or_else(error)?;
-
-    Python::with_gil(|py| buffer.into_bytes(py))
+        .map(PyBuffer::from)
+        .ok_or_else(error)
 }

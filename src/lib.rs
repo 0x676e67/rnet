@@ -2,7 +2,6 @@
 mod macros;
 mod buffer;
 mod client;
-
 mod emulation;
 mod error;
 mod extractor;

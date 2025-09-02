@@ -28,7 +28,7 @@ where
 {
     /// Create [`AllowThreads`] from a future
     #[inline(always)]
-    pub fn new_future(future: Fut) -> Self {
+    pub fn future(future: Fut) -> Self {
         AllowThreads::Future { inner: future }
     }
 }
@@ -40,7 +40,7 @@ where
 {
     /// Create [`AllowThreads`] from a closure
     #[inline(always)]
-    pub fn new_closure(closure: F) -> Self {
+    pub fn closure(closure: F) -> Self {
         AllowThreads::Closure {
             inner: Some(closure),
         }

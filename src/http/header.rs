@@ -8,7 +8,9 @@ use pyo3::{
 };
 use wreq::header::{self, HeaderName, HeaderValue};
 
-use crate::buffer::{BytesBuffer, HeaderNameBuffer, HeaderValueBuffer, PyBufferProtocol};
+use crate::buffer::PyBuffer;
+
+// use crate::buffer::{BytesBuffer, HeaderNameBuffer, HeaderValueBuffer, PyBufferProtocol};
 
 /// A HTTP header map.
 #[pyclass(subclass, str)]
@@ -95,8 +97,8 @@ impl HeaderMap {
         py: Python<'py>,
         key: PyBackedStr,
         default: Option<PyBackedBytes>,
-    ) -> Option<Bound<'py, PyAny>> {
-        let value = py.allow_threads(|| {
+    ) -> Option<PyBuffer> {
+        py.allow_threads(|| {
             self.0.get::<&str>(key.as_ref()).cloned().or_else(|| {
                 match default
                     .map(Bytes::from_owner)
@@ -106,9 +108,8 @@ impl HeaderMap {
                     _ => None,
                 }
             })
-        });
-
-        value.and_then(|v| HeaderValueBuffer::new(v).into_bytes_ref(py).ok())
+        })
+        .map(PyBuffer::from)
     }
 
     /// Returns a view of all values associated with a key.
@@ -207,7 +208,7 @@ impl HeaderMap {
 #[pymethods]
 impl HeaderMap {
     #[inline]
-    fn __getitem__<'py>(&self, py: Python<'py>, key: PyBackedStr) -> Option<Bound<'py, PyAny>> {
+    fn __getitem__<'py>(&self, py: Python<'py>, key: PyBackedStr) -> Option<PyBuffer> {
         self.get(py, key, None)
     }
 
@@ -328,10 +329,8 @@ impl HeaderMapKeysIter {
     }
 
     #[inline]
-    fn __next__(mut slf: PyRefMut<'_, Self>) -> Option<Bound<'_, PyAny>> {
-        slf.inner
-            .pop()
-            .and_then(|k| HeaderNameBuffer::new(k).into_bytes_ref(slf.py()).ok())
+    fn __next__(mut slf: PyRefMut<'_, Self>) -> Option<PyBuffer> {
+        slf.inner.pop().map(PyBuffer::from)
     }
 }
 
@@ -345,10 +344,8 @@ impl HeaderMapValuesIter {
     }
 
     #[inline]
-    fn __next__(mut slf: PyRefMut<'_, Self>) -> Option<Bound<'_, PyAny>> {
-        slf.inner
-            .pop()
-            .and_then(|v| HeaderValueBuffer::new(v).into_bytes_ref(slf.py()).ok())
+    fn __next__(mut slf: PyRefMut<'_, Self>) -> Option<PyBuffer> {
+        slf.inner.pop().map(PyBuffer::from)
     }
 }
 
@@ -361,10 +358,10 @@ impl HeaderMapItemsIter {
         slf
     }
 
-    fn __next__(mut slf: PyRefMut<'_, Self>) -> Option<(Bound<'_, PyAny>, Bound<'_, PyAny>)> {
+    fn __next__(mut slf: PyRefMut<'_, Self>) -> Option<(PyBuffer, PyBuffer)> {
         if let Some((k, v)) = slf.inner.pop() {
-            let name = HeaderNameBuffer::new(k).into_bytes_ref(slf.py()).ok()?;
-            let value = HeaderValueBuffer::new(v).into_bytes_ref(slf.py()).ok()?;
+            let name = PyBuffer::from(k);
+            let value = PyBuffer::from(v);
             return Some((name, value));
         }
         None
@@ -379,18 +376,13 @@ impl OrigHeaderMapIter {
         slf
     }
 
-    fn __next__(mut slf: PyRefMut<'_, Self>) -> Option<(Bound<'_, PyAny>, Bound<'_, PyAny>)> {
+    fn __next__(mut slf: PyRefMut<'_, Self>) -> Option<(PyBuffer, PyBuffer)> {
         if let Some((name, orig_name)) = slf.inner.pop() {
-            let name = HeaderNameBuffer::new(name).into_bytes_ref(slf.py()).ok()?;
+            let name = PyBuffer::from(name);
             let orig_name = match orig_name {
-                header::OrigHeaderName::Cased(bytes) => {
-                    BytesBuffer::new(bytes).into_bytes_ref(slf.py()).ok()?
-                }
-                header::OrigHeaderName::Standard(name) => {
-                    HeaderNameBuffer::new(name).into_bytes_ref(slf.py()).ok()?
-                }
+                header::OrigHeaderName::Cased(bytes) => PyBuffer::from(bytes),
+                header::OrigHeaderName::Standard(name) => PyBuffer::from(name),
             };
-
             return Some((name, orig_name));
         }
         None

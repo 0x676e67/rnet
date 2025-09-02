@@ -6,7 +6,7 @@ use wreq::{self, ResponseBuilderExt, Uri, header, tls::TlsInfo};
 
 use super::Streamer;
 use crate::{
-    buffer::{Buffer, BytesBuffer, PyBufferProtocol},
+    buffer::PyBuffer,
     client::{SocketAddr, body::Json, response::future::AllowThreads},
     error::Error,
     http::{Version, cookie::Cookie, header::HeaderMap, status::StatusCode},
@@ -141,33 +141,30 @@ impl Response {
 
     /// Encoding to decode with when accessing text.
     #[getter]
-    pub fn encoding(&self) -> String {
-        self.headers
-            .0
-            .get(header::CONTENT_TYPE)
-            .and_then(|value| value.to_str().ok())
-            .and_then(|value| value.parse::<Mime>().ok())
-            .and_then(|mime| {
-                mime.get_param("charset")
-                    .map(|charset| charset.as_str().to_owned())
-            })
-            .unwrap_or_else(|| "utf-8".to_owned())
+    pub fn encoding(&self, py: Python) -> String {
+        py.allow_threads(|| {
+            self.headers
+                .0
+                .get(header::CONTENT_TYPE)
+                .and_then(|value| value.to_str().ok())
+                .and_then(|value| value.parse::<Mime>().ok())
+                .and_then(|mime| {
+                    mime.get_param("charset")
+                        .map(|charset| charset.as_str().to_owned())
+                })
+                .unwrap_or_else(|| "utf-8".to_owned())
+        })
     }
 
     /// Returns the TLS peer certificate of the response.
-    pub fn peer_certificate<'py>(
-        &'py self,
-        py: Python<'py>,
-    ) -> PyResult<Option<Bound<'py, PyAny>>> {
-        let buf = py.allow_threads(|| {
+    pub fn peer_certificate(&self, py: Python) -> Option<PyBuffer> {
+        py.allow_threads(|| {
             self.extensions
                 .get::<TlsInfo>()?
                 .peer_certificate()
                 .map(ToOwned::to_owned)
-                .map(Buffer::new)
-        });
-
-        buf.map(|buffer| buffer.into_bytes_ref(py)).transpose()
+                .map(PyBuffer::from)
+        })
     }
 
     /// Returns the text content of the response.
@@ -177,7 +174,7 @@ impl Response {
             .text()
             .map_err(Error::Library)
             .map_err(Into::into);
-        AllowThreads::new_future(fut).future_into_py(py)
+        AllowThreads::future(fut).future_into_py(py)
     }
 
     /// Returns the text content of the response with a specific charset.
@@ -194,7 +191,7 @@ impl Response {
                 .map_err(Error::Library)
                 .map_err(Into::into)
         };
-        AllowThreads::new_future(fut).future_into_py(py)
+        AllowThreads::future(fut).future_into_py(py)
     }
 
     /// Returns the JSON content of the response.
@@ -204,21 +201,19 @@ impl Response {
             .json::<Json>()
             .map_err(Error::Library)
             .map_err(Into::into);
-        AllowThreads::new_future(fut).future_into_py(py)
+        AllowThreads::future(fut).future_into_py(py)
     }
 
     /// Returns the bytes content of the response.
     pub fn bytes<'py>(&mut self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
-        let resp = self.response(py, false)?;
-        let fut = async move {
-            let buffer = resp
+        AllowThreads::future(
+            self.response(py, false)?
                 .bytes()
-                .await
-                .map(BytesBuffer::new)
-                .map_err(Error::Library)?;
-            Python::with_gil(|py| buffer.into_bytes(py))
-        };
-        AllowThreads::new_future(fut).future_into_py(py)
+                .map_ok(PyBuffer::from)
+                .map_err(Error::Library)
+                .map_err(Into::into),
+        )
+        .future_into_py(py)
     }
 
     /// Convert the response into a `Stream` of `Bytes` from the body.
@@ -231,7 +226,7 @@ impl Response {
     /// Closes the response connection.
     pub fn close<'py>(&'py mut self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
         self.body = Body::Consumed;
-        AllowThreads::new_closure(|| Ok(())).future_into_py(py)
+        AllowThreads::closure(|| Ok(())).future_into_py(py)
     }
 }
 
@@ -240,7 +235,7 @@ impl Response {
     #[inline]
     fn __aenter__<'py>(slf: PyRef<'py, Self>, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
         let slf = slf.into_py_any(py)?;
-        AllowThreads::new_closure(|| Ok(slf)).future_into_py(py)
+        AllowThreads::closure(|| Ok(slf)).future_into_py(py)
     }
 
     #[inline]
@@ -318,16 +313,13 @@ impl BlockingResponse {
     /// Encoding to decode with when accessing text.
     #[inline]
     #[getter]
-    pub fn encoding(&self) -> String {
-        self.0.encoding()
+    pub fn encoding(&self, py: Python) -> String {
+        self.0.encoding(py)
     }
 
     /// Returns the TLS peer certificate of the response.
     #[inline]
-    pub fn peer_certificate<'py>(
-        &'py self,
-        py: Python<'py>,
-    ) -> PyResult<Option<Bound<'py, PyAny>>> {
+    pub fn peer_certificate(&self, py: Python) -> Option<PyBuffer> {
         self.0.peer_certificate(py)
     }
 
@@ -366,15 +358,14 @@ impl BlockingResponse {
     }
 
     /// Returns the bytes content of the response.
-    pub fn bytes(&mut self, py: Python) -> PyResult<Py<PyAny>> {
+    pub fn bytes(&mut self, py: Python) -> PyResult<PyBuffer> {
         let resp = self.0.response(py, false)?;
         py.allow_threads(|| {
-            let buffer = pyo3_async_runtimes::tokio::get_runtime()
+            pyo3_async_runtimes::tokio::get_runtime()
                 .block_on(resp.bytes())
-                .map(BytesBuffer::new)
-                .map_err(Error::Library)?;
-
-            Python::with_gil(|py| buffer.into_bytes(py))
+                .map(PyBuffer::from)
+                .map_err(Error::Library)
+                .map_err(Into::into)
         })
     }
 
