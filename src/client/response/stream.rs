@@ -1,29 +1,34 @@
-use std::{pin::Pin, sync::Arc};
-
 use bytes::Bytes;
-use futures_util::{Stream, TryStreamExt};
+use futures_util::{Stream, StreamExt};
 use pyo3::{IntoPyObjectExt, prelude::*};
 use pyo3_async_runtimes::tokio::future_into_py;
-use tokio::sync::Mutex;
+use tokio::sync::mpsc;
 
 use crate::{buffer::PyBuffer, error::Error};
-
-type BytesStream = Pin<Box<dyn Stream<Item = wreq::Result<Bytes>> + Send + 'static>>;
 
 /// A byte stream response.
 /// An asynchronous iterator yielding data chunks from the response stream.
 /// Used to stream response content.
 /// Implemented in the `stream` method of the `Response` class.
 /// Can be used in an asynchronous for loop in Python.
-#[derive(Clone)]
 #[pyclass(subclass)]
-pub struct Streamer(Arc<Mutex<Option<BytesStream>>>);
+pub struct Streamer(mpsc::Receiver<wreq::Result<Bytes>>);
 
 impl Streamer {
     /// Create a new `Streamer` instance.
     #[inline]
     pub fn new(stream: impl Stream<Item = wreq::Result<Bytes>> + Send + 'static) -> Streamer {
-        Streamer(Arc::new(Mutex::new(Some(Box::pin(stream)))))
+        let (tx, rx) = mpsc::channel(8);
+        pyo3_async_runtimes::tokio::get_runtime().spawn(async move {
+            futures_util::pin_mut!(stream);
+            while let Some(item) = stream.next().await {
+                if tx.send(item).await.is_err() {
+                    break;
+                }
+            }
+        });
+
+        Streamer(rx)
     }
 }
 
@@ -36,11 +41,15 @@ impl Streamer {
     }
 
     #[inline]
-    fn __anext__<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
-        future_into_py(
-            py,
-            anext(self.0.clone(), || Error::StopAsyncIteration.into()),
-        )
+    fn __anext__<'py>(&mut self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
+        let bytes = py.allow_threads(|| {
+            self.0
+                .try_recv()
+                .map_err(Error::StopAsyncIteration)?
+                .map(PyBuffer::from)
+                .map_err(Error::Library)
+        })?;
+        future_into_py(py, async move { Ok(bytes) })
     }
 
     #[inline]
@@ -51,19 +60,14 @@ impl Streamer {
 
     #[inline]
     fn __aexit__<'py>(
-        &self,
+        &mut self,
         py: Python<'py>,
         _exc_type: &Bound<'py, PyAny>,
         _exc_value: &Bound<'py, PyAny>,
         _traceback: &Bound<'py, PyAny>,
     ) -> PyResult<Bound<'py, PyAny>> {
-        let streamer = self.0.clone();
-        let fut = async move {
-            let mut lock = streamer.lock().await;
-            drop(lock.take());
-            Ok(())
-        };
-        future_into_py(py, fut)
+        self.0.close();
+        future_into_py(py, async { Ok(()) })
     }
 }
 
@@ -76,10 +80,14 @@ impl Streamer {
     }
 
     #[inline]
-    fn __next__(&self, py: Python) -> PyResult<PyBuffer> {
+    fn __next__(&mut self, py: Python) -> PyResult<PyBuffer> {
         py.allow_threads(|| {
-            pyo3_async_runtimes::tokio::get_runtime()
-                .block_on(anext(self.0.clone(), || Error::StopIteration.into()))
+            self.0
+                .blocking_recv()
+                .ok_or_else(|| Error::StopIteration)?
+                .map(PyBuffer::from)
+                .map_err(Error::Library)
+                .map_err(Into::into)
         })
     }
 
@@ -90,35 +98,11 @@ impl Streamer {
 
     #[inline]
     fn __exit__<'py>(
-        &self,
-        py: Python<'py>,
+        &mut self,
         _exc_type: &Bound<'py, PyAny>,
         _exc_value: &Bound<'py, PyAny>,
         _traceback: &Bound<'py, PyAny>,
-    ) -> PyResult<()> {
-        py.allow_threads(|| {
-            let streamer = self.0.clone();
-            pyo3_async_runtimes::tokio::get_runtime().block_on(async move {
-                let mut lock = streamer.lock().await;
-                drop(lock.take());
-                Ok(())
-            })
-        })
+    ) {
+        self.0.close();
     }
-}
-
-async fn anext(
-    streamer: Arc<Mutex<Option<BytesStream>>>,
-    error: fn() -> PyErr,
-) -> PyResult<PyBuffer> {
-    streamer
-        .lock()
-        .await
-        .as_mut()
-        .ok_or_else(error)?
-        .try_next()
-        .await
-        .map_err(Error::Library)?
-        .map(PyBuffer::from)
-        .ok_or_else(error)
 }
