@@ -15,18 +15,19 @@
 // specific language governing permissions and limitations
 // under the License.
 
-// This ignores bug warnings for macro-generated code
-
 use std::os::raw::c_int;
 
 use bytes::Bytes;
 use pyo3::{IntoPyObjectExt, ffi, prelude::*};
 use wreq::header::{HeaderName, HeaderValue};
 
+/// [`PyBuffer`] enables zero-copy conversion of Rust [`Bytes`] to Python bytes.
 pub struct PyBuffer(BufferView);
 
 #[pyclass(frozen)]
 struct BufferView(Bytes);
+
+// ===== PyBuffer =====
 
 impl<'a> IntoPyObject<'a> for PyBuffer {
     type Target = PyAny;
@@ -35,35 +36,7 @@ impl<'a> IntoPyObject<'a> for PyBuffer {
 
     fn into_pyobject(self, py: Python<'a>) -> Result<Self::Output, Self::Error> {
         let buffer = self.0.into_py_any(py)?;
-        let view =
-            unsafe { Bound::from_owned_ptr_or_err(py, ffi::PyBytes_FromObject(buffer.as_ptr()))? };
-        Ok(view)
-    }
-}
-
-#[pymethods]
-impl BufferView {
-    unsafe fn __getbuffer__(
-        slf: PyRef<Self>,
-        view: *mut ffi::Py_buffer,
-        flags: c_int,
-    ) -> PyResult<()> {
-        let bytes = &slf.0;
-        let ret = unsafe {
-            // Fill the Py_buffer struct with information about the buffer
-            ffi::PyBuffer_FillInfo(
-                view,
-                slf.as_ptr() as *mut _,
-                bytes.as_ptr() as *mut _,
-                bytes.len() as _,
-                1,
-                flags,
-            )
-        };
-        if ret == -1 {
-            return Err(PyErr::fetch(slf.py()));
-        }
-        Ok(())
+        unsafe { Bound::from_owned_ptr_or_err(py, ffi::PyBytes_FromObject(buffer.as_ptr())) }
     }
 }
 
@@ -94,5 +67,33 @@ impl From<HeaderName> for PyBuffer {
 impl From<HeaderValue> for PyBuffer {
     fn from(value: HeaderValue) -> Self {
         Self::from(Bytes::from_owner(value))
+    }
+}
+
+// ===== BufferView =====
+
+#[pymethods]
+impl BufferView {
+    unsafe fn __getbuffer__(
+        slf: PyRef<Self>,
+        view: *mut ffi::Py_buffer,
+        flags: c_int,
+    ) -> PyResult<()> {
+        let bytes = &slf.0;
+        let ret = unsafe {
+            // Fill the Py_buffer struct with information about the buffer
+            ffi::PyBuffer_FillInfo(
+                view,
+                slf.as_ptr() as *mut _,
+                bytes.as_ptr() as *mut _,
+                bytes.len() as _,
+                1,
+                flags,
+            )
+        };
+        if ret == -1 {
+            return Err(PyErr::fetch(slf.py()));
+        }
+        Ok(())
     }
 }
