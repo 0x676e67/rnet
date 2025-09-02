@@ -1,5 +1,5 @@
 import pytest
-from rnet import HeaderMap
+from rnet.header import OrigHeaderMap, HeaderMap
 
 
 @pytest.mark.flaky(reruns=3, reruns_delay=2)
@@ -77,17 +77,47 @@ def test_clear():
 
 
 @pytest.mark.flaky(reruns=3, reruns_delay=2)
-def test_items_and_iter():
+def test_iter():
     h = HeaderMap()
     h.insert("A", "1")
     h.append("A", "2")
     h.insert("B", "3")
-    items = list(h.items())
+
+    values = list(h.values())
+    assert len(values) == 3
+    assert b"1" in values
+    assert b"2" in values
+    assert b"3" in values
+
+    keys = list(h.keys())
+    assert len(keys) == 2
+    assert b"a" in keys
+    assert b"b" in keys
+
+    items = list(iter(h))
     assert len(items) == 3
+    assert (b"a", b"1") in items
     assert (b"a", b"2") in items
     assert (b"b", b"3") in items
-    keys = list(iter(h))
-    assert set(keys) == {b"a", b"b"}
+
+    orig_h = OrigHeaderMap()
+    orig_h.insert("A")
+    orig_h.insert("B")
+    orig_h.insert("C")
+    orig_h.insert("d")
+
+    items_orig = list(iter(orig_h))
+    assert len(items_orig) == 4
+    assert (b"a", b"A") in items_orig
+    assert (b"b", b"B") in items_orig
+    assert (b"c", b"C") in items_orig
+    assert (b"d", b"d") in items_orig
+    assert items_orig == [
+        (b"a", b"A"),
+        (b"b", b"B"),
+        (b"c", b"C"),
+        (b"d", b"d"),
+    ]
 
 
 @pytest.mark.flaky(reruns=3, reruns_delay=2)

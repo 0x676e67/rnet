@@ -141,14 +141,27 @@ impl HeaderMap {
         py.allow_threads(|| self.0.contains_key::<&str>(key.as_ref()))
     }
 
-    /// Returns key-value pairs in the order they were added.
+    /// An iterator visiting all keys.
     #[inline]
-    fn items<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyIterator>> {
-        let items: Vec<_> = py.allow_threads(|| {
+    fn keys<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyIterator>> {
+        let items = py.allow_threads(|| {
             self.0
-                .iter()
-                .map(|(k, v)| (PyBuffer::from(k.clone()), PyBuffer::from(v.clone())))
-                .collect()
+                .keys()
+                .map(|k| PyBuffer::from(k.clone()))
+                .collect::<Vec<_>>()
+        });
+        let pylist = PyList::new(py, items)?;
+        PyIterator::from_object(&pylist)
+    }
+
+    ///  An iterator visiting all values.
+    #[inline]
+    fn values<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyIterator>> {
+        let items = py.allow_threads(|| {
+            self.0
+                .values()
+                .map(|v| PyBuffer::from(v.clone()))
+                .collect::<Vec<_>>()
         });
         let pylist = PyList::new(py, items)?;
         PyIterator::from_object(&pylist)
@@ -213,10 +226,14 @@ impl HeaderMap {
         self.0.len()
     }
 
-    #[inline]
     fn __iter__<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyIterator>> {
-        let keys: Vec<_> = self.0.keys().cloned().map(PyBuffer::from).collect();
-        let pylist = PyList::new(py, keys)?;
+        let items: Vec<_> = py.allow_threads(|| {
+            self.0
+                .iter()
+                .map(|(k, v)| (PyBuffer::from(k.clone()), PyBuffer::from(v.clone())))
+                .collect()
+        });
+        let pylist = PyList::new(py, items)?;
         PyIterator::from_object(&pylist)
     }
 }
@@ -276,10 +293,16 @@ impl OrigHeaderMap {
     pub fn extend(&mut self, iter: &Bound<'_, OrigHeaderMap>) {
         self.0.extend(iter.borrow().0.clone());
     }
+}
 
-    /// Returns key-value pairs in the order they were added.
+#[pymethods]
+impl OrigHeaderMap {
     #[inline]
-    pub fn items<'a>(&self, py: Python<'a>) -> PyResult<Bound<'a, PyIterator>> {
+    fn __len__(&self) -> usize {
+        self.0.len()
+    }
+
+    fn __iter__<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyIterator>> {
         let items: Vec<_> = py.allow_threads(|| {
             self.0
                 .iter()
@@ -295,14 +318,6 @@ impl OrigHeaderMap {
         });
         let pylist = PyList::new(py, items)?;
         PyIterator::from_object(&pylist)
-    }
-}
-
-#[pymethods]
-impl OrigHeaderMap {
-    #[inline]
-    fn __len__(&self) -> usize {
-        self.0.len()
     }
 }
 

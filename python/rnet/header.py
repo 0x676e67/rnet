@@ -47,8 +47,8 @@ class HeaderMap:
         """Return the total number of header values (not unique names)."""
         ...
 
-    def __iter__(self) -> Iterator[bytes]:
-        """Iterate over unique header names."""
+    def __iter__(self) -> Iterator[Tuple[bytes, bytes]]:
+        """Iterate all header(name, value) pairs, including duplicates for multiple values."""
         ...
 
     def __str__(self) -> str:
@@ -165,6 +165,22 @@ class HeaderMap:
             An iterator over all header values
         """
 
+    def values(self) -> Iterator[bytes]:
+        """
+        Iterate over all header values.
+
+        Returns:
+            An iterator over all header values as bytes.
+        """
+
+    def keys(self) -> Iterator[bytes]:
+        """
+        Iterate over unique header names.
+
+        Returns:
+            An iterator over unique header names as bytes.
+        """
+
     def len(self) -> int:
         """
         Get the total number of header values.
@@ -202,18 +218,6 @@ class HeaderMap:
 
         After calling this method, the header map will be empty and
         is_empty() will return True.
-        """
-
-    def items(self) -> Iterator[Tuple[bytes, bytes]]:
-        r"""
-        Get an iterator over all header name-value pairs.
-
-        Returns an iterator that yields tuples of (name, value) for each
-        header value. Headers with multiple values will appear multiple
-        times with different values.
-
-        Returns:
-            Iterator over (name, value) tuples
         """
 
 
@@ -259,6 +263,21 @@ class OrigHeaderMap:
         """
         ...
 
+    def __iter__(self) -> Iterator[Tuple[bytes, bytes]]:
+        """
+        Returns an iterator over the (standard_name, original_name) pairs.
+
+        Returns:
+            An iterator over header name pairs.
+        """
+        ...
+
+    def __len__(self) -> int:
+        """
+        Returns the number of header names stored in the map.
+        """
+        ...
+
     def insert(self, value: str) -> bool:
         """
         Insert a new header name into the collection.
@@ -282,20 +301,5 @@ class OrigHeaderMap:
 
         Args:
             other: Another OrigHeaderMap to extend from.
-        """
-        ...
-
-    def items(self) -> Iterator[Tuple[bytes, bytes]]:
-        """
-        Returns an iterator over the (standard_name, original_name) pairs.
-
-        Returns:
-            An iterator over header name pairs.
-        """
-        ...
-
-    def __len__(self) -> int:
-        """
-        Returns the number of header names stored in the map.
         """
         ...
