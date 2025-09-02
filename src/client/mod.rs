@@ -698,7 +698,7 @@ impl BlockingClient {
     }
 }
 
-async fn execute_request<C, U>(
+pub async fn execute_request<C, U>(
     client: C,
     method: Method,
     url: U,
@@ -840,7 +840,7 @@ where
         .map_err(Into::into)
 }
 
-async fn execute_websocket_request<C, U>(
+pub async fn execute_websocket_request<C, U>(
     client: C,
     url: U,
     mut params: Option<WebSocketRequest>,
@@ -960,31 +960,4 @@ where
         .await
         .map_err(Error::Library)
         .map_err(Into::into)
-}
-
-pub mod short {
-    use super::{Method, PyResult, Request, Response, WebSocket, WebSocketRequest};
-
-    #[inline]
-    pub async fn shortcut_request<U>(
-        method: Method,
-        url: U,
-        params: Option<Request>,
-    ) -> PyResult<Response>
-    where
-        U: AsRef<str>,
-    {
-        super::execute_request(None, method, url, params).await
-    }
-
-    #[inline]
-    pub async fn shortcut_websocket_request<U>(
-        url: U,
-        params: Option<WebSocketRequest>,
-    ) -> PyResult<WebSocket>
-    where
-        U: AsRef<str>,
-    {
-        super::execute_websocket_request(None, url, params).await
-    }
 }
