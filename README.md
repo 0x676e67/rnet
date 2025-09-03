@@ -8,7 +8,7 @@
 
 > 🚀 Help me work seamlessly with open source sharing by [sponsoring me on GitHub](https://github.com/0x676e67/0x676e67/blob/main/SPONSOR.md)
 
-A blazing-fast Python HTTP client with advanced browser fingerprinting that accurately emulates **Chrome**, **Firefox**, **Safari**, **Opera**, and **OkHttp**, with precise **TLS/HTTP2** signatures, and powered by [wreq](https://github.com/0x676e67/wreq) for high performance.
+A blazing-fast Python HTTP client with advanced browser fingerprinting that accurately emulates **Chrome**, **Firefox**, **Safari**, **Opera**, and **OkHttp**, with precise TLS and HTTP2 signatures, and powered by [wreq](https://github.com/0x676e67/wreq) for high performance.
 
 ## Features
 
@@ -29,7 +29,7 @@ A blazing-fast Python HTTP client with advanced browser fingerprinting that accu
 
 ## Example
 
-This asynchronous example demonstrates how to make a simple GET request using the `rnet` library. So you need install `rnet` and run the following code:
+The following example uses the `asyncio` runtime with `rnet` installed via pip:
 
 ```bash
 pip install asyncio rnet==3.0.0rc3
