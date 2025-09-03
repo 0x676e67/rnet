@@ -181,19 +181,6 @@ class URLParseError(Exception):
     """
 
 
-class MIMEParseError(Exception):
-    r"""
-    An error occurred while parsing a MIME type.
-
-    This exception covers failures in parsing or processing
-    MIME types and related content type information, such as:
-    - Invalid MIME type format
-    - Unsupported content types
-    - Malformed content-type headers
-    - Character set parsing issues
-    """
-
-
 # ========================================
 # Timeout Errors
 # ========================================

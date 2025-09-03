@@ -45,7 +45,6 @@ create_exception!(exceptions, WebSocketError, PyException);
 
 // Input validation and parsing errors
 create_exception!(exceptions, URLParseError, PyException);
-create_exception!(exceptions, MIMEParseError, PyException);
 
 macro_rules! wrap_error {
     ($error:expr, $($variant:ident => $exception:ident),*) => {
@@ -95,7 +94,7 @@ impl From<Error> for PyErr {
             }
             Error::Timeout(err) => TimeoutError::new_err(format!("Timeout error: {err:?}")),
             Error::IO(err) => PyRuntimeError::new_err(format!("IO error: {err:?}")),
-            Error::Decode(err) => MIMEParseError::new_err(format!("Decode error: {err:?}")),
+            Error::Decode(err) => DecodingError::new_err(format!("Decode error: {err:?}")),
             Error::Builder(err) => BuilderError::new_err(format!("Builder error: {err:?}")),
             Error::Library(err) => wrap_error!(err,
                 is_body => BodyError,

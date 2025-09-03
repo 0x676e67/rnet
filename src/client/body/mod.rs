@@ -1,32 +1,6 @@
 //! Types and utilities for representing HTTP request bodies.
-//!
-//! # Types
-//!
-//! - [`Body`]: Enum representing different kinds of HTTP request bodies (text, bytes, sync/async
-//!   streams).
-//! - [`Json`]: Enum for representing JSON values, supporting objects, arrays, numbers, strings,
-//!   booleans, and null.
-//! - [`SyncStream`]: Wrapper for a Python synchronous iterator to be used as a streaming HTTP body.
-//! - [`AsyncStream`]: Wrapper for a Python asynchronous iterator to be used as a streaming HTTP
-//!   body.
-//!
-//! # Methods
-//!
-//! ## Body
-//! - Implements conversion from Python objects (`FromPyObject`) and to `wreq::Body` (`From<Body>`).
-//!
-//! ## SyncStream
-//! - `new(iter: PyObject) -> Self`: Create a new `SyncStream` from a Python iterator.
-//! - Implements `Stream<Item = PyResult<Bytes>>` for yielding body chunks.
-//!
-//! ## AsyncStream
-//! - `new(stream: impl Stream<Item = PyObject> + Send + Sync + 'static) -> Self`: Create a new
-//!   `AsyncStream` from a Rust or Python async stream.
-//! - Implements `Stream<Item = PyResult<Bytes>>` for yielding body chunks.
-//!
-//! ## extract_bytes
-//! - Helper function to extract `Bytes` from a Python object, accepting both bytes-like and
-//!   str-like objects.
+
+pub mod multipart;
 
 use std::{
     pin::Pin,

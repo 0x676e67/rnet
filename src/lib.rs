@@ -14,10 +14,11 @@ use pyo3_async_runtimes::tokio::future_into_py;
 
 use self::{
     client::{
-        BlockingClient, Client, SocketAddr, execute_request, execute_websocket_request,
-        multipart::{Multipart, Part},
-        request::{Request, WebSocketRequest},
-        response::{
+        BlockingClient, Client, SocketAddr,
+        body::multipart::{Multipart, Part},
+        execute_request, execute_websocket_request,
+        req::{Request, WebSocketRequest},
+        resp::{
             BlockingResponse, BlockingWebSocket, History, Message, Response, Streamer, WebSocket,
         },
     },
@@ -241,6 +242,5 @@ fn exceptions_module(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add("UpgradeError", py.get_type::<UpgradeError>())?;
     m.add("WebSocketError", py.get_type::<WebSocketError>())?;
     m.add("URLParseError", py.get_type::<URLParseError>())?;
-    m.add("MIMEParseError", py.get_type::<MIMEParseError>())?;
     Ok(())
 }

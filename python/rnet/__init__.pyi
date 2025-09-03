@@ -464,8 +464,10 @@ class Part:
             typing.AsyncGenerator[bytes, str],
             typing.Generator[bytes, str],
         ],
-        filename: Optional[str] = None,
-        mime: Optional[str] = None,
+        filename: str | None = None,
+        mime: str | None = None,
+        length: int | None = None,
+        headers: HeaderMap | None = None,
     ) -> Part:
         r"""
         Creates a new part.
@@ -475,6 +477,8 @@ class Part:
         - `value` - The value of the part, either text, bytes, a file path, or a async or sync stream.
         - `filename` - The filename of the part.
         - `mime` - The MIME type of the part.
+        - `length` - The length of the part when value is a stream (e.g., for file uploads).
+        - `headers` - The custom headers for the part.
         """
 
 class Response:

@@ -1,7 +1,7 @@
 pub mod body;
-pub mod multipart;
-pub mod request;
-pub mod response;
+
+pub mod req;
+pub mod resp;
 
 mod dns;
 
@@ -9,7 +9,7 @@ use std::{fmt, net::IpAddr, sync::Arc, time::Duration};
 
 use pyo3::{IntoPyObjectExt, prelude::*, pybacked::PyBackedStr};
 use pyo3_async_runtimes::tokio::future_into_py;
-use request::{Request, WebSocketRequest};
+use req::{Request, WebSocketRequest};
 use wreq::{
     Proxy,
     header::{self, HeaderMap, OrigHeaderMap},
@@ -20,10 +20,10 @@ use wreq_util::EmulationOption;
 
 use self::{
     dns::HickoryDnsResolver,
-    response::{BlockingResponse, BlockingWebSocket},
+    resp::{BlockingResponse, BlockingWebSocket},
 };
 use crate::{
-    client::response::{Response, WebSocket},
+    client::resp::{Response, WebSocket},
     error::Error,
     extractor::Extractor,
     http::{Method, cookie::Jar},
