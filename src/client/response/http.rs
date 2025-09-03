@@ -152,6 +152,7 @@ impl Response {
     }
 
     /// Get the redirect history of the Response.
+    #[getter]
     pub fn history(&self, py: Python) -> Vec<History> {
         py.allow_threads(|| {
             self.ext_response()

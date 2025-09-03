@@ -365,10 +365,10 @@ class Response:
     Get the local address of the response.
     """
 
-    def history(self) -> List[History]:
-        r"""
-        Get the redirect history of the Response.
-        """
+    history: List[History]
+    r"""
+    Get the redirect history of the Response.
+    """
 
     def peer_certificate(self) -> Optional[bytes]:
         r"""

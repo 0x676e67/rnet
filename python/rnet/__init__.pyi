@@ -545,10 +545,10 @@ class Response:
     Get the local address of the response.
     """
 
-    def history(self) -> List[History]:
-        r"""
-        Get the redirect history of the Response.
-        """
+    history: List[History]
+    r"""
+    Get the redirect history of the Response.
+    """
 
     def peer_certificate(self) -> Optional[bytes]:
         r"""
@@ -610,6 +610,8 @@ class History:
 
     headers: HeaderMap
     """Get the headers of the redirect response."""
+
+    def __str__(self) -> str: ...
 
 class SocketAddr:
     r"""
