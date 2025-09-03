@@ -111,22 +111,33 @@ pub async fn recv(
     }
 
     let (tx, rx) = oneshot::channel();
-    cmd.send(Command::Recv(timeout, tx))
-        .await
-        .map_err(|_| Error::WebSocketDisconnected)?;
-    rx.await.map_err(|_| Error::WebSocketDisconnected)?
+
+    let fut = async {
+        cmd.send(Command::Recv(timeout, tx))
+            .await
+            .map_err(|_| Error::WebSocketDisconnected)?;
+        rx.await.map_err(|_| Error::WebSocketDisconnected)?
+    };
+
+    if let Some(timeout) = timeout {
+        tokio::time::timeout(timeout, fut)
+            .await
+            .map_err(Error::Timeout)?
+    } else {
+        fut.await
+    }
 }
 
 /// Sends a [`Command::Send`] to the background task to transmit a message over the WebSocket.
 ///
 /// Returns Ok if the message was sent successfully, or an error otherwise.
-pub async fn send(tcmd: mpsc::Sender<Command>, message: Message) -> PyResult<()> {
-    if tcmd.is_closed() {
+pub async fn send(cmd: mpsc::Sender<Command>, message: Message) -> PyResult<()> {
+    if cmd.is_closed() {
         return Err(Error::WebSocketDisconnected.into());
     }
 
     let (tx, rx) = oneshot::channel();
-    tcmd.send(Command::Send(message, tx))
+    cmd.send(Command::Send(message, tx))
         .await
         .map_err(|_| Error::WebSocketDisconnected)?;
     rx.await.map_err(|_| Error::WebSocketDisconnected)?
