@@ -610,7 +610,7 @@ class History:
 
     headers: HeaderMap
     """Get the headers of the redirect response."""
-    
+
     def __str__(self) -> str: ...
 
 class SocketAddr:
