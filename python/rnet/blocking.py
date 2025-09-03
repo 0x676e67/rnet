@@ -372,7 +372,7 @@ class Response:
 
     peer_certificate: Optional[bytes]
     r"""
-    Get the TLS peer certificate of the response.
+    Get the DER encoded leaf certificate of the response.
     """
 
     def text(self) -> str:
