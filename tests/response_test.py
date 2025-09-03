@@ -116,4 +116,4 @@ async def test_get_stream():
 async def test_peer_certificate():
     resp = await client.get("https://httpbin.org/anything")
     async with resp:
-        assert resp.peer_certificate() is not None
+        assert resp.peer_certificate is not None
