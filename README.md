@@ -81,7 +81,11 @@ Additional learning resources include:
 
 1. Install environment
 
+Install the BoringSSL build environment by referring to [boring](https://github.com/cloudflare/boring/blob/master/.github/workflows/ci.yml) and [boringssl](https://github.com/google/boringssl/blob/master/BUILDING.md#build-prerequisites).
+
 ```bash
+# on ubuntu or debian
+sudo apt install -y build-essential cmake perl pkg-config libclang-dev musl-tools git
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 pip install maturin
 pip install uv
@@ -93,18 +97,12 @@ source .venv/bin/activate
 2. Development
 
 ```bash
-# build and install the package
 maturin develop --uv
-python3 examples/client.py
 ```
 
 3. Compile wheels
 
-Install the BoringSSL build environment by referring to [boring](https://github.com/cloudflare/boring/blob/master/.github/workflows/ci.yml) and [boringssl](https://github.com/google/boringssl/blob/master/BUILDING.md#build-prerequisites).
-
 ```bash
-# on ubuntu or debian
-sudo apt-get install build-essential cmake perl pkg-config libclang-dev musl-tools git -y
 maturin build --release
 ```
 
