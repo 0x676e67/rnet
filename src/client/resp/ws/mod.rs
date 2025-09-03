@@ -96,7 +96,7 @@ impl WebSocket {
             .flatten()
     }
 
-    /// Receives a message from the WebSocket.
+    /// Receive a message from the WebSocket.
     #[pyo3(signature = (timeout=None))]
     pub fn recv<'py>(
         &self,
@@ -107,14 +107,25 @@ impl WebSocket {
         future_into_py(py, cmd::recv(tx, timeout))
     }
 
-    /// Sends a message to the WebSocket.
+    /// Send a message to the WebSocket.
     #[pyo3(signature = (message))]
     pub fn send<'py>(&self, py: Python<'py>, message: Message) -> PyResult<Bound<'py, PyAny>> {
         let tx = self.cmd.clone();
         future_into_py(py, cmd::send(tx, message))
     }
 
-    /// Closes the WebSocket connection.
+    /// Send multiple messages to the WebSocket.
+    #[pyo3(signature = (messages))]
+    pub fn send_all<'py>(
+        &self,
+        py: Python<'py>,
+        messages: Vec<Message>,
+    ) -> PyResult<Bound<'py, PyAny>> {
+        let tx = self.cmd.clone();
+        future_into_py(py, cmd::send_all(tx, messages))
+    }
+
+    /// Close the WebSocket connection.
     #[pyo3(signature = (code=None, reason=None))]
     pub fn close<'py>(
         &self,
@@ -193,7 +204,7 @@ impl BlockingWebSocket {
         self.0.protocol()
     }
 
-    /// Receives a message from the WebSocket.
+    /// Receive a message from the WebSocket.
     #[pyo3(signature = (timeout=None))]
     pub fn recv(&self, py: Python, timeout: Option<Duration>) -> PyResult<Option<Message>> {
         py.allow_threads(|| {
@@ -202,7 +213,7 @@ impl BlockingWebSocket {
         })
     }
 
-    /// Sends a message to the WebSocket.
+    /// Send a message to the WebSocket.
     #[pyo3(signature = (message))]
     pub fn send(&self, py: Python, message: Message) -> PyResult<()> {
         py.allow_threads(|| {
@@ -211,7 +222,16 @@ impl BlockingWebSocket {
         })
     }
 
-    /// Closes the WebSocket connection.
+    /// Send multiple messages to the WebSocket.
+    #[pyo3(signature = (messages))]
+    pub fn send_all(&self, py: Python, messages: Vec<Message>) -> PyResult<()> {
+        py.allow_threads(|| {
+            pyo3_async_runtimes::tokio::get_runtime()
+                .block_on(cmd::send_all(self.0.cmd.clone(), messages))
+        })
+    }
+
+    /// Close the WebSocket connection.
     #[pyo3(signature = (code=None, reason=None))]
     pub fn close(
         &self,
