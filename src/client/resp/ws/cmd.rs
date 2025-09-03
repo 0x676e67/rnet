@@ -11,7 +11,7 @@ use bytes::Bytes;
 use futures_util::TryStreamExt;
 use pyo3::{prelude::*, pybacked::PyBackedStr};
 use tokio::sync::{
-    mpsc::{UnboundedReceiver, UnboundedSender},
+    mpsc::{self, Receiver},
     oneshot::{self, Sender},
 };
 
@@ -41,68 +41,59 @@ pub enum Command {
 /// The main background task that processes incoming [`Command`]s and interacts with the WebSocket.
 ///
 /// Handles sending, receiving, and closing the WebSocket connection based on received commands.
-pub async fn task(mut ws: WebSocket, mut cmd: UnboundedReceiver<Command>) {
-    loop {
-        tokio::select! {
-            command = cmd.recv() => {
-                match command {
-                    // Handle sending a message
-                    Some(Command::Send(msg, tx)) => {
-                        let res = ws
-                            .send(msg.0)
-                            .await
-                            .map_err(Error::Library)
-                            .map_err(Into::into);
+pub async fn task(mut ws: WebSocket, mut cmd: Receiver<Command>) {
+    while let Some(command) = cmd.recv().await {
+        match command {
+            // Handle sending a message
+            Command::Send(msg, tx) => {
+                let res = ws
+                    .send(msg.0)
+                    .await
+                    .map_err(Error::Library)
+                    .map_err(Into::into);
 
-                        let _ = tx.send(res);
-                    }
-                    // Handle receiving a message
-                    Some(Command::Recv(timeout, tx)) => {
-                        let fut = async {
-                            ws.try_next()
-                                .await
-                                .map(|opt| opt.map(Message))
-                                .map_err(Error::Library)
-                                .map_err(Into::into)
-                        };
+                let _ = tx.send(res);
+            }
+            // Handle receiving a message
+            Command::Recv(timeout, tx) => {
+                let fut = async {
+                    ws.try_next()
+                        .await
+                        .map(|opt| opt.map(Message))
+                        .map_err(Error::Library)
+                        .map_err(Into::into)
+                };
 
-                        if let Some(timeout) = timeout {
-                            match tokio::time::timeout(timeout, fut).await {
-                                Ok(res) => {
-                                    let _ = tx.send(res);
-                                }
-                                Err(err) => {
-                                    let _ = tx.send(Err(Error::Timeout(err).into()));
-                                }
-                            }
-                        } else {
-                            let _ = tx.send(fut.await);
+                if let Some(timeout) = timeout {
+                    match tokio::time::timeout(timeout, fut).await {
+                        Ok(res) => {
+                            let _ = tx.send(res);
+                        }
+                        Err(err) => {
+                            let _ = tx.send(Err(Error::Timeout(err).into()));
                         }
                     }
-                    // Handle closing the connection
-                    Some(Command::Close(code, reason, tx)) => {
-                        let code = code
-                            .map(ws::message::CloseCode)
-                            .unwrap_or(ws::message::CloseCode::NORMAL);
-                        let reason = reason
-                            .map(Bytes::from_owner)
-                            .and_then(|b| Utf8Bytes::try_from(b).ok())
-                            .unwrap_or_else(|| Utf8Bytes::from_static("Goodbye"));
-
-                        let res = ws
-                            .close(code, reason)
-                            .await
-                            .map_err(Error::Library)
-                            .map_err(Into::into);
-                        let _ = tx.send(res);
-                        break;
-                    }
-
-                    None => {
-                        // Command channel closed
-                        break;
-                    }
+                } else {
+                    let _ = tx.send(fut.await);
                 }
+            }
+            // Handle closing the connection
+            Command::Close(code, reason, tx) => {
+                let code = code
+                    .map(ws::message::CloseCode)
+                    .unwrap_or(ws::message::CloseCode::NORMAL);
+                let reason = reason
+                    .map(Bytes::from_owner)
+                    .and_then(|b| Utf8Bytes::try_from(b).ok())
+                    .unwrap_or_else(|| Utf8Bytes::from_static("Goodbye"));
+
+                let res = ws
+                    .close(code, reason)
+                    .await
+                    .map_err(Error::Library)
+                    .map_err(Into::into);
+                let _ = tx.send(res);
+                break;
             }
         }
     }
@@ -112,7 +103,7 @@ pub async fn task(mut ws: WebSocket, mut cmd: UnboundedReceiver<Command>) {
 ///
 /// Returns the received message or an error if the connection is closed or timeout.
 pub async fn recv(
-    cmd: UnboundedSender<Command>,
+    cmd: mpsc::Sender<Command>,
     timeout: Option<Duration>,
 ) -> PyResult<Option<Message>> {
     if cmd.is_closed() {
@@ -121,6 +112,7 @@ pub async fn recv(
 
     let (tx, rx) = oneshot::channel();
     cmd.send(Command::Recv(timeout, tx))
+        .await
         .map_err(|_| Error::WebSocketDisconnected)?;
     rx.await.map_err(|_| Error::WebSocketDisconnected)?
 }
@@ -128,13 +120,14 @@ pub async fn recv(
 /// Sends a [`Command::Send`] to the background task to transmit a message over the WebSocket.
 ///
 /// Returns Ok if the message was sent successfully, or an error otherwise.
-pub async fn send(tcmd: UnboundedSender<Command>, message: Message) -> PyResult<()> {
+pub async fn send(tcmd: mpsc::Sender<Command>, message: Message) -> PyResult<()> {
     if tcmd.is_closed() {
         return Err(Error::WebSocketDisconnected.into());
     }
 
     let (tx, rx) = oneshot::channel();
     tcmd.send(Command::Send(message, tx))
+        .await
         .map_err(|_| Error::WebSocketDisconnected)?;
     rx.await.map_err(|_| Error::WebSocketDisconnected)?
 }
@@ -143,7 +136,7 @@ pub async fn send(tcmd: UnboundedSender<Command>, message: Message) -> PyResult<
 ///
 /// Returns Ok if the connection was closed successfully, or an error otherwise.
 pub async fn close(
-    cmd: UnboundedSender<Command>,
+    cmd: mpsc::Sender<Command>,
     code: Option<u16>,
     reason: Option<PyBackedStr>,
 ) -> PyResult<()> {
@@ -152,7 +145,7 @@ pub async fn close(
     }
 
     let (tx, rx) = oneshot::channel();
-    let _ = cmd.send(Command::Close(code, reason, tx));
+    let _ = cmd.send(Command::Close(code, reason, tx)).await;
     let _ = rx.await;
     Ok(())
 }

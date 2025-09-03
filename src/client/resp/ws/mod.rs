@@ -40,8 +40,9 @@ pub struct WebSocket {
     /// Returns the headers of the response.
     #[pyo3(get)]
     headers: HeaderMap,
+
     protocol: Option<HeaderValue>,
-    cmd: mpsc::UnboundedSender<cmd::Command>,
+    cmd: mpsc::Sender<cmd::Command>,
 }
 
 /// A blocking WebSocket response.
@@ -62,7 +63,7 @@ impl WebSocket {
         );
         let websocket = response.into_websocket().await?;
         let protocol = websocket.protocol();
-        let (cmd, rx) = mpsc::unbounded_channel();
+        let (cmd, rx) = mpsc::channel(128);
         tokio::spawn(cmd::task(websocket, rx));
 
         Ok(WebSocket {
