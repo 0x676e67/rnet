@@ -13,7 +13,6 @@ async def main():
     print("Headers: ", resp.headers)
     print("Cookies: ", resp.cookies)
     print("Content-Length: ", resp.content_length)
-    print("Encoding: ", resp.encoding)
     print("Remote Address: ", resp.remote_addr)
     print("Text: ", await resp.text())
 

@@ -15,7 +15,6 @@ async def print_response_info(resp: Response):
         print(f"Version: {resp.version}")
         print(f"Response URL: {resp.url}")
         print(f"Headers: {resp.headers}")
-        print(f"Encoding: {resp.encoding}")
         print(f"Content-Length: {resp.content_length}")
         print(f"Remote Address: {resp.remote_addr}")
         print(f"Peer Certificate: {resp.peer_certificate}")

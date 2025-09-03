@@ -27,7 +27,6 @@ async def main():
     print("Response URL: ", resp.url)
     print("Headers: ", resp.headers)
     print("Content-Length: ", resp.content_length)
-    print("Encoding: ", resp.encoding)
     print("Remote Address: ", resp.remote_addr)
     text = await resp.text()
     print("Text: ", text)
