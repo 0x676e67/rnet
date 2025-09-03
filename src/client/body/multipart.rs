@@ -24,18 +24,18 @@ impl Multipart {
     #[new]
     #[pyo3(signature = (*parts))]
     pub fn new(parts: &Bound<PyTuple>) -> PyResult<Multipart> {
-        let mut new_form = Form::new();
+        let mut form = Form::new();
         for part in parts {
             let part = part.downcast::<Part>()?;
             let mut part = part.borrow_mut();
-            new_form = part
+            form = part
                 .name
                 .take()
                 .zip(part.inner.take())
-                .map(|(name, inner)| new_form.part(name, inner))
+                .map(|(name, inner)| form.part(name, inner))
                 .ok_or_else(|| Error::Memory)?;
         }
-        Ok(Multipart(Some(new_form)))
+        Ok(Multipart(Some(form)))
     }
 }
 
@@ -126,18 +126,22 @@ impl Part {
 
 impl FromPyObject<'_> for Value {
     fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
+        // Try extracting string
         if let Ok(text) = ob.extract::<PyBackedStr>() {
             return Ok(Value::Text(Bytes::from_owner(text)));
         }
 
+        // Try extracting bytes
         if let Ok(bytes) = ob.extract::<PyBackedBytes>() {
             return Ok(Value::Bytes(Bytes::from_owner(bytes)));
         }
 
+        // Try extracting file path
         if let Ok(path) = ob.extract::<PathBuf>() {
             return Ok(Value::File(path));
         }
 
+        // Determine if it's an async or sync stream
         if ob.hasattr("asend")? {
             pyo3_async_runtimes::tokio::into_stream_v2(ob.to_owned())
                 .map(AsyncStream::new)
