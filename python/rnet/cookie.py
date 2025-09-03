@@ -75,8 +75,8 @@ class Cookie:
         path: str | None = None,
         max_age: datetime.timedelta | None = None,
         expires: datetime.datetime | None = None,
-        http_only: bool = False,
-        secure: bool = False,
+        http_only: bool | None = None,
+        secure: bool | None = None,
         same_site: SameSite | None = None,
     ) -> "Cookie":
         r"""

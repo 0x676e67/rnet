@@ -46,8 +46,8 @@ impl Cookie {
         path = None,
         max_age = None,
         expires = None,
-        http_only = false,
-        secure = false,
+        http_only = None,
+        secure = None,
         same_site = None
     ))]
     #[allow(clippy::too_many_arguments)]
@@ -58,11 +58,12 @@ impl Cookie {
         path: Option<String>,
         max_age: Option<std::time::Duration>,
         expires: Option<SystemTime>,
-        http_only: bool,
-        secure: bool,
+        http_only: Option<bool>,
+        secure: Option<bool>,
         same_site: Option<SameSite>,
     ) -> Cookie {
         let mut cookie = RawCookie::new(name, value);
+
         if let Some(domain) = domain {
             cookie.set_domain(domain);
         }
@@ -81,17 +82,9 @@ impl Cookie {
             cookie.set_expires(Expiration::DateTime(expires.into()));
         }
 
-        if http_only {
-            cookie.set_http_only(true);
-        }
-
-        if secure {
-            cookie.set_secure(true);
-        }
-
-        if let Some(same_site) = same_site {
-            cookie.set_same_site(same_site.into_ffi());
-        }
+        cookie.set_http_only(http_only);
+        cookie.set_secure(secure);
+        cookie.set_same_site(same_site.map(|s| s.into_ffi()));
 
         Self(cookie)
     }
