@@ -1156,16 +1156,25 @@ class WebSocket:
         self, timeout: datetime.timedelta | None = None
     ) -> Optional[Message]:
         r"""
-        Receives a message from the WebSocket.
+        Receive a message from the WebSocket.
         """
 
     async def send(self, message: Message) -> None:
         r"""
-        Sends a message to the WebSocket.
+        Send a message to the WebSocket.
 
         # Arguments
 
         * `message` - The message to send.
+        """
+        
+    async def send_all(self, messages: List[Message]) -> None:
+        r"""
+        Send multiple messages to the WebSocket.
+
+        # Arguments
+
+        * `messages` - The list of messages to send.
         """
 
     async def close(
@@ -1174,7 +1183,7 @@ class WebSocket:
         reason: Optional[str] = None,
     ) -> None:
         r"""
-        Closes the WebSocket connection.
+        Close the WebSocket connection.
 
         # Arguments
 
