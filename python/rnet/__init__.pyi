@@ -550,10 +550,10 @@ class Response:
     Get the redirect history of the Response.
     """
 
-    def peer_certificate(self) -> Optional[bytes]:
-        r"""
-        Get the TLS peer certificate of the response.
-        """
+    peer_certificate: Optional[bytes]
+    r"""
+    Get the DER encoded leaf certificate of the response.
+    """
 
     async def text(self) -> str:
         r"""

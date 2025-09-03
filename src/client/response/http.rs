@@ -163,7 +163,8 @@ impl Response {
         })
     }
 
-    /// Get the TLS peer certificate of the response.
+    /// Get the DER encoded leaf certificate of the response.
+    #[getter]
     pub fn peer_certificate(&self, py: Python) -> Option<PyBuffer> {
         py.allow_threads(|| {
             self.extensions
@@ -315,7 +316,8 @@ impl BlockingResponse {
         self.0.history(py)
     }
 
-    /// Get the TLS peer certificate of the response.
+    /// Get the DER encoded leaf certificate of the response.
+    #[getter]
     pub fn peer_certificate(&self, py: Python) -> Option<PyBuffer> {
         self.0.peer_certificate(py)
     }
