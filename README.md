@@ -126,10 +126,6 @@ For Manylinux compilation, refer to [manylinux](https://github.com/PyO3/maturin?
 
 Outperforms `requests`, `httpx`, `Python-TLS-Client`, and `curl_cffi`. See the [benchmark](https://github.com/0x676e67/rnet/tree/main/python/benchmark) for details. Benchmark data is for reference only—actual performance may vary based on your environment and use case.
 
-## Documentation
-
-For a comprehensive introduction to this library, refer to the [DeepWiki](https://deepwiki.com/0x676e67/rnet) documentation. This AI-generated guide, created by a third party, offers a solid overview and allows interaction with the AI to explore specific APIs.
-
 ## Emulation
 
 In fact, most device models share the same `TLS`/`HTTP2` configuration, with the main difference being the `User-Agent`.
