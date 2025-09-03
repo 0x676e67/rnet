@@ -126,63 +126,51 @@ pub async fn recv(
     cmd: UnboundedSender<Command>,
     timeout: Option<Duration>,
 ) -> PyResult<Option<Message>> {
-    if cmd.is_closed() {
-        return Err(Error::WebSocketDisconnected.into());
-    }
-
-    let (tx, rx) = oneshot::channel();
-    cmd.send(Command::Recv(timeout, tx))
-        .map_err(|_| Error::WebSocketDisconnected)?;
-    rx.await.map_err(|_| Error::WebSocketDisconnected)?
+    send_command(cmd, |tx| Command::Recv(timeout, tx)).await?
 }
 
 /// Sends a [`Command::Send`] to the background task to transmit a message over the WebSocket.
 ///
 /// Returns Ok if the message was sent successfully, or an error otherwise.
-pub async fn send(tcmd: UnboundedSender<Command>, message: Message) -> PyResult<()> {
-    if tcmd.is_closed() {
-        return Err(Error::WebSocketDisconnected.into());
-    }
-
-    let (tx, rx) = oneshot::channel();
-    tcmd.send(Command::Send(message, tx))
-        .map_err(|_| Error::WebSocketDisconnected)?;
-    rx.await.map_err(|_| Error::WebSocketDisconnected)?
+#[inline]
+pub async fn send(cmd: UnboundedSender<Command>, message: Message) -> PyResult<()> {
+    send_command(cmd, |tx| Command::Send(message, tx)).await?
 }
 
 /// Send as [`Command::SendMany`] to the background task to transmit multiple messages over the
 /// WebSocket.
 ///
 /// Returns Ok if all messages were sent successfully, or an error otherwise.
+#[inline]
 pub async fn send_all(cmd: UnboundedSender<Command>, messages: Vec<Message>) -> PyResult<()> {
     if messages.is_empty() {
         return Ok(());
     }
-
-    if cmd.is_closed() {
-        return Err(Error::WebSocketDisconnected.into());
-    }
-
-    let (tx, rx) = oneshot::channel();
-    cmd.send(Command::SendMany(messages, tx))
-        .map_err(|_| Error::WebSocketDisconnected)?;
-    rx.await.map_err(|_| Error::WebSocketDisconnected)?
+    send_command(cmd, |tx| Command::SendMany(messages, tx)).await?
 }
 
 /// Sends a [`Command::Close`] to the background task to gracefully close the WebSocket connection.
 ///
 /// Returns Ok if the connection was closed successfully, or an error otherwise.
+#[inline]
 pub async fn close(
     cmd: UnboundedSender<Command>,
     code: Option<u16>,
     reason: Option<PyBackedStr>,
 ) -> PyResult<()> {
+    let _ = send_command(cmd, |tx| Command::Close(code, reason, tx)).await;
+    Ok(())
+}
+
+async fn send_command<T>(
+    cmd: UnboundedSender<Command>,
+    make: impl FnOnce(oneshot::Sender<T>) -> Command,
+) -> PyResult<T> {
     if cmd.is_closed() {
         return Err(Error::WebSocketDisconnected.into());
     }
-
     let (tx, rx) = oneshot::channel();
-    let _ = cmd.send(Command::Close(code, reason, tx));
-    let _ = rx.await;
-    Ok(())
+    cmd.send(make(tx))
+        .map_err(|_| Error::WebSocketDisconnected)?;
+    Ok(rx.await.map_err(|_| Error::WebSocketDisconnected)?)
 }
