@@ -52,7 +52,7 @@ async def test_client_redirec_history():
     assert response.status.is_success()
     assert response.url == "https://www.google.com/"
 
-    history = response.history()
+    history = response.history
     assert len(history) == 1
     history[0].url == "https://www.google.com/"
     history[0].previous == url

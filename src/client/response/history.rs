@@ -1,9 +1,11 @@
+use std::fmt::{self, Debug};
+
 use pyo3::prelude::*;
 
 use crate::http::header::HeaderMap;
 
 /// An entry in the redirect history.
-#[pyclass(subclass, frozen)]
+#[pyclass(subclass, frozen, str)]
 pub struct History(wreq::redirect::History);
 
 #[pymethods]
@@ -36,5 +38,11 @@ impl History {
 impl From<wreq::redirect::History> for History {
     fn from(history: wreq::redirect::History) -> Self {
         History(history)
+    }
+}
+
+impl fmt::Display for History {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        self.0.fmt(f)
     }
 }
