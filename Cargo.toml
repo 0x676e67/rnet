@@ -1,6 +1,6 @@
 [package]
 name = "rnet"
-version = "3.0.0-rc2"
+version = "3.0.0-rc3"
 description = "A blazing-fast Python HTTP client with TLS fingerprint"
 edition = "2024"
 rust-version = "1.85.0"
@@ -57,8 +57,6 @@ wreq = { version = "6.0.0-rc.13", features = [
 wreq-util = { version = "3.0.0-rc.1", features = ["emulation-rand"] }
 hickory-resolver = "0.25.2"
 cookie = "0.18"
-
-## malloc
 mimalloc = { version = "0.1.43", default-features = false, features = [
     "local_dynamic_tls",
 ], optional = true }
