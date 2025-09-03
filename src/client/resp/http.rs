@@ -9,7 +9,7 @@ use crate::{
     client::{
         SocketAddr,
         body::Json,
-        response::{future::AllowThreads, history::History},
+        resp::{future::AllowThreads, history::History},
     },
     error::Error,
     http::{Version, cookie::Cookie, header::HeaderMap, status::StatusCode},

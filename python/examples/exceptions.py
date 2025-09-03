@@ -15,7 +15,6 @@ rnet_errors = (
     exceptions.RequestError,
     exceptions.UpgradeError,
     exceptions.URLParseError,
-    exceptions.MIMEParseError,
 )
 
 
