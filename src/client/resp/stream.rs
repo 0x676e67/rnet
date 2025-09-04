@@ -41,7 +41,7 @@ impl Streamer {
 
     #[inline]
     fn __anext__<'py>(&mut self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
-        let res = py.allow_threads(|| match self.0.try_recv() {
+        let res = py.detach(|| match self.0.try_recv() {
             Ok(res) => res.map(PyBuffer::from).map(Some).map_err(Error::Library),
             Err(err) => match err {
                 TryRecvError::Empty => Ok(None),
@@ -80,7 +80,7 @@ impl Streamer {
 
     #[inline]
     fn __next__(&mut self, py: Python) -> PyResult<PyBuffer> {
-        py.allow_threads(|| {
+        py.detach(|| {
             self.0
                 .blocking_recv()
                 .ok_or(Error::StopIteration)?

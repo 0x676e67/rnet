@@ -11,7 +11,7 @@ use bytes::Bytes;
 use futures_util::Stream;
 use indexmap::IndexMap;
 use pyo3::{
-    FromPyObject, PyAny, PyObject, PyResult, Python,
+    FromPyObject, PyAny, PyResult, Python,
     exceptions::PyTypeError,
     prelude::*,
     pybacked::{PyBackedBytes, PyBackedStr},
@@ -55,7 +55,7 @@ impl FromPyObject<'_> for Body {
                 .map(AsyncStream::new)
                 .map(Self::AsyncStream)
         } else {
-            ob.extract::<PyObject>()
+            ob.extract::<Py<PyAny>>()
                 .map(SyncStream::new)
                 .map(Self::SyncStream)
         }
@@ -78,13 +78,13 @@ pub enum Json {
 
 /// Wraps a Python synchronous iterator for use as a streaming HTTP body.
 pub struct SyncStream {
-    iter: PyObject,
+    iter: Py<PyAny>,
 }
 
 impl SyncStream {
     /// Creates a new [`SyncStream`] from a Python iterator.
     #[inline]
-    pub fn new(iter: PyObject) -> Self {
+    pub fn new(iter: Py<PyAny>) -> Self {
         SyncStream { iter }
     }
 }
@@ -94,26 +94,26 @@ impl Stream for SyncStream {
 
     /// Yields the next chunk from the Python iterator as bytes.
     fn poll_next(self: Pin<&mut Self>, _cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
-        Python::with_gil(|py| {
+        Python::attach(|py| {
             let next = self
                 .iter
                 .call_method0(py, "__next__")
                 .ok()
                 .map(|item| extract_bytes(py, item));
-            py.allow_threads(|| Poll::Ready(next))
+            py.detach(|| Poll::Ready(next))
         })
     }
 }
 
 /// Wraps a Python asynchronous iterator for use as a streaming HTTP body.
 pub struct AsyncStream {
-    stream: Pin<Box<dyn Stream<Item = PyObject> + Send + Sync + 'static>>,
+    stream: Pin<Box<dyn Stream<Item = Py<PyAny>> + Send + Sync + 'static>>,
 }
 
 impl AsyncStream {
     /// Creates a new [`AsyncStream`] from a Rust or Python async stream.
     #[inline]
-    pub fn new(stream: impl Stream<Item = PyObject> + Send + Sync + 'static) -> Self {
+    pub fn new(stream: impl Stream<Item = Py<PyAny>> + Send + Sync + 'static) -> Self {
         AsyncStream {
             stream: Box::pin(stream),
         }
@@ -126,8 +126,8 @@ impl Stream for AsyncStream {
     /// Yields the next chunk from the async stream as bytes.
     fn poll_next(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
         let waker = cx.waker();
-        Python::with_gil(|py| {
-            py.allow_threads(|| {
+        Python::attach(|py| {
+            py.detach(|| {
                 self.stream
                     .as_mut()
                     .poll_next(&mut Context::from_waker(waker))
@@ -140,7 +140,7 @@ impl Stream for AsyncStream {
 /// Extracts a [`Bytes`] object from a Python object.
 /// Accepts bytes-like or str-like objects, otherwise raises a `TypeError`.
 #[inline]
-fn extract_bytes(py: Python<'_>, ob: PyObject) -> PyResult<Bytes> {
+fn extract_bytes(py: Python<'_>, ob: Py<PyAny>) -> PyResult<Bytes> {
     match ob.extract::<PyBackedBytes>(py) {
         Ok(chunk) => Ok(Bytes::from_owner(chunk)),
         Err(_) => ob

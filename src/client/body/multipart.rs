@@ -76,7 +76,7 @@ impl Part {
         length: Option<u64>,
         headers: Option<Extractor<HeaderMap>>,
     ) -> PyResult<Part> {
-        py.allow_threads(|| {
+        py.detach(|| {
             // Create the inner part
             let mut inner = match value {
                 Value::Text(bytes) | Value::Bytes(bytes) => {
@@ -147,7 +147,7 @@ impl FromPyObject<'_> for Value {
                 .map(AsyncStream::new)
                 .map(Value::AsyncStream)
         } else {
-            ob.extract::<PyObject>()
+            ob.extract::<Py<PyAny>>()
                 .map(SyncStream::new)
                 .map(Value::SyncStream)
         }

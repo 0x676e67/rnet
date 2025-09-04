@@ -72,7 +72,7 @@ impl HeaderMap {
         key: PyBackedStr,
         default: Option<PyBackedBytes>,
     ) -> Option<PyBuffer> {
-        py.allow_threads(|| {
+        py.detach(|| {
             self.0.get::<&str>(key.as_ref()).cloned().or_else(|| {
                 match default
                     .map(Bytes::from_owner)
@@ -89,7 +89,7 @@ impl HeaderMap {
     /// Returns a view of all values associated with a key.
     #[pyo3(signature = (key))]
     fn get_all<'py>(&self, py: Python<'py>, key: PyBackedStr) -> PyResult<Bound<'py, PyIterator>> {
-        let values: Vec<_> = py.allow_threads(|| {
+        let values: Vec<_> = py.detach(|| {
             self.0
                 .get_all::<&str>(key.as_ref())
                 .iter()
@@ -104,7 +104,7 @@ impl HeaderMap {
     /// Insert a key-value pair into the header map.
     #[pyo3(signature = (key, value))]
     fn insert(&mut self, py: Python, key: PyBackedStr, value: PyBackedStr) {
-        py.allow_threads(|| {
+        py.detach(|| {
             if let (Ok(name), Ok(value)) = (
                 HeaderName::from_bytes(key.as_bytes()),
                 HeaderValue::from_maybe_shared(Bytes::from_owner(value)),
@@ -117,7 +117,7 @@ impl HeaderMap {
     /// Append a key-value pair to the header map.
     #[pyo3(signature = (key, value))]
     fn append(&mut self, py: Python, key: PyBackedStr, value: PyBackedStr) {
-        py.allow_threads(|| {
+        py.detach(|| {
             if let (Ok(name), Ok(value)) = (
                 HeaderName::from_bytes(key.as_bytes()),
                 HeaderValue::from_maybe_shared(Bytes::from_owner(value)),
@@ -130,7 +130,7 @@ impl HeaderMap {
     /// Remove a key-value pair from the header map.
     #[pyo3(signature = (key))]
     fn remove(&mut self, py: Python, key: PyBackedStr) {
-        py.allow_threads(|| {
+        py.detach(|| {
             self.0.remove::<&str>(key.as_ref());
         })
     }
@@ -138,13 +138,13 @@ impl HeaderMap {
     /// Returns true if the map contains a value for the specified key.
     #[pyo3(signature = (key))]
     fn contains_key(&self, py: Python, key: PyBackedStr) -> bool {
-        py.allow_threads(|| self.0.contains_key::<&str>(key.as_ref()))
+        py.detach(|| self.0.contains_key::<&str>(key.as_ref()))
     }
 
     /// An iterator visiting all keys.
     #[inline]
     fn keys<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyIterator>> {
-        let items = py.allow_threads(|| {
+        let items = py.detach(|| {
             self.0
                 .keys()
                 .map(|k| PyBuffer::from(k.clone()))
@@ -157,7 +157,7 @@ impl HeaderMap {
     ///  An iterator visiting all values.
     #[inline]
     fn values<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyIterator>> {
-        let items = py.allow_threads(|| {
+        let items = py.detach(|| {
             self.0
                 .values()
                 .map(|v| PyBuffer::from(v.clone()))
@@ -227,7 +227,7 @@ impl HeaderMap {
     }
 
     fn __iter__<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyIterator>> {
-        let items: Vec<_> = py.allow_threads(|| {
+        let items: Vec<_> = py.detach(|| {
             self.0
                 .iter()
                 .map(|(k, v)| (PyBuffer::from(k.clone()), PyBuffer::from(v.clone())))
@@ -304,7 +304,7 @@ impl OrigHeaderMap {
     }
 
     fn __iter__<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyIterator>> {
-        let items: Vec<_> = py.allow_threads(|| {
+        let items: Vec<_> = py.detach(|| {
             self.0
                 .iter()
                 .map(|(name, orig_name)| {

@@ -123,7 +123,7 @@ fn create_proxy<'py>(
     custom_http_headers: Option<Extractor<HeaderMap>>,
     exclusion: Option<&'py str>,
 ) -> PyResult<Proxy> {
-    py.allow_threads(|| {
+    py.detach(|| {
         // Create base proxy using the provided constructor (http, https, all)
         let mut proxy = proxy_fn(url).map_err(Error::Library)?;
 

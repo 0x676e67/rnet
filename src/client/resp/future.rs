@@ -69,8 +69,8 @@ where
     #[inline(always)]
     fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
         let waker = cx.waker();
-        Python::with_gil(|py| {
-            py.allow_threads(|| match self.project() {
+        Python::attach(|py| {
+            py.detach(|| match self.project() {
                 AllowThreadsProj::Future { inner } => inner.poll(&mut Context::from_waker(waker)),
                 AllowThreadsProj::Closure { .. } => {
                     unreachable!("Future variant should not contain Closure")
@@ -89,8 +89,8 @@ where
 
     #[inline(always)]
     fn poll(self: Pin<&mut Self>, _cx: &mut Context<'_>) -> Poll<Self::Output> {
-        Python::with_gil(|py| {
-            py.allow_threads(|| match self.project() {
+        Python::attach(|py| {
+            py.detach(|| match self.project() {
                 AllowThreadsProj::Closure { inner } => {
                     if let Some(closure) = inner.take() {
                         Poll::Ready(closure())

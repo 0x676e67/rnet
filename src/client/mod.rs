@@ -348,7 +348,7 @@ impl Client {
     #[new]
     #[pyo3(signature = (**kwds))]
     pub fn new(py: Python, mut kwds: Option<Builder>) -> PyResult<Client> {
-        py.allow_threads(|| {
+        py.detach(|| {
             let params = kwds.get_or_insert_default();
             let mut builder = wreq::Client::builder();
 
@@ -659,7 +659,7 @@ impl BlockingClient {
         url: PyBackedStr,
         kwds: Option<Request>,
     ) -> PyResult<BlockingResponse> {
-        py.allow_threads(|| {
+        py.detach(|| {
             pyo3_async_runtimes::tokio::get_runtime()
                 .block_on(execute_request(self.0.clone().0, method, url, kwds))
                 .map(Into::into)
@@ -674,7 +674,7 @@ impl BlockingClient {
         url: PyBackedStr,
         kwds: Option<WebSocketRequest>,
     ) -> PyResult<BlockingWebSocket> {
-        py.allow_threads(|| {
+        py.detach(|| {
             pyo3_async_runtimes::tokio::get_runtime()
                 .block_on(execute_websocket_request(self.0.clone().0, url, kwds))
                 .map(Into::into)
