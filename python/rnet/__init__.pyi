@@ -102,9 +102,6 @@ class ClientParams(TypedDict, closed=True):
     https_only: NotRequired[bool]
     """Enable HTTPS only."""
 
-    http2_max_retry_count: NotRequired[int]
-    """Max HTTP/2 retry count."""
-
     verify: NotRequired[Union[bool, Path, CertStore]]
     """Verify SSL or specify CA path."""
 

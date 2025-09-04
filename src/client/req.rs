@@ -15,55 +15,80 @@ use crate::{
 
 /// The parameters for a request.
 #[derive(Default)]
+#[non_exhaustive]
 pub struct Request {
     /// The Emulation settings for the request.
     pub emulation: Option<Extractor<EmulationOption>>,
+
     /// The proxy to use for the request.
     pub proxy: Option<Extractor<Proxy>>,
+
     /// Bind to a local IP Address.
     pub local_address: Option<Extractor<IpAddr>>,
+
     /// Bind to an interface by `SO_BINDTODEVICE`.
     pub interface: Option<String>,
+
     /// The timeout to use for the request.
     pub timeout: Option<u64>,
+
     /// The read timeout to use for the request.
     pub read_timeout: Option<u64>,
+
     /// The HTTP version to use for the request.
     pub version: Option<Extractor<Version>>,
+
     /// The headers to use for the request.
     pub headers: Option<Extractor<HeaderMap>>,
+
     /// The original headers to use for the request.
     pub orig_headers: Option<Extractor<OrigHeaderMap>>,
+
     /// The option enables default headers.
     pub default_headers: Option<bool>,
+
     /// The cookies to use for the request.
     pub cookies: Option<Extractor<Vec<HeaderValue>>>,
+
     /// Whether to allow redirects.
     pub allow_redirects: Option<bool>,
+
     /// The maximum number of redirects to follow.
     pub max_redirects: Option<usize>,
+
     /// Sets gzip as an accepted encoding.
     pub gzip: Option<bool>,
+
     /// Sets brotli as an accepted encoding.
     pub brotli: Option<bool>,
+
     /// Sets deflate as an accepted encoding.
     pub deflate: Option<bool>,
+
     /// Sets zstd as an accepted encoding.
     pub zstd: Option<bool>,
+
     /// The authentication to use for the request.
     pub auth: Option<PyBackedStr>,
+
     /// The bearer authentication to use for the request.
     pub bearer_auth: Option<PyBackedStr>,
+
     /// The basic authentication to use for the request.
     pub basic_auth: Option<(PyBackedStr, Option<PyBackedStr>)>,
+
     /// The query parameters to use for the request.
     pub query: Option<Extractor<Vec<(PyBackedStr, PyBackedStr)>>>,
+
     /// The form parameters to use for the request.
     pub form: Option<Extractor<Vec<(PyBackedStr, PyBackedStr)>>>,
+
     /// The JSON body to use for the request.
     pub json: Option<Json>,
+
     /// The body to use for the request.
     pub body: Option<Body>,
+
     /// The multipart form to use for the request.
     pub multipart: Option<Extractor<Form>>,
 }
@@ -105,33 +130,47 @@ impl<'py> FromPyObject<'py> for Request {
 
 /// The parameters for a WebSocket request.
 #[derive(Default)]
+#[non_exhaustive]
 pub struct WebSocketRequest {
     /// The Emulation settings for the request.
     pub emulation: Option<Extractor<EmulationOption>>,
+
     /// The proxy to use for the request.
     pub proxy: Option<Extractor<Proxy>>,
+
     /// Bind to a local IP Address.
     pub local_address: Option<Extractor<IpAddr>>,
+
     /// Bind to an interface by `SO_BINDTODEVICE`.
     pub interface: Option<String>,
+
     /// The headers to use for the request.
     pub headers: Option<Extractor<HeaderMap>>,
+
     /// The original headers to use for the request.
     pub orig_headers: Option<Extractor<OrigHeaderMap>>,
+
     /// The option enables default headers.
     pub default_headers: Option<bool>,
+
     /// The cookies to use for the request.
     pub cookies: Option<Extractor<Vec<HeaderValue>>>,
+
     /// The protocols to use for the request.
     pub protocols: Option<Vec<String>>,
+
     /// Whether to use HTTP/2 for the websocket.
     pub force_http2: Option<bool>,
+
     /// The authentication to use for the request.
     pub auth: Option<PyBackedStr>,
+
     /// The bearer authentication to use for the request.
     pub bearer_auth: Option<PyBackedStr>,
+
     /// The basic authentication to use for the request.
     pub basic_auth: Option<(PyBackedStr, Option<PyBackedStr>)>,
+
     /// The query parameters to use for the request.
     pub query: Option<Extractor<Vec<(PyBackedStr, PyBackedStr)>>>,
 
