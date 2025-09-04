@@ -25,77 +25,214 @@ except ImportError:
 
 class ClientParams(TypedDict, closed=True):
     emulation: NotRequired[Union[Emulation, EmulationOption]]
+    """Browser fingerprint/Emulation config."""
+
     user_agent: NotRequired[str]
+    """Default User-Agent string."""
+
     headers: NotRequired[Union[Dict[str, str], HeaderMap]]
+    """Default request headers."""
+
     orig_headers: NotRequired[Union[List[str], OrigHeaderMap]]
+    """Original request headers (case-sensitive and order)."""
+
     referer: NotRequired[bool]
+    """Automatically set Referer."""
+
     history: NotRequired[bool]
+    """Store redirect history."""
+
     allow_redirects: NotRequired[bool]
+    """Allow automatic redirects."""
+
     max_redirects: NotRequired[int]
+    """Maximum number of redirects."""
+
     cookie_store: NotRequired[bool]
+    """Enable cookie store."""
+
     cookie_provider: NotRequired[Jar]
+    """Custom cookie provider."""
+
+    lookup_ip_strategy: NotRequired[str]
+    """IP lookup strategy."""
+
     timeout: NotRequired[int]
+    """Total timeout (seconds)."""
+
     connect_timeout: NotRequired[int]
+    """Connection timeout (seconds)."""
+
     read_timeout: NotRequired[int]
+    """Read timeout (seconds)."""
+
     tcp_keepalive: NotRequired[int]
+    """TCP keepalive time (seconds)."""
+
     tcp_keepalive_interval: NotRequired[int]
+    """TCP keepalive interval (seconds)."""
+
     tcp_keepalive_retries: NotRequired[int]
+    """TCP keepalive retry count."""
+
     tcp_user_timeout: NotRequired[int]
+    """TCP user timeout (seconds)."""
+
     tcp_nodelay: NotRequired[bool]
+    """Enable TCP_NODELAY."""
+
     tcp_reuse_address: NotRequired[bool]
+    """Enable SO_REUSEADDR."""
+
     pool_idle_timeout: NotRequired[int]
+    """Connection pool idle timeout (seconds)."""
+
     pool_max_idle_per_host: NotRequired[int]
+    """Max idle connections per host."""
+
     pool_max_size: NotRequired[int]
+    """Max total connections in pool."""
+
     http1_only: NotRequired[bool]
+    """Enable HTTP/1.1 only."""
+
     http2_only: NotRequired[bool]
+    """Enable HTTP/2 only."""
+
     https_only: NotRequired[bool]
+    """Enable HTTPS only."""
+
     http2_max_retry_count: NotRequired[int]
+    """Max HTTP/2 retry count."""
+
     verify: NotRequired[Union[bool, Path, CertStore]]
+    """Verify SSL or specify CA path."""
+
     identity: NotRequired[Identity]
+    """Represents a private key and X509 cert as a client certificate."""
+
     keylog: NotRequired[KeyLogPolicy]
+    """Key logging policy (environment or file)."""
+
     tls_info: NotRequired[bool]
+    """Return TLS info."""
+
     min_tls_version: NotRequired[TlsVersion]
+    """Minimum TLS version."""
+
     max_tls_version: NotRequired[TlsVersion]
+    """Maximum TLS version."""
+
     no_proxy: NotRequired[bool]
+    """Disable proxy."""
+
     proxies: NotRequired[List[Proxy]]
+    """Proxy server list."""
+
     local_address: NotRequired[Union[str, ipaddress.IPv4Address, ipaddress.IPv6Address]]
+    """Local bind address."""
+
     interface: NotRequired[str]
+    """Local network interface."""
+
     gzip: NotRequired[bool]
+    """Enable gzip decompression."""
+
     brotli: NotRequired[bool]
+    """Enable brotli decompression."""
+
     deflate: NotRequired[bool]
+    """Enable deflate decompression."""
+
     zstd: NotRequired[bool]
+    """Enable zstd decompression."""
 
 class ProxyParams(TypedDict, closed=True):
     username: NotRequired[str]
+    r"""Username for proxy authentication."""
+
     password: NotRequired[str]
+    r"""Password for proxy authentication."""
+
     custom_http_auth: NotRequired[str]
+    r"""Custom HTTP proxy authentication header value."""
+
     custom_http_headers: NotRequired[Union[Dict[str, str], HeaderMap]]
+    r"""Custom HTTP proxy headers."""
+
     exclusion: NotRequired[str]
+    r"""List of domains to exclude from proxying."""
 
 class Request(TypedDict, closed=True):
     emulation: NotRequired[Union[Emulation, EmulationOption]]
+    """The Emulation settings for the request."""
+
     proxy: NotRequired[Proxy]
+    """The proxy to use for the request."""
+
     local_address: NotRequired[Union[ipaddress.IPv4Address, ipaddress.IPv6Address]]
+    """Bind to a local IP Address."""
+
     interface: NotRequired[str]
+    """Bind to an interface by SO_BINDTODEVICE."""
+
     timeout: NotRequired[int]
+    """The timeout to use for the request."""
+
     read_timeout: NotRequired[int]
+    """The read timeout to use for the request."""
+
     version: NotRequired[Version]
+    """The HTTP version to use for the request."""
+
     headers: NotRequired[Union[Dict[str, str], HeaderMap]]
+    """The headers to use for the request."""
+
     orig_headers: NotRequired[Union[List[str], OrigHeaderMap]]
+    """The original headers to use for the request."""
+
     default_headers: NotRequired[bool]
+    """The option enables default headers."""
+
     cookies: NotRequired[Dict[str, str]]
+    """The cookies to use for the request."""
+
     allow_redirects: NotRequired[bool]
+    """Whether to allow redirects."""
+
     max_redirects: NotRequired[int]
+    """The maximum number of redirects to follow."""
+
     gzip: NotRequired[bool]
+    """Sets gzip as an accepted encoding."""
+
     brotli: NotRequired[bool]
+    """Sets brotli as an accepted encoding."""
+
     deflate: NotRequired[bool]
+    """Sets deflate as an accepted encoding."""
+
     zstd: NotRequired[bool]
+    """Sets zstd as an accepted encoding."""
+
     auth: NotRequired[str]
+    """The authentication to use for the request."""
+
     bearer_auth: NotRequired[str]
+    """The bearer authentication to use for the request."""
+
     basic_auth: NotRequired[Tuple[str, Optional[str]]]
+    """The basic authentication to use for the request."""
+
     query: NotRequired[List[Tuple[str, str]]]
+    """The query parameters to use for the request."""
+
     form: NotRequired[List[Tuple[str, str]]]
+    """The form parameters to use for the request."""
+
     json: NotRequired[Dict[str, Any]]
+    """The JSON body to use for the request."""
+
     body: NotRequired[
         Union[
             str,
@@ -104,29 +241,114 @@ class Request(TypedDict, closed=True):
             typing.Generator[bytes, str],
         ]
     ]
+    """The body to use for the request."""
+
     multipart: NotRequired[Multipart]
+    """The multipart form to use for the request."""
 
 class WebSocketRequest(TypedDict, closed=True):
     emulation: NotRequired[Union[Emulation, EmulationOption]]
+    """The Emulation settings for the request."""
+
     proxy: NotRequired[Proxy]
+    """The proxy to use for the request."""
+
     local_address: NotRequired[Union[str, ipaddress.IPv4Address, ipaddress.IPv6Address]]
+    """Bind to a local IP Address."""
+
     interface: NotRequired[str]
+    """Bind to an interface by SO_BINDTODEVICE."""
+
     headers: NotRequired[Union[Dict[str, str], HeaderMap]]
+    """The headers to use for the request."""
+
     orig_headers: NotRequired[Union[List[str], OrigHeaderMap]]
+    """The original headers to use for the request."""
+
     default_headers: NotRequired[bool]
+    """The option enables default headers."""
+
     cookies: NotRequired[Dict[str, str]]
+    """The cookies to use for the request."""
+
     protocols: NotRequired[List[str]]
+    """The protocols to use for the request."""
+
     force_http2: NotRequired[bool]
+    """Whether to use HTTP/2 for the websocket."""
+
     auth: NotRequired[str]
+    """The authentication to use for the request."""
+
     bearer_auth: NotRequired[str]
+    """The bearer authentication to use for the request."""
+
     basic_auth: NotRequired[Tuple[str, Optional[str]]]
+    """The basic authentication to use for the request."""
+
     query: NotRequired[List[Tuple[str, str]]]
+    """The query parameters to use for the request."""
+
     read_buffer_size: NotRequired[int]
+    """
+    Read buffer capacity. This buffer is eagerly allocated and used for receiving messages.
+
+    For high read load scenarios a larger buffer, e.g. 128 KiB, improves performance.
+
+    For scenarios where you expect a lot of connections and don't need high read load
+    performance a smaller buffer, e.g. 4 KiB, would be appropriate to lower total
+    memory usage.
+
+    The default value is 128 KiB.
+    """
+
     write_buffer_size: NotRequired[int]
+    """
+    The target minimum size of the write buffer to reach before writing the data
+    to the underlying stream. The default value is 128 KiB.
+
+    If set to 0 each message will be eagerly written to the underlying stream.
+    It is often more optimal to allow them to buffer a little, hence the default value.
+
+    Note: flush() will always fully write the buffer regardless.
+    """
+
     max_write_buffer_size: NotRequired[int]
+    """
+    The max size of the write buffer in bytes. Setting this can provide backpressure
+    in the case the write buffer is filling up due to write errors.
+    The default value is unlimited.
+
+    Note: The write buffer only builds up past write_buffer_size when writes to the
+    underlying stream are failing. So the write buffer can not fill up if you are not
+    observing write errors even if not flushing.
+
+    Note: Should always be at least write_buffer_size + 1 message and probably a little
+    more depending on error handling strategy.
+    """
+
     max_message_size: NotRequired[int]
+    """
+    The maximum size of an incoming message. None means no size limit.
+    The default value is 64 MiB which should be reasonably big for all normal use-cases
+    but small enough to prevent memory eating by a malicious user.
+    """
+
     max_frame_size: NotRequired[int]
+    """
+    The maximum size of a single incoming message frame. None means no size limit.
+    The limit is for frame payload NOT including the frame header.
+    The default value is 16 MiB which should be reasonably big for all normal use-cases
+    but small enough to prevent memory eating by a malicious user.
+    """
+
     accept_unmasked_frames: NotRequired[bool]
+    """
+    When set to True, the server will accept and handle unmasked frames from the client.
+    According to RFC 6455, the server must close the connection to the client in such cases,
+    however it seems like there are some popular libraries that are sending unmasked frames,
+    ignoring the RFC. By default this option is set to False, i.e. according to RFC6455.
+    """
 
 class Client:
     r"""
@@ -140,60 +362,22 @@ class Client:
         r"""
         Creates a new Client instance.
 
-        Args:
-            emulation: Browser fingerprint/Emulation config.
-            user_agent: Default User-Agent string.
-            headers: Default request headers.
-            orig_headers: Original request headers (case-sensitive and order).
-            referer: Automatically set Referer.
-            allow_redirects: Allow automatic redirects.
-            max_redirects: Maximum number of redirects.
-            cookie_store: Enable cookie store.
-            lookup_ip_strategy: IP lookup strategy.
-            timeout: Total timeout (seconds).
-            connect_timeout: Connection timeout (seconds).
-            read_timeout: Read timeout (seconds).
-            tcp_keepalive: TCP keepalive time (seconds).
-            tcp_keepalive_interval: TCP keepalive interval (seconds).
-            tcp_keepalive_retries: TCP keepalive retry count.
-            tcp_user_timeout: TCP user timeout (seconds).
-            tcp_nodelay: Enable TCP_NODELAY.
-            tcp_reuse_address: Enable SO_REUSEADDR.
-            pool_idle_timeout: Connection pool idle timeout (seconds).
-            pool_max_idle_per_host: Max idle connections per host.
-            pool_max_size: Max total connections in pool.
-            http1_only: Enable HTTP/1.1 only.
-            http2_only: Enable HTTP/2 only.
-            https_only: Enable HTTPS only.
-            http2_max_retry_count: Max HTTP/2 retry count.
-            verify: Verify SSL or specify CA path.
-            identity: Represents a private key and X509 cert as a client certificate.
-            keylog: Key logging policy (environment or file).
-            tls_info: Return TLS info.
-            min_tls_version: Minimum TLS version.
-            max_tls_version: Maximum TLS version.
-            no_proxy: Disable proxy.
-            proxies: Proxy server list.
-            local_address: Local bind address.
-            interface: Local network interface.
-            gzip: Enable gzip decompression.
-            brotli: Enable brotli decompression.
-            deflate: Enable deflate decompression.
-            zstd: Enable zstd decompression.
-
         Examples:
 
-            ```python
-            import asyncio
-            import rnet
+        ```python
+        import asyncio
+        import rnet
 
+        async def main():
             client = rnet.Client(
-                user_agent="my-app/0.0.1",
+                user_agent="Mozilla/5.0",
                 timeout=10,
             )
             response = await client.get('https://httpbin.org/get')
-            print(response.text)
-            ```
+            print(await response.text())
+
+        asyncio.run(main())
+        ```
         """
 
     async def request(
@@ -707,6 +891,300 @@ class Streamer:
     def __enter__(self) -> Streamer: ...
     def __exit__(self, _exc_type: Any, _exc_value: Any, _traceback: Any) -> None: ...
 
+class Proxy:
+    r"""
+    A proxy server for a request.
+    Supports HTTP, HTTPS, SOCKS4, SOCKS4a, SOCKS5, and SOCKS5h protocols.
+    """
+
+    @staticmethod
+    def http(url: str, **kwargs: Unpack[ProxyParams]) -> Proxy:
+        r"""
+        Creates a new HTTP proxy.
+
+        This method sets up a proxy server for HTTP requests.
+
+        # Arguments
+
+        * `url` - The URL of the proxy server.
+        * `username` - Optional username for proxy authentication.
+        * `password` - Optional password for proxy authentication.
+        * `custom_http_auth` - Optional custom HTTP proxy authentication header value.
+        * `custom_http_headers` - Optional custom HTTP proxy headers.
+        * `exclusion` - Optional List of domains to exclude from proxying.
+
+        # Examples
+
+        ```python
+        import rnet
+
+        proxy = rnet.Proxy.http("http://proxy.example.com")
+        ```
+        """
+
+    @staticmethod
+    def https(url: str, **kwargs: Unpack[ProxyParams]) -> Proxy:
+        r"""
+        Creates a new HTTPS proxy.
+
+        This method sets up a proxy server for HTTPS requests.
+
+        # Arguments
+
+        * `url` - The URL of the proxy server.
+        * `username` - Optional username for proxy authentication.
+        * `password` - Optional password for proxy authentication.
+        * `custom_http_auth` - Optional custom HTTP proxy authentication header value.
+        * `custom_http_headers` - Optional custom HTTP proxy headers.
+        * `exclusion` - Optional List of domains to exclude from proxying.
+
+        # Examples
+
+        ```python
+        import rnet
+
+        proxy = rnet.Proxy.https("https://proxy.example.com")
+        ```
+        """
+
+    @staticmethod
+    def all(url: str, **kwargs: Unpack[ProxyParams]) -> Proxy:
+        r"""
+        Creates a new proxy for all protocols.
+
+        This method sets up a proxy server for all types of requests (HTTP, HTTPS, etc.).
+
+        # Arguments
+
+        * `url` - The URL of the proxy server.
+        * `username` - Optional username for proxy authentication.
+        * `password` - Optional password for proxy authentication.
+        * `custom_http_auth` - Optional custom HTTP proxy authentication header value.
+        * `custom_http_headers` - Optional custom HTTP proxy headers.
+        * `exclusion` - Optional List of domains to exclude from proxying.
+
+        # Examples
+
+        ```python
+        import rnet
+
+        proxy = rnet.Proxy.all("https://proxy.example.com")
+        ```
+        """
+
+class Message:
+    r"""
+    A WebSocket message.
+    """
+
+    data: Optional[bytes]
+    r"""
+    Returns the data of the message as bytes.
+    """
+
+    text: Optional[str]
+    r"""
+    Returns the text content of the message if it is a text message.
+    """
+
+    binary: Optional[bytes]
+    r"""
+    Returns the binary data of the message if it is a binary message.
+    """
+
+    ping: Optional[bytes]
+    r"""
+    Returns the ping data of the message if it is a ping message.
+    """
+
+    pong: Optional[bytes]
+    r"""
+    Returns the pong data of the message if it is a pong message.
+    """
+
+    close: Optional[Tuple[int, Optional[str]]]
+    r"""
+    Returns the close code and reason of the message if it is a close message.
+    """
+
+    @staticmethod
+    def text_from_json(json: Dict[str, Any]) -> Message:
+        r"""
+        Creates a new text message from the JSON representation.
+
+        # Arguments
+        * `json` - The JSON representation of the message.
+        """
+
+    @staticmethod
+    def binary_from_json(json: Dict[str, Any]) -> Message:
+        r"""
+        Creates a new binary message from the JSON representation.
+
+        # Arguments
+        * `json` - The JSON representation of the message.
+        """
+
+    @staticmethod
+    def from_text(text: str) -> Message:
+        r"""
+        Creates a new text message.
+
+        # Arguments
+
+        * `text` - The text content of the message.
+        """
+
+    @staticmethod
+    def from_binary(data: bytes) -> Message:
+        r"""
+        Creates a new binary message.
+
+        # Arguments
+
+        * `data` - The binary data of the message.
+        """
+
+    @staticmethod
+    def from_ping(data: bytes) -> Message:
+        r"""
+        Creates a new ping message.
+
+        # Arguments
+
+        * `data` - The ping data of the message.
+        """
+
+    @staticmethod
+    def from_pong(data: bytes) -> Message:
+        r"""
+        Creates a new pong message.
+
+        # Arguments
+
+        * `data` - The pong data of the message.
+        """
+
+    @staticmethod
+    def from_close(code: int, reason: Optional[str] = None) -> Message:
+        r"""
+        Creates a new close message.
+
+        # Arguments
+
+        * `code` - The close code.
+        * `reason` - An optional reason for closing.
+        """
+
+    def json(self) -> Dict[str, Any]:
+        r"""
+        Returns the JSON representation of the message.
+        """
+
+    def __str__(self) -> str: ...
+
+class WebSocket:
+    r"""
+    A WebSocket response.
+    """
+
+    status: StatusCode
+    r"""
+    Get the status code of the response.
+    """
+
+    version: Version
+    r"""
+    Get the HTTP version of the response.
+    """
+
+    headers: HeaderMap
+    r"""
+    Get the headers of the response.
+    """
+
+    cookies: List[Cookie]
+    r"""
+    Get the cookies of the response.
+    """
+
+    remote_addr: Optional[SocketAddr]
+    r"""
+    Get the remote address of the response.
+    """
+
+    protocol: Optional[str]
+    r"""
+    Get the WebSocket protocol.
+    """
+
+    async def recv(
+        self, timeout: datetime.timedelta | None = None
+    ) -> Optional[Message]:
+        r"""
+        Receive a message from the WebSocket.
+        """
+
+    async def send(self, message: Message) -> None:
+        r"""
+        Send a message to the WebSocket.
+
+        # Arguments
+
+        * `message` - The message to send.
+        """
+
+    async def send_all(self, messages: List[Message]) -> None:
+        r"""
+        Send multiple messages to the WebSocket.
+
+        # Arguments
+
+        * `messages` - The list of messages to send.
+        """
+
+    async def close(
+        self,
+        code: Optional[int] = None,
+        reason: Optional[str] = None,
+    ) -> None:
+        r"""
+        Close the WebSocket connection.
+
+        # Arguments
+
+        * `code` - An optional close code.
+        * `reason` - An optional reason for closing.
+        """
+
+    def __aenter__(self) -> Any: ...
+    def __aexit__(self, _exc_type: Any, _exc_value: Any, _traceback: Any) -> Any: ...
+
+class Method(Enum):
+    r"""
+    An HTTP method.
+    """
+
+    GET = auto()
+    HEAD = auto()
+    POST = auto()
+    PUT = auto()
+    DELETE = auto()
+    OPTIONS = auto()
+    TRACE = auto()
+    PATCH = auto()
+
+class Version(Enum):
+    r"""
+    An HTTP version.
+    """
+
+    HTTP_09 = auto()
+    HTTP_10 = auto()
+    HTTP_11 = auto()
+    HTTP_2 = auto()
+    HTTP_3 = auto()
+
 async def delete(
     url: str,
     **kwargs: Unpack[Request],
@@ -934,284 +1412,3 @@ async def websocket(
     asyncio.run(run())
     ```
     """
-
-class Proxy:
-    r"""
-    A proxy server for a request.
-    Supports HTTP, HTTPS, SOCKS4, SOCKS4a, SOCKS5, and SOCKS5h protocols.
-    """
-
-    @staticmethod
-    def http(url: str, **kwargs: Unpack[ProxyParams]) -> Proxy:
-        r"""
-        Creates a new HTTP proxy.
-
-        This method sets up a proxy server for HTTP requests.
-
-        # Arguments
-
-        * `url` - The URL of the proxy server.
-        * `username` - Optional username for proxy authentication.
-        * `password` - Optional password for proxy authentication.
-        * `custom_http_auth` - Optional custom HTTP proxy authentication header value.
-        * `custom_http_headers` - Optional custom HTTP proxy headers.
-        * `exclusion` - Optional List of domains to exclude from proxying.
-
-        # Examples
-
-        ```python
-        import rnet
-
-        proxy = rnet.Proxy.http("http://proxy.example.com")
-        ```
-        """
-
-    @staticmethod
-    def https(url: str, **kwargs: Unpack[ProxyParams]) -> Proxy:
-        r"""
-        Creates a new HTTPS proxy.
-
-        This method sets up a proxy server for HTTPS requests.
-
-        # Arguments
-
-        * `url` - The URL of the proxy server.
-        * `username` - Optional username for proxy authentication.
-        * `password` - Optional password for proxy authentication.
-        * `custom_http_auth` - Optional custom HTTP proxy authentication header value.
-        * `custom_http_headers` - Optional custom HTTP proxy headers.
-        * `exclusion` - Optional List of domains to exclude from proxying.
-
-        # Examples
-
-        ```python
-        import rnet
-
-        proxy = rnet.Proxy.https("https://proxy.example.com")
-        ```
-        """
-
-    @staticmethod
-    def all(url: str, **kwargs: Unpack[ProxyParams]) -> Proxy:
-        r"""
-        Creates a new proxy for all protocols.
-
-        This method sets up a proxy server for all types of requests (HTTP, HTTPS, etc.).
-
-        # Arguments
-
-        * `url` - The URL of the proxy server.
-        * `username` - Optional username for proxy authentication.
-        * `password` - Optional password for proxy authentication.
-        * `custom_http_auth` - Optional custom HTTP proxy authentication header value.
-        * `custom_http_headers` - Optional custom HTTP proxy headers.
-        * `exclusion` - Optional List of domains to exclude from proxying.
-
-        # Examples
-
-        ```python
-        import rnet
-
-        proxy = rnet.Proxy.all("https://proxy.example.com")
-        ```
-        """
-
-class Message:
-    r"""
-    A WebSocket message.
-    """
-
-    data: Optional[bytes]
-    r"""
-    Returns the data of the message as bytes.
-    """
-    text: Optional[str]
-    r"""
-    Returns the text content of the message if it is a text message.
-    """
-    binary: Optional[bytes]
-    r"""
-    Returns the binary data of the message if it is a binary message.
-    """
-    ping: Optional[bytes]
-    r"""
-    Returns the ping data of the message if it is a ping message.
-    """
-    pong: Optional[bytes]
-    r"""
-    Returns the pong data of the message if it is a pong message.
-    """
-    close: Optional[Tuple[int, Optional[str]]]
-    r"""
-    Returns the close code and reason of the message if it is a close message.
-    """
-    def __str__(self) -> str: ...
-    @staticmethod
-    def text_from_json(json: Dict[str, Any]) -> Message:
-        r"""
-        Creates a new text message from the JSON representation.
-
-        # Arguments
-        * `json` - The JSON representation of the message.
-        """
-
-    @staticmethod
-    def binary_from_json(json: Dict[str, Any]) -> Message:
-        r"""
-        Creates a new binary message from the JSON representation.
-
-        # Arguments
-        * `json` - The JSON representation of the message.
-        """
-
-    @staticmethod
-    def from_text(text: str) -> Message:
-        r"""
-        Creates a new text message.
-
-        # Arguments
-
-        * `text` - The text content of the message.
-        """
-
-    @staticmethod
-    def from_binary(data: bytes) -> Message:
-        r"""
-        Creates a new binary message.
-
-        # Arguments
-
-        * `data` - The binary data of the message.
-        """
-
-    @staticmethod
-    def from_ping(data: bytes) -> Message:
-        r"""
-        Creates a new ping message.
-
-        # Arguments
-
-        * `data` - The ping data of the message.
-        """
-
-    @staticmethod
-    def from_pong(data: bytes) -> Message:
-        r"""
-        Creates a new pong message.
-
-        # Arguments
-
-        * `data` - The pong data of the message.
-        """
-
-    @staticmethod
-    def from_close(code: int, reason: Optional[str] = None) -> Message:
-        r"""
-        Creates a new close message.
-
-        # Arguments
-
-        * `code` - The close code.
-        * `reason` - An optional reason for closing.
-        """
-
-    def json(self) -> Dict[str, Any]:
-        r"""
-        Returns the JSON representation of the message.
-        """
-
-class WebSocket:
-    r"""
-    A WebSocket response.
-    """
-
-    status: StatusCode
-    r"""
-    Get the status code of the response.
-    """
-    version: Version
-    r"""
-    Get the HTTP version of the response.
-    """
-    headers: HeaderMap
-    r"""
-    Get the headers of the response.
-    """
-    cookies: List[Cookie]
-    r"""
-    Get the cookies of the response.
-    """
-    remote_addr: Optional[SocketAddr]
-    r"""
-    Get the remote address of the response.
-    """
-    protocol: Optional[str]
-    r"""
-    Get the WebSocket protocol.
-    """
-
-    def __aenter__(self) -> Any: ...
-    def __aexit__(self, _exc_type: Any, _exc_value: Any, _traceback: Any) -> Any: ...
-    async def recv(
-        self, timeout: datetime.timedelta | None = None
-    ) -> Optional[Message]:
-        r"""
-        Receive a message from the WebSocket.
-        """
-
-    async def send(self, message: Message) -> None:
-        r"""
-        Send a message to the WebSocket.
-
-        # Arguments
-
-        * `message` - The message to send.
-        """
-        
-    async def send_all(self, messages: List[Message]) -> None:
-        r"""
-        Send multiple messages to the WebSocket.
-
-        # Arguments
-
-        * `messages` - The list of messages to send.
-        """
-
-    async def close(
-        self,
-        code: Optional[int] = None,
-        reason: Optional[str] = None,
-    ) -> None:
-        r"""
-        Close the WebSocket connection.
-
-        # Arguments
-
-        * `code` - An optional close code.
-        * `reason` - An optional reason for closing.
-        """
-
-class Method(Enum):
-    r"""
-    An HTTP method.
-    """
-
-    GET = auto()
-    HEAD = auto()
-    POST = auto()
-    PUT = auto()
-    DELETE = auto()
-    OPTIONS = auto()
-    TRACE = auto()
-    PATCH = auto()
-
-class Version(Enum):
-    r"""
-    An HTTP version.
-    """
-
-    HTTP_09 = auto()
-    HTTP_10 = auto()
-    HTTP_11 = auto()
-    HTTP_2 = auto()
-    HTTP_3 = auto()
