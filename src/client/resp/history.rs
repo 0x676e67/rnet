@@ -5,7 +5,7 @@ use pyo3::prelude::*;
 use crate::http::header::HeaderMap;
 
 /// An entry in the redirect history.
-#[pyclass(subclass, frozen, str)]
+#[pyclass(subclass, str, frozen)]
 pub struct History(wreq::redirect::History);
 
 #[pymethods]
