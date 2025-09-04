@@ -24,47 +24,6 @@ class Client:
         r"""
         Creates a new blocking Client instance.
 
-        Args:
-            emulation: Browser fingerprint/Emulation config.
-            user_agent: Default User-Agent string.
-            headers: Default request headers.
-            orig_headers: Original request headers (case-sensitive and order).
-            referer: Automatically set Referer.
-            allow_redirects: Allow automatic redirects.
-            max_redirects: Maximum number of redirects.
-            cookie_store: Enable cookie store.
-            lookup_ip_strategy: IP lookup strategy.
-            timeout: Total timeout (seconds).
-            connect_timeout: Connection timeout (seconds).
-            read_timeout: Read timeout (seconds).
-            tcp_keepalive: TCP keepalive time (seconds).
-            tcp_keepalive_interval: TCP keepalive interval (seconds).
-            tcp_keepalive_retries: TCP keepalive retry count.
-            tcp_user_timeout: TCP user timeout (seconds).
-            tcp_nodelay: Enable TCP_NODELAY.
-            tcp_reuse_address: Enable SO_REUSEADDR.
-            pool_idle_timeout: Connection pool idle timeout (seconds).
-            pool_max_idle_per_host: Max idle connections per host.
-            pool_max_size: Max total connections in pool.
-            http1_only: Enable HTTP/1.1 only.
-            http2_only: Enable HTTP/2 only.
-            https_only: Enable HTTPS only.
-            http2_max_retry_count: Max HTTP/2 retry count.
-            verify: Verify SSL or specify CA path.
-            identity: Represents a private key and X509 cert as a client certificate.
-            keylog: Key logging policy (environment or file).
-            tls_info: Return TLS info.
-            min_tls_version: Minimum TLS version.
-            max_tls_version: Maximum TLS version.
-            no_proxy: Disable proxy.
-            proxies: Proxy server list.
-            local_address: Local bind address.
-            interface: Local network interface.
-            gzip: Enable gzip decompression.
-            brotli: Enable brotli decompression.
-            deflate: Enable deflate decompression.
-            zstd: Enable zstd decompression.
-
         # Examples
 
         ```python
@@ -72,7 +31,7 @@ class Client:
         import rnet
 
         client = rnet.blocking.Client(
-            user_agent="my-app/0.0.1",
+            user_agent="Mozilla/5.0",
             timeout=10,
         )
         response = client.get('https://httpbin.org/get')
@@ -93,15 +52,10 @@ class Client:
 
         ```python
         import rnet
-        import asyncio
         from rnet import Method
 
-        async def main():
-            client = rnet.blocking.Client()
-            response = client.request(Method.GET, "https://httpbin.org/anything")
-            print(response.text())
-
-        asyncio.run(main())
+        client = rnet.blocking.Client()
+        response = client.request(Method.GET, "https://httpbin.org/anything")
         ```
         """
 
@@ -113,17 +67,13 @@ class Client:
 
         ```python
         import rnet
-        import asyncio
 
-        async def main():
-            client = rnet.blocking.Client()
-            ws = client.websocket("wss://echo.websocket.org")
-            ws.send(rnet.Message.from_text("Hello, WebSocket!"))
-            message = ws.recv()
-            print("Received:", message.data)
-            ws.close()
-
-        asyncio.run(main())
+        client = rnet.blocking.Client()
+        ws = client.websocket("wss://echo.websocket.org")
+        ws.send(rnet.Message.from_text("Hello, WebSocket!"))
+        message = ws.recv()
+        print("Received:", message.data)
+        ws.close()
         ```
         """
 
@@ -139,15 +89,11 @@ class Client:
 
         ```python
         import rnet
-        import asyncio
         from rnet import Method
 
-        async def main():
-            client = rnet.blocking.Client()
-            response = client.trace("https://httpbin.org/anything")
-            print(response.text())
-
-        asyncio.run(main())
+        client = rnet.blocking.Client()
+        response = client.trace("https://httpbin.org/anything")
+        print(response.text())
         ```
         """
 
@@ -163,15 +109,11 @@ class Client:
 
         ```python
         import rnet
-        import asyncio
         from rnet import Method
 
-        async def main():
-            client = rnet.blocking.Client()
-            response = client.options("https://httpbin.org/anything")
-            print(response.text())
-
-        asyncio.run(main())
+        client = rnet.blocking.Client()
+        response = client.options("https://httpbin.org/anything")
+        print(response.text())
         ```
         """
 
@@ -187,15 +129,12 @@ class Client:
 
         ```python
         import rnet
-        import asyncio
         from rnet import Method
 
-        async def main():
-            client = rnet.blocking.Client()
-            response = client.head("https://httpbin.org/anything")
-            print(response.text())
-
-        asyncio.run(main())
+        def main():
+        client = rnet.blocking.Client()
+        response = client.head("https://httpbin.org/anything")
+        print(response.text())
         ```
         """
 
@@ -211,15 +150,11 @@ class Client:
 
         ```python
         import rnet
-        import asyncio
         from rnet import Method
 
-        async def main():
-            client = rnet.blocking.Client()
-            response = client.delete("https://httpbin.org/anything")
-            print(response.text())
-
-        asyncio.run(main())
+        client = rnet.blocking.Client()
+        response = client.delete("https://httpbin.org/anything")
+        print(response.text())
         ```
         """
 
@@ -235,15 +170,11 @@ class Client:
 
         ```python
         import rnet
-        import asyncio
         from rnet import Method
 
-        async def main():
-            client = rnet.blocking.Client()
-            response = client.patch("https://httpbin.org/anything", json={"key": "value"})
-            print(response.text())
-
-        asyncio.run(main())
+        client = rnet.blocking.Client()
+        response = client.patch("https://httpbin.org/anything", json={"key": "value"})
+        print(response.text())
         ```
         """
 
@@ -259,15 +190,11 @@ class Client:
 
         ```python
         import rnet
-        import asyncio
         from rnet import Method
 
-        async def main():
-            client = rnet.blocking.Client()
-            response = client.put("https://httpbin.org/anything", json={"key": "value"})
-            print(response.text())
-
-        asyncio.run(main())
+        client = rnet.blocking.Client()
+        response = client.put("https://httpbin.org/anything", json={"key": "value"})
+        print(response.text())
         ```
         """
 
@@ -283,15 +210,11 @@ class Client:
 
         ```python
         import rnet
-        import asyncio
         from rnet import Method
 
-        async def main():
-            client = rnet.blocking.Client()
-            response = client.post("https://httpbin.org/anything", json={"key": "value"})
-            print(response.text())
-
-        asyncio.run(main())
+        client = rnet.blocking.Client()
+        response = client.post("https://httpbin.org/anything", json={"key": "value"})
+        print(response.text())
         ```
         """
 
@@ -307,15 +230,11 @@ class Client:
 
         ```python
         import rnet
-        import asyncio
         from rnet import Method
 
-        async def main():
-            client = rnet.blocking.Client()
-            response = client.get("https://httpbin.org/anything")
-            print(response.text())
-
-        asyncio.run(main())
+        client = rnet.blocking.Client()
+        response = client.get("https://httpbin.org/anything")
+        print(response.text())
         ```
         """
 
@@ -422,29 +341,31 @@ class WebSocket:
     r"""
     Get the status code of the response.
     """
+
     version: Version
     r"""
     Get the HTTP version of the response.
     """
+
     headers: HeaderMap
     r"""
     Get the headers of the response.
     """
+
     cookies: List[Cookie]
     r"""
     Get the cookies of the response.
     """
+
     remote_addr: Optional[SocketAddr]
     r"""
     Get the remote address of the response.
     """
+
     protocol: Optional[str]
     r"""
     Get the WebSocket protocol.
     """
-
-    def __enter__(self) -> "WebSocket": ...
-    def __exit__(self, _exc_type: Any, _exc_value: Any, _traceback: Any) -> None: ...
 
     def recv(self, timeout: datetime.timedelta | None = None) -> Optional[Message]:
         r"""
@@ -459,7 +380,7 @@ class WebSocket:
 
         * `message` - The message to send.
         """
-        
+
     def send_all(self, messages: List[Message]) -> None:
         r"""
         Send multiple messages to the WebSocket.
@@ -482,3 +403,6 @@ class WebSocket:
         * `code` - An optional close code.
         * `reason` - An optional reason for closing.
         """
+
+    def __enter__(self) -> "WebSocket": ...
+    def __exit__(self, _exc_type: Any, _exc_value: Any, _traceback: Any) -> None: ...
