@@ -214,7 +214,7 @@ impl Jar {
     /// Get a cookie by name and URL.
     #[pyo3(signature = (name, url))]
     pub fn get(&self, py: Python, name: PyBackedStr, url: PyBackedStr) -> PyResult<Option<Cookie>> {
-        py.allow_threads(|| {
+        py.detach(|| {
             self.0
                 .get(&name, AsRef::<str>::as_ref(&url))
                 .map(|cookie| {
@@ -230,13 +230,13 @@ impl Jar {
 
     /// Get all cookies.
     pub fn get_all(&self, py: Python) -> Vec<Cookie> {
-        py.allow_threads(|| self.0.get_all().map(RawCookie::from).map(Cookie).collect())
+        py.detach(|| self.0.get_all().map(RawCookie::from).map(Cookie).collect())
     }
 
     /// Add a cookie to this jar.
     #[pyo3(signature = (cookie, url))]
     pub fn add_cookie(&self, py: Python, cookie: Cookie, url: PyBackedStr) -> PyResult<()> {
-        py.allow_threads(|| {
+        py.detach(|| {
             self.0.add_cookie(cookie.0, AsRef::<str>::as_ref(&url));
             Ok(())
         })
@@ -250,7 +250,7 @@ impl Jar {
         cookie: PyBackedStr,
         url: PyBackedStr,
     ) -> PyResult<()> {
-        py.allow_threads(|| {
+        py.detach(|| {
             self.0.add_cookie_str(&cookie, AsRef::<str>::as_ref(&url));
             Ok(())
         })
@@ -259,7 +259,7 @@ impl Jar {
     /// Remove a cookie from this jar by name and URL.
     #[pyo3(signature = (name, url))]
     pub fn remove(&self, py: Python, name: PyBackedStr, url: PyBackedStr) -> PyResult<()> {
-        py.allow_threads(|| {
+        py.detach(|| {
             self.0.remove(
                 AsRef::<str>::as_ref(&name).to_owned(),
                 AsRef::<str>::as_ref(&url),
@@ -270,7 +270,7 @@ impl Jar {
 
     /// Clear all cookies in this jar.
     pub fn clear(&self, py: Python) {
-        py.allow_threads(|| {
+        py.detach(|| {
             self.0.clear();
         });
     }

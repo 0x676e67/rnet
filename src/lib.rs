@@ -139,7 +139,8 @@ pub fn websocket(
 
 #[pymodule(gil_used = false)]
 fn rnet(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
-    pyo3::prepare_freethreaded_python();
+    Python::initialize();
+
     m.add_class::<SocketAddr>()?;
     m.add_class::<Message>()?;
     m.add_class::<StatusCode>()?;

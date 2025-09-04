@@ -101,7 +101,7 @@ impl Response {
                 .map_err(Into::into)
         };
 
-        py.allow_threads(|| {
+        py.detach(|| {
             if stream {
                 // Only allow streaming if the body is in MayStream state
                 match std::mem::replace(&mut self.body, Body::Consumed) {
@@ -154,7 +154,7 @@ impl Response {
     /// Get the redirect history of the Response.
     #[getter]
     pub fn history(&self, py: Python) -> Vec<History> {
-        py.allow_threads(|| {
+        py.detach(|| {
             self.ext_response()
                 .history()
                 .cloned()
@@ -166,7 +166,7 @@ impl Response {
     /// Get the DER encoded leaf certificate of the response.
     #[getter]
     pub fn peer_certificate(&self, py: Python) -> Option<PyBuffer> {
-        py.allow_threads(|| {
+        py.detach(|| {
             self.extensions
                 .get::<TlsInfo>()?
                 .peer_certificate()
@@ -325,7 +325,7 @@ impl BlockingResponse {
     /// Get the text content of the response.
     pub fn text(&mut self, py: Python) -> PyResult<String> {
         let resp = self.0.reuse_response(py, false)?;
-        py.allow_threads(|| {
+        py.detach(|| {
             pyo3_async_runtimes::tokio::get_runtime()
                 .block_on(resp.text())
                 .map_err(Error::Library)
@@ -337,7 +337,7 @@ impl BlockingResponse {
     #[pyo3(signature = (encoding))]
     pub fn text_with_charset(&mut self, py: Python, encoding: PyBackedStr) -> PyResult<String> {
         let resp = self.0.reuse_response(py, false)?;
-        py.allow_threads(|| {
+        py.detach(|| {
             pyo3_async_runtimes::tokio::get_runtime()
                 .block_on(resp.text_with_charset(&encoding))
                 .map_err(Error::Library)
@@ -348,7 +348,7 @@ impl BlockingResponse {
     /// Get the JSON content of the response.
     pub fn json(&mut self, py: Python) -> PyResult<Json> {
         let resp = self.0.reuse_response(py, false)?;
-        py.allow_threads(|| {
+        py.detach(|| {
             pyo3_async_runtimes::tokio::get_runtime()
                 .block_on(resp.json::<Json>())
                 .map_err(Error::Library)
@@ -359,7 +359,7 @@ impl BlockingResponse {
     /// Get the bytes content of the response.
     pub fn bytes(&mut self, py: Python) -> PyResult<PyBuffer> {
         let resp = self.0.reuse_response(py, false)?;
-        py.allow_threads(|| {
+        py.detach(|| {
             pyo3_async_runtimes::tokio::get_runtime()
                 .block_on(resp.bytes())
                 .map(PyBuffer::from)
@@ -377,7 +377,7 @@ impl BlockingResponse {
     /// Close the response connection.
     #[inline]
     pub fn close(&mut self, py: Python) {
-        py.allow_threads(|| {
+        py.detach(|| {
             self.0.body = Body::Consumed;
         })
     }

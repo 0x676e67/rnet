@@ -27,7 +27,7 @@ pub struct Message(pub message::Message);
 impl Message {
     /// Returns the JSON representation of the message.
     pub fn json(&self, py: Python) -> PyResult<Json> {
-        py.allow_threads(|| {
+        py.detach(|| {
             self.0
                 .json::<Json>()
                 .map_err(Error::Library)
@@ -105,7 +105,7 @@ impl Message {
     #[staticmethod]
     #[pyo3(signature = (json))]
     pub fn text_from_json(py: Python, json: Json) -> PyResult<Self> {
-        py.allow_threads(|| {
+        py.detach(|| {
             message::Message::text_from_json(&json)
                 .map(Message)
                 .map_err(Error::Library)
@@ -117,7 +117,7 @@ impl Message {
     #[staticmethod]
     #[pyo3(signature = (json))]
     pub fn binary_from_json(py: Python, json: Json) -> PyResult<Self> {
-        py.allow_threads(|| {
+        py.detach(|| {
             message::Message::binary_from_json(&json)
                 .map(Message)
                 .map_err(Error::Library)

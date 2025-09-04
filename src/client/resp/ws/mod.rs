@@ -82,7 +82,7 @@ impl WebSocket {
     /// Returns the cookies of the response.
     #[getter]
     pub fn cookies(&self, py: Python) -> Vec<Cookie> {
-        py.allow_threads(|| Cookie::extract_headers_cookies(&self.headers.0))
+        py.detach(|| Cookie::extract_headers_cookies(&self.headers.0))
     }
 
     /// Returns the WebSocket protocol.
@@ -207,7 +207,7 @@ impl BlockingWebSocket {
     /// Receive a message from the WebSocket.
     #[pyo3(signature = (timeout=None))]
     pub fn recv(&self, py: Python, timeout: Option<Duration>) -> PyResult<Option<Message>> {
-        py.allow_threads(|| {
+        py.detach(|| {
             pyo3_async_runtimes::tokio::get_runtime()
                 .block_on(cmd::recv(self.0.cmd.clone(), timeout))
         })
@@ -216,7 +216,7 @@ impl BlockingWebSocket {
     /// Send a message to the WebSocket.
     #[pyo3(signature = (message))]
     pub fn send(&self, py: Python, message: Message) -> PyResult<()> {
-        py.allow_threads(|| {
+        py.detach(|| {
             pyo3_async_runtimes::tokio::get_runtime()
                 .block_on(cmd::send(self.0.cmd.clone(), message))
         })
@@ -225,7 +225,7 @@ impl BlockingWebSocket {
     /// Send multiple messages to the WebSocket.
     #[pyo3(signature = (messages))]
     pub fn send_all(&self, py: Python, messages: Vec<Message>) -> PyResult<()> {
-        py.allow_threads(|| {
+        py.detach(|| {
             pyo3_async_runtimes::tokio::get_runtime()
                 .block_on(cmd::send_all(self.0.cmd.clone(), messages))
         })
@@ -239,7 +239,7 @@ impl BlockingWebSocket {
         code: Option<u16>,
         reason: Option<PyBackedStr>,
     ) -> PyResult<()> {
-        py.allow_threads(|| {
+        py.detach(|| {
             pyo3_async_runtimes::tokio::get_runtime().block_on(cmd::close(
                 self.0.cmd.clone(),
                 code,
