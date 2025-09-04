@@ -19,7 +19,7 @@ use crate::{
 };
 
 /// A WebSocket response.
-#[pyclass(subclass)]
+#[pyclass(subclass, frozen)]
 pub struct WebSocket {
     /// Returns the status code of the response.
     #[pyo3(get)]
@@ -45,7 +45,7 @@ pub struct WebSocket {
 }
 
 /// A blocking WebSocket response.
-#[pyclass(name = "WebSocket", subclass)]
+#[pyclass(name = "WebSocket", subclass, frozen)]
 pub struct BlockingWebSocket(WebSocket);
 
 // ===== impl WebSocket =====
