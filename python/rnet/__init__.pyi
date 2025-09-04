@@ -38,7 +38,7 @@ class ClientParams(TypedDict, closed=True):
 
     referer: NotRequired[bool]
     """Automatically set Referer."""
-    
+
     history: NotRequired[bool]
     """Store redirect history."""
 
@@ -50,7 +50,7 @@ class ClientParams(TypedDict, closed=True):
 
     cookie_store: NotRequired[bool]
     """Enable cookie store."""
-    
+
     cookie_provider: NotRequired[Jar]
     """Custom cookie provider."""
 
@@ -891,6 +891,300 @@ class Streamer:
     def __enter__(self) -> Streamer: ...
     def __exit__(self, _exc_type: Any, _exc_value: Any, _traceback: Any) -> None: ...
 
+class Proxy:
+    r"""
+    A proxy server for a request.
+    Supports HTTP, HTTPS, SOCKS4, SOCKS4a, SOCKS5, and SOCKS5h protocols.
+    """
+
+    @staticmethod
+    def http(url: str, **kwargs: Unpack[ProxyParams]) -> Proxy:
+        r"""
+        Creates a new HTTP proxy.
+
+        This method sets up a proxy server for HTTP requests.
+
+        # Arguments
+
+        * `url` - The URL of the proxy server.
+        * `username` - Optional username for proxy authentication.
+        * `password` - Optional password for proxy authentication.
+        * `custom_http_auth` - Optional custom HTTP proxy authentication header value.
+        * `custom_http_headers` - Optional custom HTTP proxy headers.
+        * `exclusion` - Optional List of domains to exclude from proxying.
+
+        # Examples
+
+        ```python
+        import rnet
+
+        proxy = rnet.Proxy.http("http://proxy.example.com")
+        ```
+        """
+
+    @staticmethod
+    def https(url: str, **kwargs: Unpack[ProxyParams]) -> Proxy:
+        r"""
+        Creates a new HTTPS proxy.
+
+        This method sets up a proxy server for HTTPS requests.
+
+        # Arguments
+
+        * `url` - The URL of the proxy server.
+        * `username` - Optional username for proxy authentication.
+        * `password` - Optional password for proxy authentication.
+        * `custom_http_auth` - Optional custom HTTP proxy authentication header value.
+        * `custom_http_headers` - Optional custom HTTP proxy headers.
+        * `exclusion` - Optional List of domains to exclude from proxying.
+
+        # Examples
+
+        ```python
+        import rnet
+
+        proxy = rnet.Proxy.https("https://proxy.example.com")
+        ```
+        """
+
+    @staticmethod
+    def all(url: str, **kwargs: Unpack[ProxyParams]) -> Proxy:
+        r"""
+        Creates a new proxy for all protocols.
+
+        This method sets up a proxy server for all types of requests (HTTP, HTTPS, etc.).
+
+        # Arguments
+
+        * `url` - The URL of the proxy server.
+        * `username` - Optional username for proxy authentication.
+        * `password` - Optional password for proxy authentication.
+        * `custom_http_auth` - Optional custom HTTP proxy authentication header value.
+        * `custom_http_headers` - Optional custom HTTP proxy headers.
+        * `exclusion` - Optional List of domains to exclude from proxying.
+
+        # Examples
+
+        ```python
+        import rnet
+
+        proxy = rnet.Proxy.all("https://proxy.example.com")
+        ```
+        """
+
+class Message:
+    r"""
+    A WebSocket message.
+    """
+
+    data: Optional[bytes]
+    r"""
+    Returns the data of the message as bytes.
+    """
+
+    text: Optional[str]
+    r"""
+    Returns the text content of the message if it is a text message.
+    """
+
+    binary: Optional[bytes]
+    r"""
+    Returns the binary data of the message if it is a binary message.
+    """
+
+    ping: Optional[bytes]
+    r"""
+    Returns the ping data of the message if it is a ping message.
+    """
+
+    pong: Optional[bytes]
+    r"""
+    Returns the pong data of the message if it is a pong message.
+    """
+
+    close: Optional[Tuple[int, Optional[str]]]
+    r"""
+    Returns the close code and reason of the message if it is a close message.
+    """
+
+    @staticmethod
+    def text_from_json(json: Dict[str, Any]) -> Message:
+        r"""
+        Creates a new text message from the JSON representation.
+
+        # Arguments
+        * `json` - The JSON representation of the message.
+        """
+
+    @staticmethod
+    def binary_from_json(json: Dict[str, Any]) -> Message:
+        r"""
+        Creates a new binary message from the JSON representation.
+
+        # Arguments
+        * `json` - The JSON representation of the message.
+        """
+
+    @staticmethod
+    def from_text(text: str) -> Message:
+        r"""
+        Creates a new text message.
+
+        # Arguments
+
+        * `text` - The text content of the message.
+        """
+
+    @staticmethod
+    def from_binary(data: bytes) -> Message:
+        r"""
+        Creates a new binary message.
+
+        # Arguments
+
+        * `data` - The binary data of the message.
+        """
+
+    @staticmethod
+    def from_ping(data: bytes) -> Message:
+        r"""
+        Creates a new ping message.
+
+        # Arguments
+
+        * `data` - The ping data of the message.
+        """
+
+    @staticmethod
+    def from_pong(data: bytes) -> Message:
+        r"""
+        Creates a new pong message.
+
+        # Arguments
+
+        * `data` - The pong data of the message.
+        """
+
+    @staticmethod
+    def from_close(code: int, reason: Optional[str] = None) -> Message:
+        r"""
+        Creates a new close message.
+
+        # Arguments
+
+        * `code` - The close code.
+        * `reason` - An optional reason for closing.
+        """
+
+    def json(self) -> Dict[str, Any]:
+        r"""
+        Returns the JSON representation of the message.
+        """
+
+    def __str__(self) -> str: ...
+
+class WebSocket:
+    r"""
+    A WebSocket response.
+    """
+
+    status: StatusCode
+    r"""
+    Get the status code of the response.
+    """
+
+    version: Version
+    r"""
+    Get the HTTP version of the response.
+    """
+
+    headers: HeaderMap
+    r"""
+    Get the headers of the response.
+    """
+
+    cookies: List[Cookie]
+    r"""
+    Get the cookies of the response.
+    """
+
+    remote_addr: Optional[SocketAddr]
+    r"""
+    Get the remote address of the response.
+    """
+
+    protocol: Optional[str]
+    r"""
+    Get the WebSocket protocol.
+    """
+
+    async def recv(
+        self, timeout: datetime.timedelta | None = None
+    ) -> Optional[Message]:
+        r"""
+        Receive a message from the WebSocket.
+        """
+
+    async def send(self, message: Message) -> None:
+        r"""
+        Send a message to the WebSocket.
+
+        # Arguments
+
+        * `message` - The message to send.
+        """
+
+    async def send_all(self, messages: List[Message]) -> None:
+        r"""
+        Send multiple messages to the WebSocket.
+
+        # Arguments
+
+        * `messages` - The list of messages to send.
+        """
+
+    async def close(
+        self,
+        code: Optional[int] = None,
+        reason: Optional[str] = None,
+    ) -> None:
+        r"""
+        Close the WebSocket connection.
+
+        # Arguments
+
+        * `code` - An optional close code.
+        * `reason` - An optional reason for closing.
+        """
+
+    def __aenter__(self) -> Any: ...
+    def __aexit__(self, _exc_type: Any, _exc_value: Any, _traceback: Any) -> Any: ...
+
+class Method(Enum):
+    r"""
+    An HTTP method.
+    """
+
+    GET = auto()
+    HEAD = auto()
+    POST = auto()
+    PUT = auto()
+    DELETE = auto()
+    OPTIONS = auto()
+    TRACE = auto()
+    PATCH = auto()
+
+class Version(Enum):
+    r"""
+    An HTTP version.
+    """
+
+    HTTP_09 = auto()
+    HTTP_10 = auto()
+    HTTP_11 = auto()
+    HTTP_2 = auto()
+    HTTP_3 = auto()
+
 async def delete(
     url: str,
     **kwargs: Unpack[Request],
@@ -1118,284 +1412,3 @@ async def websocket(
     asyncio.run(run())
     ```
     """
-
-class Proxy:
-    r"""
-    A proxy server for a request.
-    Supports HTTP, HTTPS, SOCKS4, SOCKS4a, SOCKS5, and SOCKS5h protocols.
-    """
-
-    @staticmethod
-    def http(url: str, **kwargs: Unpack[ProxyParams]) -> Proxy:
-        r"""
-        Creates a new HTTP proxy.
-
-        This method sets up a proxy server for HTTP requests.
-
-        # Arguments
-
-        * `url` - The URL of the proxy server.
-        * `username` - Optional username for proxy authentication.
-        * `password` - Optional password for proxy authentication.
-        * `custom_http_auth` - Optional custom HTTP proxy authentication header value.
-        * `custom_http_headers` - Optional custom HTTP proxy headers.
-        * `exclusion` - Optional List of domains to exclude from proxying.
-
-        # Examples
-
-        ```python
-        import rnet
-
-        proxy = rnet.Proxy.http("http://proxy.example.com")
-        ```
-        """
-
-    @staticmethod
-    def https(url: str, **kwargs: Unpack[ProxyParams]) -> Proxy:
-        r"""
-        Creates a new HTTPS proxy.
-
-        This method sets up a proxy server for HTTPS requests.
-
-        # Arguments
-
-        * `url` - The URL of the proxy server.
-        * `username` - Optional username for proxy authentication.
-        * `password` - Optional password for proxy authentication.
-        * `custom_http_auth` - Optional custom HTTP proxy authentication header value.
-        * `custom_http_headers` - Optional custom HTTP proxy headers.
-        * `exclusion` - Optional List of domains to exclude from proxying.
-
-        # Examples
-
-        ```python
-        import rnet
-
-        proxy = rnet.Proxy.https("https://proxy.example.com")
-        ```
-        """
-
-    @staticmethod
-    def all(url: str, **kwargs: Unpack[ProxyParams]) -> Proxy:
-        r"""
-        Creates a new proxy for all protocols.
-
-        This method sets up a proxy server for all types of requests (HTTP, HTTPS, etc.).
-
-        # Arguments
-
-        * `url` - The URL of the proxy server.
-        * `username` - Optional username for proxy authentication.
-        * `password` - Optional password for proxy authentication.
-        * `custom_http_auth` - Optional custom HTTP proxy authentication header value.
-        * `custom_http_headers` - Optional custom HTTP proxy headers.
-        * `exclusion` - Optional List of domains to exclude from proxying.
-
-        # Examples
-
-        ```python
-        import rnet
-
-        proxy = rnet.Proxy.all("https://proxy.example.com")
-        ```
-        """
-
-class Message:
-    r"""
-    A WebSocket message.
-    """
-
-    data: Optional[bytes]
-    r"""
-    Returns the data of the message as bytes.
-    """
-    text: Optional[str]
-    r"""
-    Returns the text content of the message if it is a text message.
-    """
-    binary: Optional[bytes]
-    r"""
-    Returns the binary data of the message if it is a binary message.
-    """
-    ping: Optional[bytes]
-    r"""
-    Returns the ping data of the message if it is a ping message.
-    """
-    pong: Optional[bytes]
-    r"""
-    Returns the pong data of the message if it is a pong message.
-    """
-    close: Optional[Tuple[int, Optional[str]]]
-    r"""
-    Returns the close code and reason of the message if it is a close message.
-    """
-    def __str__(self) -> str: ...
-    @staticmethod
-    def text_from_json(json: Dict[str, Any]) -> Message:
-        r"""
-        Creates a new text message from the JSON representation.
-
-        # Arguments
-        * `json` - The JSON representation of the message.
-        """
-
-    @staticmethod
-    def binary_from_json(json: Dict[str, Any]) -> Message:
-        r"""
-        Creates a new binary message from the JSON representation.
-
-        # Arguments
-        * `json` - The JSON representation of the message.
-        """
-
-    @staticmethod
-    def from_text(text: str) -> Message:
-        r"""
-        Creates a new text message.
-
-        # Arguments
-
-        * `text` - The text content of the message.
-        """
-
-    @staticmethod
-    def from_binary(data: bytes) -> Message:
-        r"""
-        Creates a new binary message.
-
-        # Arguments
-
-        * `data` - The binary data of the message.
-        """
-
-    @staticmethod
-    def from_ping(data: bytes) -> Message:
-        r"""
-        Creates a new ping message.
-
-        # Arguments
-
-        * `data` - The ping data of the message.
-        """
-
-    @staticmethod
-    def from_pong(data: bytes) -> Message:
-        r"""
-        Creates a new pong message.
-
-        # Arguments
-
-        * `data` - The pong data of the message.
-        """
-
-    @staticmethod
-    def from_close(code: int, reason: Optional[str] = None) -> Message:
-        r"""
-        Creates a new close message.
-
-        # Arguments
-
-        * `code` - The close code.
-        * `reason` - An optional reason for closing.
-        """
-
-    def json(self) -> Dict[str, Any]:
-        r"""
-        Returns the JSON representation of the message.
-        """
-
-class WebSocket:
-    r"""
-    A WebSocket response.
-    """
-
-    status: StatusCode
-    r"""
-    Get the status code of the response.
-    """
-    version: Version
-    r"""
-    Get the HTTP version of the response.
-    """
-    headers: HeaderMap
-    r"""
-    Get the headers of the response.
-    """
-    cookies: List[Cookie]
-    r"""
-    Get the cookies of the response.
-    """
-    remote_addr: Optional[SocketAddr]
-    r"""
-    Get the remote address of the response.
-    """
-    protocol: Optional[str]
-    r"""
-    Get the WebSocket protocol.
-    """
-
-    def __aenter__(self) -> Any: ...
-    def __aexit__(self, _exc_type: Any, _exc_value: Any, _traceback: Any) -> Any: ...
-    async def recv(
-        self, timeout: datetime.timedelta | None = None
-    ) -> Optional[Message]:
-        r"""
-        Receive a message from the WebSocket.
-        """
-
-    async def send(self, message: Message) -> None:
-        r"""
-        Send a message to the WebSocket.
-
-        # Arguments
-
-        * `message` - The message to send.
-        """
-
-    async def send_all(self, messages: List[Message]) -> None:
-        r"""
-        Send multiple messages to the WebSocket.
-
-        # Arguments
-
-        * `messages` - The list of messages to send.
-        """
-
-    async def close(
-        self,
-        code: Optional[int] = None,
-        reason: Optional[str] = None,
-    ) -> None:
-        r"""
-        Close the WebSocket connection.
-
-        # Arguments
-
-        * `code` - An optional close code.
-        * `reason` - An optional reason for closing.
-        """
-
-class Method(Enum):
-    r"""
-    An HTTP method.
-    """
-
-    GET = auto()
-    HEAD = auto()
-    POST = auto()
-    PUT = auto()
-    DELETE = auto()
-    OPTIONS = auto()
-    TRACE = auto()
-    PATCH = auto()
-
-class Version(Enum):
-    r"""
-    An HTTP version.
-    """
-
-    HTTP_09 = auto()
-    HTTP_10 = auto()
-    HTTP_11 = auto()
-    HTTP_2 = auto()
-    HTTP_3 = auto()
