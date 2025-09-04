@@ -165,8 +165,8 @@ class WebSocket:
 
     def close(
         self,
-        code: Optional[int] = None,
-        reason: Optional[str] = None,
+        code: int | None = None,
+        reason: str | None = None,
     ) -> None:
         r"""
         Close the WebSocket connection.

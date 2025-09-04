@@ -312,7 +312,7 @@ class Message:
         """
 
     @staticmethod
-    def from_close(code: int, reason: Optional[str] = None) -> "Message":
+    def from_close(code: int, reason: str | None = None) -> "Message":
         r"""
         Creates a new close message.
 
@@ -561,8 +561,8 @@ class WebSocket:
 
     async def close(
         self,
-        code: Optional[int] = None,
-        reason: Optional[str] = None,
+        code: int | None = None,
+        reason: str | None = None,
     ) -> None:
         r"""
         Close the WebSocket connection.
