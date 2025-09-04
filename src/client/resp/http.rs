@@ -185,7 +185,7 @@ impl Response {
         AllowThreads::future(fut).future_into_py(py)
     }
 
-    /// Get the text content of the response with a specific charset.
+    /// Get the full response text given a specific encoding.
     #[pyo3(signature = (encoding))]
     pub fn text_with_charset<'py>(
         &mut self,
@@ -333,7 +333,7 @@ impl BlockingResponse {
         })
     }
 
-    /// Get the text content of the response with a specific charset.
+    /// Get the full response text given a specific encoding.
     #[pyo3(signature = (encoding))]
     pub fn text_with_charset(&mut self, py: Python, encoding: PyBackedStr) -> PyResult<String> {
         let resp = self.0.reuse_response(py, false)?;

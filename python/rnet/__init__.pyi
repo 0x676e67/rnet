@@ -750,11 +750,7 @@ class Response:
 
     async def text_with_charset(self, encoding: str) -> str:
         r"""
-        Get the text content of the response with a specific charset.
-
-        # Arguments
-
-        * `encoding` - The default encoding to use if the charset is not specified.
+        Get the full response text given a specific encoding.
         """
 
     async def json(self) -> Any:
