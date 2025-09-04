@@ -13,17 +13,12 @@ from typing import (
 )
 from pathlib import Path
 from enum import Enum, auto
-import typing
+from typing import Unpack, NotRequired
 
 from .cookie import Cookie, Jar
 from .header import HeaderMap, OrigHeaderMap
 from .emulation import Emulation, EmulationOption
 from .tls import TlsVersion, Identity, KeyLogPolicy, CertStore
-
-try:
-    from typing import Unpack, NotRequired
-except ImportError:
-    from typing_extensions import Unpack, NotRequired
 
 class Method(Enum):
     r"""
