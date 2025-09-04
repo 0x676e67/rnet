@@ -95,7 +95,7 @@ pub struct Builder {
     tcp_keepalive_interval: Option<u64>,
     /// Set the number of retries for TCP keepalive.
     tcp_keepalive_retries: Option<u32>,
-    /// Set an optional user timeout for TCP sockets. (in seconds)    
+    /// Set an optional user timeout for TCP sockets. (in seconds)
     tcp_user_timeout: Option<u64>,
     /// Set that all sockets have `NO_DELAY` set.
     tcp_nodelay: Option<bool>,
@@ -117,8 +117,6 @@ pub struct Builder {
     http2_only: Option<bool>,
     /// Whether to use HTTPS only.
     https_only: Option<bool>,
-    /// The maximum number of times to retry a client.
-    http2_max_retry_count: Option<usize>,
 
     // ========= TLS options =========
     /// Whether to verify the SSL certificate or root certificate file path.
@@ -193,7 +191,6 @@ impl<'py> FromPyObject<'py> for Builder {
         extract_option!(ob, params, https_only);
         extract_option!(ob, params, http1_only);
         extract_option!(ob, params, http2_only);
-        extract_option!(ob, params, http2_max_retry_count);
 
         extract_option!(ob, params, verify);
         extract_option!(ob, params, identity);
@@ -479,12 +476,6 @@ impl Client {
             apply_option!(set_if_true, builder, params.http1_only, http1_only, false);
             apply_option!(set_if_true, builder, params.http2_only, http2_only, false);
             apply_option!(set_if_some, builder, params.https_only, https_only);
-            apply_option!(
-                set_if_some,
-                builder,
-                params.http2_max_retry_count,
-                http2_max_retry
-            );
 
             // TLS options.
             apply_option!(
