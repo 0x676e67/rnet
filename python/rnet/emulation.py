@@ -12,6 +12,8 @@ authentic and less likely to be blocked by anti-bot systems.
 
 from enum import Enum, auto
 
+__all__ = ["Emulation", "EmulationOS", "EmulationOption"]
+
 
 class Emulation(Enum):
     r"""
@@ -131,12 +133,12 @@ class EmulationOption:
     """
 
     def __init__(
-        cls,
+        self,
         emulation: Emulation,
         emulation_os: EmulationOS | None = None,
         skip_http2: bool | None = None,
         skip_headers: bool | None = None,
-    ) -> "EmulationOption":
+    ) -> None:
         """
         Create a new emulation configuration.
 
@@ -162,6 +164,7 @@ class EmulationOption:
             )
             ```
         """
+        ...
 
     @staticmethod
     def random() -> "EmulationOption":
@@ -182,3 +185,4 @@ class EmulationOption:
             client2 = rnet.Client(emulation=EmulationOption.random())
             ```
         """
+        ...

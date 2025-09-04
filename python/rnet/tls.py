@@ -10,6 +10,8 @@ from enum import Enum, auto
 from pathlib import Path
 from typing import List
 
+__all__ = ["TlsVersion", "Identity", "CertStore", "KeyLogPolicy"]
+
 
 class TlsVersion(Enum):
     r"""
@@ -44,7 +46,7 @@ class Identity:
         ...
 
     @staticmethod
-    def from_pkcs8_pem(buf: bytes, key: bytes) -> "CertStore":
+    def from_pkcs8_pem(buf: bytes, key: bytes) -> "Identity":
         """
         Parses a chain of PEM encoded X509 certificates, with the leaf certificate first.
         `key` is a PEM encoded PKCS #8 formatted private key for the leaf certificate.
@@ -63,11 +65,11 @@ class CertStore:
     """
 
     def __init__(
-        cls,
+        self,
         der_certs: List[bytes] | None = None,
         pem_certs: List[str] | None = None,
         default_paths: bool | None = None,
-    ) -> "CertStore":
+    ) -> None:
         """
         Creates a new CertStore.
 

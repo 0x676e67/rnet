@@ -1,28 +1,6 @@
-import logging
-import colorlog
-from rnet import Emulation, Proxy
+from rnet import Proxy
 from rnet.blocking import Client
-
-formatter = colorlog.ColoredFormatter(
-    "%(log_color)s%(levelname)s %(name)s %(asctime)-15s %(filename)s:%(lineno)d %(message)s",
-    datefmt=None,
-    reset=True,
-    log_colors={
-        "DEBUG": "cyan",
-        "INFO": "green",
-        "WARNING": "yellow",
-        "ERROR": "red",
-        "CRITICAL": "red,bg_white",
-    },
-    secondary_log_colors={},
-    style="%",
-)
-
-handler = logging.StreamHandler()
-handler.setFormatter(formatter)
-logger = colorlog.getLogger()
-logger.addHandler(handler)
-logger.setLevel(logging.DEBUG)
+from rnet.emulation import Emulation
 
 
 def main():

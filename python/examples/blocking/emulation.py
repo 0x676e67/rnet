@@ -1,5 +1,5 @@
-from rnet import Emulation
 from rnet.blocking import Client
+from rnet.emulation import Emulation
 
 
 def main():

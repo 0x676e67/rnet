@@ -6,6 +6,23 @@ The exceptions are organized into logical categories based on their cause and
 severity, making it easier to handle specific types of errors appropriately.
 """
 
+__all__ = [
+    "DNSResolverError",
+    "TlsError",
+    "ConnectionError",
+    "ConnectionResetError",
+    "BodyError",
+    "BuilderError",
+    "DecodingError",
+    "StatusError",
+    "RequestError",
+    "RedirectError",
+    "UpgradeError",
+    "WebSocketError",
+    "URLParseError",
+    "TimeoutError",
+]
+
 # ========================================
 # Network and System-Level Errors
 # ========================================

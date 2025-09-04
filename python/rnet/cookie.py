@@ -10,6 +10,8 @@ import datetime
 from enum import Enum, auto
 from typing import List, Optional
 
+__all__ = ["SameSite", "Cookie", "Jar"]
+
 
 class SameSite(Enum):
     r"""
@@ -68,7 +70,7 @@ class Cookie:
     """
 
     def __init__(
-        cls,
+        self,
         name: str,
         value: str,
         domain: str | None = None,
@@ -78,10 +80,11 @@ class Cookie:
         http_only: bool | None = None,
         secure: bool | None = None,
         same_site: SameSite | None = None,
-    ) -> "Cookie":
+    ) -> None:
         r"""
         Create a new cookie.
         """
+        ...
 
     def __str__(self) -> str: ...
 
@@ -94,37 +97,44 @@ class Jar:
     to automatically handle cookies during HTTP requests and responses.
     """
 
-    def __init__(cls) -> "Jar":
+    def __init__(self) -> None:
         r"""
         Create a new cookie jar.
         """
+        ...
 
     def get(self, name: str, url: str) -> Optional[Cookie]:
         r"""
         Get a cookie by name and URL.
         """
+        ...
 
     def get_all(self) -> List[Cookie]:
         r"""
         Get all cookies.
         """
+        ...
 
     def add_cookie(self, cookie: Cookie, url: str) -> None:
         r"""
         Add a cookie to this jar.
         """
+        ...
 
     def add_cookie_str(self, cookie: str, url: str) -> None:
         r"""
         Add a cookie str to this jar.
         """
+        ...
 
     def remove(self, name: str, url: str) -> None:
         r"""
         Remove a cookie from this jar by name and URL.
         """
+        ...
 
     def clear(self) -> None:
         r"""
         Clear all cookies in this jar.
         """
+        ...

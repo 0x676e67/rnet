@@ -1,5 +1,6 @@
 import asyncio
-from rnet import Emulation, Client, Proxy
+from rnet import Client, Proxy
+from rnet.emulation import Emulation
 
 
 async def main():
