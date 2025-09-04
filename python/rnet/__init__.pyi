@@ -38,6 +38,9 @@ class ClientParams(TypedDict, closed=True):
 
     referer: NotRequired[bool]
     """Automatically set Referer."""
+    
+    history: NotRequired[bool]
+    """Store redirect history."""
 
     allow_redirects: NotRequired[bool]
     """Allow automatic redirects."""
@@ -47,6 +50,9 @@ class ClientParams(TypedDict, closed=True):
 
     cookie_store: NotRequired[bool]
     """Enable cookie store."""
+    
+    cookie_provider: NotRequired[Jar]
+    """Custom cookie provider."""
 
     lookup_ip_strategy: NotRequired[str]
     """IP lookup strategy."""
