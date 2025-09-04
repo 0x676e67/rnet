@@ -1,6 +1,7 @@
 import pytest
 import rnet
-from rnet import Version, HeaderMap
+from rnet import Version
+from rnet.header import HeaderMap
 
 client = rnet.Client(tls_info=True)
 

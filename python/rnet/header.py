@@ -11,7 +11,9 @@ including proper support for headers that can have multiple values (like
 Set-Cookie, Accept-Encoding, etc.).
 """
 
-from typing import Iterator, List, Optional, Tuple
+from typing import Dict, Iterator, List, Optional, Tuple
+
+__all__ = ["HeaderMap", "OrigHeaderMap"]
 
 
 class HeaderMap:
@@ -56,8 +58,8 @@ class HeaderMap:
         ...
 
     def __init__(
-        cls, init: Optional[dict] = None, capacity: Optional[int] = None
-    ) -> "HeaderMap":
+        self, init: Dict[str, str] | None = None, capacity: int | None = None
+    ) -> None:
         """
         Create a new HeaderMap.
 
@@ -97,6 +99,7 @@ class HeaderMap:
         Returns:
             True if the header exists, False otherwise
         """
+        ...
 
     def insert(self, key: str, value: str) -> None:
         r"""
@@ -109,6 +112,7 @@ class HeaderMap:
             key: The header name (case-insensitive)
             value: The header value to set
         """
+        ...
 
     def append(self, key: str, value: str) -> None:
         r"""
@@ -122,6 +126,7 @@ class HeaderMap:
             key: The header name (case-insensitive)
             value: The header value to append
         """
+        ...
 
     def remove(self, key: str) -> None:
         r"""
@@ -133,6 +138,7 @@ class HeaderMap:
         Args:
             key: The header name to remove (case-insensitive)
         """
+        ...
 
     def get(self, key: str, default: Optional[bytes] = None) -> Optional[bytes]:
         r"""
@@ -149,6 +155,7 @@ class HeaderMap:
         Returns:
             The first header value as bytes, or the default value
         """
+        ...
 
     def get_all(self, key: str) -> Iterator[bytes]:
         r"""
@@ -164,6 +171,7 @@ class HeaderMap:
         Returns:
             An iterator over all header values
         """
+        ...
 
     def values(self) -> Iterator[bytes]:
         """
@@ -172,6 +180,7 @@ class HeaderMap:
         Returns:
             An iterator over all header values as bytes.
         """
+        ...
 
     def keys(self) -> Iterator[bytes]:
         """
@@ -180,6 +189,7 @@ class HeaderMap:
         Returns:
             An iterator over unique header names as bytes.
         """
+        ...
 
     def len(self) -> int:
         """
@@ -192,6 +202,7 @@ class HeaderMap:
         Returns:
             Total number of header values stored
         """
+        ...
 
     def keys_len(self) -> int:
         """
@@ -203,6 +214,7 @@ class HeaderMap:
         Returns:
             Number of unique header names
         """
+        ...
 
     def is_empty(self) -> bool:
         """
@@ -211,6 +223,7 @@ class HeaderMap:
         Returns:
             True if no headers are stored, False otherwise
         """
+        ...
 
     def clear(self) -> None:
         """
@@ -219,6 +232,7 @@ class HeaderMap:
         After calling this method, the header map will be empty and
         is_empty() will return True.
         """
+        ...
 
 
 class OrigHeaderMap:

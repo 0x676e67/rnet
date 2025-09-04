@@ -12,233 +12,6 @@ from rnet.header import HeaderMap
 from rnet.cookie import Cookie
 
 
-class Client:
-    r"""
-    A blocking client for making HTTP requests.
-    """
-
-    def __init__(
-        cls,
-        **kwargs: Unpack[ClientParams],
-    ) -> "Client":
-        r"""
-        Creates a new blocking Client instance.
-
-        # Examples
-
-        ```python
-        import asyncio
-        import rnet
-
-        client = rnet.blocking.Client(
-            user_agent="Mozilla/5.0",
-            timeout=10,
-        )
-        response = client.get('https://httpbin.org/get')
-        print(response.text())
-        ```
-        """
-
-    def request(
-        self,
-        method: Method,
-        url: str,
-        **kwargs: Unpack[Request],
-    ) -> "Response":
-        r"""
-        Sends a request with the given method and URL.
-
-        # Examples
-
-        ```python
-        import rnet
-        from rnet import Method
-
-        client = rnet.blocking.Client()
-        response = client.request(Method.GET, "https://httpbin.org/anything")
-        ```
-        """
-
-    def websocket(self, url: str, **kwargs: Unpack[WebSocketRequest]) -> "WebSocket":
-        r"""
-        Sends a WebSocket request.
-
-        # Examples
-
-        ```python
-        import rnet
-
-        client = rnet.blocking.Client()
-        ws = client.websocket("wss://echo.websocket.org")
-        ws.send(rnet.Message.from_text("Hello, WebSocket!"))
-        message = ws.recv()
-        print("Received:", message.data)
-        ws.close()
-        ```
-        """
-
-    def trace(
-        self,
-        url: str,
-        **kwargs: Unpack[Request],
-    ) -> "Response":
-        r"""
-        Sends a request with the given URL.
-
-        # Examples
-
-        ```python
-        import rnet
-        from rnet import Method
-
-        client = rnet.blocking.Client()
-        response = client.trace("https://httpbin.org/anything")
-        print(response.text())
-        ```
-        """
-
-    def options(
-        self,
-        url: str,
-        **kwargs: Unpack[Request],
-    ) -> "Response":
-        r"""
-        Sends a request with the given URL.
-
-        # Examples
-
-        ```python
-        import rnet
-        from rnet import Method
-
-        client = rnet.blocking.Client()
-        response = client.options("https://httpbin.org/anything")
-        print(response.text())
-        ```
-        """
-
-    def head(
-        self,
-        url: str,
-        **kwargs: Unpack[Request],
-    ) -> "Response":
-        r"""
-        Sends a request with the given URL.
-
-        # Examples
-
-        ```python
-        import rnet
-        from rnet import Method
-
-        def main():
-        client = rnet.blocking.Client()
-        response = client.head("https://httpbin.org/anything")
-        print(response.text())
-        ```
-        """
-
-    def delete(
-        self,
-        url: str,
-        **kwargs: Unpack[Request],
-    ) -> "Response":
-        r"""
-        Sends a request with the given URL.
-
-        # Examples
-
-        ```python
-        import rnet
-        from rnet import Method
-
-        client = rnet.blocking.Client()
-        response = client.delete("https://httpbin.org/anything")
-        print(response.text())
-        ```
-        """
-
-    def patch(
-        self,
-        url: str,
-        **kwargs: Unpack[Request],
-    ) -> "Response":
-        r"""
-        Sends a request with the given URL.
-
-        # Examples
-
-        ```python
-        import rnet
-        from rnet import Method
-
-        client = rnet.blocking.Client()
-        response = client.patch("https://httpbin.org/anything", json={"key": "value"})
-        print(response.text())
-        ```
-        """
-
-    def put(
-        self,
-        url: str,
-        **kwargs: Unpack[Request],
-    ) -> "Response":
-        r"""
-        Sends a request with the given URL.
-
-        # Examples
-
-        ```python
-        import rnet
-        from rnet import Method
-
-        client = rnet.blocking.Client()
-        response = client.put("https://httpbin.org/anything", json={"key": "value"})
-        print(response.text())
-        ```
-        """
-
-    def post(
-        self,
-        url: str,
-        **kwargs: Unpack[Request],
-    ) -> "Response":
-        r"""
-        Sends a request with the given URL.
-
-        # Examples
-
-        ```python
-        import rnet
-        from rnet import Method
-
-        client = rnet.blocking.Client()
-        response = client.post("https://httpbin.org/anything", json={"key": "value"})
-        print(response.text())
-        ```
-        """
-
-    def get(
-        self,
-        url: str,
-        **kwargs: Unpack[Request],
-    ) -> "Response":
-        r"""
-        Sends a request with the given URL.
-
-        # Examples
-
-        ```python
-        import rnet
-        from rnet import Method
-
-        client = rnet.blocking.Client()
-        response = client.get("https://httpbin.org/anything")
-        print(response.text())
-        ```
-        """
-
-
 class Response:
     r"""
     A blocking response from a request.
@@ -298,11 +71,13 @@ class Response:
         r"""
         Get the text content of the response.
         """
+        ...
 
     def text_with_charset(self, encoding: str) -> str:
         r"""
         Get the full response text given a specific encoding.
         """
+        ...
 
     def json(self) -> Any:
         r"""
@@ -313,11 +88,13 @@ class Response:
         r"""
         Get the bytes content of the response.
         """
+        ...
 
     def stream(self) -> Streamer:
         r"""
         Get the response into a `Stream` of `Bytes` from the body.
         """
+        ...
 
     def close(self) -> None:
         r"""
@@ -402,3 +179,241 @@ class WebSocket:
 
     def __enter__(self) -> "WebSocket": ...
     def __exit__(self, _exc_type: Any, _exc_value: Any, _traceback: Any) -> None: ...
+
+
+class Client:
+    r"""
+    A blocking client for making HTTP requests.
+    """
+
+    def __init__(
+        self,
+        **kwargs: Unpack[ClientParams],
+    ) -> None:
+        r"""
+        Creates a new blocking Client instance.
+
+        # Examples
+
+        ```python
+        import asyncio
+        import rnet
+
+        client = rnet.blocking.Client(
+            user_agent="Mozilla/5.0",
+            timeout=10,
+        )
+        response = client.get('https://httpbin.org/get')
+        print(response.text())
+        ```
+        """
+        ...
+
+    def request(
+        self,
+        method: Method,
+        url: str,
+        **kwargs: Unpack[Request],
+    ) -> "Response":
+        r"""
+        Sends a request with the given method and URL.
+
+        # Examples
+
+        ```python
+        import rnet
+        from rnet import Method
+
+        client = rnet.blocking.Client()
+        response = client.request(Method.GET, "https://httpbin.org/anything")
+        ```
+        """
+        ...
+
+    def websocket(self, url: str, **kwargs: Unpack[WebSocketRequest]) -> "WebSocket":
+        r"""
+        Sends a WebSocket request.
+
+        # Examples
+
+        ```python
+        import rnet
+
+        client = rnet.blocking.Client()
+        ws = client.websocket("wss://echo.websocket.org")
+        ws.send(rnet.Message.from_text("Hello, WebSocket!"))
+        message = ws.recv()
+        print("Received:", message.data)
+        ws.close()
+        ```
+        """
+        ...
+
+    def trace(
+        self,
+        url: str,
+        **kwargs: Unpack[Request],
+    ) -> "Response":
+        r"""
+        Sends a request with the given URL.
+
+        # Examples
+
+        ```python
+        import rnet
+        from rnet import Method
+
+        client = rnet.blocking.Client()
+        response = client.trace("https://httpbin.org/anything")
+        print(response.text())
+        ```
+        """
+        ...
+
+    def options(
+        self,
+        url: str,
+        **kwargs: Unpack[Request],
+    ) -> "Response":
+        r"""
+        Sends a request with the given URL.
+
+        # Examples
+
+        ```python
+        import rnet
+        from rnet import Method
+
+        client = rnet.blocking.Client()
+        response = client.options("https://httpbin.org/anything")
+        print(response.text())
+        ```
+        """
+        ...
+
+    def head(
+        self,
+        url: str,
+        **kwargs: Unpack[Request],
+    ) -> "Response":
+        r"""
+        Sends a request with the given URL.
+
+        # Examples
+
+        ```python
+        import rnet
+        from rnet import Method
+
+        def main():
+        client = rnet.blocking.Client()
+        response = client.head("https://httpbin.org/anything")
+        print(response.text())
+        ```
+        """
+        ...
+
+    def delete(
+        self,
+        url: str,
+        **kwargs: Unpack[Request],
+    ) -> "Response":
+        r"""
+        Sends a request with the given URL.
+
+        # Examples
+
+        ```python
+        import rnet
+        from rnet import Method
+
+        client = rnet.blocking.Client()
+        response = client.delete("https://httpbin.org/anything")
+        print(response.text())
+        ```
+        """
+        ...
+
+    def patch(
+        self,
+        url: str,
+        **kwargs: Unpack[Request],
+    ) -> "Response":
+        r"""
+        Sends a request with the given URL.
+
+        # Examples
+
+        ```python
+        import rnet
+        from rnet import Method
+
+        client = rnet.blocking.Client()
+        response = client.patch("https://httpbin.org/anything", json={"key": "value"})
+        print(response.text())
+        ```
+        """
+        ...
+
+    def put(
+        self,
+        url: str,
+        **kwargs: Unpack[Request],
+    ) -> "Response":
+        r"""
+        Sends a request with the given URL.
+
+        # Examples
+
+        ```python
+        import rnet
+        from rnet import Method
+
+        client = rnet.blocking.Client()
+        response = client.put("https://httpbin.org/anything", json={"key": "value"})
+        print(response.text())
+        ```
+        """
+        ...
+
+    def post(
+        self,
+        url: str,
+        **kwargs: Unpack[Request],
+    ) -> "Response":
+        r"""
+        Sends a request with the given URL.
+
+        # Examples
+
+        ```python
+        import rnet
+        from rnet import Method
+
+        client = rnet.blocking.Client()
+        response = client.post("https://httpbin.org/anything", json={"key": "value"})
+        print(response.text())
+        ```
+        """
+        ...
+
+    def get(
+        self,
+        url: str,
+        **kwargs: Unpack[Request],
+    ) -> "Response":
+        r"""
+        Sends a request with the given URL.
+
+        # Examples
+
+        ```python
+        import rnet
+        from rnet import Method
+
+        client = rnet.blocking.Client()
+        response = client.get("https://httpbin.org/anything")
+        print(response.text())
+        ```
+        """
+        ...
