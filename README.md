@@ -65,6 +65,31 @@ Additional learning resources include:
 - [Repository Tests](https://github.com/0x676e67/rnet/tree/main/tests)
 - [Synchronous Examples](https://github.com/0x676e67/rnet/tree/main/python/examples/blocking)
 - [Asynchronous Examples](https://github.com/0x676e67/rnet/tree/main/python/examples)
+- <details>
+  <summary>Available OS emulations</summary>
+
+  | **OS**      | **Description**                |
+  | ----------- | ------------------------------ |
+  | **Windows** | Windows (any version)          |
+  | **MacOS**   | macOS (any version)            |
+  | **Linux**   | Linux (any distribution)       |
+  | **Android** | Android (mobile)               |
+  | **iOS**     | iOS (iPhone/iPad)              |
+
+  </details>
+- <details>
+  <summary>Available browser emulations</summary>
+
+  | **Browser** | **Versions**                                                                                                                                                                                                                                                                                                                                                                            |
+  | ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+  | **Chrome**  | `Chrome100`, `Chrome101`, `Chrome104`, `Chrome105`, `Chrome106`, `Chrome107`, `Chrome108`, `Chrome109`, `Chrome110`, `Chrome114`, `Chrome116`, `Chrome117`, `Chrome118`, `Chrome119`, `Chrome120`, `Chrome123`, `Chrome124`, `Chrome126`, `Chrome127`, `Chrome128`, `Chrome129`, `Chrome130`, `Chrome131`, `Chrome132`, `Chrome133`, `Chrome134`, `Chrome135`, `Chrome136`, `Chrome137` |
+  | **Safari**  | `SafariIos17_2`, `SafariIos17_4_1`, `SafariIos16_5`, `Safari15_3`, `Safari15_5`, `Safari15_6_1`, `Safari16`, `Safari16_5`, `Safari17_0`, `Safari17_2_1`, `Safari17_4_1`, `Safari17_5`, `Safari18`, `SafariIPad18`, `Safari18_2`, `SafariIos18_1_1`, `Safari18_3`, `Safari18_3_1`, `Safari18_5`                                                                                          |
+  | **Firefox** | `Firefox109`, `Firefox117`, `Firefox128`, `Firefox133`, `Firefox135`, `FirefoxPrivate135`, `FirefoxAndroid135`, `Firefox136`, `FirefoxPrivate136`, `Firefox139`                                                                                                                                                                                                                         |
+  | **OkHttp**  | `OkHttp3_9`, `OkHttp3_11`, `OkHttp3_13`, `OkHttp3_14`, `OkHttp4_9`, `OkHttp4_10`, `OkHttp4_12`, `OkHttp5`                                                                                                                                                                                                                                                                               |
+  | **Edge**    | `Edge101`, `Edge122`, `Edge127`, `Edge131`, `Edge134`                                                                                                                                                                                                                                                                                                                                   |
+  | **Opera**   | `Opera116`, `Opera117`, `Opera118`, `Opera119`                                                                                                                                                                                                                                                                                                                                          |
+
+  </details>
 
 ## Platforms
 
@@ -126,29 +151,16 @@ For Manylinux compilation, refer to [manylinux](https://github.com/PyO3/maturin?
 
 Outperforms `requests`, `httpx`, `Python-TLS-Client`, and `curl_cffi`. See the [benchmark](https://github.com/0x676e67/rnet/tree/main/python/benchmark) for details. Benchmark data is for reference only—actual performance may vary based on your environment and use case.
 
-## Emulation
+## License
 
-In fact, most device models share the same `TLS`/`HTTP2` configuration, with the main difference being the `User-Agent`.
+Licensed under either of Apache License, Version 2.0 ([LICENSE](./LICENSE) or http://www.apache.org/licenses/LICENSE-2.0).
 
-| **Browser** | **Versions**                                                                                                                                                                                                                                                                                                                                                                            |
-| ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Chrome**  | `Chrome100`, `Chrome101`, `Chrome104`, `Chrome105`, `Chrome106`, `Chrome107`, `Chrome108`, `Chrome109`, `Chrome110`, `Chrome114`, `Chrome116`, `Chrome117`, `Chrome118`, `Chrome119`, `Chrome120`, `Chrome123`, `Chrome124`, `Chrome126`, `Chrome127`, `Chrome128`, `Chrome129`, `Chrome130`, `Chrome131`, `Chrome132`, `Chrome133`, `Chrome134`, `Chrome135`, `Chrome136`, `Chrome137` |
-| **Safari**  | `SafariIos17_2`, `SafariIos17_4_1`, `SafariIos16_5`, `Safari15_3`, `Safari15_5`, `Safari15_6_1`, `Safari16`, `Safari16_5`, `Safari17_0`, `Safari17_2_1`, `Safari17_4_1`, `Safari17_5`, `Safari18`, `SafariIPad18`, `Safari18_2`, `SafariIos18_1_1`, `Safari18_3`, `Safari18_3_1`, `Safari18_5`                                                                                          |
-| **Firefox** | `Firefox109`, `Firefox117`, `Firefox128`, `Firefox133`, `Firefox135`, `FirefoxPrivate135`, `FirefoxAndroid135`, `Firefox136`, `FirefoxPrivate136`, `Firefox139`                                                                                                                                                                                                                         |
-| **OkHttp**  | `OkHttp3_9`, `OkHttp3_11`, `OkHttp3_13`, `OkHttp3_14`, `OkHttp4_9`, `OkHttp4_10`, `OkHttp4_12`, `OkHttp5`                                                                                                                                                                                                                                                                               |
-| **Edge**    | `Edge101`, `Edge122`, `Edge127`, `Edge131`, `Edge134`                                                                                                                                                                                                                                                                                                                                   |
-| **Opera**   | `Opera116`, `Opera117`, `Opera118`, `Opera119`                                                                                                                                                                                                                                                                                                                                          |
+## Contribution
 
-## Contributing
-
-If you would like to submit your contribution, please open a [Pull Request](https://github.com/0x676e67/rnet/pulls).
+Unless you explicitly state otherwise, any contribution intentionally submitted for inclusion in the work by you, as defined in the [Apache-2.0](./LICENSE) license, shall be licensed as above, without any additional terms or conditions.
 
 ## Sponsors
 
 <a href="https://dashboard.capsolver.com/passport/register?inviteCode=y7CtB_a-3X6d" target="_blank"><img src="https://raw.githubusercontent.com/0x676e67/rnet/main/.github/assets/capsolver.jpg" height="47" width="149"></a>
 
 [CapSolver](https://www.capsolver.com/?utm_source=github&utm_medium=banner_repo&utm_campaign=rnet) leverages AI-powered Auto Web Unblock to bypass Captchas effortlessly, providing fast, reliable, and cost-effective data access with seamless integration into Colly, Puppeteer, and Playwright—use code **`RNET`** for a 6% bonus!
-
-## License
-
-**rnet** © [0x676e67](https://github.com/0x676e67), Released under the [GPL-3.0](https://github.com/0x676e67/rnet/blob/main/LICENSE) License.
