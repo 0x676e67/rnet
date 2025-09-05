@@ -24,7 +24,7 @@ classifiers = [
 description = "A blazing-fast Python HTTP client with TLS fingerprint"
 readme = "README.md"
 dynamic = ["version"]
-license = { text = "GPL-3.0" }
+license = { text = "Apache-2.0" }
 authors = [{ name = "0x676e67", email = "gngppz@gmail.com" }]
 keywords = ["http", "client", "websocket", "ja3", "ja4"]
 
