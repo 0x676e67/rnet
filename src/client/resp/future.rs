@@ -72,9 +72,7 @@ where
         Python::attach(|py| {
             py.detach(|| match self.project() {
                 AllowThreadsProj::Future { inner } => inner.poll(&mut Context::from_waker(waker)),
-                AllowThreadsProj::Closure { .. } => {
-                    unreachable!("Future variant should not contain Closure")
-                }
+                _ => unreachable!("Future variant should not contain Closure"),
             })
         })
     }
@@ -92,13 +90,10 @@ where
         Python::attach(|py| {
             py.detach(|| match self.project() {
                 AllowThreadsProj::Closure { inner } => {
-                    if let Some(closure) = inner.take() {
-                        Poll::Ready(closure())
-                    } else {
-                        panic!("Closure already executed")
-                    }
+                    let res = inner.take().expect("Closure already executed")();
+                    Poll::Ready(res)
                 }
-                AllowThreadsProj::Future { .. } => {
+                _ => {
                     unreachable!("Closure variant should not contain Future")
                 }
             })
