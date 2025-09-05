@@ -10,10 +10,11 @@ from typing import (
     Dict,
     List,
     TypedDict,
+    Unpack,
+    NotRequired,
 )
 from pathlib import Path
 from enum import Enum, auto
-from typing import Unpack, NotRequired
 
 from .cookie import Cookie, Jar
 from .header import HeaderMap, OrigHeaderMap

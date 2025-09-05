@@ -1,5 +1,16 @@
 import datetime
-from rnet import ClientParams, History, Message, Request, Streamer, WebSocketRequest
+from rnet import (
+    ClientParams,
+    History,
+    Message,
+    Request,
+    Streamer,
+    WebSocketRequest,
+    Version,
+    Method,
+    SocketAddr,
+    StatusCode,
+)
 from typing import (
     Optional,
     Any,
@@ -7,7 +18,6 @@ from typing import (
     Unpack,
 )
 
-from rnet import Version, Method, SocketAddr, StatusCode
 from rnet.header import HeaderMap
 from rnet.cookie import Cookie
 

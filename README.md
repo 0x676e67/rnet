@@ -32,7 +32,7 @@ A blazing-fast Python HTTP client with advanced browser fingerprinting that accu
 The following example uses the `asyncio` runtime with `rnet` installed via pip:
 
 ```bash
-pip install asyncio rnet==3.0.0rc3
+pip install asyncio rnet==3.0.0rc5
 ```
 
 And then the code:

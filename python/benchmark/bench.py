@@ -24,43 +24,43 @@ def parse_arguments():
     """Parse command line arguments"""
     parser = argparse.ArgumentParser(
         description="HTTP Client Benchmark Tool",
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
 
     parser.add_argument(
-        "--requests", "-r",
-        type=int,
-        default=400,
-        help="Number of requests per test"
+        "--requests", "-r", type=int, default=400, help="Number of requests per test"
     )
 
     parser.add_argument(
-        "--threads", "-t",
+        "--threads",
+        "-t",
         type=int,
         nargs="+",
         default=[1, 4, 8, 16],
-        help="Thread counts to test (e.g., --threads 1 2 4 8)"
+        help="Thread counts to test (e.g., --threads 1 2 4 8)",
     )
 
     parser.add_argument(
-        "--output", "-o",
+        "--output",
+        "-o",
         type=str,
         default="benchmark_results.csv",
-        help="Output CSV file name"
+        help="Output CSV file name",
     )
 
     parser.add_argument(
-        "--chart", "-c",
+        "--chart",
+        "-c",
         type=str,
         default="benchmark_multi.jpg",
-        help="Output chart file name"
+        help="Output chart file name",
     )
 
     parser.add_argument(
         "--base-url",
         type=str,
         default="http://127.0.0.1:8000",
-        help="Base URL for the benchmark server"
+        help="Base URL for the benchmark server",
     )
 
     return parser.parse_args()
