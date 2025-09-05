@@ -104,7 +104,7 @@ Additional learning resources include:
 
 ## Building
 
-1. Install environment
+1. Development
 
 Install the BoringSSL build environment by referring to [boring](https://github.com/cloudflare/boring/blob/master/.github/workflows/ci.yml) and [boringssl](https://github.com/google/boringssl/blob/master/BUILDING.md#build-prerequisites).
 
@@ -112,38 +112,31 @@ Install the BoringSSL build environment by referring to [boring](https://github.
 # on ubuntu or debian
 sudo apt install -y build-essential cmake perl pkg-config libclang-dev musl-tools git
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-pip install maturin
-pip install uv
+pip install uv maturin
 
 uv venv
 source .venv/bin/activate
-```
 
-2. Development
-
-```bash
+# Development
 maturin develop --uv
-```
 
-3. Compile wheels
-
-```bash
+# Build wheels
 maturin build --release
 ```
 
-- Musllinux
+2. Musllinux
 
 Make sure you have Docker installed. The provided image may be outdated, so you might need to build it yourself. See [rust-cross-musl](https://github.com/0x676e67/toolchain/blob/master/rust-musl-cross/Dockerfile) and the upstream [rust-cross/rust-musl-cross](https://github.com/rust-cross/rust-musl-cross) for reference.  
 **Note:** The upstream image does not include some platform-specific linker environment variables; you may need to add these manually.
 
 ```bash
+bash .github/musl_build.sh i686-unknown-linux-musl
 bash .github/musl_build.sh x86_64-unknown-linux-musl
 bash .github/musl_build.sh aarch64-unknown-linux-musl
 bash .github/musl_build.sh armv7-unknown-linux-musleabihf
-bash .github/musl_build.sh i686-unknown-linux-musl
 ```
 
-- Manylinux
+3. Manylinux
 
 For Manylinux compilation, refer to [manylinux](https://github.com/PyO3/maturin?tab=readme-ov-file#manylinux-and-auditwheel).
 
