@@ -158,8 +158,7 @@ pub async fn close(
     code: Option<u16>,
     reason: Option<PyBackedStr>,
 ) -> PyResult<()> {
-    let _ = send_command(cmd, |tx| Command::Close(code, reason, tx)).await;
-    Ok(())
+    send_command(cmd, |tx| Command::Close(code, reason, tx)).await?
 }
 
 async fn send_command<T>(

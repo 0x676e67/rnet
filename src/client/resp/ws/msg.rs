@@ -20,7 +20,7 @@ use crate::{buffer::PyBuffer, client::body::Json, error::Error};
 
 /// A WebSocket message.
 #[derive(Debug, Clone)]
-#[pyclass(subclass, str)]
+#[pyclass(subclass, str, frozen)]
 pub struct Message(pub message::Message);
 
 #[pymethods]
@@ -133,31 +133,28 @@ impl Message {
         let msg = message::Message::text(
             Utf8Bytes::try_from(Bytes::from_owner(text)).expect("valid UTF-8"),
         );
-        Message(msg)
+        Self(msg)
     }
 
     /// Creates a new binary message.
     #[staticmethod]
     #[pyo3(signature = (data))]
     pub fn from_binary(data: PyBackedBytes) -> Self {
-        let msg = message::Message::binary(Bytes::from_owner(data));
-        Message(msg)
+        Self(message::Message::binary(Bytes::from_owner(data)))
     }
 
     /// Creates a new ping message.
     #[staticmethod]
     #[pyo3(signature = (data))]
     pub fn from_ping(data: PyBackedBytes) -> Self {
-        let msg = message::Message::ping(Bytes::from_owner(data));
-        Message(msg)
+        Self(message::Message::ping(Bytes::from_owner(data)))
     }
 
     /// Creates a new pong message.
     #[staticmethod]
     #[pyo3(signature = (data))]
     pub fn from_pong(data: PyBackedBytes) -> Self {
-        let msg = message::Message::pong(Bytes::from_owner(data));
-        Message(msg)
+        Self(message::Message::pong(Bytes::from_owner(data)))
     }
 
     /// Creates a new close message.
@@ -172,7 +169,7 @@ impl Message {
             code: CloseCode(code),
             reason,
         });
-        Message(msg)
+        Self(msg)
     }
 }
 
