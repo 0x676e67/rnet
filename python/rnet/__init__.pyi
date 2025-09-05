@@ -439,7 +439,7 @@ class Response:
     Get the cookies of the response.
     """
 
-    content_length: int
+    content_length: Optional[int]
     r"""
     Get the content length of the response.
     """

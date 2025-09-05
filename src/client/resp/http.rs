@@ -28,7 +28,7 @@ pub struct Response {
 
     /// Get the content length of the response.
     #[pyo3(get)]
-    content_length: u64,
+    content_length: Option<u64>,
 
     /// Get the headers of the response.
     #[pyo3(get)]
@@ -69,9 +69,9 @@ impl Response {
     /// Create a new [`Response`] instance.
     pub fn new(response: wreq::Response) -> Self {
         let uri = response.uri().clone();
+        let content_length = response.content_length();
         let local_addr = response.local_addr().map(SocketAddr);
         let remote_addr = response.remote_addr().map(SocketAddr);
-        let content_length = response.content_length().unwrap_or_default();
         let response = HttpResponse::from(response);
         let (parts, body) = response.into_parts();
 
@@ -294,7 +294,7 @@ impl BlockingResponse {
 
     /// Get the content length of the response.
     #[getter]
-    pub fn content_length(&self) -> u64 {
+    pub fn content_length(&self) -> Option<u64> {
         self.0.content_length
     }
 
