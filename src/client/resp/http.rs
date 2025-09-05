@@ -88,6 +88,16 @@ impl Response {
         }
     }
 
+    fn ext_response(&self) -> wreq::Response {
+        let mut response = HttpResponse::builder()
+            .uri(self.uri.clone())
+            .body(wreq::Body::default())
+            .map(wreq::Response::from)
+            .expect("build response from parts should not fail");
+        *response.extensions_mut() = self.extensions.clone();
+        response
+    }
+
     fn reuse_response(&mut self, py: Python, stream: bool) -> PyResult<wreq::Response> {
         use http_body_util::BodyExt;
 
@@ -124,16 +134,6 @@ impl Response {
                 }
             }
         })
-    }
-
-    fn ext_response(&self) -> wreq::Response {
-        let mut response = HttpResponse::builder()
-            .uri(self.uri.clone())
-            .body(wreq::Body::default())
-            .map(wreq::Response::from)
-            .expect("build response from parts should not fail");
-        *response.extensions_mut() = self.extensions.clone();
-        response
     }
 }
 
@@ -192,13 +192,11 @@ impl Response {
         py: Python<'py>,
         encoding: PyBackedStr,
     ) -> PyResult<Bound<'py, PyAny>> {
-        let resp = self.reuse_response(py, false)?;
-        let fut = async move {
-            resp.text_with_charset(&encoding)
-                .await
-                .map_err(Error::Library)
-                .map_err(Into::into)
-        };
+        let fut = self
+            .reuse_response(py, false)?
+            .text_with_charset(encoding)
+            .map_err(Error::Library)
+            .map_err(Into::into);
         AllowThreads::future(fut).future_into_py(py)
     }
 
@@ -214,14 +212,13 @@ impl Response {
 
     /// Get the bytes content of the response.
     pub fn bytes<'py>(&mut self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
-        AllowThreads::future(
-            self.reuse_response(py, false)?
-                .bytes()
-                .map_ok(PyBuffer::from)
-                .map_err(Error::Library)
-                .map_err(Into::into),
-        )
-        .future_into_py(py)
+        let fut = self
+            .reuse_response(py, false)?
+            .bytes()
+            .map_ok(PyBuffer::from)
+            .map_err(Error::Library)
+            .map_err(Into::into);
+        AllowThreads::future(fut).future_into_py(py)
     }
 
     /// Get the response into a `Stream` of `Bytes` from the body.
@@ -376,10 +373,8 @@ impl BlockingResponse {
 
     /// Close the response connection.
     #[inline]
-    pub fn close(&mut self, py: Python) {
-        py.detach(|| {
-            self.0.body = Body::Consumed;
-        })
+    pub fn close(&mut self) {
+        self.0.body = Body::Consumed;
     }
 }
 
@@ -393,12 +388,11 @@ impl BlockingResponse {
     #[inline]
     fn __exit__<'py>(
         &mut self,
-        py: Python<'py>,
         _exc_type: &Bound<'py, PyAny>,
         _exc_value: &Bound<'py, PyAny>,
         _traceback: &Bound<'py, PyAny>,
     ) {
-        self.close(py)
+        self.close()
     }
 }
 
