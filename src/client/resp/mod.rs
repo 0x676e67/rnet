@@ -1,4 +1,3 @@
-mod future;
 mod history;
 mod http;
 mod stream;

@@ -185,6 +185,7 @@ pub struct WebSocketRequest {
     ///
     /// The default value is 128 KiB.
     pub read_buffer_size: Option<usize>,
+
     /// The target minimum size of the write buffer to reach before writing the data
     /// to the underlying stream.
     /// The default value is 128 KiB.
@@ -194,6 +195,7 @@ pub struct WebSocketRequest {
     ///
     /// Note: [`flush`](WebSocket::flush) will always fully write the buffer regardless.
     pub write_buffer_size: Option<usize>,
+
     /// The max size of the write buffer in bytes. Setting this can provide backpressure
     /// in the case the write buffer is filling up due to write errors.
     /// The default value is unlimited.
@@ -205,15 +207,18 @@ pub struct WebSocketRequest {
     /// Note: Should always be at least [`write_buffer_size + 1 message`](Self::write_buffer_size)
     /// and probably a little more depending on error handling strategy.
     pub max_write_buffer_size: Option<usize>,
+
     /// The maximum size of an incoming message. `None` means no size limit. The default value is
     /// 64 MiB which should be reasonably big for all normal use-cases but small enough to
     /// prevent memory eating by a malicious user.
     pub max_message_size: Option<usize>,
+
     /// The maximum size of a single incoming message frame. `None` means no size limit. The limit
     /// is for frame payload NOT including the frame header. The default value is 16 MiB which
     /// should be reasonably big for all normal use-cases but small enough to prevent memory
     /// eating by a malicious user.
     pub max_frame_size: Option<usize>,
+
     /// When set to `true`, the server will accept and handle unmasked frames
     /// from the client. According to the RFC 6455, the server must close the
     /// connection to the client in such cases, however it seems like there are

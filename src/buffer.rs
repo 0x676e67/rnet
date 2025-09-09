@@ -34,6 +34,7 @@ impl<'a> IntoPyObject<'a> for PyBuffer {
     type Output = Bound<'a, Self::Target>;
     type Error = PyErr;
 
+    #[inline(always)]
     fn into_pyobject(self, py: Python<'a>) -> Result<Self::Output, Self::Error> {
         let buffer = self.0.into_py_any(py)?;
         unsafe { Bound::from_owned_ptr_or_err(py, ffi::PyBytes_FromObject(buffer.as_ptr())) }
