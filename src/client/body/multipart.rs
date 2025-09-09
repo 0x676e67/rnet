@@ -6,6 +6,7 @@ use pyo3::{
     pybacked::{PyBackedBytes, PyBackedStr},
     types::PyTuple,
 };
+use pyo3_async_runtimes::tokio;
 use wreq::{Body, header::HeaderMap, multipart, multipart::Form};
 
 use crate::{
@@ -82,7 +83,7 @@ impl Part {
                 Value::Text(bytes) | Value::Bytes(bytes) => {
                     multipart::Part::stream(Body::from(bytes))
                 }
-                Value::File(path) => pyo3_async_runtimes::tokio::get_runtime()
+                Value::File(path) => tokio::get_runtime()
                     .block_on(multipart::Part::file(path))
                     .map_err(Error::from)?,
                 Value::SyncStream(stream) => {

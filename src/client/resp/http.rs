@@ -1,22 +1,24 @@
+use std::sync::Arc;
+
+use arc_swap::ArcSwapOption;
+use bytes::Bytes;
 use futures_util::TryFutureExt;
 use http::{Extensions, response::Response as HttpResponse};
+use http_body_util::BodyExt;
 use pyo3::{IntoPyObjectExt, prelude::*, pybacked::PyBackedStr};
+use pyo3_async_runtimes::tokio;
 use wreq::{self, ResponseBuilderExt, Uri, tls::TlsInfo};
 
 use super::Streamer;
 use crate::{
     buffer::PyBuffer,
-    client::{
-        SocketAddr,
-        body::Json,
-        resp::{future::AllowThreads, history::History},
-    },
+    client::{SocketAddr, body::Json, nogil::NoGIL, resp::history::History},
     error::Error,
     http::{Version, cookie::Cookie, header::HeaderMap, status::StatusCode},
 };
 
 /// A response from a request.
-#[pyclass(subclass)]
+#[pyclass(subclass, frozen)]
 pub struct Response {
     /// Get the status code of the response.
     #[pyo3(get)]
@@ -43,9 +45,7 @@ pub struct Response {
     remote_addr: Option<SocketAddr>,
 
     uri: Uri,
-
-    body: Body,
-
+    body: ArcSwapOption<Body>,
     extensions: Extensions,
 }
 
@@ -54,13 +54,11 @@ enum Body {
     /// The body can be streamed once (not yet buffered).
     Streamable(wreq::Body),
     /// The body has been fully read into memory and can be reused.
-    Reusable(wreq::Body),
-    /// The body has already been consumed and is no longer available.
-    Consumed,
+    Reusable(Bytes),
 }
 
 /// A blocking response from a request.
-#[pyclass(name = "Response", subclass)]
+#[pyclass(name = "Response", subclass, frozen)]
 pub struct BlockingResponse(Response);
 
 // ===== impl Response =====
@@ -77,14 +75,14 @@ impl Response {
 
         Response {
             uri,
-            content_length,
             local_addr,
             remote_addr,
+            content_length,
+            extensions: parts.extensions,
             version: Version::from_ffi(parts.version),
             status: StatusCode::from(parts.status),
             headers: HeaderMap(parts.headers),
-            body: Body::Streamable(body),
-            extensions: parts.extensions,
+            body: ArcSwapOption::from_pointee(Body::Streamable(body)),
         }
     }
 
@@ -98,41 +96,40 @@ impl Response {
         response
     }
 
-    fn reuse_response(&mut self, py: Python, stream: bool) -> PyResult<wreq::Response> {
-        use http_body_util::BodyExt;
-
-        // Helper to build a response from a body
-        let build_response = |body: wreq::Body| -> PyResult<wreq::Response> {
-            HttpResponse::builder()
-                .uri(self.uri.clone())
-                .body(body)
-                .map(wreq::Response::from)
-                .map_err(Error::Builder)
-                .map_err(Into::into)
-        };
-
+    fn reuse_response(&self, py: Python, stream: bool) -> PyResult<wreq::Response> {
         py.detach(|| {
-            if stream {
-                // Only allow streaming if the body is in MayStream state
-                match std::mem::replace(&mut self.body, Body::Consumed) {
-                    Body::Streamable(body) => build_response(body),
-                    _ => Err(Error::Memory.into()),
-                }
-            } else {
-                // For non-streaming, allow reuse if possible
-                match &mut self.body {
-                    Body::Streamable(body) | Body::Reusable(body) => {
-                        let bytes = pyo3_async_runtimes::tokio::get_runtime()
+            let build_response = |body: wreq::Body| -> PyResult<wreq::Response> {
+                HttpResponse::builder()
+                    .uri(self.uri.clone())
+                    .body(body)
+                    .map(wreq::Response::from)
+                    .map_err(Error::Builder)
+                    .map_err(Into::into)
+            };
+
+            if let Some(arc) = self.body.swap(None) {
+                return match Arc::try_unwrap(arc) {
+                    Ok(Body::Streamable(body)) if stream => build_response(body),
+                    Ok(Body::Streamable(body)) if !stream => {
+                        let bytes = tokio::get_runtime()
                             .block_on(BodyExt::collect(body))
                             .map(|buf| buf.to_bytes())
                             .map_err(Error::Library)?;
 
-                        self.body = Body::Reusable(wreq::Body::from(bytes.clone()));
+                        self.body
+                            .store(Some(Arc::new(Body::Reusable(bytes.clone()))));
                         build_response(wreq::Body::from(bytes))
                     }
-                    Body::Consumed => Err(Error::Memory.into()),
-                }
+                    Ok(Body::Reusable(bytes)) if !stream => {
+                        self.body
+                            .store(Some(Arc::new(Body::Reusable(bytes.clone()))));
+                        build_response(wreq::Body::from(bytes))
+                    }
+                    _ => Err(Error::Memory.into()),
+                };
             }
+
+            Err(Error::Memory.into())
         })
     }
 }
@@ -175,20 +172,27 @@ impl Response {
         })
     }
 
+    /// Get the response into a `Stream` of `Bytes` from the body.
+    pub fn stream(&self, py: Python) -> PyResult<Streamer> {
+        self.reuse_response(py, true)
+            .map(wreq::Response::bytes_stream)
+            .map(Streamer::new)
+    }
+
     /// Get the text content of the response.
-    pub fn text<'py>(&mut self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
+    pub fn text<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
         let fut = self
             .reuse_response(py, false)?
             .text()
             .map_err(Error::Library)
             .map_err(Into::into);
-        AllowThreads::future(fut).future_into_py(py)
+        NoGIL::future(py, fut)
     }
 
     /// Get the full response text given a specific encoding.
     #[pyo3(signature = (encoding))]
     pub fn text_with_charset<'py>(
-        &mut self,
+        &self,
         py: Python<'py>,
         encoding: PyBackedStr,
     ) -> PyResult<Bound<'py, PyAny>> {
@@ -197,41 +201,34 @@ impl Response {
             .text_with_charset(encoding)
             .map_err(Error::Library)
             .map_err(Into::into);
-        AllowThreads::future(fut).future_into_py(py)
+        NoGIL::future(py, fut)
     }
 
     /// Get the JSON content of the response.
-    pub fn json<'py>(&mut self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
+    pub fn json<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
         let fut = self
             .reuse_response(py, false)?
             .json::<Json>()
             .map_err(Error::Library)
             .map_err(Into::into);
-        AllowThreads::future(fut).future_into_py(py)
+        NoGIL::future(py, fut)
     }
 
     /// Get the bytes content of the response.
-    pub fn bytes<'py>(&mut self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
+    pub fn bytes<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
         let fut = self
             .reuse_response(py, false)?
             .bytes()
             .map_ok(PyBuffer::from)
             .map_err(Error::Library)
             .map_err(Into::into);
-        AllowThreads::future(fut).future_into_py(py)
-    }
-
-    /// Get the response into a `Stream` of `Bytes` from the body.
-    pub fn stream(&mut self, py: Python) -> PyResult<Streamer> {
-        self.reuse_response(py, true)
-            .map(wreq::Response::bytes_stream)
-            .map(Streamer::new)
+        NoGIL::future(py, fut)
     }
 
     /// Close the response connection.
-    pub fn close<'py>(&'py mut self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
-        self.body = Body::Consumed;
-        AllowThreads::closure(|| Ok(())).future_into_py(py)
+    pub fn close<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
+        py.detach(|| self.body.swap(None));
+        NoGIL::closure(py, || Ok(()))
     }
 }
 
@@ -240,12 +237,12 @@ impl Response {
     #[inline]
     fn __aenter__<'py>(slf: PyRef<'py, Self>, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
         let slf = slf.into_py_any(py)?;
-        AllowThreads::closure(|| Ok(slf)).future_into_py(py)
+        NoGIL::closure(py, || Ok(slf))
     }
 
     #[inline]
     fn __aexit__<'py>(
-        &'py mut self,
+        &self,
         py: Python<'py>,
         _exc_type: &Bound<'py, PyAny>,
         _exc_value: &Bound<'py, PyAny>,
@@ -319,11 +316,17 @@ impl BlockingResponse {
         self.0.peer_certificate(py)
     }
 
+    /// Get the response into a `Stream` of `Bytes` from the body.
+    #[inline]
+    pub fn stream(&self, py: Python) -> PyResult<Streamer> {
+        self.0.stream(py)
+    }
+
     /// Get the text content of the response.
-    pub fn text(&mut self, py: Python) -> PyResult<String> {
+    pub fn text(&self, py: Python) -> PyResult<String> {
         let resp = self.0.reuse_response(py, false)?;
         py.detach(|| {
-            pyo3_async_runtimes::tokio::get_runtime()
+            tokio::get_runtime()
                 .block_on(resp.text())
                 .map_err(Error::Library)
                 .map_err(Into::into)
@@ -332,10 +335,10 @@ impl BlockingResponse {
 
     /// Get the full response text given a specific encoding.
     #[pyo3(signature = (encoding))]
-    pub fn text_with_charset(&mut self, py: Python, encoding: PyBackedStr) -> PyResult<String> {
+    pub fn text_with_charset(&self, py: Python, encoding: PyBackedStr) -> PyResult<String> {
         let resp = self.0.reuse_response(py, false)?;
         py.detach(|| {
-            pyo3_async_runtimes::tokio::get_runtime()
+            tokio::get_runtime()
                 .block_on(resp.text_with_charset(&encoding))
                 .map_err(Error::Library)
                 .map_err(Into::into)
@@ -343,10 +346,10 @@ impl BlockingResponse {
     }
 
     /// Get the JSON content of the response.
-    pub fn json(&mut self, py: Python) -> PyResult<Json> {
+    pub fn json(&self, py: Python) -> PyResult<Json> {
         let resp = self.0.reuse_response(py, false)?;
         py.detach(|| {
-            pyo3_async_runtimes::tokio::get_runtime()
+            tokio::get_runtime()
                 .block_on(resp.json::<Json>())
                 .map_err(Error::Library)
                 .map_err(Into::into)
@@ -354,10 +357,10 @@ impl BlockingResponse {
     }
 
     /// Get the bytes content of the response.
-    pub fn bytes(&mut self, py: Python) -> PyResult<PyBuffer> {
+    pub fn bytes(&self, py: Python) -> PyResult<PyBuffer> {
         let resp = self.0.reuse_response(py, false)?;
         py.detach(|| {
-            pyo3_async_runtimes::tokio::get_runtime()
+            tokio::get_runtime()
                 .block_on(resp.bytes())
                 .map(PyBuffer::from)
                 .map_err(Error::Library)
@@ -365,16 +368,10 @@ impl BlockingResponse {
         })
     }
 
-    /// Get the response into a `Stream` of `Bytes` from the body.
-    #[inline]
-    pub fn stream(&mut self, py: Python) -> PyResult<Streamer> {
-        self.0.stream(py)
-    }
-
     /// Close the response connection.
     #[inline]
-    pub fn close(&mut self) {
-        self.0.body = Body::Consumed;
+    pub fn close(&self, py: Python) {
+        py.detach(|| self.0.body.swap(None));
     }
 }
 
@@ -387,12 +384,13 @@ impl BlockingResponse {
 
     #[inline]
     fn __exit__<'py>(
-        &mut self,
+        &self,
+        py: Python<'py>,
         _exc_type: &Bound<'py, PyAny>,
         _exc_value: &Bound<'py, PyAny>,
         _traceback: &Bound<'py, PyAny>,
     ) {
-        self.close()
+        self.close(py)
     }
 }
 

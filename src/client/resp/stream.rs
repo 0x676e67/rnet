@@ -3,7 +3,7 @@ use futures_util::{Stream, StreamExt};
 use pyo3::{IntoPyObjectExt, prelude::*};
 use tokio::sync::mpsc::{self, error::TryRecvError};
 
-use crate::{buffer::PyBuffer, client::resp::future::AllowThreads, error::Error};
+use crate::{buffer::PyBuffer, client::nogil::NoGIL, error::Error};
 
 /// A byte stream response.
 /// An asynchronous iterator yielding data chunks from the response stream.
@@ -48,13 +48,13 @@ impl Streamer {
                 TryRecvError::Disconnected => Err(Error::StopAsyncIteration),
             },
         })?;
-        AllowThreads::closure(move || Ok(res)).future_into_py(py)
+        NoGIL::closure(py, move || Ok(res))
     }
 
     #[inline]
     fn __aenter__<'py>(slf: PyRef<'py, Self>, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
         let slf = slf.into_py_any(py)?;
-        AllowThreads::closure(move || Ok(slf)).future_into_py(py)
+        NoGIL::closure(py, move || Ok(slf))
     }
 
     #[inline]
@@ -66,7 +66,7 @@ impl Streamer {
         _traceback: &Bound<'py, PyAny>,
     ) -> PyResult<Bound<'py, PyAny>> {
         self.0.close();
-        AllowThreads::closure(move || Ok(())).future_into_py(py)
+        NoGIL::closure(py, move || Ok(()))
     }
 }
 

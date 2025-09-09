@@ -1,14 +1,14 @@
 pub mod body;
-
 pub mod req;
 pub mod resp;
 
 mod dns;
+mod nogil;
 
 use std::{fmt, net::IpAddr, sync::Arc, time::Duration};
 
 use pyo3::{IntoPyObjectExt, prelude::*, pybacked::PyBackedStr};
-use pyo3_async_runtimes::tokio::future_into_py;
+use pyo3_async_runtimes::{tokio, tokio::future_into_py};
 use req::{Request, WebSocketRequest};
 use wreq::{
     Proxy,
@@ -660,7 +660,7 @@ impl BlockingClient {
         kwds: Option<Request>,
     ) -> PyResult<BlockingResponse> {
         py.detach(|| {
-            pyo3_async_runtimes::tokio::get_runtime()
+            tokio::get_runtime()
                 .block_on(execute_request(self.0.clone().0, method, url, kwds))
                 .map(Into::into)
         })
@@ -675,7 +675,7 @@ impl BlockingClient {
         kwds: Option<WebSocketRequest>,
     ) -> PyResult<BlockingWebSocket> {
         py.detach(|| {
-            pyo3_async_runtimes::tokio::get_runtime()
+            tokio::get_runtime()
                 .block_on(execute_websocket_request(self.0.clone().0, url, kwds))
                 .map(Into::into)
         })
