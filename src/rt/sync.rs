@@ -116,7 +116,9 @@ impl PyDoneCallback {
     /// internal oneshot sender so the Rust side can abort the corresponding task.
     pub fn __call__(&mut self, fut: &Bound<PyAny>) -> PyResult<()> {
         if cancelled(fut).map_err(dump_err(fut.py())).unwrap_or(false) {
-            let _ = self.cancel_tx.take().unwrap().send(());
+            if let Some(tx) = self.cancel_tx.take() {
+                let _ = tx.send(());
+            }
         }
 
         Ok(())
