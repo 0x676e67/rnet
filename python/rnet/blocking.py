@@ -77,6 +77,17 @@ class Response:
     Get the DER encoded leaf certificate of the response.
     """
 
+    def raise_for_status(self) -> None:
+        r"""
+        Turn a response into an error if the server returned an error.
+        """
+
+    def stream(self) -> Streamer:
+        r"""
+        Get the response into a `Streamer` of `bytes` from the body.
+        """
+        ...
+
     def text(self) -> str:
         r"""
         Get the text content of the response.
@@ -97,12 +108,6 @@ class Response:
     def bytes(self) -> bytes:
         r"""
         Get the bytes content of the response.
-        """
-        ...
-
-    def stream(self) -> Streamer:
-        r"""
-        Get the response into a `Stream` of `Bytes` from the body.
         """
         ...
 

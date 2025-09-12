@@ -4,7 +4,7 @@ mod store;
 
 use pyo3::prelude::*;
 
-pub use self::{identity::Identity, keylog::KeyLogPolicy, store::CertStore};
+pub use self::{identity::Identity, keylog::KeyLog, store::CertStore};
 
 define_enum!(
     /// The TLS version.
