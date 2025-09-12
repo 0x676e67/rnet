@@ -9,7 +9,6 @@ pub fn set_result(
     result: PyResult<Py<PyAny>>,
 ) -> PyResult<()> {
     let none = py.None().into_bound(py);
-
     let (complete, val) = match result {
         Ok(val) => (future.getattr("set_result")?, val.into_pyobject(py)?),
         Err(err) => (future.getattr("set_exception")?, err.into_bound_py_any(py)?),
@@ -28,9 +27,7 @@ pub fn call_soon_threadsafe<'py>(
     context: &Bound<PyAny>,
     args: impl PyCallArgs<'py>,
 ) -> PyResult<()> {
-    let py = event_loop.py();
-
-    let kwargs = PyDict::new(py);
+    let kwargs = PyDict::new(event_loop.py());
     kwargs.set_item("context", context)?;
     event_loop.call_method("call_soon_threadsafe", args, Some(&kwargs))?;
     Ok(())

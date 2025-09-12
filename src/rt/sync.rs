@@ -19,7 +19,15 @@ use super::{
 };
 
 pin_project! {
-    /// Future returned by [`timeout`](timeout) and [`timeout_at`](timeout_at).
+    /// A cancellable future wrapper.
+    ///
+    /// This wraps an inner future and a oneshot cancellation receiver.
+    /// The wrapper will poll the inner future normally, but will also
+    /// observe the cancellation receiver and complete early if a cancel
+    /// notification is received.
+    ///
+    /// Typical use: run a Rust future that should be aborted when the
+    /// corresponding Python `asyncio.Future` is cancelled.
     #[must_use = "futures do nothing unless you `.await` or poll them"]
     #[derive(Debug)]
     pub struct Cancellable<T> {
@@ -32,6 +40,10 @@ pin_project! {
 }
 
 impl<T> Cancellable<T> {
+    /// Create a new cancellable wrapper.
+    ///
+    /// `future` is the inner future to drive. `cancel_rx` is a oneshot
+    /// receiver that will resolve when cancellation is requested.
     #[inline]
     pub fn new(future: T, cancel_rx: oneshot::Receiver<()>) -> Self {
         Self {
@@ -49,6 +61,12 @@ where
 {
     type Output = F::Output;
 
+    /// Poll the inner future and also check for cancellation.
+    ///
+    /// If the inner future completes, its result is returned. If the
+    /// cancellation receiver resolves first, the wrapper returns an
+    /// error indicating cancellation (this path is generally unreachable
+    /// in normal use because the Python side will observe cancellation).
     fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
         let this = self.project();
 
@@ -80,6 +98,11 @@ where
     }
 }
 
+/// Python-callable callback used to notify Rust of Python future completion.
+///
+/// Instances carry an optional oneshot sender that will be fired when the
+/// Python future is observed to be cancelled. The callback is intended to be
+/// added as a done-callback on an `asyncio.Future`.
 #[pyclass]
 pub struct PyDoneCallback {
     pub cancel_tx: Option<oneshot::Sender<()>>,
@@ -87,6 +110,10 @@ pub struct PyDoneCallback {
 
 #[pymethods]
 impl PyDoneCallback {
+    /// Called by Python when the associated Future is done.
+    ///
+    /// If the Python future is cancelled, sends a cancellation signal on the
+    /// internal oneshot sender so the Rust side can abort the corresponding task.
     pub fn __call__(&mut self, fut: &Bound<PyAny>) -> PyResult<()> {
         if cancelled(fut).map_err(dump_err(fut.py())).unwrap_or(false) {
             let _ = self.cancel_tx.take().unwrap().send(());
@@ -96,6 +123,10 @@ impl PyDoneCallback {
     }
 }
 
+/// A sending endpoint that forwards Python-owned objects into a Rust async mpsc channel.
+///
+/// [`Sender`] holds the task-local context (`TaskLocals`) and a [`futures::mpsc::Sender`]
+/// of owned `Py<PyAny>` objects which are safe to move across threads.
 #[pyclass]
 pub struct Sender {
     locals: TaskLocals,
@@ -103,6 +134,7 @@ pub struct Sender {
 }
 
 impl Sender {
+    /// Construct a new [`Sender`] with the given task locals and channel sender.
     #[inline]
     pub fn new(locals: TaskLocals, tx: mpsc::Sender<Py<PyAny>>) -> Sender {
         Sender { locals, tx }
@@ -111,6 +143,13 @@ impl Sender {
 
 #[pymethods]
 impl Sender {
+    /// Send an item into the channel.
+    ///
+    /// This method first attempts a non-blocking `try_send`. If the channel is
+    /// full, it schedules an async operation (via `future_into_py_with_locals`)
+    /// to flush and send the item without blocking the Python thread.
+    ///
+    /// Returns a Python boolean indicating success.
     pub fn send(&mut self, py: Python, item: Py<PyAny>) -> PyResult<Py<PyAny>> {
         match self.tx.try_send(item.clone_ref(py)) {
             Ok(_) => true.into_py_any(py),
@@ -133,6 +172,10 @@ impl Sender {
             }
         }
     }
+
+    /// Close the underlying channel.
+    ///
+    /// After calling `close`, no further sends will succeed.
     pub fn close(&mut self) -> PyResult<()> {
         self.tx.close_channel();
         Ok(())

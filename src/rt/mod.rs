@@ -17,6 +17,7 @@ tokio::task_local! {
     static TASK_LOCALS: OnceCell<TaskLocals>;
 }
 
+/// The global Tokio runtime instance.
 static TOKIO_RUNTIME: LazyLock<TokioRuntime> = LazyLock::new(|| {
     Builder::new_multi_thread()
         .enable_all()
@@ -24,7 +25,15 @@ static TOKIO_RUNTIME: LazyLock<TokioRuntime> = LazyLock::new(|| {
         .expect("Unable to build Tokio runtime")
 });
 
-pub struct Runtime();
+/// A small runtime bridge that manages task-local context and exposes utilities
+/// for converting Rust futures into Python awaitables.
+///
+/// This type wraps a global Tokio runtime and helpers to:
+/// - install task-local `TaskLocals` for spawned tasks (`scope`)
+/// - retrieve or create `TaskLocals` from the current Python context
+/// - spawn and run futures on the global runtime
+/// - convert Rust `Future<Output = PyResult<T>>` into Python `asyncio.Future` objects
+pub struct Runtime;
 
 impl Runtime {
     /// Set the task locals for the given future
