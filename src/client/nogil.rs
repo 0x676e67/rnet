@@ -7,6 +7,8 @@ use std::{
 use pin_project_lite::pin_project;
 use pyo3::prelude::*;
 
+use crate::rt::Runtime;
+
 pin_project! {
     /// A future that allows Python threads to run while it is being polled or executed.
     #[project = NoGILProj]
@@ -28,7 +30,7 @@ where
 {
     #[inline(always)]
     pub fn future<'py>(py: Python<'py>, future: Fut) -> PyResult<Bound<'py, PyAny>> {
-        crate::rt::tokio::future_into_py(py, NoGIL::Future { inner: future })
+        Runtime::future_into_py(py, NoGIL::Future { inner: future })
     }
 }
 
@@ -39,7 +41,7 @@ where
 {
     #[inline(always)]
     pub fn closure<'py>(py: Python<'py>, closure: F) -> PyResult<Bound<'py, PyAny>> {
-        crate::rt::tokio::future_into_py(
+        Runtime::future_into_py(
             py,
             NoGIL::Closure {
                 inner: Some(closure),

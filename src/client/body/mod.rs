@@ -18,6 +18,8 @@ use pyo3::{
 };
 use serde::{Deserialize, Serialize};
 
+use crate::rt::Runtime;
+
 /// Represents the body of an HTTP request.
 /// Supports text, bytes, synchronous and asynchronous streaming bodies.
 pub enum Body {
@@ -51,7 +53,7 @@ impl FromPyObject<'_> for Body {
         }
 
         if ob.hasattr("asend")? {
-            crate::rt::tokio::into_stream_v2(ob.to_owned())
+            Runtime::into_stream(ob.to_owned())
                 .map(AsyncStream::new)
                 .map(Self::AsyncStream)
         } else {

@@ -14,7 +14,7 @@ use crate::{
     client::{SocketAddr, body::Json, nogil::NoGIL, resp::history::History},
     error::Error,
     http::{Version, cookie::Cookie, header::HeaderMap, status::StatusCode},
-    rt::tokio,
+    rt::Runtime,
 };
 
 /// A response from a request.
@@ -111,8 +111,7 @@ impl Response {
                 return match Arc::try_unwrap(arc) {
                     Ok(Body::Streamable(body)) if stream => build_response(body),
                     Ok(Body::Streamable(body)) if !stream => {
-                        let bytes = tokio::get_runtime()
-                            .block_on(BodyExt::collect(body))
+                        let bytes = Runtime::block_on(BodyExt::collect(body))
                             .map(|buf| buf.to_bytes())
                             .map_err(Error::Library)?;
 
@@ -326,8 +325,7 @@ impl BlockingResponse {
     pub fn text(&self, py: Python) -> PyResult<String> {
         let resp = self.0.reuse_response(py, false)?;
         py.detach(|| {
-            tokio::get_runtime()
-                .block_on(resp.text())
+            Runtime::block_on(resp.text())
                 .map_err(Error::Library)
                 .map_err(Into::into)
         })
@@ -338,8 +336,7 @@ impl BlockingResponse {
     pub fn text_with_charset(&self, py: Python, encoding: PyBackedStr) -> PyResult<String> {
         let resp = self.0.reuse_response(py, false)?;
         py.detach(|| {
-            tokio::get_runtime()
-                .block_on(resp.text_with_charset(&encoding))
+            Runtime::block_on(resp.text_with_charset(&encoding))
                 .map_err(Error::Library)
                 .map_err(Into::into)
         })
@@ -349,8 +346,7 @@ impl BlockingResponse {
     pub fn json(&self, py: Python) -> PyResult<Json> {
         let resp = self.0.reuse_response(py, false)?;
         py.detach(|| {
-            tokio::get_runtime()
-                .block_on(resp.json::<Json>())
+            Runtime::block_on(resp.json::<Json>())
                 .map_err(Error::Library)
                 .map_err(Into::into)
         })
@@ -360,8 +356,7 @@ impl BlockingResponse {
     pub fn bytes(&self, py: Python) -> PyResult<PyBuffer> {
         let resp = self.0.reuse_response(py, false)?;
         py.detach(|| {
-            tokio::get_runtime()
-                .block_on(resp.bytes())
+            Runtime::block_on(resp.bytes())
                 .map(PyBuffer::from)
                 .map_err(Error::Library)
                 .map_err(Into::into)

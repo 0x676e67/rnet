@@ -3,7 +3,7 @@ use futures_util::{Stream, StreamExt};
 use pyo3::{IntoPyObjectExt, prelude::*};
 use tokio::sync::mpsc::{self, error::TryRecvError};
 
-use crate::{buffer::PyBuffer, client::nogil::NoGIL, error::Error};
+use crate::{buffer::PyBuffer, client::nogil::NoGIL, error::Error, rt::Runtime};
 
 /// A byte stream response.
 /// An asynchronous iterator yielding data chunks from the response stream.
@@ -18,7 +18,7 @@ impl Streamer {
     #[inline]
     pub fn new(stream: impl Stream<Item = wreq::Result<Bytes>> + Send + 'static) -> Streamer {
         let (tx, rx) = mpsc::channel(8);
-        crate::rt::tokio::get_runtime().spawn(async move {
+        Runtime::spawn(async move {
             futures_util::pin_mut!(stream);
             while let Some(item) = stream.next().await {
                 if tx.send(item).await.is_err() {

@@ -12,7 +12,7 @@ use crate::{
     client::body::{AsyncStream, SyncStream},
     error::Error,
     extractor::Extractor,
-    rt::tokio,
+    rt::Runtime,
 };
 
 /// A multipart form for a request.
@@ -83,9 +83,9 @@ impl Part {
                 Value::Text(bytes) | Value::Bytes(bytes) => {
                     multipart::Part::stream(Body::from(bytes))
                 }
-                Value::File(path) => tokio::get_runtime()
-                    .block_on(multipart::Part::file(path))
-                    .map_err(Error::from)?,
+                Value::File(path) => {
+                    Runtime::block_on(multipart::Part::file(path)).map_err(Error::from)?
+                }
                 Value::SyncStream(stream) => {
                     let stream = Body::wrap_stream(stream);
                     match length {
@@ -144,7 +144,7 @@ impl FromPyObject<'_> for Value {
 
         // Determine if it's an async or sync stream
         if ob.hasattr("asend")? {
-            crate::rt::tokio::into_stream_v2(ob.to_owned())
+            Runtime::into_stream(ob.to_owned())
                 .map(AsyncStream::new)
                 .map(Value::AsyncStream)
         } else {
