@@ -23,19 +23,16 @@ mimalloc = ["dep:mimalloc"]
 abi3 = ["pyo3/abi3-py311"]
 
 [dependencies]
-tokio = "1.47.1"
+tokio = { version = "1.47.1", features = ["sync", "rt", "rt-multi-thread", "time"]}
 pyo3 = { version = "0.26.0", features = [
     "indexmap",
     "extension-module",
     "multiple-pymethods",
     "generate-import-lib",
 ] }
-pyo3-async-runtimes = { version = "0.26.0", features = [
-    "tokio-runtime",
-    "unstable-streams",
-] }
-pin-project-lite = "0.2.16"
+futures = "0.3"
 futures-util = { version = "0.3.31", default-features = false }
+pin-project-lite = "0.2.16"
 serde = { version = "1.0.219", features = ["derive"] }
 indexmap = { version = "2.10.0", features = ["serde"] }
 bytes = "1.10.1"
@@ -73,4 +70,3 @@ lto = "fat"
 opt-level = 3
 panic = "abort"
 strip = true
-overflow-checks = false
