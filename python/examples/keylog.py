@@ -1,13 +1,13 @@
 import asyncio
 from rnet import Client
-from rnet.tls import KeyLogPolicy
+from rnet.tls import KeyLog
 from rnet.emulation import Emulation
 
 
 async def main():
     client = Client(
         emulation=Emulation.Firefox139,
-        keylog=KeyLogPolicy.file("keylog.log"),
+        keylog=KeyLog.file("keylog.log"),
     )
 
     resp = await client.get("https://www.google.com")

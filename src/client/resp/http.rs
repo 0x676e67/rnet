@@ -6,7 +6,7 @@ use futures_util::TryFutureExt;
 use http::{Extensions, response::Response as HttpResponse};
 use http_body_util::BodyExt;
 use pyo3::{IntoPyObjectExt, prelude::*, pybacked::PyBackedStr};
-use wreq::{self, ResponseBuilderExt, Uri, tls::TlsInfo};
+use wreq::{self, Extension, Uri, redirect, tls::TlsInfo};
 
 use super::Streamer;
 use crate::{
@@ -86,30 +86,20 @@ impl Response {
         }
     }
 
-    fn ext_response(&self) -> wreq::Response {
-        let mut response = HttpResponse::builder()
-            .uri(self.uri.clone())
-            .body(wreq::Body::default())
-            .map(wreq::Response::from)
-            .expect("build response from parts should not fail");
-        *response.extensions_mut() = self.extensions.clone();
-        response
-    }
-
     fn reuse_response(&self, py: Python, stream: bool) -> PyResult<wreq::Response> {
         py.detach(|| {
-            let build_response = |body: wreq::Body| -> PyResult<wreq::Response> {
-                HttpResponse::builder()
-                    .uri(self.uri.clone())
-                    .body(body)
-                    .map(wreq::Response::from)
-                    .map_err(Error::Builder)
-                    .map_err(Into::into)
+            let build_response = |body: wreq::Body| -> wreq::Response {
+                let mut response = HttpResponse::new(body);
+                *response.version_mut() = self.version.into_ffi();
+                *response.status_mut() = self.status.0;
+                *response.headers_mut() = self.headers.0.clone();
+                *response.extensions_mut() = self.extensions.clone();
+                wreq::Response::from(response)
             };
 
             if let Some(arc) = self.body.swap(None) {
                 return match Arc::try_unwrap(arc) {
-                    Ok(Body::Streamable(body)) if stream => build_response(body),
+                    Ok(Body::Streamable(body)) if stream => Ok(build_response(body)),
                     Ok(Body::Streamable(body)) if !stream => {
                         let bytes = Runtime::block_on(BodyExt::collect(body))
                             .map(|buf| buf.to_bytes())
@@ -117,12 +107,12 @@ impl Response {
 
                         self.body
                             .store(Some(Arc::new(Body::Reusable(bytes.clone()))));
-                        build_response(wreq::Body::from(bytes))
+                        Ok(build_response(wreq::Body::from(bytes)))
                     }
                     Ok(Body::Reusable(bytes)) if !stream => {
                         self.body
                             .store(Some(Arc::new(Body::Reusable(bytes.clone()))));
-                        build_response(wreq::Body::from(bytes))
+                        Ok(build_response(wreq::Body::from(bytes)))
                     }
                     _ => Err(Error::Memory.into()),
                 };
@@ -151,11 +141,11 @@ impl Response {
     #[getter]
     pub fn history(&self, py: Python) -> Vec<History> {
         py.detach(|| {
-            self.ext_response()
-                .history()
-                .cloned()
-                .map(History::from)
-                .collect()
+            self.extensions
+                .get::<Extension<Vec<redirect::History>>>()
+                .map_or_else(Vec::new, |Extension(history)| {
+                    history.iter().cloned().map(History::from).collect()
+                })
         })
     }
 
@@ -164,11 +154,21 @@ impl Response {
     pub fn peer_certificate(&self, py: Python) -> Option<PyBuffer> {
         py.detach(|| {
             self.extensions
-                .get::<TlsInfo>()?
+                .get::<Extension<TlsInfo>>()?
+                .0
                 .peer_certificate()
                 .map(ToOwned::to_owned)
                 .map(PyBuffer::from)
         })
+    }
+
+    /// Turn a response into an error if the server returned an error.
+    pub fn raise_for_status(&self, py: Python) -> PyResult<()> {
+        self.reuse_response(py, false)?
+            .error_for_status()
+            .map(|_| ())
+            .map_err(Error::Library)
+            .map_err(Into::into)
     }
 
     /// Get the response into a `Stream` of `Bytes` from the body.
@@ -313,6 +313,11 @@ impl BlockingResponse {
     #[getter]
     pub fn peer_certificate(&self, py: Python) -> Option<PyBuffer> {
         self.0.peer_certificate(py)
+    }
+
+    /// Turn a response into an error if the server returned an error.
+    pub fn raise_for_status(&self, py: Python) -> PyResult<()> {
+        self.0.raise_for_status(py)
     }
 
     /// Get the response into a `Stream` of `Bytes` from the body.

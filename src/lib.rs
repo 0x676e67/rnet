@@ -32,7 +32,7 @@ use self::{
     },
     proxy::Proxy,
     rt::Runtime,
-    tls::{CertStore, Identity, KeyLogPolicy, TlsVersion},
+    tls::{CertStore, Identity, KeyLog, TlsVersion},
 };
 
 #[cfg(all(feature = "jemalloc", not(feature = "mimalloc"),))]
@@ -190,7 +190,7 @@ fn tls_module(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<TlsVersion>()?;
     m.add_class::<Identity>()?;
     m.add_class::<CertStore>()?;
-    m.add_class::<KeyLogPolicy>()?;
+    m.add_class::<KeyLog>()?;
     Ok(())
 }
 

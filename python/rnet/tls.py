@@ -10,7 +10,7 @@ from enum import Enum, auto
 from pathlib import Path
 from typing import List
 
-__all__ = ["TlsVersion", "Identity", "CertStore", "KeyLogPolicy"]
+__all__ = ["TlsVersion", "Identity", "CertStore", "KeyLog"]
 
 
 class TlsVersion(Enum):
@@ -111,7 +111,7 @@ class CertStore:
         ...
 
 
-class KeyLogPolicy:
+class KeyLog:
     """
     Specifies the intent for a (TLS) keylogger to be used in a client or server configuration.
 
@@ -121,9 +121,9 @@ class KeyLogPolicy:
     with the correct session keys.
 
     Static Methods:
-        environment() -> KeyLogPolicy
+        environment() -> KeyLog
             Use the SSLKEYLOGFILE environment variable for key logging.
-        file(path: Path) -> KeyLogPolicy
+        file(path: Path) -> KeyLog
             Log keys to the specified file path.
 
     Methods:
@@ -134,30 +134,18 @@ class KeyLogPolicy:
     """
 
     @staticmethod
-    def environment() -> "KeyLogPolicy":
+    def environment() -> "KeyLog":
         """
         Use the SSLKEYLOGFILE environment variable for key logging.
         """
         ...
 
     @staticmethod
-    def file(path: Path) -> "KeyLogPolicy":
+    def file(path: Path) -> "KeyLog":
         """
         Log keys to the specified file path.
 
         Args:
             path: The file path to log TLS keys to.
-        """
-        ...
-
-    def is_environment(self) -> bool:
-        """
-        Returns True if this policy uses the environment variable.
-        """
-        ...
-
-    def is_file(self) -> bool:
-        """
-        Returns True if this policy logs to a specific file.
         """
         ...

@@ -27,7 +27,7 @@ use crate::{
     extractor::Extractor,
     http::{Method, cookie::Jar},
     rt::Runtime,
-    tls::{Identity, KeyLogPolicy, TlsVerify, TlsVersion},
+    tls::{Identity, KeyLog, TlsVerify, TlsVersion},
 };
 
 /// A IP socket address.
@@ -124,7 +124,7 @@ pub struct Builder {
     /// Represents a private key and X509 cert as a client certificate.
     identity: Option<Identity>,
     /// Key logging policy for TLS session keys.
-    keylog: Option<KeyLogPolicy>,
+    keylog: Option<KeyLog>,
     /// Add TLS information as `TlsInfo` extension to responses.
     tls_info: Option<bool>,
     /// The minimum TLS version to use for the client.

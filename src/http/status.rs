@@ -5,7 +5,7 @@ use pyo3::prelude::*;
 /// HTTP status code.
 #[derive(Clone, Copy, PartialEq, Eq, Hash)]
 #[pyclass(eq, str, frozen)]
-pub struct StatusCode(wreq::StatusCode);
+pub struct StatusCode(pub wreq::StatusCode);
 
 #[pymethods]
 impl StatusCode {

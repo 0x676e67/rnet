@@ -19,7 +19,7 @@ from enum import Enum, auto
 from .cookie import Cookie, Jar
 from .header import HeaderMap, OrigHeaderMap
 from .emulation import Emulation, EmulationOption
-from .tls import TlsVersion, Identity, KeyLogPolicy, CertStore
+from .tls import TlsVersion, Identity, KeyLog, CertStore
 
 class Method(Enum):
     r"""
@@ -465,6 +465,16 @@ class Response:
     Get the DER encoded leaf certificate of the response.
     """
 
+    def raise_for_status(self) -> None:
+        r"""
+        Turn a response into an error if the server returned an error.
+        """
+
+    def stream(self) -> Streamer:
+        r"""
+        Get the response into a `Streamer` of `bytes` from the body.
+        """
+
     async def text(self) -> str:
         r"""
         Get the text content of the response.
@@ -483,11 +493,6 @@ class Response:
     async def bytes(self) -> bytes:
         r"""
         Get the bytes content of the response.
-        """
-
-    def stream(self) -> Streamer:
-        r"""
-        Get the response into a `Stream` of `Bytes` from the body.
         """
 
     async def close(self) -> None:
@@ -662,7 +667,7 @@ class ClientParams(TypedDict):
     identity: NotRequired[Identity]
     """Represents a private key and X509 cert as a client certificate."""
 
-    keylog: NotRequired[KeyLogPolicy]
+    keylog: NotRequired[KeyLog]
     """Key logging policy (environment or file)."""
 
     tls_info: NotRequired[bool]
