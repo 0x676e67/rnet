@@ -28,7 +28,7 @@ where
 {
     #[inline(always)]
     pub fn future<'py>(py: Python<'py>, future: Fut) -> PyResult<Bound<'py, PyAny>> {
-        pyo3_async_runtimes::tokio::future_into_py(py, NoGIL::Future { inner: future })
+        crate::rt::tokio::future_into_py(py, NoGIL::Future { inner: future })
     }
 }
 
@@ -39,7 +39,7 @@ where
 {
     #[inline(always)]
     pub fn closure<'py>(py: Python<'py>, closure: F) -> PyResult<Bound<'py, PyAny>> {
-        pyo3_async_runtimes::tokio::future_into_py(
+        crate::rt::tokio::future_into_py(
             py,
             NoGIL::Closure {
                 inner: Some(closure),

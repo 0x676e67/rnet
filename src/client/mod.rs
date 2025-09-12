@@ -8,7 +8,6 @@ mod nogil;
 use std::{fmt, net::IpAddr, sync::Arc, time::Duration};
 
 use pyo3::{IntoPyObjectExt, prelude::*, pybacked::PyBackedStr};
-use pyo3_async_runtimes::{tokio, tokio::future_into_py};
 use req::{Request, WebSocketRequest};
 use wreq::{
     Proxy,
@@ -27,6 +26,7 @@ use crate::{
     error::Error,
     extractor::Extractor,
     http::{Method, cookie::Jar},
+    rt::{tokio, tokio::future_into_py},
     tls::{Identity, KeyLogPolicy, TlsVerify, TlsVersion},
 };
 

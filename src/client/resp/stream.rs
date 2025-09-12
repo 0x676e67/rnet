@@ -18,7 +18,7 @@ impl Streamer {
     #[inline]
     pub fn new(stream: impl Stream<Item = wreq::Result<Bytes>> + Send + 'static) -> Streamer {
         let (tx, rx) = mpsc::channel(8);
-        pyo3_async_runtimes::tokio::get_runtime().spawn(async move {
+        crate::rt::tokio::get_runtime().spawn(async move {
             futures_util::pin_mut!(stream);
             while let Some(item) = stream.next().await {
                 if tx.send(item).await.is_err() {

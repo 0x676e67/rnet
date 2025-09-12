@@ -6,7 +6,6 @@ use futures_util::TryFutureExt;
 use http::{Extensions, response::Response as HttpResponse};
 use http_body_util::BodyExt;
 use pyo3::{IntoPyObjectExt, prelude::*, pybacked::PyBackedStr};
-use pyo3_async_runtimes::tokio;
 use wreq::{self, ResponseBuilderExt, Uri, tls::TlsInfo};
 
 use super::Streamer;
@@ -15,6 +14,7 @@ use crate::{
     client::{SocketAddr, body::Json, nogil::NoGIL, resp::history::History},
     error::Error,
     http::{Version, cookie::Cookie, header::HeaderMap, status::StatusCode},
+    rt::tokio,
 };
 
 /// A response from a request.

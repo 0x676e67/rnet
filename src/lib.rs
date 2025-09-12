@@ -7,10 +7,11 @@ mod error;
 mod extractor;
 mod http;
 mod proxy;
+mod rt;
 mod tls;
 
 use pyo3::{prelude::*, pybacked::PyBackedStr, types::PyDict, wrap_pymodule};
-use pyo3_async_runtimes::tokio::future_into_py;
+use rt::tokio::future_into_py;
 
 use self::{
     client::{

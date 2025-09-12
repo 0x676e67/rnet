@@ -51,7 +51,7 @@ impl FromPyObject<'_> for Body {
         }
 
         if ob.hasattr("asend")? {
-            pyo3_async_runtimes::tokio::into_stream_v2(ob.to_owned())
+            crate::rt::tokio::into_stream_v2(ob.to_owned())
                 .map(AsyncStream::new)
                 .map(Self::AsyncStream)
         } else {

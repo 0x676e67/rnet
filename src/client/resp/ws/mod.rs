@@ -5,7 +5,7 @@ use std::time::Duration;
 
 use msg::Message;
 use pyo3::{IntoPyObjectExt, prelude::*, pybacked::PyBackedStr};
-use pyo3_async_runtimes::tokio::future_into_py;
+use rt::tokio::future_into_py;
 use tokio::sync::mpsc;
 use wreq::{
     header::HeaderValue,
@@ -16,6 +16,7 @@ use crate::{
     client::SocketAddr,
     error::Error,
     http::{Version, cookie::Cookie, header::HeaderMap, status::StatusCode},
+    rt,
 };
 
 /// A WebSocket response.
@@ -207,28 +208,19 @@ impl BlockingWebSocket {
     /// Receive a message from the WebSocket.
     #[pyo3(signature = (timeout=None))]
     pub fn recv(&self, py: Python, timeout: Option<Duration>) -> PyResult<Option<Message>> {
-        py.detach(|| {
-            pyo3_async_runtimes::tokio::get_runtime()
-                .block_on(cmd::recv(self.0.cmd.clone(), timeout))
-        })
+        py.detach(|| rt::tokio::get_runtime().block_on(cmd::recv(self.0.cmd.clone(), timeout)))
     }
 
     /// Send a message to the WebSocket.
     #[pyo3(signature = (message))]
     pub fn send(&self, py: Python, message: Message) -> PyResult<()> {
-        py.detach(|| {
-            pyo3_async_runtimes::tokio::get_runtime()
-                .block_on(cmd::send(self.0.cmd.clone(), message))
-        })
+        py.detach(|| rt::tokio::get_runtime().block_on(cmd::send(self.0.cmd.clone(), message)))
     }
 
     /// Send multiple messages to the WebSocket.
     #[pyo3(signature = (messages))]
     pub fn send_all(&self, py: Python, messages: Vec<Message>) -> PyResult<()> {
-        py.detach(|| {
-            pyo3_async_runtimes::tokio::get_runtime()
-                .block_on(cmd::send_all(self.0.cmd.clone(), messages))
-        })
+        py.detach(|| rt::tokio::get_runtime().block_on(cmd::send_all(self.0.cmd.clone(), messages)))
     }
 
     /// Close the WebSocket connection.
@@ -240,11 +232,7 @@ impl BlockingWebSocket {
         reason: Option<PyBackedStr>,
     ) -> PyResult<()> {
         py.detach(|| {
-            pyo3_async_runtimes::tokio::get_runtime().block_on(cmd::close(
-                self.0.cmd.clone(),
-                code,
-                reason,
-            ))
+            rt::tokio::get_runtime().block_on(cmd::close(self.0.cmd.clone(), code, reason))
         })
     }
 }
