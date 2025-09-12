@@ -13,6 +13,12 @@ use task::{TaskLocals, cancelled, create_future};
 use tokio::runtime::{Builder, Runtime as TokioRuntime};
 use util::{dump_err, set_result};
 
+/// Task-local storage for Python context (`TaskLocals`), used to propagate
+/// Python async context (such as the current event loop and contextvars)
+/// across Rust async boundaries. This is set when a Rust future is spawned
+/// from Python, ensuring that Python context is preserved for the duration
+/// of the task. It is initialized at the start of each task and should not
+/// be accessed outside of an async task context.
 tokio::task_local! {
     static TASK_LOCALS: OnceCell<TaskLocals>;
 }
