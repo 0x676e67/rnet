@@ -1,6 +1,6 @@
 [package]
 name = "rnet"
-version = "3.0.0-rc5"
+version = "3.0.0-rc6"
 description = "A blazing-fast Python HTTP client with TLS fingerprint"
 license = "Apache-2.0"
 repository = "https://github.com/0x676e67/rnet"

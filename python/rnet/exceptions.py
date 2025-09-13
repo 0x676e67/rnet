@@ -27,6 +27,7 @@ __all__ = [
 # Network and System-Level Errors
 # ========================================
 
+
 class RustPanic(Exception):
     r"""
     A panic occurred in the underlying Rust code.

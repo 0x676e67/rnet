@@ -16,13 +16,12 @@ A blazing-fast Python HTTP client with advanced browser fingerprinting that accu
 - Plain bodies, JSON, urlencoded, multipart
 - Cookie Store
 - Redirect Policy
-- Original Header
+- Original Headers
 - Rotating Proxies
+- WebSocket Upgrade
 - Connection Pooling
 - Streaming Transfers
 - Zero-Copy Transfers
-- WebSocket Upgrade
-- Async DNS Resolver
 - HTTPS via BoringSSL
 - Free-Threaded Safety
 - Automatic Decompression
@@ -32,14 +31,14 @@ A blazing-fast Python HTTP client with advanced browser fingerprinting that accu
 The following example uses the `asyncio` runtime with `rnet` installed via pip:
 
 ```bash
-pip install asyncio rnet==3.0.0rc5
+pip install asyncio rnet==3.0.0rc6
 ```
 
 And then the code:
 
 ```python
 import asyncio
-from rnet import Emulation, Client
+from rnet import Client, Emulation
 
 
 async def main():
