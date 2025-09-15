@@ -14,8 +14,8 @@ use wreq::{
     header::{self, HeaderMap, OrigHeaderMap},
     redirect::Policy,
     tls::CertStore,
+    Emulation,
 };
-use wreq_util::EmulationOption;
 
 use self::{
     dns::HickoryDnsResolver,
@@ -58,7 +58,7 @@ impl fmt::Display for SocketAddr {
 #[derive(Default)]
 pub struct Builder {
     /// The Emulation settings for the client.
-    emulation: Option<Extractor<EmulationOption>>,
+    emulation: Option<Extractor<Emulation>>,
     /// The user agent to use for the client.
     user_agent: Option<PyBackedStr>,
     /// The headers to use for the client.

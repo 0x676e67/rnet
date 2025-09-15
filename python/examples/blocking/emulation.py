@@ -1,9 +1,9 @@
 from rnet.blocking import Client
-from rnet.emulation import Emulation
+from rnet.browser import Browser
 
 
 def main():
-    client = Client(emulation=Emulation.Firefox135)
+    client = Client(emulation=Browser.Firefox135)
     with client.get("https://tls.peet.ws/api/all") as resp:
         print("Status Code: ", resp.status)
         print("Version: ", resp.version)

@@ -1,11 +1,11 @@
 from rnet import Proxy
 from rnet.blocking import Client
-from rnet.emulation import Emulation
+from rnet.browser import Browser
 
 
 def main():
     client = Client(
-        emulation=Emulation.Firefox133,
+        emulation=Browser.Firefox133,
         user_agent="rnet",
         proxies=[
             Proxy.http("socks5h://abc:def@127.0.0.1:1080"),

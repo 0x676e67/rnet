@@ -1,11 +1,11 @@
 import asyncio
 from rnet import Client, Proxy
-from rnet.emulation import Emulation
+from rnet.browser import Browser
 
 
 async def main():
     client = Client(
-        emulation=Emulation.Firefox133,
+        emulation=Browser.Firefox133,
         user_agent="rnet",
         proxies=[
             Proxy.http("socks5h://abc:def@127.0.0.1:6152"),

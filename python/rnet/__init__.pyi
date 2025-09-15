@@ -18,8 +18,10 @@ from enum import Enum, auto
 
 from .cookie import Cookie, Jar
 from .header import HeaderMap, OrigHeaderMap
-from .emulation import Emulation, EmulationOption
+from .emulation import Emulation
+from .browser import Browser, BrowserOption
 from .tls import TlsVersion, Identity, KeyLog, CertStore
+
 
 class Method(Enum):
     r"""
@@ -35,6 +37,7 @@ class Method(Enum):
     TRACE = auto()
     PATCH = auto()
 
+
 class Version(Enum):
     r"""
     An HTTP version.
@@ -45,6 +48,7 @@ class Version(Enum):
     HTTP_11 = auto()
     HTTP_2 = auto()
     HTTP_3 = auto()
+
 
 class StatusCode:
     r"""
@@ -88,6 +92,7 @@ class StatusCode:
         """
         ...
 
+
 class SocketAddr:
     r"""
     A IP socket address.
@@ -104,6 +109,7 @@ class SocketAddr:
         Returns the port number of the socket address.
         """
 
+
 class Multipart:
     r"""
     A multipart form for a request.
@@ -114,6 +120,7 @@ class Multipart:
         Creates a new multipart form.
         """
         ...
+
 
 class Part:
     r"""
@@ -148,6 +155,7 @@ class Part:
         """
         ...
 
+
 class ProxyParams(TypedDict):
     username: NotRequired[str]
     r"""Username for proxy authentication."""
@@ -163,6 +171,7 @@ class ProxyParams(TypedDict):
 
     exclusion: NotRequired[str]
     r"""List of domains to exclude from proxying."""
+
 
 class Proxy:
     r"""
@@ -217,6 +226,7 @@ class Proxy:
         proxy = rnet.Proxy.all("https://proxy.example.com")
         ```
         """
+
 
 class Message:
     r"""
@@ -330,6 +340,7 @@ class Message:
 
     def __str__(self) -> str: ...
 
+
 class History:
     """
     An entry in the redirect history.
@@ -348,6 +359,7 @@ class History:
     """Get the headers of the redirect response."""
 
     def __str__(self) -> str: ...
+
 
 class Streamer:
     r"""
@@ -386,6 +398,7 @@ class Streamer:
     def __next__(self) -> bytes: ...
     def __enter__(self) -> "Streamer": ...
     def __exit__(self, _exc_type: Any, _exc_value: Any, _traceback: Any) -> None: ...
+
 
 class Response:
     r"""
@@ -505,6 +518,7 @@ class Response:
         self, _exc_type: Any, _exc_value: Any, _traceback: Any
     ) -> Any: ...
 
+
 class WebSocket:
     r"""
     A WebSocket response.
@@ -582,8 +596,9 @@ class WebSocket:
     def __aenter__(self) -> Any: ...
     def __aexit__(self, _exc_type: Any, _exc_value: Any, _traceback: Any) -> Any: ...
 
+
 class ClientParams(TypedDict):
-    emulation: NotRequired[Union[Emulation, EmulationOption]]
+    emulation: NotRequired[Union[Emulation, Browser, BrowserOption]]
     """Browser fingerprint/Emulation config."""
 
     user_agent: NotRequired[str]
@@ -703,8 +718,9 @@ class ClientParams(TypedDict):
     zstd: NotRequired[bool]
     """Enable zstd decompression."""
 
+
 class Request(TypedDict):
-    emulation: NotRequired[Union[Emulation, EmulationOption]]
+    emulation: NotRequired[Union[Emulation, Browser, BrowserOption]]
     """The Emulation settings for the request."""
 
     proxy: NotRequired[Proxy]
@@ -786,8 +802,9 @@ class Request(TypedDict):
     multipart: NotRequired[Multipart]
     """The multipart form to use for the request."""
 
+
 class WebSocketRequest(TypedDict):
-    emulation: NotRequired[Union[Emulation, EmulationOption]]
+    emulation: NotRequired[Union[Emulation, Browser, BrowserOption]]
     """The Emulation settings for the request."""
 
     proxy: NotRequired[Proxy]
@@ -1164,6 +1181,7 @@ class Client:
         ```
         """
 
+
 async def delete(
     url: str,
     **kwargs: Unpack[Request],
@@ -1185,6 +1203,7 @@ async def delete(
     asyncio.run(run())
     ```
     """
+
 
 async def get(
     url: str,
@@ -1208,6 +1227,7 @@ async def get(
     ```
     """
 
+
 async def head(
     url: str,
     **kwargs: Unpack[Request],
@@ -1229,6 +1249,7 @@ async def head(
     ```
     """
 
+
 async def options(
     url: str,
     **kwargs: Unpack[Request],
@@ -1249,6 +1270,7 @@ async def options(
     asyncio.run(run())
     ```
     """
+
 
 async def patch(
     url: str,
@@ -1272,6 +1294,7 @@ async def patch(
     ```
     """
 
+
 async def post(
     url: str,
     **kwargs: Unpack[Request],
@@ -1294,6 +1317,7 @@ async def post(
     ```
     """
 
+
 async def put(
     url: str,
     **kwargs: Unpack[Request],
@@ -1315,6 +1339,7 @@ async def put(
     asyncio.run(run())
     ```
     """
+
 
 async def request(
     method: Method,
@@ -1346,6 +1371,7 @@ async def request(
     ```
     """
 
+
 async def trace(
     url: str,
     **kwargs: Unpack[Request],
@@ -1366,6 +1392,7 @@ async def trace(
     asyncio.run(run())
     ```
     """
+
 
 async def websocket(
     url: str,

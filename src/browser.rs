@@ -3,7 +3,7 @@ use pyo3::prelude::*;
 define_enum!(
     /// An emulation.
     const,
-    Emulation,
+    Browser,
     wreq_util::Emulation,
     Chrome100,
     Chrome101,
@@ -85,7 +85,7 @@ define_enum!(
 define_enum!(
     /// An emulation operating system.
     const,
-    EmulationOS,
+    BrowserOS,
     wreq_util::EmulationOS,
     Windows,
     MacOS,
@@ -97,10 +97,10 @@ define_enum!(
 /// A struct to represent the `EmulationOption` class.
 #[derive(Clone)]
 #[pyclass(subclass)]
-pub struct EmulationOption(pub wreq_util::EmulationOption);
+pub struct BrowserOption(pub wreq_util::EmulationOption);
 
 #[pymethods]
-impl EmulationOption {
+impl BrowserOption {
     /// Create a new Emulation option instance.
     #[new]
     #[pyo3(signature = (
@@ -110,8 +110,8 @@ impl EmulationOption {
         skip_headers = None
     ))]
     fn new(
-        emulation: Emulation,
-        emulation_os: Option<EmulationOS>,
+        emulation: Browser,
+        emulation_os: Option<BrowserOS>,
         skip_http2: Option<bool>,
         skip_headers: Option<bool>,
     ) -> Self {

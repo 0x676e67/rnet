@@ -6,11 +6,15 @@ use pyo3::{
     types::{PyDict, PyList},
 };
 use serde::ser::{Serialize, SerializeSeq, Serializer};
-use wreq::header::{self, HeaderName, HeaderValue};
+use wreq::{
+    header::{self, HeaderName, HeaderValue},
+    EmulationFactory,
+};
 
 use crate::{
     client::body::multipart::Multipart,
-    emulation::{Emulation, EmulationOption},
+    browser::{Browser, BrowserOption},
+    emulation::{Emulation, StreamId, StreamDependency, Priority, PseudoId, SettingId},
     error::Error,
     http::{
         Version,
@@ -126,19 +130,22 @@ impl FromPyObject<'_> for Extractor<wreq::header::OrigHeaderMap> {
     }
 }
 
-/// Extractor for emulation options as [`wreq_util::EmulationOption`].
-impl FromPyObject<'_> for Extractor<wreq_util::EmulationOption> {
+/// Extractor for emulation options as [`wreq::Emulation`].
+impl FromPyObject<'_> for Extractor<wreq::Emulation> {
     fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
-        if let Ok(impersonate) = ob.downcast::<Emulation>() {
-            let emulation = wreq_util::EmulationOption::builder()
-                .emulation(impersonate.borrow().into_ffi())
-                .build();
-
+        if let Ok(emulation) = ob.downcast::<Emulation>() {
+            let emulation = emulation.borrow().0.clone();
             return Ok(Self(emulation));
         }
 
-        let option = ob.downcast::<EmulationOption>()?.borrow();
-        Ok(Self(option.0.clone()))
+        if let Ok(browser) = ob.downcast::<Browser>() {
+            let browser = browser.borrow().into_ffi();
+            return Ok(Self(browser.emulation()));
+        }
+
+        let option = ob.downcast::<BrowserOption>()?;
+        let option = option.borrow().0.clone();
+        Ok(Self(option.emulation()))
     }
 }
 
@@ -184,5 +191,94 @@ impl FromPyObject<'_> for Extractor<wreq::multipart::Form> {
 impl FromPyObject<'_> for Extractor<std::net::IpAddr> {
     fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
         ob.extract().map(Self)
+    }
+}
+
+/// Extractor for a stream ID as [`wreq::http2::StreamId`].
+impl FromPyObject<'_> for Extractor<wreq::http2::StreamId> {
+    fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
+        if let Ok(id) = ob.downcast::<StreamId>() {
+            let id = id.borrow().0.clone();
+            return Ok(Self(id));
+        }
+
+        let id = ob.extract::<u32>()?;
+        Ok(Self(id.into()))
+    }
+}
+
+/// Extractor for a stream dependency as [`wreq::http2::StreamDependency`].
+impl FromPyObject<'_> for Extractor<wreq::http2::StreamDependency> {
+    fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
+        let stream_dependency = ob.downcast::<StreamDependency>()?;
+        let stream_dependency = stream_dependency.borrow().0.clone();
+        Ok(Self(stream_dependency))
+    }
+}
+
+/// Extractor for pseudo headers order as [`wreq::http2::PseudoOrder`].
+impl FromPyObject<'_> for Extractor<wreq::http2::PseudoOrder> {
+    fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
+        let list = ob.downcast::<PyList>()?;
+        let builder = list
+            .into_iter()
+            .try_fold(
+                wreq::http2::PseudoOrder::builder(),
+                |builder, id| {
+                    let id = id.downcast::<PseudoId>()?;
+                    Ok::<_, PyErr>(builder.push(id.borrow().into_ffi()))
+                }
+            )?;
+        Ok(Self(builder.build()))
+    }
+}
+
+/// Extractor for experimental settings as [`wreq::http2::ExperimentalSettings`].
+impl FromPyObject<'_> for Extractor<wreq::http2::ExperimentalSettings> {
+    fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
+        let dict = ob.downcast::<PyDict>()?;
+        let builder = dict
+            .iter()
+            .try_fold(
+                wreq::http2::ExperimentalSettings::builder(),
+                |builder, (id, value)| {
+                    let id = id.downcast::<SettingId>()?;
+                    let value = value.extract::<u32>()?;
+                    let setting = wreq::http2::Setting::from_id(id.borrow().into_ffi(), value);
+                    Ok::<_, PyErr>(builder.push(setting))
+                }
+            )?;
+        Ok(Self(builder.build()))
+    }
+}
+
+/// Extractor for settings order as [`wreq::http2::SettingsOrder`].
+impl FromPyObject<'_> for Extractor<wreq::http2::SettingsOrder> {
+    fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
+        let list = ob.downcast::<PyList>()?;
+        let builder = list
+            .into_iter()
+            .try_fold(
+                wreq::http2::SettingsOrder::builder(),
+                |builder, id| {
+                    let id = id.downcast::<SettingId>()?;
+                    Ok::<_, PyErr>(builder.push(id.borrow().into_ffi()))
+                }
+            )?;
+        Ok(Self(builder.build()))
+    }
+}
+
+/// Extractor for priorities as [`wreq::http2::Priorities`].
+impl FromPyObject<'_> for Extractor<wreq::http2::Priorities> {
+    fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
+        let list = ob.downcast::<PyList>()?;
+        let builder = list
+            .into_iter()
+            .try_fold(wreq::http2::Priorities::builder(), |builder, priority| {
+                let priority = priority.downcast::<Priority>()?;
+                Ok::<_, PyErr>(builder.push(priority.borrow().0.clone()))
+            })?;
+        Ok(Self(builder.build()))
     }
 }

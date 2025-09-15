@@ -2,6 +2,7 @@
 mod macros;
 mod buffer;
 mod client;
+mod browser;
 mod emulation;
 mod error;
 mod extractor;
@@ -22,7 +23,11 @@ use self::{
             BlockingResponse, BlockingWebSocket, History, Message, Response, Streamer, WebSocket,
         },
     },
-    emulation::{Emulation, EmulationOS, EmulationOption},
+    emulation::{
+        Emulation, TlsOptions, Http1Options, Http2Options,
+        StreamId, StreamDependency, Priority, PseudoId, SettingId,
+    },
+    browser::{Browser, BrowserOS, BrowserOption},
     error::*,
     http::{
         Method, Version,
@@ -32,7 +37,7 @@ use self::{
     },
     proxy::Proxy,
     rt::Runtime,
-    tls::{CertStore, Identity, KeyLog, TlsVersion},
+    tls::{CertStore, Identity, KeyLog, TlsVersion, AlpnProtocol, AlpsProtocol, CertificateCompressionAlgorithm, ExtensionType},
 };
 
 #[cfg(all(feature = "jemalloc", not(feature = "mimalloc"),))]
@@ -171,6 +176,7 @@ fn rnet(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_wrapped(wrap_pymodule!(header_module))?;
     m.add_wrapped(wrap_pymodule!(cookie_module))?;
     m.add_wrapped(wrap_pymodule!(emulation_module))?;
+    m.add_wrapped(wrap_pymodule!(browser_module))?;
     m.add_wrapped(wrap_pymodule!(blocking_module))?;
     m.add_wrapped(wrap_pymodule!(exceptions_module))?;
 
@@ -180,6 +186,7 @@ fn rnet(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     sys_modules.set_item("rnet.header", m.getattr("header")?)?;
     sys_modules.set_item("rnet.cookie", m.getattr("cookie")?)?;
     sys_modules.set_item("rnet.emulation", m.getattr("emulation")?)?;
+    sys_modules.set_item("rnet.browser", m.getattr("browser")?)?;
     sys_modules.set_item("rnet.blocking", m.getattr("blocking")?)?;
     sys_modules.set_item("rnet.exceptions", m.getattr("exceptions")?)?;
     Ok(())
@@ -191,6 +198,10 @@ fn tls_module(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<Identity>()?;
     m.add_class::<CertStore>()?;
     m.add_class::<KeyLog>()?;
+    m.add_class::<AlpnProtocol>()?;
+    m.add_class::<AlpsProtocol>()?;
+    m.add_class::<CertificateCompressionAlgorithm>()?;
+    m.add_class::<ExtensionType>()?;
     Ok(())
 }
 
@@ -212,8 +223,22 @@ fn cookie_module(m: &Bound<'_, PyModule>) -> PyResult<()> {
 #[pymodule(gil_used = false, name = "emulation")]
 fn emulation_module(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<Emulation>()?;
-    m.add_class::<EmulationOS>()?;
-    m.add_class::<EmulationOption>()?;
+    m.add_class::<TlsOptions>()?;
+    m.add_class::<Http1Options>()?;
+    m.add_class::<Http2Options>()?;
+    m.add_class::<StreamId>()?;
+    m.add_class::<StreamDependency>()?;
+    m.add_class::<Priority>()?;
+    m.add_class::<PseudoId>()?;
+    m.add_class::<SettingId>()?;
+    Ok(())
+}
+
+#[pymodule(gil_used = false, name = "browser")]
+fn browser_module(m: &Bound<'_, PyModule>) -> PyResult<()> {
+    m.add_class::<Browser>()?;
+    m.add_class::<BrowserOS>()?;
+    m.add_class::<BrowserOption>()?;
     Ok(())
 }
 

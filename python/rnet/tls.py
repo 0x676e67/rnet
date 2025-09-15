@@ -10,7 +10,16 @@ from enum import Enum, auto
 from pathlib import Path
 from typing import List
 
-__all__ = ["TlsVersion", "Identity", "CertStore", "KeyLog"]
+__all__ = [
+    "TlsVersion",
+    "Identity",
+    "CertStore",
+    "KeyLog",
+    "AlpnProtocol",
+    "AlpsProtocol",
+    "CertificateCompressionAlgorithm",
+    "ExtensionType"
+]
 
 
 class TlsVersion(Enum):
@@ -22,6 +31,144 @@ class TlsVersion(Enum):
     TLS_1_1 = auto()
     TLS_1_2 = auto()
     TLS_1_3 = auto()
+
+
+class AlpnProtocol(Enum):
+    """
+    Application-Layer Protocol Negotiation (ALPN) protocol identifiers.
+
+    ALPN allows the client and server to negotiate which application protocol
+    to use over a secure connection during the TLS handshake.
+    """
+
+    HTTP1 = auto()  # HTTP/1.1
+    HTTP2 = auto()  # HTTP/2
+    HTTP3 = auto()  # HTTP/3
+
+
+class AlpsProtocol(Enum):
+    """
+    Application-Layer Protocol Settings (ALPS) protocol identifiers.
+
+    ALPS allows exchanging application-layer settings during the TLS handshake
+    for protocols negotiated via ALPN.
+    """
+
+    HTTP1 = auto()  # HTTP/1.1
+    HTTP2 = auto()  # HTTP/2
+    HTTP3 = auto()  # HTTP/3
+
+
+class CertificateCompressionAlgorithm(Enum):
+    """
+    Certificate compression algorithms for TLS certificate compression (RFC 8879).
+
+    These algorithms can be used to compress X.509 certificates during the TLS handshake
+    to reduce bandwidth usage.
+    """
+
+    ZLIB = auto()    # ZLIB compression
+    BROTLI = auto()  # Brotli compression
+    ZSTD = auto()    # Zstandard compression
+
+
+class ExtensionType(Enum):
+    """
+    TLS extension type identifiers.
+
+    These represent the various TLS extensions that can be included in ClientHello
+    and ServerHello messages to negotiate additional features and capabilities.
+    """
+
+    SERVER_NAME = auto()
+    """Server Name Indication (SNI) extension"""
+
+    STATUS_REQUEST = auto()
+    """Certificate Status Request extension (OCSP stapling)"""
+
+    EC_POINT_FORMATS = auto()
+    """Elliptic Curve Point Formats extension"""
+
+    SIGNATURE_ALGORITHMS = auto()
+    """Signature Algorithms extension"""
+
+    SRTP = auto()
+    """Secure Real-time Transport Protocol extension"""
+
+    APPLICATION_LAYER_PROTOCOL_NEGOTIATION = auto()
+    """Application-Layer Protocol Negotiation (ALPN) extension"""
+
+    PADDING = auto()
+    """Padding extension"""
+
+    EXTENDED_MASTER_SECRET = auto()
+    """Extended Master Secret extension"""
+
+    QUIC_TRANSPORT_PARAMETERS_LEGACY = auto()
+    """QUIC Transport Parameters (legacy) extension"""
+
+    QUIC_TRANSPORT_PARAMETERS_STANDARD = auto()
+    """QUIC Transport Parameters (standard) extension"""
+
+    CERT_COMPRESSION = auto()
+    """Certificate Compression extension"""
+
+    SESSION_TICKET = auto()
+    """Session Ticket extension"""
+
+    SUPPORTED_GROUPS = auto()
+    """Supported Groups extension (formerly Supported Elliptic Curves)"""
+
+    PRE_SHARED_KEY = auto()
+    """Pre-Shared Key extension"""
+
+    EARLY_DATA = auto()
+    """Early Data extension (0-RTT)"""
+
+    SUPPORTED_VERSIONS = auto()
+    """Supported Versions extension"""
+
+    COOKIE = auto()
+    """Cookie extension"""
+
+    PSK_KEY_EXCHANGE_MODES = auto()
+    """PSK Key Exchange Modes extension"""
+
+    CERTIFICATE_AUTHORITIES = auto()
+    """Certificate Authorities extension"""
+
+    SIGNATURE_ALGORITHMS_CERT = auto()
+    """Signature Algorithms for Certificates extension"""
+
+    KEY_SHARE = auto()
+    """Key Share extension"""
+
+    RENEGOTIATE = auto()
+    """Renegotiation Indication extension"""
+
+    DELEGATED_CREDENTIAL = auto()
+    """Delegated Credentials extension"""
+
+    APPLICATION_SETTINGS = auto()
+    """Application-Layer Protocol Settings (ALPS) extension"""
+
+    APPLICATION_SETTINGS_NEW = auto()
+    """Application-Layer Protocol Settings (new codepoint) extension"""
+
+    ENCRYPTED_CLIENT_HELLO = auto()
+    """Encrypted Client Hello extension"""
+
+    CERTIFICATE_TIMESTAMP = auto()
+    """Certificate Transparency SCT extension"""
+
+    NEXT_PROTO_NEG = auto()
+    """Next Protocol Negotiation extension"""
+
+    CHANNEL_ID = auto()
+    """Channel ID extension"""
+
+    RECORD_SIZE_LIMIT = auto()
+    """Record Size Limit extension"""
 
 
 class Identity:

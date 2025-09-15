@@ -4,6 +4,11 @@ macro_rules! apply_option {
             $builder = $builder.$method(value);
         }
     };
+    (set_if_some_inplace, $builder:expr, $option:expr, $method:ident) => {
+        if let Some(value) = $option.take() {
+            $builder.$method(value);
+        }
+    };
     (set_if_some_ref, $builder:expr, $option:expr, $method:ident) => {
         if let Some(value) = $option.take() {
             $builder = $builder.$method(&value);

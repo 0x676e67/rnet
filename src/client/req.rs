@@ -5,8 +5,8 @@ use wreq::{
     Proxy, Version,
     header::{HeaderMap, HeaderValue, OrigHeaderMap},
     multipart::Form,
+    Emulation,
 };
-use wreq_util::EmulationOption;
 
 use crate::{
     client::body::{Body, Json},
@@ -18,7 +18,7 @@ use crate::{
 #[non_exhaustive]
 pub struct Request {
     /// The Emulation settings for the request.
-    pub emulation: Option<Extractor<EmulationOption>>,
+    pub emulation: Option<Extractor<Emulation>>,
 
     /// The proxy to use for the request.
     pub proxy: Option<Extractor<Proxy>>,
@@ -133,7 +133,7 @@ impl<'py> FromPyObject<'py> for Request {
 #[non_exhaustive]
 pub struct WebSocketRequest {
     /// The Emulation settings for the request.
-    pub emulation: Option<Extractor<EmulationOption>>,
+    pub emulation: Option<Extractor<Emulation>>,
 
     /// The proxy to use for the request.
     pub proxy: Option<Extractor<Proxy>>,
