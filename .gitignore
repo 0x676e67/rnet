@@ -77,3 +77,6 @@ uv.lock
 
 # wheel package
 dist
+
+keylog.txt
+*.json
