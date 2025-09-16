@@ -413,41 +413,54 @@ class Emulation:
         Examples:
             Advanced TLS/HTTP2 configuration:
 
-             ```python
-             import rnet
+            ```python
+            import rnet
+            from rnet.emulation import TlsOptions, Http2Options, Emulation
+            from rnet.tls import TlsVersion, AlpnProtocol
 
-             # Configure TLS options
-             tls_opts = rnet.emulation.TlsOptions(
-                 min_tls_version=rnet.TlsVersion.TLS_1_2,
-                 max_tls_version=rnet.TlsVersion.TLS_1_3,
-                 cipher_list="TLS_AES_128_GCM_SHA256:TLS_AES_256_GCM_SHA384:TLS_CHACHA20_POLY1305_SHA256",
-                 alpn_protocols=[rnet.tls.AlpnProtocol.HTTP2, rnet.tls.AlpnProtocol.HTTP1],
-                 session_ticket=True,
-                 enable_ocsp_stapling=True
-             )
+            # Configure TLS options
+            tls_opts = TlsOptions(
+                min_tls_version=TlsVersion.TLS_1_2,
+                max_tls_version=TlsVersion.TLS_1_3,
+                cipher_list=":".join([
+                    "TLS_AES_128_GCM_SHA256",
+                    "TLS_AES_256_GCM_SHA384",
+                    "TLS_CHACHA20_POLY1305_SHA256",
+                    "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256",
+                    "TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384",
+                    "TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256",
+                    "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
+                    "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
+                    "TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256",
+                ]),
+                alpn_protocols=[AlpnProtocol.HTTP2, AlpnProtocol.HTTP1],
+                session_ticket=True,
+                enable_ocsp_stapling=True,
+                grease_enabled=False
+            )
 
-             # Configure HTTP/2 options
-             http2_opts = rnet.emulation.Http2Options(
-                 initial_window_size=6291456,
-                 initial_connection_window_size=15728640,
-                 max_frame_size=16384,
-                 header_table_size=65536,
-                 max_concurrent_streams=1000,
-                 enable_push=False,
-                 adaptive_window=True
-             )
+            # Configure HTTP/2 options
+            http2_opts = Http2Options(
+                initial_window_size=6291456,
+                initial_connection_window_size=15728640,
+                max_frame_size=16384,
+                header_table_size=65536,
+                max_concurrent_streams=1000,
+                enable_push=False,
+                adaptive_window=True
+            )
 
-             # Combine both in emulation
-             emulation = rnet.emulation.Emulation(
-                 tls_options=tls_opts,
-                 http2_options=http2_opts
-             )
+            # Combine both in emulation
+            emulation = Emulation(
+                tls_options=tls_opts,
+                http2_options=http2_opts
+            )
 
-             # Use with client
-             client = rnet.Client(emulation=emulation)
-             response = await client.get("https://example.com")
-             print(f"Status: {response.status}")
-             print(f"HTTP Version: {response.version}")
-             ```
-         """
+            # Use with client
+            client = rnet.Client(emulation=emulation)
+            response = await client.get("https://example.com")
+            print(f"Status: {response.status}")
+            print(f"HTTP Version: {response.version}")
+            ```
+        """
         ...
