@@ -7,7 +7,7 @@ This module provides classes for fine-grained control over HTTP/1, HTTP/2,
 and TLS protocol behavior to emulate specific browser fingerprints.
 """
 
-from typing import List, Dict, TypedDict, Unpack, NotRequired, ClassVar, Self
+from typing import List, Dict, TypedDict, Unpack, NotRequired, ClassVar, Self, Union
 from enum import Enum, auto
 import datetime
 
@@ -61,7 +61,7 @@ class StreamDependency:
 
     def __init__(
         self,
-        dependency_id: StreamId,
+        dependency_id: Union[StreamId, int],
         weight: int,
         is_exclusive: bool
     ) -> None:
@@ -83,7 +83,7 @@ class Priority:
     Combines stream ID and dependency information for priority frames.
     """
 
-    def __init__(self, stream_id: StreamId, dependency: StreamDependency) -> None:
+    def __init__(self, stream_id: Union[StreamId, int], dependency: StreamDependency) -> None:
         """
         Create a new priority specification.
 

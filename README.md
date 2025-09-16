@@ -125,7 +125,7 @@ maturin build --release
 
 2. Musllinux
 
-Make sure you have Docker installed. The provided image may be outdated, so you might need to build it yourself. See [rust-cross-musl](https://github.com/0x676e67/toolchain/blob/master/rust-musl-cross/Dockerfile) and the upstream [rust-cross/rust-musl-cross](https://github.com/rust-cross/rust-musl-cross) for reference.  
+Make sure you have Docker installed. The provided image may be outdated, so you might need to build it yourself. See [rust-cross-musl](https://github.com/0x676e67/toolchain/blob/master/rust-musl-cross/Dockerfile) and the upstream [rust-cross/rust-musl-cross](https://github.com/rust-cross/rust-musl-cross) for reference.
 **Note:** The upstream image does not include some platform-specific linker environment variables; you may need to add these manually.
 
 ```bash
