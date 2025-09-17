@@ -3,13 +3,14 @@ mod http2;
 mod tls;
 
 use pyo3::prelude::*;
+use wreq::header::{HeaderMap, OrigHeaderMap};
 
 pub use self::{
     http1::Http1Options,
     http2::{Http2Options, StreamId, StreamDependency, Priority, PseudoId, SettingId},
     tls::TlsOptions,
 };
-use crate::http::header::{HeaderMap, OrigHeaderMap};
+use crate::extractor::Extractor;
 
 #[derive(Default)]
 pub struct Builder {
@@ -23,10 +24,10 @@ pub struct Builder {
     pub tls_options: Option<TlsOptions>,
 
     /// the default headers.
-    pub headers: Option<HeaderMap>,
+    pub headers: Option<Extractor<HeaderMap>>,
 
     /// the original headers.
-    pub orig_headers: Option<OrigHeaderMap>,
+    pub orig_headers: Option<Extractor<OrigHeaderMap>>,
 }
 
 impl<'py> FromPyObject<'py> for Builder {

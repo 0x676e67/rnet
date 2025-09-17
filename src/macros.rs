@@ -60,6 +60,10 @@ macro_rules! define_enum {
         define_enum!($(#[$meta])* const, $enum_type, $ffi_type, $( ($variant, $variant) ),*);
     };
 
+    ($(#[$meta:meta])* [$value_type:ty], $enum_type:ident, $ffi_type:ty, $($variant:ident),* $(,)?) => {
+        define_enum!($(#[$meta])* [$value_type], $enum_type, $ffi_type, $( ($variant, $variant) ),*);
+    };
+
     ($(#[$meta:meta])* $enum_type:ident, $ffi_type:ty, $(($rust_variant:ident, $ffi_variant:ident)),* $(,)?) => {
         $(#[$meta])*
         #[pyclass(eq, eq_int, frozen)]
@@ -110,6 +114,37 @@ macro_rules! define_enum {
                     $(<$ffi_type>::$ffi_variant => <$enum_type>::$rust_variant,)*
                     _ => unreachable!(),
                 }
+            }
+        }
+    };
+
+    ($(#[$meta:meta])* [$value_type:ty], $enum_type:ident, $ffi_type:ty, $(($rust_variant:ident, $ffi_variant:ident)),* $(,)?) => {
+        $(#[$meta])*
+        #[derive(Clone, Copy, PartialEq, Eq, Hash)]
+        #[pyclass(frozen, eq, hash)]
+        pub struct $enum_type($ffi_type);
+
+        #[pymethods]
+        #[allow(non_upper_case_globals)]
+        impl $enum_type {
+            $(
+                #[classattr]
+                const $rust_variant: Self = Self(<$ffi_type>::$ffi_variant);
+            )*
+
+            #[new]
+            fn new(value: $value_type) -> Self {
+                Self(value.into())
+            }
+        }
+
+        impl $enum_type {
+            pub const fn into_ffi(self) -> $ffi_type {
+                self.0
+            }
+
+            pub const fn from_ffi(ffi: $ffi_type) -> Self {
+                Self(ffi)
             }
         }
     };

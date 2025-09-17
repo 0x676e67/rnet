@@ -14,7 +14,7 @@ use wreq::{
 use crate::{
     client::body::multipart::Multipart,
     browser::{Browser, BrowserOption},
-    emulation::{Emulation, StreamId, StreamDependency, Priority, PseudoId, SettingId},
+    emulation::{Emulation, StreamId, Priority, PseudoId, SettingId},
     error::Error,
     http::{
         Version,
@@ -198,21 +198,12 @@ impl FromPyObject<'_> for Extractor<std::net::IpAddr> {
 impl FromPyObject<'_> for Extractor<wreq::http2::StreamId> {
     fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
         if let Ok(id) = ob.downcast::<StreamId>() {
-            let id = id.borrow().0.clone();
+            let id = id.borrow().into_ffi();
             return Ok(Self(id));
         }
 
         let id = ob.extract::<u32>()?;
         Ok(Self(id.into()))
-    }
-}
-
-/// Extractor for a stream dependency as [`wreq::http2::StreamDependency`].
-impl FromPyObject<'_> for Extractor<wreq::http2::StreamDependency> {
-    fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
-        let stream_dependency = ob.downcast::<StreamDependency>()?;
-        let stream_dependency = stream_dependency.borrow().0.clone();
-        Ok(Self(stream_dependency))
     }
 }
 
@@ -233,6 +224,19 @@ impl FromPyObject<'_> for Extractor<wreq::http2::PseudoOrder> {
     }
 }
 
+/// Extractor for setting ID as [`wreq::http2::SettingId`].
+impl FromPyObject<'_> for Extractor<wreq::http2::SettingId> {
+    fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
+        if let Ok(id) = ob.downcast::<SettingId>() {
+            let id = id.borrow().into_ffi();
+            return Ok(Self(id));
+        }
+
+        let id = ob.extract::<u16>()?;
+        Ok(Self(id.into()))
+    }
+}
+
 /// Extractor for experimental settings as [`wreq::http2::ExperimentalSettings`].
 impl FromPyObject<'_> for Extractor<wreq::http2::ExperimentalSettings> {
     fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
@@ -242,9 +246,9 @@ impl FromPyObject<'_> for Extractor<wreq::http2::ExperimentalSettings> {
             .try_fold(
                 wreq::http2::ExperimentalSettings::builder(),
                 |builder, (id, value)| {
-                    let id = id.downcast::<SettingId>()?;
+                    let id = id.extract::<Extractor<wreq::http2::SettingId>>()?;
                     let value = value.extract::<u32>()?;
-                    let setting = wreq::http2::Setting::from_id(id.borrow().into_ffi(), value);
+                    let setting = wreq::http2::Setting::from_id(id.0, value);
                     Ok::<_, PyErr>(builder.push(setting))
                 }
             )?;
@@ -261,8 +265,8 @@ impl FromPyObject<'_> for Extractor<wreq::http2::SettingsOrder> {
             .try_fold(
                 wreq::http2::SettingsOrder::builder(),
                 |builder, id| {
-                    let id = id.downcast::<SettingId>()?;
-                    Ok::<_, PyErr>(builder.push(id.borrow().into_ffi()))
+                    let id = id.extract::<Extractor<wreq::http2::SettingId>>()?;
+                    Ok::<_, PyErr>(builder.push(id.0))
                 }
             )?;
         Ok(Self(builder.build()))

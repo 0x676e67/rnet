@@ -3,7 +3,6 @@ from rnet import Client, Response
 from rnet.browser import Browser, BrowserOS, BrowserOption
 from rnet.emulation import TlsOptions, Http2Options, Emulation, PseudoId
 from rnet.tls import TlsVersion, AlpnProtocol
-from rnet.header import HeaderMap, OrigHeaderMap
 
 
 async def print_response_info(resp: Response):
@@ -121,23 +120,23 @@ async def request_with_emulation():
     )
 
     # Default headers
-    headers = HeaderMap({
+    headers = {
         "User-Agent": "TwitterAndroid/10.89.0-release.0 (310890000-r-0) G011A/9 (google;G011A;google;G011A;0;;1;2016)",
         "Accept-Language": "en-US",
         "Accept-Encoding": "br, gzip, deflate",
         "Accept": "application/json",
         "Cache-Control": "no-store",
         "Cookie": "ct0=YOUR_CT0_VALUE;"
-    })
+    }
 
     # The headers keep the original case and order
-    orig_headers = OrigHeaderMap([
+    orig_headers = [
         "cookie",
         "content-length",
         "USER-AGENT",
         "ACCEPT-LANGUAGE",
         "ACCEPT-ENCODING"
-    ])
+    ]
 
     # This provider encapsulates TLS, HTTP/1, HTTP/2, default headers, and original headers
     emulation = Emulation(

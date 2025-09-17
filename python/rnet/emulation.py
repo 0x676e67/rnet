@@ -109,21 +109,30 @@ class PseudoId(Enum):
     Status = auto()      # :status
 
 
-class SettingId(Enum):
+class SettingId:
     """
     HTTP/2 settings frame parameter identifiers.
 
     These control various aspects of HTTP/2 connection behavior.
     """
 
-    HeaderTableSize = auto()         # SETTINGS_HEADER_TABLE_SIZE
-    EnablePush = auto()              # SETTINGS_ENABLE_PUSH
-    MaxConcurrentStreams = auto()    # SETTINGS_MAX_CONCURRENT_STREAMS
-    InitialWindowSize = auto()       # SETTINGS_INITIAL_WINDOW_SIZE
-    MaxFrameSize = auto()            # SETTINGS_MAX_FRAME_SIZE
-    MaxHeaderListSize = auto()       # SETTINGS_MAX_HEADER_LIST_SIZE
-    EnableConnectProtocol = auto()   # SETTINGS_ENABLE_CONNECT_PROTOCOL
-    NoRfc7540Priorities = auto()     # SETTINGS_NO_RFC7540_PRIORITIES
+    HeaderTableSize: ClassVar[Self]         # SETTINGS_HEADER_TABLE_SIZE
+    EnablePush: ClassVar[Self]              # SETTINGS_ENABLE_PUSH
+    MaxConcurrentStreams: ClassVar[Self]    # SETTINGS_MAX_CONCURRENT_STREAMS
+    InitialWindowSize: ClassVar[Self]       # SETTINGS_INITIAL_WINDOW_SIZE
+    MaxFrameSize: ClassVar[Self]            # SETTINGS_MAX_FRAME_SIZE
+    MaxHeaderListSize: ClassVar[Self]       # SETTINGS_MAX_HEADER_LIST_SIZE
+    EnableConnectProtocol: ClassVar[Self]   # SETTINGS_ENABLE_CONNECT_PROTOCOL
+    NoRfc7540Priorities: ClassVar[Self]     # SETTINGS_NO_RFC7540_PRIORITIES
+
+    def __init__(self, value: int) -> None:
+        """
+        Create a new setting ID.
+
+        Args:
+            value: The setting ID value.
+        """
+        ...
 
 
 class Http1OptionsParams(TypedDict):
@@ -242,10 +251,10 @@ class Http2OptionsParams(TypedDict):
     headers_pseudo_order: NotRequired[List[PseudoId]]
     """Order of pseudo-header fields in HEADERS."""
 
-    experimental_settings: NotRequired[Dict[SettingId, int]]
+    experimental_settings: NotRequired[Dict[Union[SettingId, int], int]]
     """Custom experimental HTTP/2 settings."""
 
-    settings_order: NotRequired[List[SettingId]]
+    settings_order: NotRequired[List[Union[SettingId, int]]]
     """Order of settings parameters in SETTINGS frame."""
 
     priorities: NotRequired[List[Priority]]
@@ -388,10 +397,10 @@ class EmulationParams(TypedDict):
     tls_options: NotRequired[TlsOptions]
     """TLS protocol configuration."""
 
-    headers: NotRequired[HeaderMap]
+    headers: NotRequired[Union[Dict[str, str], HeaderMap]]
     """Default headers to include."""
 
-    orig_headers: NotRequired[OrigHeaderMap]
+    orig_headers: NotRequired[Union[List[str], OrigHeaderMap]]
     """Original headers (case-sensitive and ordered)."""
 
 

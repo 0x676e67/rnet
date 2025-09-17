@@ -4,23 +4,14 @@ use pyo3::prelude::*;
 
 use crate::extractor::Extractor;
 
-#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[pyclass(frozen, eq, hash)]
-pub struct StreamId(pub wreq::http2::StreamId);
-
-#[pymethods]
-impl StreamId {
-    #[classattr]
-    const ZERO: Self = Self(wreq::http2::StreamId::ZERO);
-
-    #[classattr]
-    const MAX: Self = Self(wreq::http2::StreamId::MAX);
-    
-    #[new]
-    fn new(src: u32) -> Self {
-        Self(wreq::http2::StreamId::from(src))
-    }
-}
+define_enum!(
+    /// The HTTP/2 stream ID.
+    [u32],
+    StreamId,
+    wreq::http2::StreamId,
+    ZERO,
+    MAX,
+);
 
 #[derive(Clone, Copy, Hash, Eq, PartialEq)]
 #[pyclass(frozen, eq, hash)]
@@ -51,7 +42,7 @@ impl Priority {
     #[new]
     fn new(
         stream_id: Extractor<wreq::http2::StreamId>,
-        dependency: Extractor<wreq::http2::StreamDependency>,
+        dependency: StreamDependency,
     ) -> Self {
         Self(wreq::http2::Priority::new(
             stream_id.0,
@@ -75,7 +66,7 @@ define_enum!(
 
 define_enum!(
     /// The HTTP/2 experimental settings.
-    const,
+    [u16],
     SettingId,
     wreq::http2::SettingId,
     HeaderTableSize,
@@ -145,7 +136,7 @@ pub struct Builder {
     pub max_pending_accept_reset_streams: Option<usize>,
 
     /// The stream dependency for the outgoing HEADERS frame.
-    pub headers_stream_dependency: Option<Extractor<wreq::http2::StreamDependency>>,
+    pub headers_stream_dependency: Option<StreamDependency>,
 
     /// The HTTP/2 pseudo-header field order for outgoing HEADERS frames.
     pub headers_pseudo_order: Option<Extractor<wreq::http2::PseudoOrder>>,
