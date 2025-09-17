@@ -134,8 +134,8 @@ class BrowserOption:
 
     def __init__(
         self,
-        emulation: Browser,
-        emulation_os: BrowserOS | None = None,
+        browser: Browser,
+        browser_os: BrowserOS | None = None,
         skip_http2: bool | None = None,
         skip_headers: bool | None = None,
     ) -> None:
@@ -143,23 +143,23 @@ class BrowserOption:
         Create a new emulation configuration.
 
         Args:
-            emulation: The browser/client type to emulate
-            emulation_os: The operating system to emulate (optional)
+            browser: The browser/client type to emulate
+            browser_os: The operating system to emulate (optional)
             skip_http2: Whether to disable HTTP/2 emulation (default: False)
             skip_headers: Whether to skip default browser headers (default: False)
 
         Returns:
-            A configured EmulationOption instance
+            A configured BrowserOption instance
 
         Example:
             ```python
             # Basic Chrome emulation
-            option = EmulationOption(Emulation.Chrome137)
+            option = BrowserOption(Browser.Chrome137)
 
             # Chrome on Windows with HTTP/2 disabled
-            option = EmulationOption(
-                emulation=Emulation.Chrome137,
-                emulation_os=EmulationOS.Windows,
+            option = BrowserOption(
+                browser=Browser.Chrome137,
+                browser_os=BrowserOS.Windows,
                 skip_http2=True
             )
             ```
@@ -181,8 +181,8 @@ class BrowserOption:
         Example:
             ```python
             # Use different random emulation for each client
-            client1 = rnet.Client(emulation=EmulationOption.random())
-            client2 = rnet.Client(emulation=EmulationOption.random())
+            client1 = rnet.Client(emulation=BrowserOption.random())
+            client2 = rnet.Client(emulation=BrowserOption.random())
             ```
         """
         ...

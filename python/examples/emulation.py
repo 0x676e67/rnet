@@ -51,8 +51,8 @@ async def request_chrome_android(client: Client):
     resp = await client.get(
         "https://tls.peet.ws/api/all",
         emulation=BrowserOption(
-            emulation=Browser.Chrome134,
-            emulation_os=BrowserOS.Android,
+            browser=Browser.Chrome134,
+            browser_os=BrowserOS.Android,
         ),
         # Disable client default headers
         default_headers=False,

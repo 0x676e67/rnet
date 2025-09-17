@@ -104,20 +104,20 @@ impl BrowserOption {
     /// Create a new Emulation option instance.
     #[new]
     #[pyo3(signature = (
-        emulation,
-        emulation_os = None,
+        browser,
+        browser_os = None,
         skip_http2 = None,
         skip_headers = None
     ))]
     fn new(
-        emulation: Browser,
-        emulation_os: Option<BrowserOS>,
+        browser: Browser,
+        browser_os: Option<BrowserOS>,
         skip_http2: Option<bool>,
         skip_headers: Option<bool>,
     ) -> Self {
         let emulation = wreq_util::EmulationOption::builder()
-            .emulation(emulation.into_ffi())
-            .emulation_os(emulation_os.map(|os| os.into_ffi()).unwrap_or_default())
+            .emulation(browser.into_ffi())
+            .emulation_os(browser_os.map(|os| os.into_ffi()).unwrap_or_default())
             .skip_http2(skip_http2.unwrap_or(false))
             .skip_headers(skip_headers.unwrap_or(false))
             .build();
