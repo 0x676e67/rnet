@@ -715,6 +715,11 @@ class ClientParams(TypedDict):
     Verify SSL or specify CA path.
     """
 
+    verify_hostname: NotRequired[bool]
+    """
+    Configures the use of hostname verification when connecting.
+    """
+
     identity: NotRequired[Identity]
     """
     Represents a private key and X509 cert as a client certificate.
