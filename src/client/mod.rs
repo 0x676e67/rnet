@@ -127,6 +127,8 @@ pub struct Builder {
     // ========= TLS options =========
     /// Whether to verify the SSL certificate or root certificate file path.
     verify: Option<TlsVerify>,
+    /// Whether to verify the hostname in the SSL certificate.
+    verify_hostname: Option<bool>,
     /// Represents a private key and X509 cert as a client certificate.
     identity: Option<Identity>,
     /// Key logging policy for TLS session keys.
@@ -203,6 +205,7 @@ impl<'py> FromPyObject<'py> for Builder {
         extract_option!(ob, params, http2_options);
 
         extract_option!(ob, params, verify);
+        extract_option!(ob, params, verify_hostname);
         extract_option!(ob, params, identity);
         extract_option!(ob, params, keylog);
         extract_option!(ob, params, tls_info);
@@ -529,6 +532,12 @@ impl Client {
                     TlsVerify::CertificateStore(cert_store) => builder.cert_store(cert_store.0),
                 }
             }
+            apply_option!(
+                set_if_some,
+                builder,
+                params.verify_hostname,
+                verify_hostname
+            );
             apply_option!(set_if_some_inner, builder, params.identity, identity);
             apply_option!(set_if_some_inner, builder, params.keylog, keylog);
             apply_option!(set_if_some_inner, builder, params.tls_options, tls_options);
