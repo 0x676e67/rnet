@@ -92,7 +92,7 @@ impl Message {
     #[getter]
     pub fn close(&self) -> Option<(u16, Option<&str>)> {
         if let message::Message::Close(Some(s)) = &self.0 {
-            Some((s.code.0, Some(s.reason.as_str())))
+            Some((u16::from(s.code.clone()), Some(s.reason.as_str())))
         } else {
             None
         }
@@ -166,7 +166,7 @@ impl Message {
             .and_then(|b| Utf8Bytes::try_from(b).ok())
             .unwrap_or_else(|| Utf8Bytes::from_static("Goodbye"));
         let msg = message::Message::close(CloseFrame {
-            code: CloseCode(code),
+            code: CloseCode::from(code),
             reason,
         });
         Self(msg)

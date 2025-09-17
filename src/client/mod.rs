@@ -26,8 +26,10 @@ use crate::{
     error::Error,
     extractor::Extractor,
     http::{Method, cookie::Jar},
+    http1::Http1Options,
+    http2::Http2Options,
     rt::Runtime,
-    tls::{Identity, KeyLog, TlsVerify, TlsVersion},
+    tls::{Identity, KeyLog, TlsOptions, TlsVerify, TlsVersion},
 };
 
 /// A IP socket address.
@@ -117,6 +119,10 @@ pub struct Builder {
     http2_only: Option<bool>,
     /// Whether to use HTTPS only.
     https_only: Option<bool>,
+    /// Sets the HTTP/1 options for the client.
+    http1_options: Option<Http1Options>,
+    /// sets the HTTP/2 options for the client.
+    http2_options: Option<Http2Options>,
 
     // ========= TLS options =========
     /// Whether to verify the SSL certificate or root certificate file path.
@@ -131,6 +137,8 @@ pub struct Builder {
     min_tls_version: Option<TlsVersion>,
     /// The maximum TLS version to use for the client.
     max_tls_version: Option<TlsVersion>,
+    /// Sets the TLS options for the client.
+    tls_options: Option<TlsOptions>,
 
     // ========= Network options =========
     /// Whether to disable the proxy for the client.
@@ -191,6 +199,8 @@ impl<'py> FromPyObject<'py> for Builder {
         extract_option!(ob, params, https_only);
         extract_option!(ob, params, http1_only);
         extract_option!(ob, params, http2_only);
+        extract_option!(ob, params, http1_options);
+        extract_option!(ob, params, http2_options);
 
         extract_option!(ob, params, verify);
         extract_option!(ob, params, identity);
@@ -198,6 +208,7 @@ impl<'py> FromPyObject<'py> for Builder {
         extract_option!(ob, params, tls_info);
         extract_option!(ob, params, min_tls_version);
         extract_option!(ob, params, max_tls_version);
+        extract_option!(ob, params, tls_options);
 
         extract_option!(ob, params, gzip);
         extract_option!(ob, params, brotli);
@@ -476,6 +487,18 @@ impl Client {
             apply_option!(set_if_true, builder, params.http1_only, http1_only, false);
             apply_option!(set_if_true, builder, params.http2_only, http2_only, false);
             apply_option!(set_if_some, builder, params.https_only, https_only);
+            apply_option!(
+                set_if_some_inner,
+                builder,
+                params.http1_options,
+                http1_options
+            );
+            apply_option!(
+                set_if_some_inner,
+                builder,
+                params.http2_options,
+                http2_options
+            );
 
             // TLS options.
             apply_option!(
@@ -508,6 +531,7 @@ impl Client {
             }
             apply_option!(set_if_some_inner, builder, params.identity, identity);
             apply_option!(set_if_some_inner, builder, params.keylog, keylog);
+            apply_option!(set_if_some_inner, builder, params.tls_options, tls_options);
 
             // Network options.
             if let Some(proxies) = params.proxies.take() {

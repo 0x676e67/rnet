@@ -61,7 +61,7 @@ impl WebSocket {
             HeaderMap(response.headers().clone()),
         );
         let websocket = response.into_websocket().await?;
-        let protocol = websocket.protocol();
+        let protocol = websocket.protocol().cloned();
         let (cmd, rx) = mpsc::unbounded_channel();
         tokio::spawn(cmd::task(websocket, rx));
 
