@@ -20,13 +20,12 @@ define_enum!(
 );
 
 define_enum!(
-    /// This setting allows the sender to inform the remote endpoint
-    /// of the maximum size of the compression table used to decode field blocks,
-    /// in units of octets. The encoder can select any size equal to or less than
-    /// this value by using signaling specific to the compression format inside
-    /// a field block (see [COMPRESSION]). The initial value is 4,096 octets.
+    /// An enum that lists all valid settings that can be sent in a SETTINGS
+    /// frame.
     ///
-    /// [COMPRESSION]: <https://datatracker.ietf.org/doc/html/rfc7541>
+    /// Each setting has a value that is a 32 bit unsigned integer (6.5.1.).
+    ///
+    /// See <https://datatracker.ietf.org/doc/html/rfc9113#name-defined-settings>.
     const,
     SettingId,
     wreq::http2::SettingId,
