@@ -1,12 +1,12 @@
 import asyncio
 from rnet import Client
 from rnet.tls import KeyLog
-from rnet.emulation import Emulation
+from rnet.browser import Browser
 
 
 async def main():
     client = Client(
-        emulation=Emulation.Firefox139,
+        emulation=Browser.Firefox139,
         keylog=KeyLog.file("keylog.log"),
     )
 

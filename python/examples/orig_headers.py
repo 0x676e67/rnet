@@ -1,12 +1,12 @@
 import asyncio
 import rnet
-from rnet.emulation import Emulation
+from rnet.browser import Browser
 
 
 async def main():
     ws = await rnet.websocket(
         "wss://gateway.discord.gg/",
-        emulation=Emulation.Chrome137,
+        emulation=Browser.Chrome137,
         headers={"Origin": "https://discord.com"},
         # Preserve HTTP/1 case and header order
         orig_headers=[

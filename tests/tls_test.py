@@ -1,6 +1,6 @@
 import pytest
 import rnet
-from rnet.emulation import Emulation
+from rnet.browser import Browser
 from rnet.tls import CertStore
 
 
@@ -39,7 +39,7 @@ async def test_badssl_invalid_cert():
 @pytest.mark.flaky(reruns=3, reruns_delay=2)
 async def test_alps_new_endpoint():
     url = "https://google.com"
-    client = rnet.Client(emulation=Emulation.Chrome133)
+    client = rnet.Client(emulation=Browser.Chrome133)
     resp = await client.get(url)
     async with resp:
         text = await resp.text()
