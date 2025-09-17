@@ -94,7 +94,7 @@ pub async fn task(ws: WebSocket, mut cmd: UnboundedReceiver<Command>) {
             }
             Command::Close(code, reason, tx) => {
                 let code = code
-                    .map(ws::message::CloseCode)
+                    .map(ws::message::CloseCode::from)
                     .unwrap_or(ws::message::CloseCode::NORMAL);
                 let reason = reason
                     .map(Bytes::from_owner)

@@ -16,10 +16,12 @@ from typing import (
 from pathlib import Path
 from enum import Enum, auto
 
+from .http1 import Http1Options
+from .http2 import Http2Options
 from .cookie import Cookie, Jar
 from .header import HeaderMap, OrigHeaderMap
 from .emulation import Emulation, EmulationOption
-from .tls import TlsVersion, Identity, KeyLog, CertStore
+from .tls import TlsOptions, TlsVersion, Identity, KeyLog, CertStore
 
 class Method(Enum):
     r"""
@@ -109,7 +111,7 @@ class Multipart:
     A multipart form for a request.
     """
 
-    def __init__(self, *parts) -> None:
+    def __init__(self, *parts: Part) -> None:
         r"""
         Creates a new multipart form.
         """
@@ -550,19 +552,11 @@ class WebSocket:
     async def send(self, message: Message) -> None:
         r"""
         Send a message to the WebSocket.
-
-        # Arguments
-
-        * `message` - The message to send.
         """
 
     async def send_all(self, messages: List[Message]) -> None:
         r"""
         Send multiple messages to the WebSocket.
-
-        # Arguments
-
-        * `messages` - The list of messages to send.
         """
 
     async def close(
@@ -572,11 +566,6 @@ class WebSocket:
     ) -> None:
         r"""
         Close the WebSocket connection.
-
-        # Arguments
-
-        * `code` - An optional close code.
-        * `reason` - An optional reason for closing.
         """
 
     def __aenter__(self) -> Any: ...
@@ -584,194 +573,333 @@ class WebSocket:
 
 class ClientParams(TypedDict):
     emulation: NotRequired[Union[Emulation, EmulationOption]]
-    """Browser fingerprint/Emulation config."""
+    """Emulation config."""
 
     user_agent: NotRequired[str]
-    """Default User-Agent string."""
+    """
+    Default User-Agent string.
+    """
 
     headers: NotRequired[Union[Dict[str, str], HeaderMap]]
-    """Default request headers."""
+    """
+    Default request headers.
+    """
 
     orig_headers: NotRequired[Union[List[str], OrigHeaderMap]]
-    """Original request headers (case-sensitive and order)."""
+    """
+    Original request headers (case-sensitive and order).
+    """
 
     referer: NotRequired[bool]
-    """Automatically set Referer."""
+    """
+    Automatically set Referer.
+    """
 
     history: NotRequired[bool]
-    """Store redirect history."""
+    """
+    Store redirect history.
+    """
 
     allow_redirects: NotRequired[bool]
-    """Allow automatic redirects."""
+    """
+    Allow automatic redirects.
+    """
 
     max_redirects: NotRequired[int]
-    """Maximum number of redirects."""
+    """
+    Maximum number of redirects.
+    """
 
     cookie_store: NotRequired[bool]
-    """Enable cookie store."""
+    """
+    Enable cookie store.
+    """
 
     cookie_provider: NotRequired[Jar]
-    """Custom cookie provider."""
+    """
+    Custom cookie provider.
+    """
 
     lookup_ip_strategy: NotRequired[str]
-    """IP lookup strategy."""
+    """
+    IP lookup strategy.
+    """
 
     timeout: NotRequired[int]
-    """Total timeout (seconds)."""
+    """
+    Total timeout (seconds).
+    """
 
     connect_timeout: NotRequired[int]
-    """Connection timeout (seconds)."""
+    """
+    Connection timeout (seconds).
+    """
 
     read_timeout: NotRequired[int]
-    """Read timeout (seconds)."""
+    """
+    Read timeout (seconds).
+    """
 
     tcp_keepalive: NotRequired[int]
-    """TCP keepalive time (seconds)."""
+    """
+    TCP keepalive time (seconds).
+    """
 
     tcp_keepalive_interval: NotRequired[int]
-    """TCP keepalive interval (seconds)."""
+    """
+    TCP keepalive interval (seconds).
+    """
 
     tcp_keepalive_retries: NotRequired[int]
-    """TCP keepalive retry count."""
+    """
+    TCP keepalive retry count.
+    """
 
     tcp_user_timeout: NotRequired[int]
-    """TCP user timeout (seconds)."""
+    """
+    TCP user timeout (seconds).
+    """
 
     tcp_nodelay: NotRequired[bool]
-    """Enable TCP_NODELAY."""
+    """
+    Enable TCP_NODELAY.
+    """
 
     tcp_reuse_address: NotRequired[bool]
-    """Enable SO_REUSEADDR."""
+    """
+    Enable SO_REUSEADDR.
+    """
 
     pool_idle_timeout: NotRequired[int]
-    """Connection pool idle timeout (seconds)."""
+    """
+    Connection pool idle timeout (seconds).
+    """
 
     pool_max_idle_per_host: NotRequired[int]
-    """Max idle connections per host."""
+    """
+    Max idle connections per host.
+    """
 
     pool_max_size: NotRequired[int]
-    """Max total connections in pool."""
+    """
+    Max total connections in pool.
+    """
 
     http1_only: NotRequired[bool]
-    """Enable HTTP/1.1 only."""
+    """
+    Enable HTTP/1.1 only.
+    """
 
     http2_only: NotRequired[bool]
-    """Enable HTTP/2 only."""
+    """
+    Enable HTTP/2 only.
+    """
 
     https_only: NotRequired[bool]
-    """Enable HTTPS only."""
+    """
+    Enable HTTPS only.
+    """
+
+    http1_options: NotRequired[Http1Options]
+    """
+    Sets the HTTP/1 options.
+    """
+
+    http2_options: NotRequired[Http2Options]
+    """
+    Sets the HTTP/2 options.
+    """
 
     verify: NotRequired[Union[bool, Path, CertStore]]
-    """Verify SSL or specify CA path."""
+    """
+    Verify SSL or specify CA path.
+    """
 
     identity: NotRequired[Identity]
-    """Represents a private key and X509 cert as a client certificate."""
+    """
+    Represents a private key and X509 cert as a client certificate.
+    """
 
     keylog: NotRequired[KeyLog]
-    """Key logging policy (environment or file)."""
+    """
+    Key logging policy (environment or file).
+    """
 
     tls_info: NotRequired[bool]
-    """Return TLS info."""
+    """
+    Return TLS info.
+    """
 
     min_tls_version: NotRequired[TlsVersion]
-    """Minimum TLS version."""
+    """
+    Minimum TLS version.
+    """
 
     max_tls_version: NotRequired[TlsVersion]
-    """Maximum TLS version."""
+    """
+    Maximum TLS version.
+    """
+
+    tls_options: NotRequired[TlsOptions]
+    """
+    Sets the TLS options.
+    """
 
     no_proxy: NotRequired[bool]
-    """Disable proxy."""
+    """
+    Disable proxy.
+    """
 
     proxies: NotRequired[List[Proxy]]
-    """Proxy server list."""
+    """
+    Proxy server list.
+    """
 
     local_address: NotRequired[Union[str, ipaddress.IPv4Address, ipaddress.IPv6Address]]
-    """Local bind address."""
+    """
+    Local bind address.
+    """
 
     interface: NotRequired[str]
-    """Local network interface."""
+    """
+    Local network interface.
+    """
 
     gzip: NotRequired[bool]
-    """Enable gzip decompression."""
+    """
+    Enable gzip decompression.
+    """
 
     brotli: NotRequired[bool]
-    """Enable brotli decompression."""
+    """
+    Enable brotli decompression.
+    """
 
     deflate: NotRequired[bool]
-    """Enable deflate decompression."""
+    """
+    Enable deflate decompression.
+    """
 
     zstd: NotRequired[bool]
-    """Enable zstd decompression."""
+    """
+    Enable zstd decompression.
+    """
 
 class Request(TypedDict):
     emulation: NotRequired[Union[Emulation, EmulationOption]]
-    """The Emulation settings for the request."""
+    """
+    The Emulation settings for the request.
+    """
 
     proxy: NotRequired[Proxy]
-    """The proxy to use for the request."""
+    """
+    The proxy to use for the request.
+    """
 
     local_address: NotRequired[Union[ipaddress.IPv4Address, ipaddress.IPv6Address]]
-    """Bind to a local IP Address."""
+    """
+    Bind to a local IP Address.
+    """
 
     interface: NotRequired[str]
-    """Bind to an interface by SO_BINDTODEVICE."""
+    """
+    Bind to an interface by SO_BINDTODEVICE.
+    """
 
     timeout: NotRequired[int]
-    """The timeout to use for the request."""
+    """
+    The timeout to use for the request.
+    """
 
     read_timeout: NotRequired[int]
-    """The read timeout to use for the request."""
+    """
+    The read timeout to use for the request.
+    """
 
     version: NotRequired[Version]
-    """The HTTP version to use for the request."""
+    """
+    The HTTP version to use for the request.
+    """
 
     headers: NotRequired[Union[Dict[str, str], HeaderMap]]
-    """The headers to use for the request."""
+    """
+    The headers to use for the request.
+    """
 
     orig_headers: NotRequired[Union[List[str], OrigHeaderMap]]
-    """The original headers to use for the request."""
+    """
+    The original headers to use for the request.
+    """
 
     default_headers: NotRequired[bool]
-    """The option enables default headers."""
+    """
+    The option enables default headers.
+    """
 
     cookies: NotRequired[Dict[str, str]]
-    """The cookies to use for the request."""
+    """
+    The cookies to use for the request.
+    """
 
     allow_redirects: NotRequired[bool]
-    """Whether to allow redirects."""
+    """
+    Whether to allow redirects.
+    """
 
     max_redirects: NotRequired[int]
-    """The maximum number of redirects to follow."""
+    """
+    The maximum number of redirects to follow.
+    """
 
     gzip: NotRequired[bool]
-    """Sets gzip as an accepted encoding."""
+    """
+    Sets gzip as an accepted encoding.
+    """
 
     brotli: NotRequired[bool]
-    """Sets brotli as an accepted encoding."""
+    """
+    Sets brotli as an accepted encoding.
+    """
 
     deflate: NotRequired[bool]
-    """Sets deflate as an accepted encoding."""
+    """
+    Sets deflate as an accepted encoding.
+    """
 
     zstd: NotRequired[bool]
-    """Sets zstd as an accepted encoding."""
+    """
+    Sets zstd as an accepted encoding.
+    """
 
     auth: NotRequired[str]
-    """The authentication to use for the request."""
+    """
+    The authentication to use for the request.
+    """
 
     bearer_auth: NotRequired[str]
-    """The bearer authentication to use for the request."""
+    """
+    The bearer authentication to use for the request.
+    """
 
     basic_auth: NotRequired[Tuple[str, Optional[str]]]
-    """The basic authentication to use for the request."""
+    """
+    The basic authentication to use for the request.
+    """
 
     query: NotRequired[List[Tuple[str, str]]]
-    """The query parameters to use for the request."""
+    """
+    The query parameters to use for the request.
+    """
 
     form: NotRequired[List[Tuple[str, str]]]
-    """The form parameters to use for the request."""
+    """
+    The form parameters to use for the request.
+    """
 
     json: NotRequired[Dict[str, Any]]
-    """The JSON body to use for the request."""
+    """
+    The JSON body to use for the request.
+    """
 
     body: NotRequired[
         Union[
@@ -781,53 +909,85 @@ class Request(TypedDict):
             AsyncGenerator[bytes, str],
         ]
     ]
-    """The body to use for the request."""
+    """
+    The body to use for the request.
+    """
 
     multipart: NotRequired[Multipart]
-    """The multipart form to use for the request."""
+    """
+    The multipart form to use for the request.
+    """
 
 class WebSocketRequest(TypedDict):
     emulation: NotRequired[Union[Emulation, EmulationOption]]
-    """The Emulation settings for the request."""
+    """
+    The Emulation settings for the request.
+    """
 
     proxy: NotRequired[Proxy]
-    """The proxy to use for the request."""
+    """
+    The proxy to use for the request.
+    """
 
     local_address: NotRequired[Union[str, ipaddress.IPv4Address, ipaddress.IPv6Address]]
-    """Bind to a local IP Address."""
+    """
+    Bind to a local IP Address.
+    """
 
     interface: NotRequired[str]
-    """Bind to an interface by SO_BINDTODEVICE."""
+    """
+    Bind to an interface by SO_BINDTODEVICE.
+    """
 
     headers: NotRequired[Union[Dict[str, str], HeaderMap]]
-    """The headers to use for the request."""
+    """
+    The headers to use for the request.
+    """
 
     orig_headers: NotRequired[Union[List[str], OrigHeaderMap]]
-    """The original headers to use for the request."""
+    """
+    The original headers to use for the request.
+    """
 
     default_headers: NotRequired[bool]
-    """The option enables default headers."""
+    """
+    The option enables default headers.
+    """
 
     cookies: NotRequired[Dict[str, str]]
-    """The cookies to use for the request."""
+    """
+    The cookies to use for the request.
+    """
 
     protocols: NotRequired[List[str]]
-    """The protocols to use for the request."""
+    """
+    The protocols to use for the request.
+    """
 
     force_http2: NotRequired[bool]
-    """Whether to use HTTP/2 for the websocket."""
+    """
+    Whether to use HTTP/2 for the websocket.
+    """
 
     auth: NotRequired[str]
-    """The authentication to use for the request."""
+    """
+    The authentication to use for the request.
+    """
 
     bearer_auth: NotRequired[str]
-    """The bearer authentication to use for the request."""
+    """
+    The bearer authentication to use for the request.
+    """
 
     basic_auth: NotRequired[Tuple[str, Optional[str]]]
-    """The basic authentication to use for the request."""
+    """
+    The basic authentication to use for the request.
+    """
 
     query: NotRequired[List[Tuple[str, str]]]
-    """The query parameters to use for the request."""
+    """
+    The query parameters to use for the request.
+    """
 
     read_buffer_size: NotRequired[int]
     """

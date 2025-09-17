@@ -1,3 +1,8 @@
+#![deny(unused)]
+#![deny(unsafe_code)]
+#![cfg_attr(test, deny(warnings))]
+#![cfg_attr(not(test), warn(unused_crate_dependencies))]
+
 #[macro_use]
 mod macros;
 mod buffer;
@@ -6,6 +11,8 @@ mod emulation;
 mod error;
 mod extractor;
 mod http;
+mod http1;
+mod http2;
 mod proxy;
 mod rt;
 mod tls;
@@ -30,9 +37,17 @@ use self::{
         header::{HeaderMap, OrigHeaderMap},
         status::StatusCode,
     },
+    http1::Http1Options,
+    http2::{
+        Http2Options, Priorities, Priority, PseudoId, PseudoOrder, SettingId, SettingsOrder,
+        StreamDependency,
+    },
     proxy::Proxy,
     rt::Runtime,
-    tls::{CertStore, Identity, KeyLog, TlsVersion},
+    tls::{
+        AlpnProtocol, AlpsProtocol, CertStore, CertificateCompressionAlgorithm, ExtensionType,
+        Identity, KeyLog, TlsOptions, TlsVersion,
+    },
 };
 
 #[cfg(all(feature = "jemalloc", not(feature = "mimalloc"),))]
@@ -167,6 +182,8 @@ fn rnet(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(request, m)?)?;
     m.add_function(wrap_pyfunction!(websocket, m)?)?;
 
+    m.add_wrapped(wrap_pymodule!(http1_module))?;
+    m.add_wrapped(wrap_pymodule!(http2_module))?;
     m.add_wrapped(wrap_pymodule!(tls_module))?;
     m.add_wrapped(wrap_pymodule!(header_module))?;
     m.add_wrapped(wrap_pymodule!(cookie_module))?;
@@ -176,6 +193,8 @@ fn rnet(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
 
     let sys = PyModule::import(py, "sys")?;
     let sys_modules: Bound<'_, PyDict> = sys.getattr("modules")?.downcast_into()?;
+    sys_modules.set_item("rnet.http1", m.getattr("http1")?)?;
+    sys_modules.set_item("rnet.http2", m.getattr("http2")?)?;
     sys_modules.set_item("rnet.tls", m.getattr("tls")?)?;
     sys_modules.set_item("rnet.header", m.getattr("header")?)?;
     sys_modules.set_item("rnet.cookie", m.getattr("cookie")?)?;
@@ -185,12 +204,36 @@ fn rnet(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     Ok(())
 }
 
+#[pymodule(gil_used = false, name = "http1")]
+fn http1_module(m: &Bound<'_, PyModule>) -> PyResult<()> {
+    m.add_class::<Http1Options>()?;
+    Ok(())
+}
+
+#[pymodule(gil_used = false, name = "http2")]
+fn http2_module(m: &Bound<'_, PyModule>) -> PyResult<()> {
+    m.add_class::<Http2Options>()?;
+    m.add_class::<StreamDependency>()?;
+    m.add_class::<Priorities>()?;
+    m.add_class::<Priority>()?;
+    m.add_class::<PseudoId>()?;
+    m.add_class::<PseudoOrder>()?;
+    m.add_class::<SettingId>()?;
+    m.add_class::<SettingsOrder>()?;
+    Ok(())
+}
+
 #[pymodule(gil_used = false, name = "tls")]
 fn tls_module(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<TlsVersion>()?;
     m.add_class::<Identity>()?;
     m.add_class::<CertStore>()?;
     m.add_class::<KeyLog>()?;
+    m.add_class::<AlpnProtocol>()?;
+    m.add_class::<AlpsProtocol>()?;
+    m.add_class::<CertificateCompressionAlgorithm>()?;
+    m.add_class::<ExtensionType>()?;
+    m.add_class::<TlsOptions>()?;
     Ok(())
 }
 

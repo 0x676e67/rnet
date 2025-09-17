@@ -24,19 +24,9 @@ macro_rules! apply_option {
             $builder = $builder.$method($transform(&value));
         }
     };
-    (set_if_some_ref_map, $builder:expr, $option:expr, $method:ident, $transform:expr) => {
-        if let Some(value) = $option.take() {
-            $builder = $builder.$method(&$transform(value));
-        }
-    };
     (set_if_true, $builder:expr, $option:expr, $method:ident, $default:expr) => {
         if $option.unwrap_or($default) {
             $builder = $builder.$method();
-        }
-    };
-    (set_if_ok, $builder:expr, $result:expr, $method:ident) => {
-        if let Ok(value) = $result() {
-            $builder = $builder.$method(value);
         }
     };
     (set_if_true_with, $builder:expr, $option:expr, $method:ident, $default:expr, $value:expr) => {

@@ -37,7 +37,10 @@ impl<'a> IntoPyObject<'a> for PyBuffer {
     #[inline(always)]
     fn into_pyobject(self, py: Python<'a>) -> Result<Self::Output, Self::Error> {
         let buffer = self.0.into_py_any(py)?;
-        unsafe { Bound::from_owned_ptr_or_err(py, ffi::PyBytes_FromObject(buffer.as_ptr())) }
+        #[allow(unsafe_code)]
+        unsafe {
+            Bound::from_owned_ptr_or_err(py, ffi::PyBytes_FromObject(buffer.as_ptr()))
+        }
     }
 }
 
@@ -75,6 +78,7 @@ impl From<HeaderValue> for PyBuffer {
 
 #[pymethods]
 impl BufferView {
+    #[allow(unsafe_code)]
     unsafe fn __getbuffer__(
         slf: PyRef<Self>,
         view: *mut ffi::Py_buffer,

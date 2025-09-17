@@ -1,6 +1,4 @@
 """
-Browser and Client Emulation
-
 This module provides functionality for emulating various browsers and HTTP clients
 to bypass detection and fingerprinting. It supports emulating Chrome, Firefox, Edge,
 Safari, Opera, and OkHttp clients across different operating systems and versions.
