@@ -3,6 +3,11 @@
 #![cfg_attr(test, deny(warnings))]
 #![cfg_attr(not(test), warn(unused_crate_dependencies))]
 
+#[cfg(feature = "mimalloc")]
+use mimalloc as _;
+#[cfg(feature = "jemalloc")]
+use tikv_jemallocator as _;
+
 #[macro_use]
 mod macros;
 mod buffer;

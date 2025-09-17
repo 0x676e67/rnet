@@ -55,7 +55,7 @@ impl Runtime {
     /// Get the task locals for the current task
     fn get_task_locals() -> Option<TaskLocals> {
         TASK_LOCALS
-            .try_with(|c| c.get().map(Clone::clone))
+            .try_with(|c| c.get().cloned())
             .unwrap_or_default()
     }
 
