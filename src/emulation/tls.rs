@@ -2,7 +2,9 @@ use std::borrow::Cow;
 
 use pyo3::prelude::*;
 
-use crate::tls::{AlpnProtocol, AlpsProtocol, CertificateCompressionAlgorithm, ExtensionType, TlsVersion};
+use crate::tls::{
+    AlpnProtocol, AlpsProtocol, CertificateCompressionAlgorithm, ExtensionType, TlsVersion,
+};
 
 #[derive(Default)]
 pub struct Builder {
@@ -223,7 +225,12 @@ impl TlsOptions {
                 alps_protocols,
                 |v: Vec<_>| v.into_iter().map(AlpsProtocol::into_ffi)
             );
-            apply_option!(set_if_some, builder, params.alps_use_new_codepoint, alps_use_new_codepoint);
+            apply_option!(
+                set_if_some,
+                builder,
+                params.alps_use_new_codepoint,
+                alps_use_new_codepoint
+            );
             apply_option!(set_if_some, builder, params.session_ticket, session_ticket);
             apply_option!(
                 set_if_some_map,
@@ -240,17 +247,57 @@ impl TlsOptions {
                 TlsVersion::into_ffi
             );
             apply_option!(set_if_some, builder, params.pre_shared_key, pre_shared_key);
-            apply_option!(set_if_some, builder, params.enable_ech_grease, enable_ech_grease);
-            apply_option!(set_if_some, builder, params.permute_extensions, permute_extensions);
+            apply_option!(
+                set_if_some,
+                builder,
+                params.enable_ech_grease,
+                enable_ech_grease
+            );
+            apply_option!(
+                set_if_some,
+                builder,
+                params.permute_extensions,
+                permute_extensions
+            );
             apply_option!(set_if_some, builder, params.grease_enabled, grease_enabled);
-            apply_option!(set_if_some, builder, params.enable_ocsp_stapling, enable_ocsp_stapling);
-            apply_option!(set_if_some, builder, params.enable_signed_cert_timestamps, enable_signed_cert_timestamps);
-            apply_option!(set_if_some, builder, params.record_size_limit, record_size_limit);
-            apply_option!(set_if_some, builder, params.psk_skip_session_ticket, psk_skip_session_ticket);
-            apply_option!(set_if_some, builder, params.key_shares_limit, key_shares_limit);
+            apply_option!(
+                set_if_some,
+                builder,
+                params.enable_ocsp_stapling,
+                enable_ocsp_stapling
+            );
+            apply_option!(
+                set_if_some,
+                builder,
+                params.enable_signed_cert_timestamps,
+                enable_signed_cert_timestamps
+            );
+            apply_option!(
+                set_if_some,
+                builder,
+                params.record_size_limit,
+                record_size_limit
+            );
+            apply_option!(
+                set_if_some,
+                builder,
+                params.psk_skip_session_ticket,
+                psk_skip_session_ticket
+            );
+            apply_option!(
+                set_if_some,
+                builder,
+                params.key_shares_limit,
+                key_shares_limit
+            );
             apply_option!(set_if_some, builder, params.psk_dhe_ke, psk_dhe_ke);
             apply_option!(set_if_some, builder, params.renegotiation, renegotiation);
-            apply_option!(set_if_some, builder, params.delegated_credentials, delegated_credentials);
+            apply_option!(
+                set_if_some,
+                builder,
+                params.delegated_credentials,
+                delegated_credentials
+            );
             apply_option!(set_if_some, builder, params.curves_list, curves_list);
             apply_option!(set_if_some, builder, params.cipher_list, cipher_list);
             apply_option!(set_if_some, builder, params.sigalgs_list, sigalgs_list);
@@ -259,7 +306,11 @@ impl TlsOptions {
                 builder,
                 params.certificate_compression_algorithms,
                 certificate_compression_algorithms,
-                |v: Vec<_>| Cow::Owned(v.into_iter().map(CertificateCompressionAlgorithm::into_ffi).collect())
+                |v: Vec<_>| Cow::Owned(
+                    v.into_iter()
+                        .map(CertificateCompressionAlgorithm::into_ffi)
+                        .collect()
+                )
             );
             apply_option!(
                 set_if_some_map,
@@ -268,9 +319,24 @@ impl TlsOptions {
                 extension_permutation,
                 |v: Vec<_>| Cow::Owned(v.into_iter().map(ExtensionType::into_ffi).collect())
             );
-            apply_option!(set_if_some, builder, params.aes_hw_override, aes_hw_override);
-            apply_option!(set_if_some, builder, params.prefer_chacha20, prefer_chacha20);
-            apply_option!(set_if_some, builder, params.random_aes_hw_override, random_aes_hw_override);
+            apply_option!(
+                set_if_some,
+                builder,
+                params.aes_hw_override,
+                aes_hw_override
+            );
+            apply_option!(
+                set_if_some,
+                builder,
+                params.prefer_chacha20,
+                prefer_chacha20
+            );
+            apply_option!(
+                set_if_some,
+                builder,
+                params.random_aes_hw_override,
+                random_aes_hw_override
+            );
 
             Self(builder.build())
         })

@@ -7,14 +7,14 @@ use pyo3::{
 };
 use serde::ser::{Serialize, SerializeSeq, Serializer};
 use wreq::{
-    header::{self, HeaderName, HeaderValue},
     EmulationFactory,
+    header::{self, HeaderName, HeaderValue},
 };
 
 use crate::{
-    client::body::multipart::Multipart,
     browser::{Browser, BrowserOption},
-    emulation::{Emulation, StreamId, Priority, PseudoId, SettingId},
+    client::body::multipart::Multipart,
+    emulation::{Emulation, Priority, PseudoId, SettingId, StreamId},
     error::Error,
     http::{
         Version,
@@ -211,15 +211,12 @@ impl FromPyObject<'_> for Extractor<wreq::http2::StreamId> {
 impl FromPyObject<'_> for Extractor<wreq::http2::PseudoOrder> {
     fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
         let list = ob.downcast::<PyList>()?;
-        let builder = list
-            .into_iter()
-            .try_fold(
-                wreq::http2::PseudoOrder::builder(),
-                |builder, id| {
+        let builder =
+            list.into_iter()
+                .try_fold(wreq::http2::PseudoOrder::builder(), |builder, id| {
                     let id = id.downcast::<PseudoId>()?;
                     Ok::<_, PyErr>(builder.push(id.borrow().into_ffi()))
-                }
-            )?;
+                })?;
         Ok(Self(builder.build()))
     }
 }
@@ -241,17 +238,15 @@ impl FromPyObject<'_> for Extractor<wreq::http2::SettingId> {
 impl FromPyObject<'_> for Extractor<wreq::http2::ExperimentalSettings> {
     fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
         let dict = ob.downcast::<PyDict>()?;
-        let builder = dict
-            .iter()
-            .try_fold(
-                wreq::http2::ExperimentalSettings::builder(),
-                |builder, (id, value)| {
-                    let id = id.extract::<Extractor<wreq::http2::SettingId>>()?;
-                    let value = value.extract::<u32>()?;
-                    let setting = wreq::http2::Setting::from_id(id.0, value);
-                    Ok::<_, PyErr>(builder.push(setting))
-                }
-            )?;
+        let builder = dict.iter().try_fold(
+            wreq::http2::ExperimentalSettings::builder(),
+            |builder, (id, value)| {
+                let id = id.extract::<Extractor<wreq::http2::SettingId>>()?;
+                let value = value.extract::<u32>()?;
+                let setting = wreq::http2::Setting::from_id(id.0, value);
+                Ok::<_, PyErr>(builder.push(setting))
+            },
+        )?;
         Ok(Self(builder.build()))
     }
 }
@@ -260,15 +255,12 @@ impl FromPyObject<'_> for Extractor<wreq::http2::ExperimentalSettings> {
 impl FromPyObject<'_> for Extractor<wreq::http2::SettingsOrder> {
     fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
         let list = ob.downcast::<PyList>()?;
-        let builder = list
-            .into_iter()
-            .try_fold(
-                wreq::http2::SettingsOrder::builder(),
-                |builder, id| {
+        let builder =
+            list.into_iter()
+                .try_fold(wreq::http2::SettingsOrder::builder(), |builder, id| {
                     let id = id.extract::<Extractor<wreq::http2::SettingId>>()?;
                     Ok::<_, PyErr>(builder.push(id.0))
-                }
-            )?;
+                })?;
         Ok(Self(builder.build()))
     }
 }
@@ -277,12 +269,13 @@ impl FromPyObject<'_> for Extractor<wreq::http2::SettingsOrder> {
 impl FromPyObject<'_> for Extractor<wreq::http2::Priorities> {
     fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
         let list = ob.downcast::<PyList>()?;
-        let builder = list
-            .into_iter()
-            .try_fold(wreq::http2::Priorities::builder(), |builder, priority| {
+        let builder = list.into_iter().try_fold(
+            wreq::http2::Priorities::builder(),
+            |builder, priority| {
                 let priority = priority.downcast::<Priority>()?;
                 Ok::<_, PyErr>(builder.push(priority.borrow().0.clone()))
-            })?;
+            },
+        )?;
         Ok(Self(builder.build()))
     }
 }

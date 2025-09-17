@@ -40,14 +40,8 @@ pub struct Priority(pub wreq::http2::Priority);
 #[pymethods]
 impl Priority {
     #[new]
-    fn new(
-        stream_id: Extractor<wreq::http2::StreamId>,
-        dependency: StreamDependency,
-    ) -> Self {
-        Self(wreq::http2::Priority::new(
-            stream_id.0,
-            dependency.0,
-        ))
+    fn new(stream_id: Extractor<wreq::http2::StreamId>, dependency: StreamDependency) -> Self {
+        Self(wreq::http2::Priority::new(stream_id.0, dependency.0))
     }
 }
 
@@ -194,30 +188,130 @@ impl Http2Options {
             let params = kwds.get_or_insert_default();
             let mut builder = wreq::http2::Http2Options::builder();
 
-            apply_option!(set_if_some, builder, params.initial_window_size, initial_window_size);
-            apply_option!(set_if_some, builder, params.initial_connection_window_size, initial_connection_window_size);
-            apply_option!(set_if_some, builder, params.initial_max_send_streams, initial_max_send_streams);
-            apply_option!(set_if_some, builder, params.initial_stream_id, initial_stream_id);
-            apply_option!(set_if_some, builder, params.adaptive_window, adaptive_window);
+            apply_option!(
+                set_if_some,
+                builder,
+                params.initial_window_size,
+                initial_window_size
+            );
+            apply_option!(
+                set_if_some,
+                builder,
+                params.initial_connection_window_size,
+                initial_connection_window_size
+            );
+            apply_option!(
+                set_if_some,
+                builder,
+                params.initial_max_send_streams,
+                initial_max_send_streams
+            );
+            apply_option!(
+                set_if_some,
+                builder,
+                params.initial_stream_id,
+                initial_stream_id
+            );
+            apply_option!(
+                set_if_some,
+                builder,
+                params.adaptive_window,
+                adaptive_window
+            );
             apply_option!(set_if_some, builder, params.max_frame_size, max_frame_size);
-            apply_option!(set_if_some, builder, params.max_header_list_size, max_header_list_size);
-            apply_option!(set_if_some, builder, params.header_table_size, header_table_size);
-            apply_option!(set_if_some, builder, params.max_concurrent_streams, max_concurrent_streams);
+            apply_option!(
+                set_if_some,
+                builder,
+                params.max_header_list_size,
+                max_header_list_size
+            );
+            apply_option!(
+                set_if_some,
+                builder,
+                params.header_table_size,
+                header_table_size
+            );
+            apply_option!(
+                set_if_some,
+                builder,
+                params.max_concurrent_streams,
+                max_concurrent_streams
+            );
             apply_option!(set_if_some, builder, params.enable_push, enable_push);
-            apply_option!(set_if_some, builder, params.enable_connect_protocol, enable_connect_protocol);
-            apply_option!(set_if_some, builder, params.no_rfc7540_priorities, no_rfc7540_priorities);
-            apply_option!(set_if_some, builder, params.max_concurrent_reset_streams, max_concurrent_reset_streams);
-            apply_option!(set_if_some, builder, params.max_send_buf_size, max_send_buf_size);
-            apply_option!(set_if_some, builder, params.max_pending_accept_reset_streams, max_pending_accept_reset_streams);
-            apply_option!(set_if_some_inner, builder, params.headers_stream_dependency, headers_stream_dependency);
-            apply_option!(set_if_some_inner, builder, params.headers_pseudo_order, headers_pseudo_order);
-            apply_option!(set_if_some_inner, builder, params.experimental_settings, experimental_settings);
-            apply_option!(set_if_some_inner, builder, params.settings_order, settings_order);
+            apply_option!(
+                set_if_some,
+                builder,
+                params.enable_connect_protocol,
+                enable_connect_protocol
+            );
+            apply_option!(
+                set_if_some,
+                builder,
+                params.no_rfc7540_priorities,
+                no_rfc7540_priorities
+            );
+            apply_option!(
+                set_if_some,
+                builder,
+                params.max_concurrent_reset_streams,
+                max_concurrent_reset_streams
+            );
+            apply_option!(
+                set_if_some,
+                builder,
+                params.max_send_buf_size,
+                max_send_buf_size
+            );
+            apply_option!(
+                set_if_some,
+                builder,
+                params.max_pending_accept_reset_streams,
+                max_pending_accept_reset_streams
+            );
+            apply_option!(
+                set_if_some_inner,
+                builder,
+                params.headers_stream_dependency,
+                headers_stream_dependency
+            );
+            apply_option!(
+                set_if_some_inner,
+                builder,
+                params.headers_pseudo_order,
+                headers_pseudo_order
+            );
+            apply_option!(
+                set_if_some_inner,
+                builder,
+                params.experimental_settings,
+                experimental_settings
+            );
+            apply_option!(
+                set_if_some_inner,
+                builder,
+                params.settings_order,
+                settings_order
+            );
             apply_option!(set_if_some_inner, builder, params.priorities, priorities);
 
-            apply_option!(set_if_some_inplace, builder, params.keep_alive_interval, keep_alive_interval);
-            apply_option!(set_if_some_inplace, builder, params.keep_alive_timeout, keep_alive_timeout);
-            apply_option!(set_if_some_inplace, builder, params.keep_alive_while_idle, keep_alive_while_idle);
+            apply_option!(
+                set_if_some_inplace,
+                builder,
+                params.keep_alive_interval,
+                keep_alive_interval
+            );
+            apply_option!(
+                set_if_some_inplace,
+                builder,
+                params.keep_alive_timeout,
+                keep_alive_timeout
+            );
+            apply_option!(
+                set_if_some_inplace,
+                builder,
+                params.keep_alive_while_idle,
+                keep_alive_while_idle
+            );
 
             Self(builder.build())
         })

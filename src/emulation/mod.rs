@@ -7,7 +7,7 @@ use wreq::header::{HeaderMap, OrigHeaderMap};
 
 pub use self::{
     http1::Http1Options,
-    http2::{Http2Options, StreamId, StreamDependency, Priority, PseudoId, SettingId},
+    http2::{Http2Options, Priority, PseudoId, SettingId, StreamDependency, StreamId},
     tls::TlsOptions,
 };
 use crate::extractor::Extractor;
@@ -55,11 +55,26 @@ impl Emulation {
             let params = kwds.get_or_insert_default();
             let mut builder = wreq::Emulation::builder();
 
-            apply_option!(set_if_some_inner, builder, params.http1_options, http1_options);
-            apply_option!(set_if_some_inner, builder, params.http2_options, http2_options);
+            apply_option!(
+                set_if_some_inner,
+                builder,
+                params.http1_options,
+                http1_options
+            );
+            apply_option!(
+                set_if_some_inner,
+                builder,
+                params.http2_options,
+                http2_options
+            );
             apply_option!(set_if_some_inner, builder, params.tls_options, tls_options);
             apply_option!(set_if_some_inner, builder, params.headers, headers);
-            apply_option!(set_if_some_inner, builder, params.orig_headers, orig_headers);
+            apply_option!(
+                set_if_some_inner,
+                builder,
+                params.orig_headers,
+                orig_headers
+            );
 
             Self(builder.build())
         })

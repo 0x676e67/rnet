@@ -2,10 +2,9 @@ use std::net::IpAddr;
 
 use pyo3::{PyResult, prelude::*, pybacked::PyBackedStr};
 use wreq::{
-    Proxy, Version,
+    Emulation, Proxy, Version,
     header::{HeaderMap, HeaderValue, OrigHeaderMap},
     multipart::Form,
-    Emulation,
 };
 
 use crate::{

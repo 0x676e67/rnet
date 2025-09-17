@@ -10,11 +10,10 @@ use std::{fmt, net::IpAddr, sync::Arc, time::Duration};
 use pyo3::{IntoPyObjectExt, prelude::*, pybacked::PyBackedStr};
 use req::{Request, WebSocketRequest};
 use wreq::{
-    Proxy,
+    Emulation, Proxy,
     header::{self, HeaderMap, OrigHeaderMap},
     redirect::Policy,
     tls::CertStore,
-    Emulation,
 };
 
 use self::{

@@ -1,8 +1,8 @@
 #[macro_use]
 mod macros;
+mod browser;
 mod buffer;
 mod client;
-mod browser;
 mod emulation;
 mod error;
 mod extractor;
@@ -14,6 +14,7 @@ mod tls;
 use pyo3::{prelude::*, pybacked::PyBackedStr, types::PyDict, wrap_pymodule};
 
 use self::{
+    browser::{Browser, BrowserOS, BrowserOption},
     client::{
         BlockingClient, Client, SocketAddr,
         body::multipart::{Multipart, Part},
@@ -24,10 +25,9 @@ use self::{
         },
     },
     emulation::{
-        Emulation, TlsOptions, Http1Options, Http2Options,
-        StreamId, StreamDependency, Priority, PseudoId, SettingId,
+        Emulation, Http1Options, Http2Options, Priority, PseudoId, SettingId, StreamDependency,
+        StreamId, TlsOptions,
     },
-    browser::{Browser, BrowserOS, BrowserOption},
     error::*,
     http::{
         Method, Version,
@@ -37,7 +37,10 @@ use self::{
     },
     proxy::Proxy,
     rt::Runtime,
-    tls::{CertStore, Identity, KeyLog, TlsVersion, AlpnProtocol, AlpsProtocol, CertificateCompressionAlgorithm, ExtensionType},
+    tls::{
+        AlpnProtocol, AlpsProtocol, CertStore, CertificateCompressionAlgorithm, ExtensionType,
+        Identity, KeyLog, TlsVersion,
+    },
 };
 
 #[cfg(all(feature = "jemalloc", not(feature = "mimalloc"),))]
