@@ -72,94 +72,35 @@ class ExtensionType(Enum):
     """
 
     SERVER_NAME = auto()
-    """Server Name Indication (SNI) extension"""
-
     STATUS_REQUEST = auto()
-    """Certificate Status Request extension (OCSP stapling)"""
-
     EC_POINT_FORMATS = auto()
-    """Elliptic Curve Point Formats extension"""
-
     SIGNATURE_ALGORITHMS = auto()
-    """Signature Algorithms extension"""
-
     SRTP = auto()
-    """Secure Real-time Transport Protocol extension"""
-
     APPLICATION_LAYER_PROTOCOL_NEGOTIATION = auto()
-    """Application-Layer Protocol Negotiation (ALPN) extension"""
-
     PADDING = auto()
-    """Padding extension"""
-
     EXTENDED_MASTER_SECRET = auto()
-    """Extended Master Secret extension"""
-
     QUIC_TRANSPORT_PARAMETERS_LEGACY = auto()
-    """QUIC Transport Parameters (legacy) extension"""
-
     QUIC_TRANSPORT_PARAMETERS_STANDARD = auto()
-    """QUIC Transport Parameters (standard) extension"""
-
     CERT_COMPRESSION = auto()
-    """Certificate Compression extension"""
-
     SESSION_TICKET = auto()
-    """Session Ticket extension"""
-
     SUPPORTED_GROUPS = auto()
-    """Supported Groups extension (formerly Supported Elliptic Curves)"""
-
     PRE_SHARED_KEY = auto()
-    """Pre-Shared Key extension"""
-
     EARLY_DATA = auto()
-    """Early Data extension (0-RTT)"""
-
     SUPPORTED_VERSIONS = auto()
-    """Supported Versions extension"""
-
     COOKIE = auto()
-    """Cookie extension"""
-
     PSK_KEY_EXCHANGE_MODES = auto()
-    """PSK Key Exchange Modes extension"""
-
     CERTIFICATE_AUTHORITIES = auto()
-    """Certificate Authorities extension"""
-
     SIGNATURE_ALGORITHMS_CERT = auto()
-    """Signature Algorithms for Certificates extension"""
-
     KEY_SHARE = auto()
-    """Key Share extension"""
-
     RENEGOTIATE = auto()
-    """Renegotiation Indication extension"""
-
     DELEGATED_CREDENTIAL = auto()
-    """Delegated Credentials extension"""
-
     APPLICATION_SETTINGS = auto()
-    """Application-Layer Protocol Settings (ALPS) extension"""
-
     APPLICATION_SETTINGS_NEW = auto()
-    """Application-Layer Protocol Settings (new codepoint) extension"""
-
     ENCRYPTED_CLIENT_HELLO = auto()
-    """Encrypted Client Hello extension"""
-
     CERTIFICATE_TIMESTAMP = auto()
-    """Certificate Transparency SCT extension"""
-
     NEXT_PROTO_NEG = auto()
-    """Next Protocol Negotiation extension"""
-
     CHANNEL_ID = auto()
-    """Channel ID extension"""
-
     RECORD_SIZE_LIMIT = auto()
-    """Record Size Limit extension"""
 
 
 class Identity:

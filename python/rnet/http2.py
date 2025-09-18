@@ -29,12 +29,12 @@ class PseudoId(Enum):
     possible pseudo-header fields and their standard order according to RFC 7540.
     """
 
-    Method = auto()
-    Scheme = auto()
-    Authority = auto()
-    Path = auto()
-    Protocol = auto()
-    Status = auto()
+    METHOD = auto()
+    SCHEME = auto()
+    AUTHORITY = auto()
+    PATH = auto()
+    PROTOCOL = auto()
+    STATUS = auto()
 
 
 class SettingId(Enum):
@@ -46,7 +46,7 @@ class SettingId(Enum):
     See <https://datatracker.ietf.org/doc/html/rfc9113#name-defined-settings>.
     """
 
-    HeaderTableSize = auto()
+    HEADER_TABLE_SIZE = auto()
     """
     This setting allows the sender to inform the remote endpoint
     of the maximum size of the compression table used to decode field blocks,
@@ -57,37 +57,37 @@ class SettingId(Enum):
     [COMPRESSION]: <https://datatracker.ietf.org/doc/html/rfc7541>
     """
 
-    EnablePush = auto()
+    ENABLE_PUSH = auto()
     """
     Enables or disables server push.
     """
 
-    MaxConcurrentStreams = auto()
+    MAX_CONCURRENT_STREAMS = auto()
     """
     Specifies the maximum number of concurrent streams.
     """
 
-    InitialWindowSize = auto()
+    INITIAL_WINDOW_SIZE = auto()
     """
     Sets the initial stream-level flow control window size.
     """
 
-    MaxFrameSize = auto()
+    MAX_FRAME_SIZE = auto()
     """
     Indicates the largest acceptable frame payload size.
     """
 
-    MaxHeaderListSize = auto()
+    MAX_HEADER_LIST_SIZE = auto()
     """
     Advises the peer of the max field section size.
     """
 
-    EnableConnectProtocol = auto()
+    ENABLE_CONNECT_PROTOCOL = auto()
     """
     Enables support for the Extended CONNECT protocol.
     """
 
-    NoRfc7540Priorities = auto()
+    NO_RFC7540_PRIORITIES = auto()
     """
     Disable RFC 7540 Stream Priorities.
     [RFC 9218]: <https://www.rfc-editor.org/rfc/rfc9218.html#section-2.1>

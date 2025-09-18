@@ -11,12 +11,12 @@ define_enum!(
     const,
     PseudoId,
     wreq::http2::PseudoId,
-    Method,
-    Scheme,
-    Authority,
-    Path,
-    Protocol,
-    Status,
+    (METHOD, Method),
+    (SCHEME, Scheme),
+    (AUTHORITY, Authority),
+    (PATH, Path),
+    (PROTOCOL, Protocol),
+    (STATUS, Status),
 );
 
 define_enum!(
@@ -29,14 +29,14 @@ define_enum!(
     const,
     SettingId,
     wreq::http2::SettingId,
-    HeaderTableSize,
-    EnablePush,
-    MaxConcurrentStreams,
-    InitialWindowSize,
-    MaxFrameSize,
-    MaxHeaderListSize,
-    EnableConnectProtocol,
-    NoRfc7540Priorities,
+    (HEADER_TABLE_SIZE, HeaderTableSize),
+    (ENABLE_PUSH, EnablePush),
+    (MAX_CONCURRENT_STREAMS, MaxConcurrentStreams),
+    (INITIAL_WINDOW_SIZE, InitialWindowSize),
+    (MAX_FRAME_SIZE, MaxFrameSize),
+    (MAX_HEADER_LIST_SIZE, MaxHeaderListSize),
+    (ENABLE_CONNECT_PROTOCOL, EnableConnectProtocol),
+    (NO_RFC7540_PRIORITIES, NoRfc7540Priorities),
 );
 
 /// A stream identifier, as described in [Section 5.1.1] of RFC 7540.
