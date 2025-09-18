@@ -14,7 +14,7 @@ __all__ = [
     "PseudoId",
     "PseudoOrder",
     "SettingId",
-    "SettingOrder",
+    "SettingsOrder",
     "Params",
     "Http2Options",
 ]
@@ -203,11 +203,11 @@ class PseudoOrder:
         ...
 
 
-class SettingOrder:
+class SettingsOrder:
     """
     Represents the order of HTTP/2 settings parameters in the SETTINGS frame.
 
-    The SettingOrder class maintains a list of SettingId values that define
+    The SettingsOrder class maintains a list of SettingId values that define
     the order in which settings parameters should appear in an HTTP/2
     SETTINGS frame. While the order of settings is not strictly enforced
     by the protocol, having a consistent order can help with readability
@@ -216,7 +216,7 @@ class SettingOrder:
 
     def __init__(self, *setting_id: SettingId) -> None:
         """
-        Create a new SettingOrder instance.
+        Create a new SettingsOrder instance.
         """
         ...
 
@@ -326,7 +326,7 @@ class Params(TypedDict):
     Order of pseudo-header fields in HEADERS.
     """
 
-    settings_order: NotRequired[SettingOrder]
+    settings_order: NotRequired[SettingsOrder]
     """
     Order of settings parameters in SETTINGS frame.
     """
