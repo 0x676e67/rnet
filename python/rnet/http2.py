@@ -47,13 +47,51 @@ class SettingId(Enum):
     """
 
     HeaderTableSize = auto()
+    """
+    This setting allows the sender to inform the remote endpoint
+    of the maximum size of the compression table used to decode field blocks,
+    in units of octets. The encoder can select any size equal to or less than
+    this value by using signaling specific to the compression format inside
+    a field block (see [COMPRESSION]). The initial value is 4,096 octets.
+    
+    [COMPRESSION]: <https://datatracker.ietf.org/doc/html/rfc7541>
+    """
+
     EnablePush = auto()
+    """
+    Enables or disables server push.
+    """
+
     MaxConcurrentStreams = auto()
+    """
+    Specifies the maximum number of concurrent streams.
+    """
+
     InitialWindowSize = auto()
+    """
+    Sets the initial stream-level flow control window size.
+    """
+
     MaxFrameSize = auto()
+    """
+    Indicates the largest acceptable frame payload size.
+    """
+
     MaxHeaderListSize = auto()
+    """
+    Advises the peer of the max field section size.
+    """
+
     EnableConnectProtocol = auto()
+    """
+    Enables support for the Extended CONNECT protocol.
+    """
+
     NoRfc7540Priorities = auto()
+    """
+    Disable RFC 7540 Stream Priorities.
+    [RFC 9218]: <https://www.rfc-editor.org/rfc/rfc9218.html#section-2.1>
+    """
 
 
 class StreamId:
