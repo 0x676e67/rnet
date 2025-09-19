@@ -377,14 +377,19 @@ class Params(TypedDict):
     Overrides AES hardware acceleration.
     """
 
-    prefer_chacha20: NotRequired[bool]
+    preserve_tls13_cipher_list: NotRequired[bool]
     """
-    Preference for ChaCha20 over AES in TLS 1.3.
+    Sets whether to preserve the TLS 1.3 cipher list as configured by cipher_list.
 
-    When set, the order of preference is:
-    - AES_128_GCM
-    - CHACHA20_POLY1305
-    - AES_256_GCM
+    By default, BoringSSL does not preserve the TLS 1.3 cipher list. When this option is disabled
+    (the default), BoringSSL uses its internal default TLS 1.3 cipher suites in its default order,
+    regardless of what is set via cipher_list.
+
+    When enabled, this option ensures that the TLS 1.3 cipher suites explicitly set via
+    cipher_list are retained in their original order, without being reordered or
+    modified by BoringSSL's internal logic. This is useful for maintaining specific cipher suite
+    priorities for TLS 1.3. Note that if cipher_list does not include any TLS 1.3
+    cipher suites, BoringSSL will still fall back to its default TLS 1.3 cipher suites and order.
     """
 
     random_aes_hw_override: NotRequired[bool]

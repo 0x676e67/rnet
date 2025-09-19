@@ -187,13 +187,8 @@ struct Builder {
     /// Overrides AES hardware acceleration.
     aes_hw_override: Option<bool>,
 
-    /// Preference for ChaCha20 over AES in TLS 1.3.
-    ///
-    /// When set, the order of preference is:
-    /// - `AES_128_GCM`
-    /// - `CHACHA20_POLY1305`
-    /// - `AES_256_GCM`
-    prefer_chacha20: Option<bool>,
+    /// Sets whether to preserve the TLS 1.3 cipher list as configured by [`Self::cipher_list`].
+    preserve_tls13_cipher_list: Option<bool>,
 
     /// Overrides the random AES hardware acceleration.
     random_aes_hw_override: Option<bool>,
@@ -226,7 +221,7 @@ impl<'py> FromPyObject<'py> for Builder {
         extract_option!(ob, params, certificate_compression_algorithms);
         extract_option!(ob, params, extension_permutation);
         extract_option!(ob, params, aes_hw_override);
-        extract_option!(ob, params, prefer_chacha20);
+        extract_option!(ob, params, preserve_tls13_cipher_list);
         extract_option!(ob, params, random_aes_hw_override);
         Ok(params)
     }
@@ -368,14 +363,14 @@ impl TlsOptions {
             apply_option!(
                 set_if_some,
                 builder,
-                params.aes_hw_override,
-                aes_hw_override
+                params.preserve_tls13_cipher_list,
+                preserve_tls13_cipher_list
             );
             apply_option!(
                 set_if_some,
                 builder,
-                params.prefer_chacha20,
-                prefer_chacha20
+                params.aes_hw_override,
+                aes_hw_override
             );
             apply_option!(
                 set_if_some,
