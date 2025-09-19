@@ -71,90 +71,82 @@ async def request_advanced_configuration():
     4. Original header order preservation
     """
     print("\n[Testing Advanced Configuration]")
-    
+
     # TLS options configuration - similar to Rust example
     tls_options = TlsOptions(
         enable_ocsp_stapling=True,
-        curves_list=":".join([
-            "X25519",
-            "P-256",
-            "P-384"
-        ]),
-        cipher_list=":".join([
-            "TLS_AES_128_GCM_SHA256",
-            "TLS_AES_256_GCM_SHA384", 
-            "TLS_CHACHA20_POLY1305_SHA256",
-            "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256",
-            "TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384",
-            "TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256",
-            "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
-            "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
-            "TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256"
-        ]),
-        sigalgs_list=":".join([
-            "ecdsa_secp256r1_sha256",
-            "rsa_pss_rsae_sha256",
-            "rsa_pkcs1_sha256",
-            "ecdsa_secp384r1_sha384",
-            "rsa_pss_rsae_sha384",
-            "rsa_pkcs1_sha384",
-            "rsa_pss_rsae_sha512",
-            "rsa_pkcs1_sha512",
-            "rsa_pkcs1_sha1"
-        ]),
-        alpn_protocols=[
-            AlpnProtocol.HTTP2,
-            AlpnProtocol.HTTP1
-        ],
+        curves_list=":".join(["X25519", "P-256", "P-384"]),
+        cipher_list=":".join(
+            [
+                "TLS_AES_128_GCM_SHA256",
+                "TLS_AES_256_GCM_SHA384",
+                "TLS_CHACHA20_POLY1305_SHA256",
+                "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256",
+                "TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384",
+                "TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256",
+                "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
+                "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
+                "TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256",
+            ]
+        ),
+        sigalgs_list=":".join(
+            [
+                "ecdsa_secp256r1_sha256",
+                "rsa_pss_rsae_sha256",
+                "rsa_pkcs1_sha256",
+                "ecdsa_secp384r1_sha384",
+                "rsa_pss_rsae_sha384",
+                "rsa_pkcs1_sha384",
+                "rsa_pss_rsae_sha512",
+                "rsa_pkcs1_sha512",
+                "rsa_pkcs1_sha1",
+            ]
+        ),
+        alpn_protocols=[AlpnProtocol.HTTP2, AlpnProtocol.HTTP1],
         min_tls_version=TlsVersion.TLS_1_2,
-        max_tls_version=TlsVersion.TLS_1_3
+        max_tls_version=TlsVersion.TLS_1_3,
     )
-    
+
     # HTTP/2 options configuration
     http2_options = Http2Options(
         initial_stream_id=3,
         initial_window_size=16777216,
         initial_connection_window_size=16711681 + 65535,
         headers_pseudo_order=PseudoOrder(
-            PseudoId.METHOD,
-            PseudoId.PATH, 
-            PseudoId.AUTHORITY,
-            PseudoId.SCHEME
-        )
+            PseudoId.METHOD, PseudoId.PATH, PseudoId.AUTHORITY, PseudoId.SCHEME
+        ),
     )
-    
+
     # Default headers
-    headers = HeaderMap({
-        "User-Agent": "TwitterAndroid/10.89.0-release.0 (310890000-r-0) G011A/9 (google;G011A;google;G011A;0;;1;2016)",
-        "Accept-Language": "en-US",
-        "Accept-Encoding": "br, gzip, deflate",
-        "Accept": "application/json",
-        "Cache-Control": "no-store",
-        "Cookie": "ct0=YOUR_CT0_VALUE;"
-    })
-    
+    headers = HeaderMap(
+        {
+            "User-Agent": "TwitterAndroid/10.89.0-release.0 (310890000-r-0) G011A/9 (google;G011A;google;G011A;0;;1;2016)",
+            "Accept-Language": "en-US",
+            "Accept-Encoding": "br, gzip, deflate",
+            "Accept": "application/json",
+            "Cache-Control": "no-store",
+            "Cookie": "ct0=YOUR_CT0_VALUE;",
+        }
+    )
+
     # Original headers to preserve case and order
-    orig_headers = OrigHeaderMap([
-        "cookie",
-        "content-length", 
-        "USER-AGENT",
-        "ACCEPT-LANGUAGE",
-        "ACCEPT-ENCODING"
-    ])
-    
+    orig_headers = OrigHeaderMap(
+        ["cookie", "content-length", "USER-AGENT", "ACCEPT-LANGUAGE", "ACCEPT-ENCODING"]
+    )
+
     # Create client with advanced configuration
     client = Client(
         tls_options=tls_options,
         http2_options=http2_options,
         headers=headers,
         orig_headers=orig_headers,
-        tls_info=True
+        tls_info=True,
     )
-    
+
     # Make request to TLS fingerprinting service
     resp = await client.post("https://tls.peet.ws/api/all")
     await print_response_info(resp)
-    
+
     return client
 
 
@@ -163,7 +155,7 @@ async def main():
 
     Demonstrates different browser Emulation scenarios:
     1. Firefox with custom header order
-    2. Chrome on Android with OS specification  
+    2. Chrome on Android with OS specification
     3. Advanced configuration with custom TLS, HTTP/2, and headers
     """
     # First test with Firefox
@@ -171,7 +163,7 @@ async def main():
 
     # Then update and test with Chrome on Android
     await request_chrome_android(client)
-    
+
     # Test with advanced configuration
     await request_advanced_configuration()
 
