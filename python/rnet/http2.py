@@ -4,7 +4,7 @@ HTTP/2 connection configuration.
 
 import datetime
 from enum import Enum, auto
-from typing import ClassVar, Self, TypedDict, NotRequired, Unpack
+from typing import ClassVar, Self, Sequence, TypedDict, NotRequired, Union, Unpack
 
 __all__ = [
     "StreamId",
@@ -53,7 +53,7 @@ class SettingId(Enum):
     in units of octets. The encoder can select any size equal to or less than
     this value by using signaling specific to the compression format inside
     a field block (see [COMPRESSION]). The initial value is 4,096 octets.
-    
+
     [COMPRESSION]: <https://datatracker.ietf.org/doc/html/rfc7541>
     """
 
@@ -138,7 +138,7 @@ class StreamDependency:
     """
 
     def __init__(
-        self, dependency_id: StreamId, weight: int, is_exclusive: bool
+        self, dependency_id: Union[int, StreamId], weight: int, is_exclusive: bool
     ) -> None:
         """
         Create a new StreamDependency.
@@ -161,7 +161,7 @@ class Priority:
     [Section 5.3]: https://tools.ietf.org/html/rfc7540#section-5.3
     """
 
-    def __init__(self, stream_id: StreamId, dependency: StreamDependency) -> None:
+    def __init__(self, stream_id: Union[int, StreamId], dependency: StreamDependency) -> None:
         """
         Create a new Priority frame description.
         """
@@ -214,7 +214,7 @@ class SettingsOrder:
     and debugging.
     """
 
-    def __init__(self, *setting_id: SettingId) -> None:
+    def __init__(self, *setting_id: Union[int, SettingId]) -> None:
         """
         Create a new SettingsOrder instance.
         """
@@ -321,17 +321,17 @@ class Params(TypedDict):
     Stream dependency for outgoing HEADERS.
     """
 
-    headers_pseudo_order: NotRequired[PseudoOrder]
+    headers_pseudo_order: NotRequired[Union[Sequence[PseudoId], PseudoOrder]]
     """
     Order of pseudo-header fields in HEADERS.
     """
 
-    settings_order: NotRequired[SettingsOrder]
+    settings_order: NotRequired[Union[Sequence[Union[int, SettingId]], SettingsOrder]]
     """
     Order of settings parameters in SETTINGS frame.
     """
 
-    priorities: NotRequired[Priorities]
+    priorities: NotRequired[Union[Sequence[Priority], Priorities]]
     """
     List of PRIORITY frames to send after connection.
     """

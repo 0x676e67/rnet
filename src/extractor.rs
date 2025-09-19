@@ -16,6 +16,7 @@ use crate::{
         Version,
         header::{HeaderMap, OrigHeaderMap},
     },
+    http2::{Priorities, Priority, PseudoId, PseudoOrder, SettingId, SettingsOrder, StreamId},
     proxy::Proxy,
 };
 
@@ -184,5 +185,79 @@ impl FromPyObject<'_> for Extractor<wreq::multipart::Form> {
 impl FromPyObject<'_> for Extractor<std::net::IpAddr> {
     fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
         ob.extract().map(Self)
+    }
+}
+
+/// Extractor for setting ID as [`wreq::http2::SettingId`].
+impl FromPyObject<'_> for Extractor<wreq::http2::SettingId> {
+    fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
+        if let Ok(id) = ob.downcast::<SettingId>() {
+            return Ok(Self(id.borrow().into_ffi()));
+        }
+
+        ob.extract::<u16>()
+            .map(wreq::http2::SettingId::from)
+            .map(Self)
+    }
+}
+
+/// Extractor for stream ID as [`wreq::http2::StreamId`].
+impl FromPyObject<'_> for Extractor<wreq::http2::StreamId> {
+    fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
+        if let Ok(id) = ob.downcast::<StreamId>() {
+            return Ok(Self(id.borrow().0.clone()));
+        }
+
+        ob.extract::<u32>()
+            .map(wreq::http2::StreamId::from)
+            .map(Self)
+    }
+}
+
+/// Extractor for priorities as [`wreq::http2::Priorities`].
+impl FromPyObject<'_> for Extractor<wreq::http2::Priorities> {
+    fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
+        if let Ok(priorities) = ob.downcast::<Priorities>() {
+            return Ok(Self(priorities.borrow().0.clone()));
+        }
+
+        let priorities = ob.extract::<Vec<Priority>>()?;
+        Ok(Self(
+            wreq::http2::Priorities::builder()
+                .extend(priorities.into_iter().map(|p| p.0))
+                .build(),
+        ))
+    }
+}
+
+/// Extractor for pseudo-header order as [`wreq::http2::PseudoOrder`].
+impl FromPyObject<'_> for Extractor<wreq::http2::PseudoOrder> {
+    fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
+        if let Ok(order) = ob.downcast::<PseudoOrder>() {
+            return Ok(Self(order.borrow().0.clone()));
+        }
+
+        let iter = ob.extract::<Vec<PseudoId>>()?;
+        Ok(Self(
+            wreq::http2::PseudoOrder::builder()
+                .extend(iter.into_iter().map(|p| p.into_ffi()))
+                .build(),
+        ))
+    }
+}
+
+/// Extractor for settings order as [`wreq::http2::SettingsOrder`].
+impl FromPyObject<'_> for Extractor<wreq::http2::SettingsOrder> {
+    fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
+        if let Ok(order) = ob.downcast::<SettingsOrder>() {
+            return Ok(Self(order.borrow().0.clone()));
+        }
+
+        let iter = ob.extract::<Vec<Extractor<wreq::http2::SettingId>>>()?;
+        Ok(Self(
+            wreq::http2::SettingsOrder::builder()
+                .extend(iter.into_iter().map(|s| s.0))
+                .build(),
+        ))
     }
 }

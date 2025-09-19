@@ -2,6 +2,8 @@ use std::time::Duration;
 
 use pyo3::prelude::*;
 
+use crate::extractor::Extractor;
+
 define_enum!(
     /// Represents the order of HTTP/2 pseudo-header fields in the header block.
     ///
@@ -51,7 +53,7 @@ define_enum!(
 /// [Section 5.1.1]: https://tools.ietf.org/html/rfc7540#section-5.1.1
 #[derive(Clone)]
 #[pyclass(frozen)]
-pub struct StreamId(wreq::http2::StreamId);
+pub struct StreamId(pub wreq::http2::StreamId);
 
 /// Represents a stream dependency in HTTP/2 priority frames.
 ///
@@ -75,7 +77,7 @@ pub struct StreamDependency(wreq::http2::StreamDependency);
 /// [Section 5.3]: <https://tools.ietf.org/html/rfc7540#section-5.3>
 #[derive(Clone)]
 #[pyclass(frozen)]
-pub struct Priority(wreq::http2::Priority);
+pub struct Priority(pub wreq::http2::Priority);
 
 /// A collection of HTTP/2 PRIORITY frames.
 ///
@@ -86,7 +88,7 @@ pub struct Priority(wreq::http2::Priority);
 /// stream reprioritization.
 #[derive(Clone)]
 #[pyclass(frozen)]
-pub struct Priorities(wreq::http2::Priorities);
+pub struct Priorities(pub wreq::http2::Priorities);
 
 /// Represents the order of HTTP/2 pseudo-header fields in a header block.
 ///
@@ -96,7 +98,7 @@ pub struct Priorities(wreq::http2::Priorities);
 /// is preserved and that no duplicates are present.
 #[derive(Clone)]
 #[pyclass(frozen)]
-pub struct PseudoOrder(wreq::http2::PseudoOrder);
+pub struct PseudoOrder(pub wreq::http2::PseudoOrder);
 
 /// Represents the order of settings in a SETTINGS frame.
 ///
@@ -106,7 +108,7 @@ pub struct PseudoOrder(wreq::http2::PseudoOrder);
 /// duplicate settings are present.
 #[derive(Clone)]
 #[pyclass(frozen)]
-pub struct SettingsOrder(wreq::http2::SettingsOrder);
+pub struct SettingsOrder(pub wreq::http2::SettingsOrder);
 
 /// A builder for [`Http2Options`].
 #[derive(Default)]
@@ -169,13 +171,13 @@ struct Builder {
     headers_stream_dependency: Option<StreamDependency>,
 
     /// The HTTP/2 pseudo-header field order for outgoing HEADERS frames.
-    headers_pseudo_order: Option<PseudoOrder>,
+    headers_pseudo_order: Option<Extractor<wreq::http2::PseudoOrder>>,
 
     /// The order of settings parameters in the initial SETTINGS frame.
-    settings_order: Option<SettingsOrder>,
+    settings_order: Option<Extractor<wreq::http2::SettingsOrder>>,
 
     /// The list of PRIORITY frames to be sent after connection establishment.
-    priorities: Option<Priorities>,
+    priorities: Option<Extractor<wreq::http2::Priorities>>,
 }
 
 /// Configuration for an HTTP/2 connection.
@@ -213,7 +215,11 @@ impl StreamDependency {
     /// Creates a new `StreamDependency`.
     #[new]
     #[pyo3(signature = (dependency_id, weight, is_exclusive))]
-    fn new(dependency_id: StreamId, weight: u8, is_exclusive: bool) -> Self {
+    fn new(
+        dependency_id: Extractor<wreq::http2::StreamId>,
+        weight: u8,
+        is_exclusive: bool,
+    ) -> Self {
         Self(wreq::http2::StreamDependency::new(
             dependency_id.0,
             weight,
@@ -229,7 +235,7 @@ impl Priority {
     /// Creates a new `Priority`.
     #[new]
     #[pyo3(signature = (stream_id, dependency))]
-    fn new(stream_id: StreamId, dependency: StreamDependency) -> Self {
+    fn new(stream_id: Extractor<wreq::http2::StreamId>, dependency: StreamDependency) -> Self {
         Self(wreq::http2::Priority::new(stream_id.0, dependency.0))
     }
 }
@@ -273,10 +279,10 @@ impl SettingsOrder {
     /// Creates an empty `PseudoOrder` collection.
     #[new]
     #[pyo3(signature = (*iter))]
-    fn new(iter: Vec<SettingId>) -> Self {
+    fn new(iter: Vec<Extractor<wreq::http2::SettingId>>) -> Self {
         Self(
             wreq::http2::SettingsOrder::builder()
-                .extend(iter.into_iter().map(SettingId::into_ffi))
+                .extend(iter.into_iter().map(|s| s.0))
                 .build(),
         )
     }
