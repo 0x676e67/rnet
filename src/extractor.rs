@@ -205,7 +205,7 @@ impl FromPyObject<'_> for Extractor<wreq::http2::SettingId> {
 impl FromPyObject<'_> for Extractor<wreq::http2::StreamId> {
     fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
         if let Ok(id) = ob.downcast::<StreamId>() {
-            return Ok(Self(id.borrow().0.clone()));
+            return Ok(Self(id.borrow().0));
         }
 
         ob.extract::<u32>()
