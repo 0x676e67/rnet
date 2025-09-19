@@ -45,7 +45,7 @@ use self::{
     http1::Http1Options,
     http2::{
         Http2Options, Priorities, Priority, PseudoId, PseudoOrder, SettingId, SettingsOrder,
-        StreamDependency,
+        StreamDependency, StreamId,
     },
     proxy::Proxy,
     rt::Runtime,
@@ -218,6 +218,7 @@ fn http1_module(m: &Bound<'_, PyModule>) -> PyResult<()> {
 #[pymodule(gil_used = false, name = "http2")]
 fn http2_module(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<Http2Options>()?;
+    m.add_class::<StreamId>()?;
     m.add_class::<StreamDependency>()?;
     m.add_class::<Priorities>()?;
     m.add_class::<Priority>()?;
