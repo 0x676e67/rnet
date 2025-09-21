@@ -18,10 +18,10 @@ from enum import Enum, auto
 
 from .http1 import Http1Options
 from .http2 import Http2Options
-from .cookie import Cookie, Jar
-from .header import HeaderMap, OrigHeaderMap
-from .emulation import Emulation, EmulationOption
-from .tls import TlsOptions, TlsVersion, Identity, KeyLog, CertStore
+from .cookie import *
+from .header import *
+from .emulation import *
+from .tls import *
 
 class Method(Enum):
     r"""
