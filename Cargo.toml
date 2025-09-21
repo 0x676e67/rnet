@@ -52,7 +52,7 @@ wreq = { version = "6.0.0-rc.20", features = [
     "zstd",
     "ws",
 ] }
-wreq-util = { version = "3.0.0-rc.3", features = ["emulation-rand"] }
+wreq-util = { version = "3.0.0-rc.5", features = ["emulation-rand"] }
 hickory-resolver = "0.25.2"
 cookie = "0.18"
 mimalloc = { version = "0.1.43", default-features = false, features = [

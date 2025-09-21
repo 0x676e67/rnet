@@ -74,6 +74,8 @@ define_enum!(
     SafariIos18_1_1,
     Safari18_5,
     Safari26,
+    SafariIos26,
+    SafariIPad26,
     OkHttp3_9,
     OkHttp3_11,
     OkHttp3_13,

@@ -113,7 +113,11 @@ async def request_advanced_configuration():
         initial_window_size=16777216,
         initial_connection_window_size=16711681 + 65535,
         headers_pseudo_order=PseudoOrder(
-            PseudoId.METHOD, PseudoId.PATH, PseudoId.AUTHORITY, PseudoId.SCHEME
+            PseudoId.METHOD,
+            PseudoId.PATH,
+            PseudoId.AUTHORITY,
+            PseudoId.SCHEME,
+            PseudoId.PROTOCOL,
         ),
     )
 
