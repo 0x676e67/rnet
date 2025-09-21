@@ -94,6 +94,8 @@ class Emulation(Enum):
     SafariIos18_1_1 = auto()
     Safari18_5 = auto()
     Safari26 = auto()
+    SafariIos26 = auto()
+    SafariIPad26 = auto()
 
     # OkHttp versions
     OkHttp3_9 = auto()
