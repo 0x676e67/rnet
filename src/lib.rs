@@ -197,7 +197,7 @@ fn rnet(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_wrapped(wrap_pymodule!(exceptions_module))?;
 
     let sys = PyModule::import(py, "sys")?;
-    let sys_modules: Bound<'_, PyDict> = sys.getattr("modules")?.downcast_into()?;
+    let sys_modules: Bound<'_, PyDict> = sys.getattr("modules")?.cast_into()?;
     sys_modules.set_item("rnet.http1", m.getattr("http1")?)?;
     sys_modules.set_item("rnet.http2", m.getattr("http2")?)?;
     sys_modules.set_item("rnet.tls", m.getattr("tls")?)?;

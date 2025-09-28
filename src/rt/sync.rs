@@ -10,7 +10,7 @@ use futures::{
     channel::{mpsc, oneshot},
 };
 use pin_project_lite::pin_project;
-use pyo3::{IntoPyObjectExt, prelude::*};
+use pyo3::{IntoPyObjectExt, exceptions::PyBaseException, prelude::*};
 
 use super::{
     future_into_py_with_locals,
@@ -82,9 +82,7 @@ where
                     *this.poll_cancel_rx = false;
                     // The python future has already been cancelled,
                     // so this return value will never be used.
-                    Poll::Ready(Err(pyo3::exceptions::PyBaseException::new_err(
-                        "unreachable",
-                    )))
+                    Poll::Ready(Err(PyBaseException::new_err("unreachable")))
                 }
                 Poll::Ready(Err(_)) => {
                     *this.poll_cancel_rx = false;

@@ -27,7 +27,7 @@ impl Multipart {
     pub fn new(parts: &Bound<PyTuple>) -> PyResult<Multipart> {
         let mut form = Form::new();
         for part in parts {
-            let part = part.downcast::<Part>()?;
+            let part = part.cast::<Part>()?;
             let mut part = part.borrow_mut();
             form = part
                 .name

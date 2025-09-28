@@ -53,7 +53,7 @@ impl FromPyObject<'_> for Extractor<wreq::Version> {
 /// Extractor for cookies as [`Vec<HeaderValue>`].
 impl FromPyObject<'_> for Extractor<Vec<HeaderValue>> {
     fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
-        let dict = ob.downcast::<PyDict>()?;
+        let dict = ob.cast::<PyDict>()?;
         dict.iter()
             .try_fold(Vec::with_capacity(dict.len()), |mut cookies, (k, v)| {
                 let cookie = {
@@ -74,11 +74,11 @@ impl FromPyObject<'_> for Extractor<Vec<HeaderValue>> {
 /// Extractor for headers as [`wreq::header::HeaderMap`].
 impl FromPyObject<'_> for Extractor<wreq::header::HeaderMap> {
     fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
-        if let Ok(headers) = ob.downcast::<HeaderMap>() {
+        if let Ok(headers) = ob.cast::<HeaderMap>() {
             return Ok(Self(headers.borrow().0.clone()));
         }
 
-        let dict = ob.downcast::<PyDict>()?;
+        let dict = ob.cast::<PyDict>()?;
         dict.iter()
             .try_fold(
                 header::HeaderMap::with_capacity(dict.len()),
@@ -105,11 +105,11 @@ impl FromPyObject<'_> for Extractor<wreq::header::HeaderMap> {
 /// Extractor for headers as [`wreq::header::OrigHeaderMap`].
 impl FromPyObject<'_> for Extractor<wreq::header::OrigHeaderMap> {
     fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
-        if let Ok(headers) = ob.downcast::<OrigHeaderMap>() {
+        if let Ok(headers) = ob.cast::<OrigHeaderMap>() {
             return Ok(Self(headers.borrow().0.clone()));
         }
 
-        let list = ob.downcast::<PyList>()?;
+        let list = ob.cast::<PyList>()?;
         list.iter()
             .try_fold(
                 header::OrigHeaderMap::with_capacity(list.len()),
@@ -129,7 +129,7 @@ impl FromPyObject<'_> for Extractor<wreq::header::OrigHeaderMap> {
 /// Extractor for emulation options as [`wreq_util::EmulationOption`].
 impl FromPyObject<'_> for Extractor<wreq_util::EmulationOption> {
     fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
-        if let Ok(impersonate) = ob.downcast::<Emulation>() {
+        if let Ok(impersonate) = ob.cast::<Emulation>() {
             let emulation = wreq_util::EmulationOption::builder()
                 .emulation(impersonate.borrow().into_ffi())
                 .build();
@@ -137,7 +137,7 @@ impl FromPyObject<'_> for Extractor<wreq_util::EmulationOption> {
             return Ok(Self(emulation));
         }
 
-        let option = ob.downcast::<EmulationOption>()?.borrow();
+        let option = ob.cast::<EmulationOption>()?.borrow();
         Ok(Self(option.0.clone()))
     }
 }
@@ -145,7 +145,7 @@ impl FromPyObject<'_> for Extractor<wreq_util::EmulationOption> {
 /// Extractor for a single proxy as [`wreq::Proxy`].
 impl FromPyObject<'_> for Extractor<wreq::Proxy> {
     fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
-        let proxy = ob.downcast::<Proxy>()?;
+        let proxy = ob.cast::<Proxy>()?;
         let proxy = proxy.borrow().0.clone();
         Ok(Self(proxy))
     }
@@ -154,12 +154,12 @@ impl FromPyObject<'_> for Extractor<wreq::Proxy> {
 /// Extractor for a vector of proxies as [`Vec<wreq::Proxy>`].
 impl FromPyObject<'_> for Extractor<Vec<wreq::Proxy>> {
     fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
-        let proxies = ob.downcast::<PyList>()?;
+        let proxies = ob.cast::<PyList>()?;
         let len = proxies.len();
         proxies
             .into_iter()
             .try_fold(Vec::with_capacity(len), |mut list, proxy| {
-                let proxy = proxy.downcast::<Proxy>()?;
+                let proxy = proxy.cast::<Proxy>()?;
                 list.push(proxy.borrow().0.clone());
                 Ok::<_, PyErr>(list)
             })
@@ -170,7 +170,7 @@ impl FromPyObject<'_> for Extractor<Vec<wreq::Proxy>> {
 /// Extractor for multipart forms as [`wreq::multipart::Form`].
 impl FromPyObject<'_> for Extractor<wreq::multipart::Form> {
     fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
-        let form = ob.downcast::<Multipart>()?;
+        let form = ob.cast::<Multipart>()?;
         form.borrow_mut()
             .0
             .take()
