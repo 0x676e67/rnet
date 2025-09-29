@@ -2,7 +2,6 @@
 
 mod sync;
 mod task;
-mod util;
 
 use std::{cell::OnceCell, future::Future, pin::Pin, sync::LazyLock};
 
