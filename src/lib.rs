@@ -10,6 +10,7 @@ use tikv_jemallocator as _;
 
 #[macro_use]
 mod macros;
+mod bridge;
 mod buffer;
 mod client;
 mod emulation;
@@ -19,12 +20,12 @@ mod http;
 mod http1;
 mod http2;
 mod proxy;
-mod rt;
 mod tls;
 
-use pyo3::{prelude::*, pybacked::PyBackedStr, types::PyDict, wrap_pymodule};
+use pyo3::{intern, prelude::*, pybacked::PyBackedStr, types::PyDict, wrap_pymodule};
 
 use self::{
+    bridge::Runtime,
     client::{
         BlockingClient, Client, SocketAddr,
         body::multipart::{Multipart, Part},
@@ -48,7 +49,6 @@ use self::{
         StreamDependency, StreamId,
     },
     proxy::Proxy,
-    rt::Runtime,
     tls::{
         AlpnProtocol, AlpsProtocol, CertStore, CertificateCompressionAlgorithm, ExtensionType,
         Identity, KeyLog, TlsOptions, TlsVersion,
@@ -196,16 +196,31 @@ fn rnet(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_wrapped(wrap_pymodule!(blocking_module))?;
     m.add_wrapped(wrap_pymodule!(exceptions_module))?;
 
-    let sys = PyModule::import(py, "sys")?;
-    let sys_modules: Bound<'_, PyDict> = sys.getattr("modules")?.cast_into()?;
-    sys_modules.set_item("rnet.http1", m.getattr("http1")?)?;
-    sys_modules.set_item("rnet.http2", m.getattr("http2")?)?;
-    sys_modules.set_item("rnet.tls", m.getattr("tls")?)?;
-    sys_modules.set_item("rnet.header", m.getattr("header")?)?;
-    sys_modules.set_item("rnet.cookie", m.getattr("cookie")?)?;
-    sys_modules.set_item("rnet.emulation", m.getattr("emulation")?)?;
-    sys_modules.set_item("rnet.blocking", m.getattr("blocking")?)?;
-    sys_modules.set_item("rnet.exceptions", m.getattr("exceptions")?)?;
+    let sys = PyModule::import(py, intern!(py, "sys"))?;
+    let sys_modules: Bound<'_, PyDict> = sys.getattr(intern!(py, "modules"))?.cast_into()?;
+    sys_modules.set_item(intern!(py, "rnet.http1"), m.getattr(intern!(py, "http1"))?)?;
+    sys_modules.set_item(intern!(py, "rnet.http2"), m.getattr(intern!(py, "http2"))?)?;
+    sys_modules.set_item(intern!(py, "rnet.tls"), m.getattr(intern!(py, "tls"))?)?;
+    sys_modules.set_item(
+        intern!(py, "rnet.header"),
+        m.getattr(intern!(py, "header"))?,
+    )?;
+    sys_modules.set_item(
+        intern!(py, "rnet.cookie"),
+        m.getattr(intern!(py, "cookie"))?,
+    )?;
+    sys_modules.set_item(
+        intern!(py, "rnet.emulation"),
+        m.getattr(intern!(py, "emulation"))?,
+    )?;
+    sys_modules.set_item(
+        intern!(py, "rnet.blocking"),
+        m.getattr(intern!(py, "blocking"))?,
+    )?;
+    sys_modules.set_item(
+        intern!(py, "rnet.exceptions"),
+        m.getattr(intern!(py, "exceptions"))?,
+    )?;
     Ok(())
 }
 
@@ -276,23 +291,32 @@ fn blocking_module(m: &Bound<'_, PyModule>) -> PyResult<()> {
 
 #[pymodule(gil_used = false, name = "exceptions")]
 fn exceptions_module(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
-    m.add("DNSResolverError", py.get_type::<DNSResolverError>())?;
-    m.add("TlsError", py.get_type::<TlsError>())?;
-    m.add("BodyError", py.get_type::<BodyError>())?;
-    m.add("BuilderError", py.get_type::<BuilderError>())?;
-    m.add("ConnectionError", py.get_type::<ConnectionError>())?;
     m.add(
-        "ConnectionResetError",
+        intern!(py, "DNSResolverError"),
+        py.get_type::<DNSResolverError>(),
+    )?;
+    m.add(intern!(py, "TlsError"), py.get_type::<TlsError>())?;
+    m.add(intern!(py, "BodyError"), py.get_type::<BodyError>())?;
+    m.add(intern!(py, "BuilderError"), py.get_type::<BuilderError>())?;
+    m.add(
+        intern!(py, "ConnectionError"),
+        py.get_type::<ConnectionError>(),
+    )?;
+    m.add(
+        intern!(py, "ConnectionResetError"),
         py.get_type::<ConnectionResetError>(),
     )?;
-    m.add("DecodingError", py.get_type::<DecodingError>())?;
-    m.add("RedirectError", py.get_type::<RedirectError>())?;
-    m.add("TimeoutError", py.get_type::<TimeoutError>())?;
-    m.add("StatusError", py.get_type::<StatusError>())?;
-    m.add("RequestError", py.get_type::<RequestError>())?;
-    m.add("UpgradeError", py.get_type::<UpgradeError>())?;
-    m.add("WebSocketError", py.get_type::<WebSocketError>())?;
-    m.add("URLParseError", py.get_type::<URLParseError>())?;
-    m.add("RustPanic", py.get_type::<RustPanic>())?;
+    m.add(intern!(py, "DecodingError"), py.get_type::<DecodingError>())?;
+    m.add(intern!(py, "RedirectError"), py.get_type::<RedirectError>())?;
+    m.add(intern!(py, "TimeoutError"), py.get_type::<TimeoutError>())?;
+    m.add(intern!(py, "StatusError"), py.get_type::<StatusError>())?;
+    m.add(intern!(py, "RequestError"), py.get_type::<RequestError>())?;
+    m.add(intern!(py, "UpgradeError"), py.get_type::<UpgradeError>())?;
+    m.add(
+        intern!(py, "WebSocketError"),
+        py.get_type::<WebSocketError>(),
+    )?;
+    m.add(intern!(py, "URLParseError"), py.get_type::<URLParseError>())?;
+    m.add(intern!(py, "RustPanic"), py.get_type::<RustPanic>())?;
     Ok(())
 }

@@ -13,12 +13,13 @@ use indexmap::IndexMap;
 use pyo3::{
     FromPyObject, PyAny, PyResult, Python,
     exceptions::PyTypeError,
+    intern,
     prelude::*,
     pybacked::{PyBackedBytes, PyBackedStr},
 };
 use serde::{Deserialize, Serialize};
 
-use crate::rt::Runtime;
+use crate::bridge::Runtime;
 
 /// Represents the body of an HTTP request.
 /// Supports text, bytes, synchronous and asynchronous streaming bodies.
@@ -52,7 +53,7 @@ impl FromPyObject<'_> for Body {
             return Ok(Self::Bytes(Bytes::from_owner(bytes)));
         }
 
-        if ob.hasattr("asend")? {
+        if ob.hasattr(intern!(ob.py(), "asend"))? {
             Runtime::into_stream(ob.to_owned())
                 .map(AsyncStream::new)
                 .map(Self::AsyncStream)
@@ -99,7 +100,7 @@ impl Stream for SyncStream {
         Python::attach(|py| {
             let next = self
                 .iter
-                .call_method0(py, "__next__")
+                .call_method0(py, intern!(py, "__next__"))
                 .ok()
                 .map(|item| extract_bytes(py, item));
             py.detach(|| Poll::Ready(next))

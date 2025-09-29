@@ -7,11 +7,10 @@ mod util;
 use std::{cell::OnceCell, future::Future, pin::Pin, sync::LazyLock};
 
 use futures::channel::{mpsc, oneshot};
-use pyo3::{IntoPyObjectExt, prelude::*};
+use pyo3::{IntoPyObjectExt, call::PyCallArgs, intern, prelude::*, types::PyDict};
 use sync::{Cancellable, PyDoneCallback, Sender};
 use task::{TaskLocals, cancelled, create_future};
 use tokio::runtime::{Builder, Runtime as TokioRuntime};
-use util::{dump_err, set_result};
 
 tokio::task_local! {
     /// Task-local storage for Python context (`TaskLocals`), used to propagate
@@ -108,6 +107,52 @@ impl Runtime {
     }
 }
 
+fn set_result(
+    py: Python,
+    event_loop: Bound<PyAny>,
+    future: &Bound<PyAny>,
+    result: PyResult<Py<PyAny>>,
+) -> PyResult<()> {
+    let none = py.None().into_bound(py);
+    let (complete, val) = match result {
+        Ok(val) => (
+            future.getattr(intern!(py, "set_result"))?,
+            val.into_pyobject(py)?,
+        ),
+        Err(err) => (
+            future.getattr(intern!(py, "set_exception"))?,
+            err.into_bound_py_any(py)?,
+        ),
+    };
+    call_soon_threadsafe(
+        &event_loop,
+        &none,
+        (CheckedCompletor, future, complete, val),
+    )?;
+
+    Ok(())
+}
+
+fn call_soon_threadsafe<'py>(
+    event_loop: &Bound<'py, PyAny>,
+    context: &Bound<PyAny>,
+    args: impl PyCallArgs<'py>,
+) -> PyResult<()> {
+    let py = event_loop.py();
+    let kwargs = PyDict::new(py);
+    kwargs.set_item(intern!(py, "context"), context)?;
+    event_loop.call_method(intern!(py, "call_soon_threadsafe"), args, Some(&kwargs))?;
+    Ok(())
+}
+
+fn dump_err(py: Python<'_>) -> impl FnOnce(PyErr) + '_ {
+    move |e| {
+        // We can't display Python exceptions via std::fmt::Display,
+        // so print the error here manually.
+        e.print_and_set_sys_last_vars(py);
+    }
+}
+
 #[pyclass]
 struct CheckedCompletor;
 
@@ -142,7 +187,7 @@ where
 
     let py_fut = create_future(locals.event_loop.bind(py).clone())?;
     py_fut.call_method1(
-        "add_done_callback",
+        intern!(py, "add_done_callback"),
         (PyDoneCallback {
             cancel_tx: Some(cancel_tx),
         },),
@@ -224,10 +269,10 @@ fn into_stream_with_locals(
     let (tx, rx) = mpsc::channel(10);
 
     locals.event_loop(py).call_method1(
-        "call_soon_threadsafe",
+        intern!(py, "call_soon_threadsafe"),
         (
-            locals.event_loop(py).getattr("create_task")?,
-            glue.call_method1("forward", (g, Sender::new(locals, tx)))?,
+            locals.event_loop(py).getattr(intern!(py, "create_task"))?,
+            glue.call_method1(intern!(py, "forward"), (g, Sender::new(locals, tx)))?,
         ),
     )?;
     Ok(rx)

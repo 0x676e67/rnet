@@ -7,7 +7,7 @@ use std::{
 use pin_project_lite::pin_project;
 use pyo3::prelude::*;
 
-use crate::rt::Runtime;
+use crate::bridge::Runtime;
 
 pin_project! {
     /// A future that allows Python threads to run while it is being polled or executed.

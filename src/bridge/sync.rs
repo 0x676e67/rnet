@@ -13,9 +13,8 @@ use pin_project_lite::pin_project;
 use pyo3::{IntoPyObjectExt, exceptions::PyBaseException, prelude::*};
 
 use super::{
-    future_into_py_with_locals,
+    dump_err, future_into_py_with_locals,
     task::{TaskLocals, cancelled},
-    util::dump_err,
 };
 
 pin_project! {
