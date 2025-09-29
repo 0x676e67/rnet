@@ -3,7 +3,7 @@ use futures_util::{Stream, StreamExt};
 use pyo3::{IntoPyObjectExt, prelude::*};
 use tokio::sync::mpsc::{self, error::TryRecvError};
 
-use crate::{buffer::PyBuffer, client::nogil::NoGIL, error::Error, rt::Runtime};
+use crate::{bridge::Runtime, buffer::PyBuffer, client::nogil::NoGIL, error::Error};
 
 /// A byte stream response.
 /// An asynchronous iterator yielding data chunks from the response stream.

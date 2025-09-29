@@ -12,10 +12,10 @@ use wreq::{
 };
 
 use crate::{
+    bridge::Runtime,
     client::SocketAddr,
     error::Error,
     http::{Version, cookie::Cookie, header::HeaderMap, status::StatusCode},
-    rt::Runtime,
 };
 
 /// A WebSocket response.

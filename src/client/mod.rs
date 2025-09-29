@@ -22,13 +22,13 @@ use self::{
     resp::{BlockingResponse, BlockingWebSocket},
 };
 use crate::{
+    bridge::Runtime,
     client::resp::{Response, WebSocket},
     error::Error,
     extractor::Extractor,
     http::{Method, cookie::Jar},
     http1::Http1Options,
     http2::Http2Options,
-    rt::Runtime,
     tls::{Identity, KeyLog, TlsOptions, TlsVerify, TlsVersion},
 };
 

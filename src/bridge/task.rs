@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use ::tokio::sync::oneshot;
-use pyo3::{prelude::*, sync::PyOnceLock};
+use pyo3::{intern, prelude::*, sync::PyOnceLock};
 
 static ASYNCIO: PyOnceLock<Py<PyAny>> = PyOnceLock::new();
 static CONTEXTVARS: PyOnceLock<Py<PyAny>> = PyOnceLock::new();
@@ -15,7 +15,7 @@ pub fn ensure_future<'p>(
 ) -> PyResult<Bound<'p, PyAny>> {
     ENSURE_FUTURE
         .get_or_try_init(py, || -> PyResult<Py<PyAny>> {
-            Ok(asyncio(py)?.getattr("ensure_future")?.into())
+            Ok(asyncio(py)?.getattr(intern!(py, "ensure_future"))?.into())
         })?
         .bind(py)
         .call1((awaitable,))
@@ -23,11 +23,14 @@ pub fn ensure_future<'p>(
 
 #[inline]
 pub fn create_future(event_loop: Bound<'_, PyAny>) -> PyResult<Bound<'_, PyAny>> {
-    event_loop.call_method0("create_future")
+    event_loop.call_method0(intern!(event_loop.py(), "create_future"))
 }
 #[inline]
 pub fn cancelled(future: &Bound<PyAny>) -> PyResult<bool> {
-    future.getattr("cancelled")?.call0()?.is_truthy()
+    future
+        .getattr(intern!(future.py(), "cancelled"))?
+        .call0()?
+        .is_truthy()
 }
 
 #[inline]
@@ -102,8 +105,9 @@ struct PyTaskSender {
 impl PyTaskSender {
     #[pyo3(signature = (task))]
     pub fn __call__(&mut self, task: &Bound<PyAny>) -> PyResult<()> {
-        debug_assert!(task.call_method0("done")?.extract()?);
-        let result = match task.call_method0("result") {
+        let py = task.py();
+        debug_assert!(task.call_method0(intern!(py, "done"))?.extract()?);
+        let result = match task.call_method0(intern!(py, "result")) {
             Ok(val) => Ok(val.into()),
             Err(e) => Err(e),
         };
@@ -134,7 +138,7 @@ impl PyFuture {
         Python::attach(|py| {
             let task = ensure_future(py, self.awaitable.bind(py))?;
             let on_complete = PyTaskSender { tx: self.tx.take() };
-            task.call_method1("add_done_callback", (on_complete,))?;
+            task.call_method1(intern!(py, "add_done_callback"), (on_complete,))?;
             Ok(())
         })
     }

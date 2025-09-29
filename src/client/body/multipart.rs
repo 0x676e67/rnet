@@ -2,6 +2,7 @@ use std::path::PathBuf;
 
 use bytes::Bytes;
 use pyo3::{
+    intern,
     prelude::*,
     pybacked::{PyBackedBytes, PyBackedStr},
     types::PyTuple,
@@ -9,10 +10,10 @@ use pyo3::{
 use wreq::{Body, header::HeaderMap, multipart, multipart::Form};
 
 use crate::{
+    bridge::Runtime,
     client::body::{AsyncStream, SyncStream},
     error::Error,
     extractor::Extractor,
-    rt::Runtime,
 };
 
 /// A multipart form for a request.
@@ -143,7 +144,7 @@ impl FromPyObject<'_> for Value {
         }
 
         // Determine if it's an async or sync stream
-        if ob.hasattr("asend")? {
+        if ob.hasattr(intern!(ob.py(), "asend"))? {
             Runtime::into_stream(ob.to_owned())
                 .map(AsyncStream::new)
                 .map(Value::AsyncStream)

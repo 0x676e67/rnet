@@ -10,11 +10,11 @@ use wreq::{self, Extension, Uri, redirect, tls::TlsInfo};
 
 use super::Streamer;
 use crate::{
+    bridge::Runtime,
     buffer::PyBuffer,
     client::{SocketAddr, body::Json, nogil::NoGIL, resp::history::History},
     error::Error,
     http::{Version, cookie::Cookie, header::HeaderMap, status::StatusCode},
-    rt::Runtime,
 };
 
 /// A response from a request.
