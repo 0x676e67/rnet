@@ -31,7 +31,7 @@ A blazing-fast Python HTTP client with advanced browser fingerprinting that accu
 The following example uses the `asyncio` runtime with `rnet` installed via pip:
 
 ```bash
-pip install asyncio rnet==3.0.0rc7
+pip install asyncio rnet==3.0.0rc8
 ```
 
 And then the code:
@@ -43,7 +43,7 @@ from rnet import Client, Emulation
 
 async def main():
     # Build a client
-    client = Client(emulation=Emulation.Firefox139)
+    client = Client(emulation=Emulation.Firefox143)
 
     # Use the API you're already familiar with
     resp = await client.get("https://tls.peet.ws/api/all")
