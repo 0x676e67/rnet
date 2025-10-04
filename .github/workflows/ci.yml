@@ -36,7 +36,7 @@ jobs:
     name: style
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
 
       - uses: actions-rs/toolchain@v1
         with:
@@ -52,7 +52,7 @@ jobs:
   tests:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: actions/setup-python@v6
         with:
           python-version: 3.x
@@ -110,7 +110,7 @@ jobs:
               CXX: arm-linux-gnueabihf-g++
               CARGO_TARGET_ARMV7_UNKNOWN_LINUX_GNUEABIHF_LINKER: arm-linux-gnueabihf-g++
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: actions/setup-python@v6
         with:
           python-version: 3.x
@@ -156,7 +156,7 @@ jobs:
             target: i686-unknown-linux-musl
             allocator: jemalloc
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Build wheels
         run: 
           bash .github/musl_build.sh ${{ matrix.platform.target }} "${{ env.MATURIIN_ARGS }}" --features "${{ matrix.platform.allocator }}"
@@ -184,7 +184,7 @@ jobs:
             target: aarch64
             allocator: mimalloc
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: actions/setup-python@v6
         with:
           python-version: 3.x
@@ -218,7 +218,7 @@ jobs:
             target: aarch64
             allocator: jemalloc
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: actions/setup-python@v6
         with:
           python-version: 3.x
@@ -241,7 +241,7 @@ jobs:
   sdist:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Build sdist
         uses: PyO3/maturin-action@v1
         with:
