@@ -20,9 +20,6 @@ on:
       - 'README.md'
   workflow_dispatch:
 
-env:
-  MATURIIN_ARGS: '--find-interpreter'
-
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref_name }}-${{ github.event.pull_request.number || github.sha }}
   cancel-in-progress: true
@@ -79,6 +76,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        build_type:
+          - name: standard
+            maturin_args: ""
+          - name: free-threaded
+            maturin_args: "-interpreter 3.13t 3.14t"
         platform:
           - runner: ubuntu-latest
             target: x86_64
@@ -126,7 +128,7 @@ jobs:
         with:
           rust-toolchain: stable
           target: ${{ matrix.platform.target }}
-          args: ${{ matrix.platform.target == 'x86_64' && '--release --out dist --zig' || '--release --out dist' }} ${{ env.MATURIIN_ARGS }} --features ${{ matrix.platform.allocator }}
+          args: ${{ matrix.platform.target == 'x86_64' && '--release --out dist --zig' || '--release --out dist' }} ${{ matrix.build_type.maturin_args }} --features ${{ matrix.platform.allocator }}
           sccache: 'false'
           manylinux: auto
           container: 'off'
@@ -134,7 +136,7 @@ jobs:
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
-          name: wheels-linux-${{ matrix.platform.target }}
+          name: wheels-linux-${{ matrix.platform.target }}-${{ matrix.build_type.name }}
           path: dist
 
   musllinux:
@@ -142,6 +144,11 @@ jobs:
     environment: MuslLinux
     strategy:
       matrix:
+        build_type:
+          - name: standard
+            maturin_args: ""
+          - name: free-threaded
+            maturin_args: "-interpreter 3.13t 3.14t"
         platform:
           - runner: ubuntu-22.04
             target: x86_64-unknown-linux-musl
@@ -159,11 +166,11 @@ jobs:
       - uses: actions/checkout@v5
       - name: Build wheels
         run: 
-          bash .github/musl_build.sh ${{ matrix.platform.target }} "${{ env.MATURIIN_ARGS }}" --features "${{ matrix.platform.allocator }}"
+          bash .github/musl_build.sh ${{ matrix.platform.target }} "${{ matrix.build_type.maturin_args }}" --features "${{ matrix.platform.allocator }}"
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
-          name: wheels-musllinux-${{ matrix.platform.target }}
+          name: wheels-musllinux-${{ matrix.platform.target }}-${{ matrix.build_type.name }}
           path: dist
 
   windows:
@@ -171,6 +178,11 @@ jobs:
     environment: Windows
     strategy:
       matrix:
+        build_type:
+          - name: standard
+            maturin_args: ""
+          - name: free-threaded
+            maturin_args: "-interpreter 3.13t 3.14t"
         platform:
           - runner: windows-latest
             target: x64
@@ -197,12 +209,12 @@ jobs:
         uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.platform.target }}
-          args: --release --out dist ${{ env.MATURIIN_ARGS }} --features ${{ matrix.platform.allocator || '' }}
+          args: --release --out dist ${{ matrix.build_type.maturin_args }} --features ${{ matrix.platform.allocator || '' }}
           sccache: 'true'
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
-          name: wheels-windows-${{ matrix.platform.target }}
+          name: wheels-windows-${{ matrix.platform.target }}-${{ matrix.build_type.name }}
           path: dist
 
   macos:
@@ -210,6 +222,11 @@ jobs:
     environment: MacOS
     strategy:
       matrix:
+        build_type:
+          - name: standard
+            maturin_args: ""
+          - name: free-threaded
+            maturin_args: "-interpreter 3.13t 3.14t"
         platform:
           - runner: macos-13
             target: x86_64
@@ -230,12 +247,12 @@ jobs:
         uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.platform.target }}
-          args: --release --out dist ${{ env.MATURIIN_ARGS }} --features ${{ matrix.platform.allocator || '' }}
+          args: --release --out dist ${{ matrix.build_type.maturin_args }} --features ${{ matrix.platform.allocator || '' }}
           sccache: 'true'
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
-          name: wheels-macos-${{ matrix.platform.target }}
+          name: wheels-macos-${{ matrix.platform.target }}-${{ matrix.build_type.name }}
           path: dist
 
   sdist:
