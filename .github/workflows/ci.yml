@@ -91,13 +91,9 @@ jobs:
         submodules: 'recursive'
     - name: Install Rust target
       run: rustup target add ${{ matrix.target }}
-    - name: Setup Android NDK
-      uses: nttld/setup-ndk@v1
-      with:
-        ndk-version: r25c
     - name: Set Android Linker path
-      run: |
-        echo "CARGO_TARGET_$(echo ${{ matrix.target }} | tr '\\-a-z' '_A-Z')_LINKER=$ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/linux-x86_64/bin/${{ matrix.arch }}-linux-android21-clang++" >> "$GITHUB_ENV"
+      if: endsWith(matrix.thing, '-android')
+      run: echo "CARGO_TARGET_$(echo ${{ matrix.target }} | tr \\-a-z _A-Z)_LINKER=$ANDROID_NDK/toolchains/llvm/prebuilt/linux-x86_64/bin/$(echo ${{ matrix.target }} | sed s/armv7/armv7a/)21-clang++" >> "$GITHUB_ENV"
     - uses: actions/setup-python@v6
       with:
         python-version: 3.x
