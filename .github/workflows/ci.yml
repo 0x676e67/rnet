@@ -46,6 +46,7 @@ jobs:
 
       - name: Clippy check
         run: cargo clippy --all-targets --all-features
+
   tests:
     runs-on: ubuntu-latest
     steps:
@@ -71,6 +72,7 @@ jobs:
         run: |
           source .venv/bin/activate
           pytest
+
   manylinux:
     runs-on: ${{ matrix.platform.runner }}
     strategy:
@@ -196,8 +198,8 @@ jobs:
             target: aarch64
             allocator: mimalloc
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-python@v6
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: 3.x
           architecture: ${{ matrix.platform.python-architecture || 'x64' }}
