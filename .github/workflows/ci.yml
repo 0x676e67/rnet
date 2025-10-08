@@ -71,6 +71,57 @@ jobs:
         run: |
           source .venv/bin/activate
           pytest
+
+  android:
+    name: Android
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        thing:
+        - arm-android
+        - arm64-android
+        - aarch64-ios
+        - aarch64-ios-sim
+        include:
+        - check_only: false
+        - apt_packages: ''
+        - custom_env: {}
+        - thing: arm-android
+          target: armv7-linux-androideabi
+          rust: stable
+          os: ubuntu-latest
+        - thing: arm64-android
+          target: aarch64-linux-android
+          rust: stable
+          os: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: 'recursive'
+    - run: rustup target add ${{ matrix.target }}
+    - name: Install target-specific APT dependencies
+      if: "matrix.apt_packages != ''"
+      shell: bash
+      run: sudo apt update && sudo apt install -y ${{ matrix.apt_packages }}
+    - name: Set Android Linker path
+      if: endsWith(matrix.thing, '-android')
+      run: echo "CARGO_TARGET_$(echo ${{ matrix.target }} | tr \\-a-z _A-Z)_LINKER=$ANDROID_NDK/toolchains/llvm/prebuilt/linux-x86_64/bin/$(echo ${{ matrix.target }} | sed s/armv7/armv7a/)21-clang++" >> "$GITHUB_ENV"
+    - uses: actions/setup-python@v6
+      with:
+        python-version: 3.x
+    - name: Build wheels
+      uses: PyO3/maturin-action@v1
+      with:
+        target: ${{ matrix.platform.target }}
+        args: --release --out dist ${{ matrix.build_type.maturin_args }} --target ${{ matrix.target }}
+        sccache: 'true'
+    - name: Upload wheels
+      uses: actions/upload-artifact@v4
+      with:
+        name: wheels-macos-${{ matrix.platform.target }}-${{ matrix.build_type.name }}
+        path: dist
+
   manylinux:
     runs-on: ${{ matrix.platform.runner }}
     strategy:
@@ -255,56 +306,6 @@ jobs:
           name: wheels-macos-${{ matrix.platform.target }}-${{ matrix.build_type.name }}
           path: dist
 
-  adnroid:
-    name: Android
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        thing:
-        - arm-android
-        - arm64-android
-        - aarch64-ios
-        - aarch64-ios-sim
-        include:
-        - check_only: false
-        - apt_packages: ''
-        - custom_env: {}
-        - thing: arm-android
-          target: armv7-linux-androideabi
-          rust: stable
-          os: ubuntu-latest
-        - thing: arm64-android
-          target: aarch64-linux-android
-          rust: stable
-          os: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v4
-      with:
-        submodules: 'recursive'
-    - run: rustup target add ${{ matrix.target }}
-    - name: Install target-specific APT dependencies
-      if: "matrix.apt_packages != ''"
-      shell: bash
-      run: sudo apt update && sudo apt install -y ${{ matrix.apt_packages }}
-    - name: Set Android Linker path
-      if: endsWith(matrix.thing, '-android')
-      run: echo "CARGO_TARGET_$(echo ${{ matrix.target }} | tr \\-a-z _A-Z)_LINKER=$ANDROID_NDK/toolchains/llvm/prebuilt/linux-x86_64/bin/$(echo ${{ matrix.target }} | sed s/armv7/armv7a/)21-clang++" >> "$GITHUB_ENV"
-    - uses: actions/setup-python@v6
-      with:
-        python-version: 3.x
-    - name: Build wheels
-      uses: PyO3/maturin-action@v1
-      with:
-        target: ${{ matrix.platform.target }}
-        args: --release --out dist ${{ matrix.build_type.maturin_args }} --target ${{ matrix.target }}
-        sccache: 'true'
-    - name: Upload wheels
-      uses: actions/upload-artifact@v4
-      with:
-        name: wheels-macos-${{ matrix.platform.target }}-${{ matrix.build_type.name }}
-        path: dist
-
   sdist:
     runs-on: ubuntu-latest
     steps:
@@ -324,7 +325,7 @@ jobs:
     name: Release
     runs-on: ubuntu-latest
     if: ${{ startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch' }}
-    needs: [manylinux, musllinux, windows, macos, sdist, tests, style]
+    needs: [android, manylinux, musllinux, windows, macos, sdist, tests, style]
     permissions:
       # Use to sign the release artifacts
       id-token: write
