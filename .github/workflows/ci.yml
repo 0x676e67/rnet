@@ -74,6 +74,7 @@ jobs:
 
   android:
     name: Android
+    environment: Android
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -122,235 +123,235 @@ jobs:
         name: wheels-macos-${{ matrix.platform.target }}-${{ matrix.build_type.name }}
         path: dist
 
-  manylinux:
-    runs-on: ${{ matrix.platform.runner }}
-    strategy:
-      fail-fast: false
-      matrix:
-        build_type:
-          - name: standard
-            maturin_args: ""
-          - name: free-threaded
-            maturin_args: "--interpreter 3.13t 3.14t"
-        platform:
-          - runner: ubuntu-latest
-            target: x86_64
-            allocator: jemalloc
-            apt_packages: ''
-            custom_env: {}
-          - runner: ubuntu-latest
-            target: x86
-            allocator: jemalloc
-            apt_packages: crossbuild-essential-i386
-            custom_env:
-              CC: i686-linux-gnu-gcc
-              CXX: i686-linux-gnu-g++
-              CARGO_TARGET_I686_UNKNOWN_LINUX_GNU_LINKER: i686-linux-gnu-g++
-          - runner: ubuntu-latest
-            target: aarch64
-            allocator: jemalloc
-            apt_packages: crossbuild-essential-arm64
-            custom_env:
-              CC: aarch64-linux-gnu-gcc
-              CXX: aarch64-linux-gnu-g++
-              CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER: aarch64-linux-gnu-g++
-          - runner: ubuntu-latest
-            target: armv7
-            allocator: jemalloc
-            apt_packages: crossbuild-essential-armhf
-            custom_env:
-              CC: arm-linux-gnueabihf-gcc
-              CXX: arm-linux-gnueabihf-g++
-              CARGO_TARGET_ARMV7_UNKNOWN_LINUX_GNUEABIHF_LINKER: arm-linux-gnueabihf-g++
-    steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-python@v6
-        with:
-          python-version: 3.x
-      - name: Install LLVM and Clang
-        uses: KyleMayes/install-llvm-action@v2
-        with:
-          version: "13.0"
-      - name: Install target-specific APT dependencies
-        if: "matrix.platform.apt_packages != ''"
-        run: sudo apt-get update && sudo apt-get install -y ${{ matrix.platform.apt_packages }}
-      - name: Build wheels
-        uses: PyO3/maturin-action@v1
-        with:
-          rust-toolchain: stable
-          target: ${{ matrix.platform.target }}
-          args: ${{ matrix.platform.target == 'x86_64' && '--release --out dist --zig' || '--release --out dist' }} ${{ matrix.build_type.maturin_args }} --features ${{ matrix.platform.allocator }}
-          sccache: 'false'
-          manylinux: auto
-          container: 'off'
-        env: ${{ matrix.platform.custom_env }}
-      - name: Upload wheels
-        uses: actions/upload-artifact@v4
-        with:
-          name: wheels-linux-${{ matrix.platform.target }}-${{ matrix.build_type.name }}
-          path: dist
+  # manylinux:
+  #   runs-on: ${{ matrix.platform.runner }}
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       build_type:
+  #         - name: standard
+  #           maturin_args: ""
+  #         - name: free-threaded
+  #           maturin_args: "--interpreter 3.13t 3.14t"
+  #       platform:
+  #         - runner: ubuntu-latest
+  #           target: x86_64
+  #           allocator: jemalloc
+  #           apt_packages: ''
+  #           custom_env: {}
+  #         - runner: ubuntu-latest
+  #           target: x86
+  #           allocator: jemalloc
+  #           apt_packages: crossbuild-essential-i386
+  #           custom_env:
+  #             CC: i686-linux-gnu-gcc
+  #             CXX: i686-linux-gnu-g++
+  #             CARGO_TARGET_I686_UNKNOWN_LINUX_GNU_LINKER: i686-linux-gnu-g++
+  #         - runner: ubuntu-latest
+  #           target: aarch64
+  #           allocator: jemalloc
+  #           apt_packages: crossbuild-essential-arm64
+  #           custom_env:
+  #             CC: aarch64-linux-gnu-gcc
+  #             CXX: aarch64-linux-gnu-g++
+  #             CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER: aarch64-linux-gnu-g++
+  #         - runner: ubuntu-latest
+  #           target: armv7
+  #           allocator: jemalloc
+  #           apt_packages: crossbuild-essential-armhf
+  #           custom_env:
+  #             CC: arm-linux-gnueabihf-gcc
+  #             CXX: arm-linux-gnueabihf-g++
+  #             CARGO_TARGET_ARMV7_UNKNOWN_LINUX_GNUEABIHF_LINKER: arm-linux-gnueabihf-g++
+  #   steps:
+  #     - uses: actions/checkout@v5
+  #     - uses: actions/setup-python@v6
+  #       with:
+  #         python-version: 3.x
+  #     - name: Install LLVM and Clang
+  #       uses: KyleMayes/install-llvm-action@v2
+  #       with:
+  #         version: "13.0"
+  #     - name: Install target-specific APT dependencies
+  #       if: "matrix.platform.apt_packages != ''"
+  #       run: sudo apt-get update && sudo apt-get install -y ${{ matrix.platform.apt_packages }}
+  #     - name: Build wheels
+  #       uses: PyO3/maturin-action@v1
+  #       with:
+  #         rust-toolchain: stable
+  #         target: ${{ matrix.platform.target }}
+  #         args: ${{ matrix.platform.target == 'x86_64' && '--release --out dist --zig' || '--release --out dist' }} ${{ matrix.build_type.maturin_args }} --features ${{ matrix.platform.allocator }}
+  #         sccache: 'false'
+  #         manylinux: auto
+  #         container: 'off'
+  #       env: ${{ matrix.platform.custom_env }}
+  #     - name: Upload wheels
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         name: wheels-linux-${{ matrix.platform.target }}-${{ matrix.build_type.name }}
+  #         path: dist
 
-  musllinux:
-    runs-on: ${{ matrix.platform.runner }}
-    environment: MuslLinux
-    strategy:
-      matrix:
-        build_type:
-          - name: standard
-            maturin_args: ""
-          - name: free-threaded
-            maturin_args: "--interpreter 3.13t 3.14t"
-        platform:
-          - runner: ubuntu-22.04
-            target: x86_64-unknown-linux-musl
-            allocator: jemalloc
-          - runner: ubuntu-22.04
-            target: aarch64-unknown-linux-musl
-            allocator: jemalloc
-          - runner: ubuntu-22.04
-            target: armv7-unknown-linux-musleabihf
-            allocator: jemalloc
-          - runner: ubuntu-22.04
-            target: i686-unknown-linux-musl
-            allocator: jemalloc
-    steps:
-      - uses: actions/checkout@v5
-      - name: Build wheels
-        run: 
-          bash .github/musl_build.sh ${{ matrix.platform.target }} "${{ matrix.build_type.maturin_args }}" --features "${{ matrix.platform.allocator }}"
-      - name: Upload wheels
-        uses: actions/upload-artifact@v4
-        with:
-          name: wheels-musllinux-${{ matrix.platform.target }}-${{ matrix.build_type.name }}
-          path: dist
+  # musllinux:
+  #   runs-on: ${{ matrix.platform.runner }}
+  #   environment: MuslLinux
+  #   strategy:
+  #     matrix:
+  #       build_type:
+  #         - name: standard
+  #           maturin_args: ""
+  #         - name: free-threaded
+  #           maturin_args: "--interpreter 3.13t 3.14t"
+  #       platform:
+  #         - runner: ubuntu-22.04
+  #           target: x86_64-unknown-linux-musl
+  #           allocator: jemalloc
+  #         - runner: ubuntu-22.04
+  #           target: aarch64-unknown-linux-musl
+  #           allocator: jemalloc
+  #         - runner: ubuntu-22.04
+  #           target: armv7-unknown-linux-musleabihf
+  #           allocator: jemalloc
+  #         - runner: ubuntu-22.04
+  #           target: i686-unknown-linux-musl
+  #           allocator: jemalloc
+  #   steps:
+  #     - uses: actions/checkout@v5
+  #     - name: Build wheels
+  #       run: 
+  #         bash .github/musl_build.sh ${{ matrix.platform.target }} "${{ matrix.build_type.maturin_args }}" --features "${{ matrix.platform.allocator }}"
+  #     - name: Upload wheels
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         name: wheels-musllinux-${{ matrix.platform.target }}-${{ matrix.build_type.name }}
+  #         path: dist
 
-  windows:
-    runs-on: ${{ matrix.platform.runner }}
-    environment: Windows
-    strategy:
-      matrix:
-        build_type:
-          - name: standard
-            maturin_args: ""
-          - name: free-threaded
-            maturin_args: "--interpreter 3.13t 3.14t"
-        platform:
-          - runner: windows-latest
-            target: x64
-            allocator: mimalloc
-            python-architecture: x64
-          - runner: windows-latest
-            target: x86
-            allocator: mimalloc
-            python-architecture: x86
-          - runner: windows-latest
-            target: aarch64
-            allocator: mimalloc
-    steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-python@v6
-        with:
-          python-version: 3.x
-          architecture: ${{ matrix.platform.python-architecture || 'x64' }}
-      - name: Install NASM
-        run: |
-          choco install nasm -y
-        shell: cmd
-      - name: Build wheels
-        uses: PyO3/maturin-action@v1
-        with:
-          target: ${{ matrix.platform.target }}
-          args: --release --out dist ${{ matrix.build_type.maturin_args }} --features ${{ matrix.platform.allocator || '' }}
-          sccache: 'true'
-      - name: Upload wheels
-        uses: actions/upload-artifact@v4
-        with:
-          name: wheels-windows-${{ matrix.platform.target }}-${{ matrix.build_type.name }}
-          path: dist
+  # windows:
+  #   runs-on: ${{ matrix.platform.runner }}
+  #   environment: Windows
+  #   strategy:
+  #     matrix:
+  #       build_type:
+  #         - name: standard
+  #           maturin_args: ""
+  #         - name: free-threaded
+  #           maturin_args: "--interpreter 3.13t 3.14t"
+  #       platform:
+  #         - runner: windows-latest
+  #           target: x64
+  #           allocator: mimalloc
+  #           python-architecture: x64
+  #         - runner: windows-latest
+  #           target: x86
+  #           allocator: mimalloc
+  #           python-architecture: x86
+  #         - runner: windows-latest
+  #           target: aarch64
+  #           allocator: mimalloc
+  #   steps:
+  #     - uses: actions/checkout@v5
+  #     - uses: actions/setup-python@v6
+  #       with:
+  #         python-version: 3.x
+  #         architecture: ${{ matrix.platform.python-architecture || 'x64' }}
+  #     - name: Install NASM
+  #       run: |
+  #         choco install nasm -y
+  #       shell: cmd
+  #     - name: Build wheels
+  #       uses: PyO3/maturin-action@v1
+  #       with:
+  #         target: ${{ matrix.platform.target }}
+  #         args: --release --out dist ${{ matrix.build_type.maturin_args }} --features ${{ matrix.platform.allocator || '' }}
+  #         sccache: 'true'
+  #     - name: Upload wheels
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         name: wheels-windows-${{ matrix.platform.target }}-${{ matrix.build_type.name }}
+  #         path: dist
 
-  macos:
-    runs-on: ${{ matrix.platform.runner }}
-    environment: MacOS
-    strategy:
-      matrix:
-        build_type:
-          - name: standard
-            maturin_args: ""
-          - name: free-threaded
-            maturin_args: "--interpreter 3.13t 3.14t"
-        platform:
-          - runner: macos-13
-            target: x86_64
-            allocator: jemalloc
-          - runner: macos-14
-            target: aarch64
-            allocator: jemalloc
-    steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-python@v6
-        with:
-          python-version: 3.x
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          override: true
-      - name: Build wheels
-        uses: PyO3/maturin-action@v1
-        with:
-          target: ${{ matrix.platform.target }}
-          args: --release --out dist ${{ matrix.build_type.maturin_args }} --features ${{ matrix.platform.allocator || '' }}
-          sccache: 'true'
-      - name: Upload wheels
-        uses: actions/upload-artifact@v4
-        with:
-          name: wheels-macos-${{ matrix.platform.target }}-${{ matrix.build_type.name }}
-          path: dist
+  # macos:
+  #   runs-on: ${{ matrix.platform.runner }}
+  #   environment: MacOS
+  #   strategy:
+  #     matrix:
+  #       build_type:
+  #         - name: standard
+  #           maturin_args: ""
+  #         - name: free-threaded
+  #           maturin_args: "--interpreter 3.13t 3.14t"
+  #       platform:
+  #         - runner: macos-13
+  #           target: x86_64
+  #           allocator: jemalloc
+  #         - runner: macos-14
+  #           target: aarch64
+  #           allocator: jemalloc
+  #   steps:
+  #     - uses: actions/checkout@v5
+  #     - uses: actions/setup-python@v6
+  #       with:
+  #         python-version: 3.x
+  #     - uses: actions-rs/toolchain@v1
+  #       with:
+  #         toolchain: stable
+  #         override: true
+  #     - name: Build wheels
+  #       uses: PyO3/maturin-action@v1
+  #       with:
+  #         target: ${{ matrix.platform.target }}
+  #         args: --release --out dist ${{ matrix.build_type.maturin_args }} --features ${{ matrix.platform.allocator || '' }}
+  #         sccache: 'true'
+  #     - name: Upload wheels
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         name: wheels-macos-${{ matrix.platform.target }}-${{ matrix.build_type.name }}
+  #         path: dist
 
-  sdist:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v5
-      - name: Build sdist
-        uses: PyO3/maturin-action@v1
-        with:
-          command: sdist
-          args: --out dist
-      - name: Upload sdist
-        uses: actions/upload-artifact@v4
-        with:
-          name: wheels-sdist
-          path: dist
+  # sdist:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v5
+  #     - name: Build sdist
+  #       uses: PyO3/maturin-action@v1
+  #       with:
+  #         command: sdist
+  #         args: --out dist
+  #     - name: Upload sdist
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         name: wheels-sdist
+  #         path: dist
 
-  release:
-    name: Release
-    runs-on: ubuntu-latest
-    if: ${{ startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch' }}
-    needs: [android, manylinux, musllinux, windows, macos, sdist, tests, style]
-    permissions:
-      # Use to sign the release artifacts
-      id-token: write
-      # Used to upload release artifacts
-      contents: write
-      # Used to generate artifact attestation
-      attestations: write
-    steps:
-      - uses: actions/download-artifact@v5
-      - name: Generate artifact attestation
-        uses: actions/attest-build-provenance@v3
-        with:
-          subject-path: 'wheels-*/*'
-      - name: Publish to PyPI
-        if: ${{ startsWith(github.ref, 'refs/tags/') }}
-        uses: PyO3/maturin-action@v1
-        env:
-          MATURIN_PYPI_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
-        with:
-          command: upload
-          args: --non-interactive --skip-existing wheels-*/*
-      - name: Upload binaries to GitHub Release
-        uses: softprops/action-gh-release@v2
-        if: startsWith(github.ref, 'refs/tags/')
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          prerelease: ${{ contains(github.ref, 'alpha') || contains(github.ref, 'beta') }}
-          generate_release_notes: true
+  # release:
+  #   name: Release
+  #   runs-on: ubuntu-latest
+  #   if: ${{ startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch' }}
+  #   needs: [android, manylinux, musllinux, windows, macos, sdist, tests, style]
+  #   permissions:
+  #     # Use to sign the release artifacts
+  #     id-token: write
+  #     # Used to upload release artifacts
+  #     contents: write
+  #     # Used to generate artifact attestation
+  #     attestations: write
+  #   steps:
+  #     - uses: actions/download-artifact@v5
+  #     - name: Generate artifact attestation
+  #       uses: actions/attest-build-provenance@v3
+  #       with:
+  #         subject-path: 'wheels-*/*'
+  #     - name: Publish to PyPI
+  #       if: ${{ startsWith(github.ref, 'refs/tags/') }}
+  #       uses: PyO3/maturin-action@v1
+  #       env:
+  #         MATURIN_PYPI_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
+  #       with:
+  #         command: upload
+  #         args: --non-interactive --skip-existing wheels-*/*
+  #     - name: Upload binaries to GitHub Release
+  #       uses: softprops/action-gh-release@v2
+  #       if: startsWith(github.ref, 'refs/tags/')
+  #       with:
+  #         token: ${{ secrets.GITHUB_TOKEN }}
+  #         prerelease: ${{ contains(github.ref, 'alpha') || contains(github.ref, 'beta') }}
+  #         generate_release_notes: true
