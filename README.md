@@ -31,7 +31,7 @@ A blazing-fast Python HTTP client with advanced browser fingerprinting that accu
 The following example uses the `asyncio` runtime with `rnet` installed via pip:
 
 ```bash
-pip install asyncio rnet==3.0.0rc8
+pip install asyncio rnet==3.0.0-rc9
 ```
 
 And then the code:
@@ -100,6 +100,8 @@ Additional learning resources include:
 2. macOS: `x86_64`,`aarch64`
 
 3. Windows: `x86_64`,`i686`,`aarch64`
+
+4. Android: `aarch64`, `x86_64`
 
 ## Building
 
