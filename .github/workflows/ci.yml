@@ -180,6 +180,11 @@ jobs:
     environment: Windows
     strategy:
       matrix:
+        build_type:
+          - name: standard
+            maturin_args: "--find-interpreter"
+          - name: free-threaded
+            maturin_args: "--interpreter 3.13t 3.14t"
         platform:
           - runner: windows-latest
             target: x64
@@ -193,8 +198,8 @@ jobs:
             target: aarch64
             allocator: mimalloc
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: 3.x
           architecture: ${{ matrix.platform.python-architecture || 'x64' }}
@@ -205,13 +210,14 @@ jobs:
       - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:
+          maturin-version: v1.9.4
           target: ${{ matrix.platform.target }}
-          args: --release --out dist --find-interpreter --features ${{ matrix.platform.allocator || '' }}
-          sccache: 'true'
+          args: --release --out dist ${{ matrix.build_type.maturin_args }} --features ${{ matrix.platform.allocator || '' }}
+          sccache: 'false'
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
-          name: wheels-windows-${{ matrix.platform.target }}
+          name: wheels-windows-${{ matrix.platform.target }}-${{ matrix.build_type.name }}
           path: dist
 
   macos:
