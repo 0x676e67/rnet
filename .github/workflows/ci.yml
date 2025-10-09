@@ -206,7 +206,7 @@ jobs:
         uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.platform.target }}
-          args: --release --out dist ${{ env.MATURIIN_ARGS }} --features ${{ matrix.platform.allocator || '' }}
+          args: --release --out dist --find-interpreter --features ${{ matrix.platform.allocator || '' }}
           sccache: 'true'
       - name: Upload wheels
         uses: actions/upload-artifact@v4
