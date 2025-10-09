@@ -277,8 +277,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - name: Install Rust target
-      run: rustup target add ${{ matrix.target }}
     - uses: actions/setup-python@v6
       with:
         python-version: 3.x
@@ -311,7 +309,7 @@ jobs:
       uses: PyO3/maturin-action@v1
       with:
         rust-toolchain: stable
-        target: ${{ matrix.platform.target }}
+        target: ${{ matrix.target }}
         args: --release --out dist --no-default-features --features ${{ matrix.features }} --skip-auditwheel
         sccache: 'false'
         container: 'off'
