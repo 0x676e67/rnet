@@ -268,12 +268,12 @@ jobs:
           target: aarch64-linux-android
           arch: aarch64
           python_version: 3.14.0
-          features: jemalloc abi3-py314
+          features: abi3-py314
         - thing: x86_64-android
           target: x86_64-linux-android
           arch: x86_64
           python_version: 3.14.0
-          features: jemalloc abi3-py314
+          features: abi3-py314
 
     steps:
     - uses: actions/checkout@v4
@@ -314,7 +314,7 @@ jobs:
       with:
         rust-toolchain: stable
         target: ${{ matrix.platform.target }}
-        args: --release --out dist --no-default-features --features ${{ matrix.features }} --skip-auditwheel --find-interpreter
+        args: --release --out dist --no-default-features --features ${{ matrix.features }} --skip-auditwheel
         sccache: 'false'
         container: 'off'
     - name: Upload wheels
