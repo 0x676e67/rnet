@@ -277,10 +277,11 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-      with:
-        submodules: 'recursive'
     - name: Install Rust target
       run: rustup target add ${{ matrix.target }}
+    - uses: actions/setup-python@v6
+      with:
+        python-version: 3.x
     - name: Set Android Linker path
       if: endsWith(matrix.thing, '-android')
       run: | 
