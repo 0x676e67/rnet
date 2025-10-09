@@ -311,7 +311,7 @@ jobs:
       with:
         rust-toolchain: stable
         target: ${{ matrix.platform.target }}
-        args: --release --out dist --target ${{ matrix.target }} --no-default-features --features ${{ matrix.features }} --skip-auditwheel
+        args: --release --out dist --target ${{ matrix.target }} --no-default-features --features ${{ matrix.features }} --skip-auditwheel --find-interpreter
         sccache: 'false'
         container: 'off'
     - name: Upload wheels
