@@ -80,7 +80,7 @@ jobs:
       matrix:
         build_type:
           - name: standard
-            maturin_args: ""
+            maturin_args: "--find-interpreter"
           - name: free-threaded
             maturin_args: "--interpreter 3.13t 3.14t"
         platform:
@@ -148,7 +148,7 @@ jobs:
       matrix:
         build_type:
           - name: standard
-            maturin_args: ""
+            maturin_args: "--find-interpreter"
           - name: free-threaded
             maturin_args: "--interpreter 3.13t 3.14t"
         platform:
@@ -182,7 +182,7 @@ jobs:
       matrix:
         build_type:
           - name: standard
-            maturin_args: ""
+            maturin_args: "--find-interpreter"
           - name: free-threaded
             maturin_args: "--interpreter 3.13t 3.14t"
         platform:
@@ -226,7 +226,7 @@ jobs:
       matrix:
         build_type:
           - name: standard
-            maturin_args: ""
+            maturin_args: "--find-interpreter"
           - name: free-threaded
             maturin_args: "--interpreter 3.13t 3.14t"
         platform:
