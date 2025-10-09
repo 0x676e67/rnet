@@ -307,8 +307,6 @@ jobs:
         ls -la /tmp/python-android/lib/ | head -10
         echo "=== Include directory ==="
         ls -la /tmp/python-android/include/
-    - name: Setup tmate session
-      uses: mxschmitt/action-tmate@v3
     - name: Build wheels
       uses: PyO3/maturin-action@v1
       with:
