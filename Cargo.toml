@@ -16,12 +16,13 @@ crate-type = ["cdylib"]
 doctest = false
 
 [features]
-default = ["abi3"]
+default = ["abi3-py311"]
 jemalloc = ["dep:tikv-jemallocator"]
 mimalloc = ["dep:mimalloc"]
 
 # we build cp311-abi3 and cp310 wheels now, move this to pyo3 after we drop cp310
-abi3 = ["pyo3/abi3-py311"]
+abi3-py311 = ["pyo3/abi3-py311"]
+abi3-py314 = ["pyo3/abi3-py314"]
 
 [dependencies]
 tokio = { version = "1.47.1", features = ["sync", "rt", "rt-multi-thread", "time"]}
