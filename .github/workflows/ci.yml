@@ -307,12 +307,14 @@ jobs:
         ls -la /tmp/python-android/lib/ | head -10
         echo "=== Include directory ==="
         ls -la /tmp/python-android/include/
+    - name: Setup tmate session
+      uses: mxschmitt/action-tmate@v3
     - name: Build wheels
       uses: PyO3/maturin-action@v1
       with:
         rust-toolchain: stable
         target: ${{ matrix.platform.target }}
-        args: --release --out dist --target ${{ matrix.target }} --no-default-features --features ${{ matrix.features }} --skip-auditwheel --find-interpreter
+        args: --release --out dist --no-default-features --features ${{ matrix.features }} --skip-auditwheel --find-interpreter
         sccache: 'false'
         container: 'off'
     - name: Upload wheels
