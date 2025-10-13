@@ -8,7 +8,7 @@
 
 > 🚀 Help me work seamlessly with open source sharing by [sponsoring me on GitHub](https://github.com/0x676e67/0x676e67/blob/main/SPONSOR.md)
 
-A blazing-fast Python HTTP client with advanced browser fingerprinting that accurately emulates **Chrome**, **Firefox**, **Safari**, **Opera**, and **OkHttp**, with precise TLS and HTTP2 signatures, and powered by [wreq](https://github.com/0x676e67/wreq) for high performance.
+A blazing-fast, ergonomic, and modular Python HTTP client for advanced and low-level emulation, featuring customizable TLS, JA3/JA4, and HTTP/2 fingerprinting capabilities, powered by [wreq](https://github.com/0x676e67/wreq).
 
 ## Features
 
