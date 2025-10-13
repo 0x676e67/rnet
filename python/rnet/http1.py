@@ -2,7 +2,7 @@
 HTTP/1 connection configuration.
 """
 
-from typing import TypedDict, Unpack, NotRequired
+from typing import TypedDict, Unpack, NotRequired, final
 
 __all__ = ["Http1Options", "Params"]
 
@@ -53,6 +53,7 @@ class Params(TypedDict):
     """
 
 
+@final
 class Http1Options:
     """
     HTTP/1 protocol options for customizing connection behavior.

@@ -4,7 +4,7 @@ HTTP/2 connection configuration.
 
 import datetime
 from enum import Enum, auto
-from typing import ClassVar, Self, TypedDict, NotRequired, Unpack
+from typing import ClassVar, Self, TypedDict, NotRequired, Unpack, final
 
 __all__ = [
     "StreamId",
@@ -20,6 +20,7 @@ __all__ = [
 ]
 
 
+@final
 class PseudoId(Enum):
     """
     Represents the order of HTTP/2 pseudo-header fields in the header block.
@@ -37,6 +38,7 @@ class PseudoId(Enum):
     STATUS = auto()
 
 
+@final
 class SettingId(Enum):
     """
     An enum that lists all valid settings that can be sent in a SETTINGS frame.
@@ -94,6 +96,7 @@ class SettingId(Enum):
     """
 
 
+@final
 class StreamId:
     """
     A stream identifier, as described in [Section 5.1.1] of RFC 7540.
@@ -121,6 +124,7 @@ class StreamId:
         ...
 
 
+@final
 class StreamDependency:
     """
     Represents a stream dependency in HTTP/2 priority frames.
@@ -146,6 +150,7 @@ class StreamDependency:
         ...
 
 
+@final
 class Priority:
     """
     Represents an HTTP/2 PRIORITY frame (type=0x2).
@@ -168,6 +173,7 @@ class Priority:
         ...
 
 
+@final
 class Priorities:
     """
     A collection of HTTP/2 PRIORITY frames.
@@ -186,6 +192,7 @@ class Priorities:
         ...
 
 
+@final
 class PseudoOrder:
     """
     Represents the order of HTTP/2 pseudo-header fields in the header block.
@@ -203,6 +210,7 @@ class PseudoOrder:
         ...
 
 
+@final
 class SettingsOrder:
     """
     Represents the order of HTTP/2 settings parameters in the SETTINGS frame.
@@ -337,6 +345,7 @@ class Params(TypedDict):
     """
 
 
+@final
 class Http2Options:
     """
     Configuration for an HTTP/2 connection.

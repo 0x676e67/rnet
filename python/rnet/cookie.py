@@ -8,11 +8,12 @@ and provides a cookie jar for automatic cookie handling during HTTP requests.
 
 import datetime
 from enum import Enum, auto
-from typing import List, Optional
+from typing import List, Optional, final
 
 __all__ = ["SameSite", "Cookie", "Jar"]
 
 
+@final
 class SameSite(Enum):
     r"""
     The Cookie SameSite attribute.

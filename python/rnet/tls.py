@@ -8,7 +8,7 @@ These types are typically used to configure client-side TLS authentication and c
 
 from enum import Enum, auto
 from pathlib import Path
-from typing import List, NotRequired, TypedDict, Unpack
+from typing import List, NotRequired, TypedDict, Unpack, final
 
 __all__ = [
     "TlsVersion",
@@ -24,6 +24,7 @@ __all__ = [
 ]
 
 
+@final
 class TlsVersion(Enum):
     r"""
     The TLS version.
@@ -35,6 +36,7 @@ class TlsVersion(Enum):
     TLS_1_3 = auto()
 
 
+@final
 class AlpnProtocol(Enum):
     """
     A TLS ALPN protocol.
@@ -45,6 +47,7 @@ class AlpnProtocol(Enum):
     HTTP3 = auto()
 
 
+@final
 class AlpsProtocol(Enum):
     """
     Application-layer protocol settings for HTTP/1.1 and HTTP/2.
@@ -55,6 +58,7 @@ class AlpsProtocol(Enum):
     HTTP3 = auto()
 
 
+@final
 class CertificateCompressionAlgorithm(Enum):
     """
     IANA assigned identifier of compression algorithm.
@@ -66,6 +70,7 @@ class CertificateCompressionAlgorithm(Enum):
     ZSTD = auto()
 
 
+@final
 class ExtensionType(Enum):
     """
     A TLS extension type.
@@ -103,6 +108,7 @@ class ExtensionType(Enum):
     RECORD_SIZE_LIMIT = auto()
 
 
+@final
 class Identity:
     """
     Represents a private key and X509 cert as a client certificate.
@@ -138,6 +144,7 @@ class Identity:
         ...
 
 
+@final
 class CertStore:
     """
     Represents a certificate store for verifying TLS connections.
@@ -190,6 +197,7 @@ class CertStore:
         ...
 
 
+@final
 class KeyLog:
     """
     Specifies the intent for a (TLS) keylogger to be used in a client or server configuration.
@@ -398,6 +406,7 @@ class Params(TypedDict):
     """
 
 
+@final
 class TlsOptions:
     """
     TLS connection configuration options.
