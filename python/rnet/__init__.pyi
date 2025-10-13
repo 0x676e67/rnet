@@ -12,6 +12,7 @@ from typing import (
     TypedDict,
     Unpack,
     NotRequired,
+    final,
 )
 from pathlib import Path
 from enum import Enum, auto
@@ -23,6 +24,7 @@ from .header import *
 from .emulation import *
 from .tls import *
 
+@final
 class Method(Enum):
     r"""
     An HTTP method.
@@ -37,6 +39,7 @@ class Method(Enum):
     TRACE = auto()
     PATCH = auto()
 
+@final
 class Version(Enum):
     r"""
     An HTTP version.
@@ -48,6 +51,7 @@ class Version(Enum):
     HTTP_2 = auto()
     HTTP_3 = auto()
 
+@final
 class StatusCode:
     r"""
     HTTP status code.
@@ -90,6 +94,7 @@ class StatusCode:
         """
         ...
 
+@final
 class SocketAddr:
     r"""
     A IP socket address.
@@ -106,6 +111,7 @@ class SocketAddr:
         Returns the port number of the socket address.
         """
 
+@final
 class Multipart:
     r"""
     A multipart form for a request.
@@ -117,6 +123,7 @@ class Multipart:
         """
         ...
 
+@final
 class Part:
     r"""
     A part of a multipart form.
@@ -166,6 +173,7 @@ class ProxyParams(TypedDict):
     exclusion: NotRequired[str]
     r"""List of domains to exclude from proxying."""
 
+@final
 class Proxy:
     r"""
     A proxy server for a request.
@@ -332,6 +340,7 @@ class Message:
 
     def __str__(self) -> str: ...
 
+@final
 class History:
     """
     An entry in the redirect history.

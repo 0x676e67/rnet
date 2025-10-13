@@ -9,10 +9,12 @@ authentic and less likely to be blocked by anti-bot systems.
 """
 
 from enum import Enum, auto
+from typing import final
 
 __all__ = ["Emulation", "EmulationOS", "EmulationOption"]
 
 
+@final
 class Emulation(Enum):
     r"""
     An emulation.
@@ -114,6 +116,7 @@ class Emulation(Enum):
     Opera119 = auto()
 
 
+@final
 class EmulationOS(Enum):
     """
     Operating systems that can be emulated.
@@ -129,6 +132,7 @@ class EmulationOS(Enum):
     IOS = auto()  # iOS (iPhone/iPad)
 
 
+@final
 class EmulationOption:
     """
     Configuration options for browser and client emulation.
