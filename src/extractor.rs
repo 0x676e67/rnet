@@ -186,3 +186,29 @@ impl FromPyObject<'_> for Extractor<std::net::IpAddr> {
         ob.extract().map(Self)
     }
 }
+
+/// Extractor for DNS resolve mappings as [`Vec<(PyBackedStr, Vec<std::net::SocketAddr>)>`].
+impl FromPyObject<'_> for Extractor<Vec<(PyBackedStr, Vec<std::net::SocketAddr>)>> {
+    fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
+        let dict = ob.cast::<PyDict>()?;
+        dict.iter()
+            .try_fold(
+                Vec::with_capacity(dict.len()),
+                |mut list, (domain, addrs)| {
+                    let domain = domain.extract::<PyBackedStr>()?;
+                    let addrs = addrs
+                        .cast::<PyList>()?
+                        .iter()
+                        .map(|addr| {
+                            addr.extract::<std::net::IpAddr>()
+                                .map(|addr| std::net::SocketAddr::new(addr, 0))
+                        })
+                        .collect::<Result<Vec<_>, _>>()?;
+
+                    list.push((domain, addrs));
+                    Ok(list)
+                },
+            )
+            .map(Self)
+    }
+}

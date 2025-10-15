@@ -58,7 +58,7 @@ impl fmt::Display for SocketAddr {
 
 /// A builder for `Client`.
 #[derive(Default)]
-pub struct Builder {
+struct Builder {
     /// The Emulation settings for the client.
     emulation: Option<Extractor<EmulationOption>>,
     /// The user agent to use for the client.
@@ -152,6 +152,9 @@ pub struct Builder {
     /// Bind to an interface by `SO_BINDTODEVICE`.
     interface: Option<String>,
 
+    // ========= DNS options =========
+    resolve_to_addrs: Option<Extractor<Vec<(PyBackedStr, Vec<std::net::SocketAddr>)>>>,
+
     // ========= Compression options =========
     /// Sets gzip as an accepted encoding.
     gzip: Option<bool>,
@@ -213,6 +216,8 @@ impl<'py> FromPyObject<'py> for Builder {
         extract_option!(ob, params, max_tls_version);
         extract_option!(ob, params, tls_options);
 
+        extract_option!(ob, params, resolve_to_addrs);
+
         extract_option!(ob, params, gzip);
         extract_option!(ob, params, brotli);
         extract_option!(ob, params, deflate);
@@ -234,134 +239,10 @@ pub struct BlockingClient(Client);
 
 #[pymethods]
 impl Client {
-    /// Make a GET request to the given URL.
-    #[inline]
-    #[pyo3(signature = (url, **kwds))]
-    pub fn get<'py>(
-        &self,
-        py: Python<'py>,
-        url: PyBackedStr,
-        kwds: Option<Request>,
-    ) -> PyResult<Bound<'py, PyAny>> {
-        self.request(py, Method::GET, url, kwds)
-    }
-
-    /// Make a HEAD request to the given URL.
-    #[inline]
-    #[pyo3(signature = (url, **kwds))]
-    pub fn head<'py>(
-        &self,
-        py: Python<'py>,
-        url: PyBackedStr,
-        kwds: Option<Request>,
-    ) -> PyResult<Bound<'py, PyAny>> {
-        self.request(py, Method::HEAD, url, kwds)
-    }
-
-    /// Make a POST request to the given URL.
-    #[inline]
-    #[pyo3(signature = (url, **kwds))]
-    pub fn post<'py>(
-        &self,
-        py: Python<'py>,
-        url: PyBackedStr,
-        kwds: Option<Request>,
-    ) -> PyResult<Bound<'py, PyAny>> {
-        self.request(py, Method::POST, url, kwds)
-    }
-
-    /// Make a PUT request to the given URL.
-    #[inline]
-    #[pyo3(signature = (url, **kwds))]
-    pub fn put<'py>(
-        &self,
-        py: Python<'py>,
-        url: PyBackedStr,
-        kwds: Option<Request>,
-    ) -> PyResult<Bound<'py, PyAny>> {
-        self.request(py, Method::PUT, url, kwds)
-    }
-
-    /// Make a DELETE request to the given URL.
-    #[inline]
-    #[pyo3(signature = (url, **kwds))]
-    pub fn delete<'py>(
-        &self,
-        py: Python<'py>,
-        url: PyBackedStr,
-        kwds: Option<Request>,
-    ) -> PyResult<Bound<'py, PyAny>> {
-        self.request(py, Method::DELETE, url, kwds)
-    }
-
-    /// Make a PATCH request to the given URL.
-    #[inline]
-    #[pyo3(signature = (url, **kwds))]
-    pub fn patch<'py>(
-        &self,
-        py: Python<'py>,
-        url: PyBackedStr,
-        kwds: Option<Request>,
-    ) -> PyResult<Bound<'py, PyAny>> {
-        self.request(py, Method::PATCH, url, kwds)
-    }
-
-    /// Make a OPTIONS request to the given URL.
-    #[inline]
-    #[pyo3(signature = (url, **kwds))]
-    pub fn options<'py>(
-        &self,
-        py: Python<'py>,
-        url: PyBackedStr,
-        kwds: Option<Request>,
-    ) -> PyResult<Bound<'py, PyAny>> {
-        self.request(py, Method::OPTIONS, url, kwds)
-    }
-
-    /// Make a TRACE request to the given URL.
-    #[inline]
-    #[pyo3(signature = (url, **kwds))]
-    pub fn trace<'py>(
-        &self,
-        py: Python<'py>,
-        url: PyBackedStr,
-        kwds: Option<Request>,
-    ) -> PyResult<Bound<'py, PyAny>> {
-        self.request(py, Method::TRACE, url, kwds)
-    }
-
-    /// Make a request with the given method and URL.
-    #[inline]
-    #[pyo3(signature = (method, url, **kwds))]
-    pub fn request<'py>(
-        &self,
-        py: Python<'py>,
-        method: Method,
-        url: PyBackedStr,
-        kwds: Option<Request>,
-    ) -> PyResult<Bound<'py, PyAny>> {
-        Runtime::future_into_py(py, execute_request(self.clone().0, method, url, kwds))
-    }
-
-    /// Make a WebSocket request to the given URL.
-    #[inline]
-    #[pyo3(signature = (url, **kwds))]
-    pub fn websocket<'py>(
-        &self,
-        py: Python<'py>,
-        url: PyBackedStr,
-        kwds: Option<WebSocketRequest>,
-    ) -> PyResult<Bound<'py, PyAny>> {
-        Runtime::future_into_py(py, execute_websocket_request(self.clone().0, url, kwds))
-    }
-}
-
-#[pymethods]
-impl Client {
     /// Creates a new Client instance.
     #[new]
     #[pyo3(signature = (**kwds))]
-    pub fn new(py: Python, mut kwds: Option<Builder>) -> PyResult<Client> {
+    fn new(py: Python, mut kwds: Option<Builder>) -> PyResult<Client> {
         py.detach(|| {
             let params = kwds.get_or_insert_default();
             let mut builder = wreq::Client::builder();
@@ -567,6 +448,13 @@ impl Client {
             ))]
             apply_option!(set_if_some, builder, params.interface, interface);
 
+            // DNS options.
+            if let Some(resolve_to_addrs) = params.resolve_to_addrs.take() {
+                for (domain, addrs) in resolve_to_addrs.0 {
+                    builder = builder.resolve_to_addrs(&domain, addrs.as_slice());
+                }
+            }
+
             // Compression options.
             apply_option!(set_if_some, builder, params.gzip, gzip);
             apply_option!(set_if_some, builder, params.brotli, brotli);
@@ -583,7 +471,141 @@ impl Client {
     }
 }
 
+#[pymethods]
+impl Client {
+    /// Make a GET request to the given URL.
+    #[inline]
+    #[pyo3(signature = (url, **kwds))]
+    pub fn get<'py>(
+        &self,
+        py: Python<'py>,
+        url: PyBackedStr,
+        kwds: Option<Request>,
+    ) -> PyResult<Bound<'py, PyAny>> {
+        self.request(py, Method::GET, url, kwds)
+    }
+
+    /// Make a HEAD request to the given URL.
+    #[inline]
+    #[pyo3(signature = (url, **kwds))]
+    pub fn head<'py>(
+        &self,
+        py: Python<'py>,
+        url: PyBackedStr,
+        kwds: Option<Request>,
+    ) -> PyResult<Bound<'py, PyAny>> {
+        self.request(py, Method::HEAD, url, kwds)
+    }
+
+    /// Make a POST request to the given URL.
+    #[inline]
+    #[pyo3(signature = (url, **kwds))]
+    pub fn post<'py>(
+        &self,
+        py: Python<'py>,
+        url: PyBackedStr,
+        kwds: Option<Request>,
+    ) -> PyResult<Bound<'py, PyAny>> {
+        self.request(py, Method::POST, url, kwds)
+    }
+
+    /// Make a PUT request to the given URL.
+    #[inline]
+    #[pyo3(signature = (url, **kwds))]
+    pub fn put<'py>(
+        &self,
+        py: Python<'py>,
+        url: PyBackedStr,
+        kwds: Option<Request>,
+    ) -> PyResult<Bound<'py, PyAny>> {
+        self.request(py, Method::PUT, url, kwds)
+    }
+
+    /// Make a DELETE request to the given URL.
+    #[inline]
+    #[pyo3(signature = (url, **kwds))]
+    pub fn delete<'py>(
+        &self,
+        py: Python<'py>,
+        url: PyBackedStr,
+        kwds: Option<Request>,
+    ) -> PyResult<Bound<'py, PyAny>> {
+        self.request(py, Method::DELETE, url, kwds)
+    }
+
+    /// Make a PATCH request to the given URL.
+    #[inline]
+    #[pyo3(signature = (url, **kwds))]
+    pub fn patch<'py>(
+        &self,
+        py: Python<'py>,
+        url: PyBackedStr,
+        kwds: Option<Request>,
+    ) -> PyResult<Bound<'py, PyAny>> {
+        self.request(py, Method::PATCH, url, kwds)
+    }
+
+    /// Make a OPTIONS request to the given URL.
+    #[inline]
+    #[pyo3(signature = (url, **kwds))]
+    pub fn options<'py>(
+        &self,
+        py: Python<'py>,
+        url: PyBackedStr,
+        kwds: Option<Request>,
+    ) -> PyResult<Bound<'py, PyAny>> {
+        self.request(py, Method::OPTIONS, url, kwds)
+    }
+
+    /// Make a TRACE request to the given URL.
+    #[inline]
+    #[pyo3(signature = (url, **kwds))]
+    pub fn trace<'py>(
+        &self,
+        py: Python<'py>,
+        url: PyBackedStr,
+        kwds: Option<Request>,
+    ) -> PyResult<Bound<'py, PyAny>> {
+        self.request(py, Method::TRACE, url, kwds)
+    }
+
+    /// Make a request with the given method and URL.
+    #[inline]
+    #[pyo3(signature = (method, url, **kwds))]
+    pub fn request<'py>(
+        &self,
+        py: Python<'py>,
+        method: Method,
+        url: PyBackedStr,
+        kwds: Option<Request>,
+    ) -> PyResult<Bound<'py, PyAny>> {
+        Runtime::future_into_py(py, execute_request(self.clone().0, method, url, kwds))
+    }
+
+    /// Make a WebSocket request to the given URL.
+    #[inline]
+    #[pyo3(signature = (url, **kwds))]
+    pub fn websocket<'py>(
+        &self,
+        py: Python<'py>,
+        url: PyBackedStr,
+        kwds: Option<WebSocketRequest>,
+    ) -> PyResult<Bound<'py, PyAny>> {
+        Runtime::future_into_py(py, execute_websocket_request(self.clone().0, url, kwds))
+    }
+}
+
 // ====== BlockingClient ======
+
+#[pymethods]
+impl BlockingClient {
+    /// Creates a new blocking Client instance.
+    #[new]
+    #[pyo3(signature = (**kwds))]
+    fn new(py: Python, kwds: Option<Builder>) -> PyResult<BlockingClient> {
+        Client::new(py, kwds).map(BlockingClient)
+    }
+}
 
 #[pymethods]
 impl BlockingClient {
@@ -709,16 +731,6 @@ impl BlockingClient {
             Runtime::block_on(execute_websocket_request(self.0.clone().0, url, kwds))
                 .map(Into::into)
         })
-    }
-}
-
-#[pymethods]
-impl BlockingClient {
-    /// Creates a new blocking Client instance.
-    #[new]
-    #[pyo3(signature = (**kwds))]
-    fn new(py: Python, kwds: Option<Builder>) -> PyResult<BlockingClient> {
-        Client::new(py, kwds).map(BlockingClient)
     }
 }
 
