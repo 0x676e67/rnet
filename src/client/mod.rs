@@ -153,6 +153,7 @@ struct Builder {
     interface: Option<String>,
 
     // ========= DNS options =========
+    #[allow(clippy::type_complexity)]
     resolve_to_addrs: Option<Extractor<Vec<(PyBackedStr, Vec<std::net::SocketAddr>)>>>,
 
     // ========= Compression options =========
