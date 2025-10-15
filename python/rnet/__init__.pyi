@@ -789,7 +789,7 @@ class ClientParams(TypedDict):
     # ========= DNS options =========
 
     resolve_to_addrs: NotRequired[
-        Dict[Tuple[str, List[Union[ipaddress.IPv4Address, ipaddress.IPv6Address]]]]
+        Dict[str, List[Union[ipaddress.IPv4Address, ipaddress.IPv6Address]]]
     ]
 
     # ========= Compression options =========
