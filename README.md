@@ -18,10 +18,10 @@ A blazing-fast, ergonomic, and modular Python HTTP client for advanced and low-l
 - Redirect Policy
 - Original Headers
 - Rotating Proxies
-- WebSocket Upgrade
 - Connection Pooling
 - Streaming Transfers
 - Zero-Copy Transfers
+- WebSocket Upgrade
 - HTTPS via BoringSSL
 - Free-Threaded Safety
 - Automatic Decompression
