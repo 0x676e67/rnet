@@ -13,6 +13,7 @@ mod macros;
 mod bridge;
 mod buffer;
 mod client;
+mod dns;
 mod emulation;
 mod error;
 mod extractor;
