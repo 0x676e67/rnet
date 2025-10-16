@@ -79,6 +79,16 @@ impl Runtime {
         TOKIO_RUNTIME.spawn(fut);
     }
 
+    /// Spawn a blocking function onto the runtime
+    #[inline]
+    pub fn spawn_blocking<F, R>(f: F)
+    where
+        F: FnOnce() -> R + Send + 'static,
+        R: Send + 'static,
+    {
+        TOKIO_RUNTIME.spawn_blocking(f);
+    }
+
     /// Block on a future using the runtime
     #[inline]
     pub fn block_on<F, R>(fut: F) -> R
@@ -219,7 +229,7 @@ where
             // spawn a blocking task to set the result of the future. We re-acquire
             // the GIL only inside `Python::attach`, bind the owned handles, and
             // perform a short-lived call to set the result.
-            tokio::task::spawn_blocking(move || {
+            Runtime::spawn_blocking(move || {
                 Python::attach(|py| {
                     let future_tx = future_tx.bind(py);
                     if cancelled(future_tx).map_err(dump_err(py)).unwrap_or(false) {
@@ -230,8 +240,8 @@ where
                     let event_loop = event_loop.bind(py);
                     set_result(py, event_loop, future_tx, result).map_err(dump_err(py));
                 });
-            });
-        });
+            })
+        })
     });
 
     Ok(py_fut)
