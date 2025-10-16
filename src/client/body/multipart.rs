@@ -10,10 +10,10 @@ use pyo3::{
 use wreq::{Body, header::HeaderMap, multipart, multipart::Form};
 
 use crate::{
-    bridge::Runtime,
     client::body::{AsyncStream, SyncStream},
     error::Error,
     extractor::Extractor,
+    rt::Runtime,
 };
 
 /// A multipart form for a request.

@@ -2,7 +2,7 @@ pub mod body;
 pub mod req;
 pub mod resp;
 
-mod nogil;
+mod future;
 
 use std::{fmt, net::IpAddr, sync::Arc, time::Duration};
 
@@ -18,7 +18,6 @@ use wreq_util::EmulationOption;
 
 use self::resp::{BlockingResponse, BlockingWebSocket};
 use crate::{
-    bridge::Runtime,
     client::resp::{Response, WebSocket},
     dns::HickoryDnsResolver,
     error::Error,
@@ -26,6 +25,7 @@ use crate::{
     http::{Method, cookie::Jar},
     http1::Http1Options,
     http2::Http2Options,
+    rt::Runtime,
     tls::{Identity, KeyLog, TlsOptions, TlsVerify, TlsVersion},
 };
 

@@ -68,6 +68,7 @@ impl Resolve for HickoryDnsResolver {
 impl Iterator for SocketAddrs {
     type Item = SocketAddr;
 
+    #[inline(always)]
     fn next(&mut self) -> Option<Self::Item> {
         self.iter.next().map(|ip_addr| SocketAddr::new(ip_addr, 0))
     }

@@ -10,7 +10,6 @@ use tikv_jemallocator as _;
 
 #[macro_use]
 mod macros;
-mod bridge;
 mod buffer;
 mod client;
 mod dns;
@@ -21,12 +20,12 @@ mod http;
 mod http1;
 mod http2;
 mod proxy;
+mod rt;
 mod tls;
 
 use pyo3::{intern, prelude::*, pybacked::PyBackedStr, types::PyDict, wrap_pymodule};
 
 use self::{
-    bridge::Runtime,
     client::{
         BlockingClient, Client, SocketAddr,
         body::multipart::{Multipart, Part},
@@ -50,6 +49,7 @@ use self::{
         StreamDependency, StreamId,
     },
     proxy::Proxy,
+    rt::Runtime,
     tls::{
         AlpnProtocol, AlpsProtocol, CertStore, CertificateCompressionAlgorithm, ExtensionType,
         Identity, KeyLog, TlsOptions, TlsVersion,
