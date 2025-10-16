@@ -11,7 +11,7 @@ use crate::rt::Runtime;
 
 pin_project! {
     /// A future that can be either a Rust Future or a closure to be executed in a thread pool.
-    #[project = NoGILProj]
+    #[project = PyFutureProj]
     pub enum PyFuture<Fut, F> {
         Future {
             #[pin]
@@ -61,7 +61,7 @@ where
     fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
         let waker = cx.waker();
         match self.project() {
-            NoGILProj::Future { inner } => inner.poll(&mut Context::from_waker(waker)),
+            PyFutureProj::Future { inner } => inner.poll(&mut Context::from_waker(waker)),
             _ => unreachable!("Future variant should not contain Closure"),
         }
     }
@@ -77,7 +77,7 @@ where
     #[inline(always)]
     fn poll(self: Pin<&mut Self>, _cx: &mut Context<'_>) -> Poll<Self::Output> {
         match self.project() {
-            NoGILProj::Closure { inner } => {
+            PyFutureProj::Closure { inner } => {
                 let res = inner.take().expect("Closure already executed")();
                 Poll::Ready(res)
             }
