@@ -16,7 +16,10 @@ use wreq::{
 };
 use wreq_util::EmulationOption;
 
-use self::resp::{BlockingResponse, BlockingWebSocket};
+use self::{
+    future::PyFuture,
+    resp::{BlockingResponse, BlockingWebSocket},
+};
 use crate::{
     client::resp::{Response, WebSocket},
     dns::HickoryDnsResolver,
@@ -578,6 +581,23 @@ impl Client {
                 .map_err(Into::into)
         })
     }
+
+    #[inline]
+    fn __aenter__<'py>(slf: PyRef<'py, Self>, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
+        let slf_obj = slf.into_py_any(py)?;
+        PyFuture::closure(py, || Ok(slf_obj))
+    }
+
+    #[inline]
+    fn __aexit__<'py>(
+        &self,
+        py: Python<'py>,
+        _exc_type: &Bound<'py, PyAny>,
+        _exc_value: &Bound<'py, PyAny>,
+        _traceback: &Bound<'py, PyAny>,
+    ) -> PyResult<Bound<'py, PyAny>> {
+        PyFuture::closure(py, || Ok(()))
+    }
 }
 
 // ====== BlockingClient ======
@@ -716,6 +736,21 @@ impl BlockingClient {
     #[pyo3(signature = (**kwds))]
     fn new(py: Python, kwds: Option<Builder>) -> PyResult<BlockingClient> {
         Client::new(py, kwds).map(BlockingClient)
+    }
+
+    #[inline]
+    fn __enter__(slf: PyRef<Self>) -> PyRef<Self> {
+        slf
+    }
+
+    #[inline]
+    fn __exit__<'py>(
+        &self,
+        _exc_type: &Bound<'py, PyAny>,
+        _exc_value: &Bound<'py, PyAny>,
+        _traceback: &Bound<'py, PyAny>,
+    ) {
+        // Nothing to do here.
     }
 }
 
