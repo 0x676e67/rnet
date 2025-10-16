@@ -134,12 +134,10 @@ struct PyFuture {
 
 #[pymethods]
 impl PyFuture {
-    pub fn __call__(&mut self) -> PyResult<()> {
-        Python::attach(|py| {
-            let task = ensure_future(py, self.awaitable.bind(py))?;
-            let on_complete = PyTaskSender { tx: self.tx.take() };
-            task.call_method1(intern!(py, "add_done_callback"), (on_complete,))?;
-            Ok(())
-        })
+    pub fn __call__(&mut self, py: Python) -> PyResult<()> {
+        let task = ensure_future(py, self.awaitable.bind(py))?;
+        let on_complete = PyTaskSender { tx: self.tx.take() };
+        task.call_method1(intern!(py, "add_done_callback"), (on_complete,))?;
+        Ok(())
     }
 }

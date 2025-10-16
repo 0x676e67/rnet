@@ -7,12 +7,12 @@ use std::{
 use pin_project_lite::pin_project;
 use pyo3::prelude::*;
 
-use crate::bridge::Runtime;
+use crate::rt::Runtime;
 
 pin_project! {
-    /// A future that allows Python threads to run while it is being polled or executed.
+    /// A future that can be either a Rust Future or a closure to be executed in a thread pool.
     #[project = NoGILProj]
-    pub enum NoGIL<Fut, F> {
+    pub enum PyFuture<Fut, F> {
         Future {
             #[pin]
             inner: Fut,
@@ -23,18 +23,18 @@ pin_project! {
     }
 }
 
-impl<Fut, T> NoGIL<Fut, ()>
+impl<Fut, T> PyFuture<Fut, ()>
 where
     Fut: Future<Output = PyResult<T>> + Send + 'static,
     T: Send + for<'py> IntoPyObject<'py> + 'static,
 {
     #[inline(always)]
     pub fn future<'py>(py: Python<'py>, future: Fut) -> PyResult<Bound<'py, PyAny>> {
-        Runtime::future_into_py(py, NoGIL::Future { inner: future })
+        Runtime::future_into_py(py, PyFuture::Future { inner: future })
     }
 }
 
-impl<F, R> NoGIL<(), F>
+impl<F, R> PyFuture<(), F>
 where
     F: FnOnce() -> Result<R, PyErr> + Send + 'static,
     R: Send + for<'py> IntoPyObject<'py> + 'static,
@@ -43,14 +43,14 @@ where
     pub fn closure<'py>(py: Python<'py>, closure: F) -> PyResult<Bound<'py, PyAny>> {
         Runtime::future_into_py(
             py,
-            NoGIL::Closure {
+            PyFuture::Closure {
                 inner: Some(closure),
             },
         )
     }
 }
 
-impl<Fut> Future for NoGIL<Fut, ()>
+impl<Fut> Future for PyFuture<Fut, ()>
 where
     Fut: Future + Send,
     Fut::Output: Send,
@@ -67,7 +67,7 @@ where
     }
 }
 
-impl<F, R> Future for NoGIL<(), F>
+impl<F, R> Future for PyFuture<(), F>
 where
     F: FnOnce() -> R + Send,
     R: Send,
@@ -76,16 +76,14 @@ where
 
     #[inline(always)]
     fn poll(self: Pin<&mut Self>, _cx: &mut Context<'_>) -> Poll<Self::Output> {
-        Python::attach(|py| {
-            py.detach(|| match self.project() {
-                NoGILProj::Closure { inner } => {
-                    let res = inner.take().expect("Closure already executed")();
-                    Poll::Ready(res)
-                }
-                _ => {
-                    unreachable!("Closure variant should not contain Future")
-                }
-            })
-        })
+        match self.project() {
+            NoGILProj::Closure { inner } => {
+                let res = inner.take().expect("Closure already executed")();
+                Poll::Ready(res)
+            }
+            _ => {
+                unreachable!("Closure variant should not contain Future")
+            }
+        }
     }
 }

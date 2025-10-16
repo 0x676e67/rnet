@@ -2,8 +2,7 @@ pub mod body;
 pub mod req;
 pub mod resp;
 
-mod dns;
-mod nogil;
+mod future;
 
 use std::{fmt, net::IpAddr, sync::Arc, time::Duration};
 
@@ -17,18 +16,16 @@ use wreq::{
 };
 use wreq_util::EmulationOption;
 
-use self::{
-    dns::HickoryDnsResolver,
-    resp::{BlockingResponse, BlockingWebSocket},
-};
+use self::resp::{BlockingResponse, BlockingWebSocket};
 use crate::{
-    bridge::Runtime,
     client::resp::{Response, WebSocket},
+    dns::HickoryDnsResolver,
     error::Error,
     extractor::Extractor,
     http::{Method, cookie::Jar},
     http1::Http1Options,
     http2::Http2Options,
+    rt::Runtime,
     tls::{Identity, KeyLog, TlsOptions, TlsVerify, TlsVersion},
 };
 
