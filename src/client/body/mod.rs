@@ -19,7 +19,7 @@ use pyo3::{
 };
 use serde::{Deserialize, Serialize};
 
-use crate::bridge::Runtime;
+use crate::rt::Runtime;
 
 /// Represents the body of an HTTP request.
 /// Supports text, bytes, synchronous and asynchronous streaming bodies.

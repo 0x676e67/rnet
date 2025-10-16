@@ -11,3 +11,4 @@ starlette
 matplotlib
 pandas
 seaborn
+typing_extensions

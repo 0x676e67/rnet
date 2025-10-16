@@ -3,10 +3,13 @@
 mod sync;
 mod task;
 
-use std::{cell::OnceCell, future::Future, pin::Pin, sync::LazyLock};
+use std::{cell::OnceCell, ffi::CStr, future::Future, sync::LazyLock};
 
 use futures::channel::{mpsc, oneshot};
-use pyo3::{IntoPyObjectExt, call::PyCallArgs, intern, prelude::*, types::PyDict};
+use pyo3::{
+    IntoPyObjectExt, call::PyCallArgs, ffi::c_str, intern, prelude::*, sync::PyOnceLock,
+    types::PyDict,
+};
 use sync::{Cancellable, PyDoneCallback, Sender};
 use task::{TaskLocals, cancelled, create_future};
 use tokio::runtime::{Builder, Runtime as TokioRuntime};
@@ -41,13 +44,13 @@ pub struct Runtime;
 
 impl Runtime {
     /// Set the task locals for the given future
-    fn scope<F, R>(locals: TaskLocals, fut: F) -> Pin<Box<dyn Future<Output = R> + Send>>
+    fn scope<F, R>(locals: TaskLocals, fut: F) -> impl Future<Output = R> + Send
     where
         F: Future<Output = R> + Send + 'static,
     {
         let cell = OnceCell::new();
         cell.set(locals).unwrap();
-        Box::pin(TASK_LOCALS.scope(cell, fut))
+        TASK_LOCALS.scope(cell, fut)
     }
 
     /// Get the task locals for the current task
@@ -74,6 +77,16 @@ impl Runtime {
         F: Future<Output = ()> + Send + 'static,
     {
         TOKIO_RUNTIME.spawn(fut);
+    }
+
+    /// Spawn a blocking function onto the runtime
+    #[inline]
+    pub fn spawn_blocking<F, R>(f: F)
+    where
+        F: FnOnce() -> R + Send + 'static,
+        R: Send + 'static,
+    {
+        TOKIO_RUNTIME.spawn_blocking(f);
     }
 
     /// Block on a future using the runtime
@@ -106,17 +119,20 @@ impl Runtime {
     }
 }
 
-fn set_result(
+fn set_result<T>(
     py: Python,
-    event_loop: Bound<PyAny>,
+    event_loop: &Bound<PyAny>,
     future: &Bound<PyAny>,
-    result: PyResult<Py<PyAny>>,
-) -> PyResult<()> {
-    let none = py.None().into_bound(py);
+    result: PyResult<T>,
+) -> PyResult<()>
+where
+    T: for<'py> IntoPyObject<'py> + Send + 'static,
+{
+    let context = py.None().into_bound(py);
     let (complete, val) = match result {
         Ok(val) => (
             future.getattr(intern!(py, "set_result"))?,
-            val.into_pyobject(py)?,
+            val.into_bound_py_any(py)?,
         ),
         Err(err) => (
             future.getattr(intern!(py, "set_exception"))?,
@@ -124,8 +140,8 @@ fn set_result(
         ),
     };
     call_soon_threadsafe(
-        &event_loop,
-        &none,
+        event_loop,
+        context,
         (CheckedCompletor, future, complete, val),
     )?;
 
@@ -134,7 +150,7 @@ fn set_result(
 
 fn call_soon_threadsafe<'py>(
     event_loop: &Bound<'py, PyAny>,
-    context: &Bound<PyAny>,
+    context: Bound<PyAny>,
     args: impl PyCallArgs<'py>,
 ) -> PyResult<()> {
     let py = event_loop.py();
@@ -184,7 +200,17 @@ where
 {
     let (cancel_tx, cancel_rx) = oneshot::channel();
 
-    let py_fut = create_future(locals.event_loop.bind(py).clone())?;
+    // Clone an owned handle to the Python event loop so we can move it across
+    // threads without holding the GIL. `TaskLocals::event_loop` is an
+    // `Arc<Py<PyAny>>` so we can obtain a `Py<PyAny>` (owned, GIL-independent)
+    // and bind it only when we need to call into Python.
+    // Clone the Arc handle to the Python event loop so it can be moved across
+    // threads without holding the GIL. We produce a `Bound<PyAny>` only when
+    // we need to call into Python by using `clone_ref(py).into_bound(py)`.
+    let event_loop = locals.event_loop.clone();
+
+    // Create the asyncio Future while holding the GIL briefly.
+    let py_fut = create_future(event_loop.clone_ref(py).into_bound(py))?;
     py_fut.call_method1(
         intern!(py, "add_done_callback"),
         (PyDoneCallback {
@@ -192,40 +218,37 @@ where
         },),
     )?;
 
+    // Take an owned handle to the future so it can be moved to other threads.
     let future_tx = py_fut.clone().unbind();
-    let locals = locals.clone();
 
-    Runtime::spawn(async move {
-        // create a scope for the task locals
-        let result = Runtime::scope(locals.clone(), Cancellable::new(fut, cancel_rx)).await;
+    py.detach(|| {
+        Runtime::spawn(async move {
+            // create a scope for the task locals
+            let result = Runtime::scope(locals, Cancellable::new(fut, cancel_rx)).await;
 
-        // spawn a blocking task to set the result of the future
-        tokio::task::spawn_blocking(move || {
-            Python::attach(|py| {
-                if cancelled(future_tx.bind(py))
-                    .map_err(dump_err(py))
-                    .unwrap_or(false)
-                {
-                    return;
-                }
+            // spawn a blocking task to set the result of the future. We re-acquire
+            // the GIL only inside `Python::attach`, bind the owned handles, and
+            // perform a short-lived call to set the result.
+            Runtime::spawn_blocking(move || {
+                Python::attach(|py| {
+                    let future_tx = future_tx.bind(py);
+                    if cancelled(future_tx).map_err(dump_err(py)).unwrap_or(false) {
+                        return;
+                    }
 
-                set_result(
-                    py,
-                    locals.event_loop(py),
-                    future_tx.bind(py),
-                    result.and_then(|val| val.into_py_any(py)),
-                )
-                .map_err(dump_err(py));
-            });
+                    // bind the owned event loop and use it to schedule the callback
+                    let event_loop = event_loop.bind(py);
+                    set_result(py, event_loop, future_tx, result).map_err(dump_err(py));
+                });
+            })
         })
-        .await
-        .expect("tokio::task::spawn_blocking failed");
     });
 
     Ok(py_fut)
 }
 
-const STREAM_GLUE: &str = r#"
+const STREAM_GLUE: &CStr = c_str!(
+    r#"
 import asyncio
 
 async def forward(gen, sender):
@@ -241,27 +264,20 @@ async def forward(gen, sender):
             break
 
     sender.close()
-"#;
+"#
+);
+const FILE_NAME: &CStr = c_str!("pyo3_async_runtimes/pyo3_async_runtimes_glue.py");
+const MODULE_NAME: &CStr = c_str!("pyo3_async_runtimes_glue");
 
 fn into_stream_with_locals(
     locals: TaskLocals,
     g: Bound<'_, PyAny>,
 ) -> PyResult<impl futures::Stream<Item = Py<PyAny>> + 'static> {
-    use std::ffi::CString;
-
-    use pyo3::sync::PyOnceLock;
-
     static GLUE_MOD: PyOnceLock<Py<PyAny>> = PyOnceLock::new();
     let py = g.py();
     let glue = GLUE_MOD
         .get_or_try_init(py, || -> PyResult<Py<PyAny>> {
-            PyModule::from_code(
-                py,
-                &CString::new(STREAM_GLUE).unwrap(),
-                &CString::new("pyo3_async_runtimes/pyo3_async_runtimes_glue.py").unwrap(),
-                &CString::new("pyo3_async_runtimes_glue").unwrap(),
-            )
-            .map(Into::into)
+            PyModule::from_code(py, STREAM_GLUE, FILE_NAME, MODULE_NAME).map(Into::into)
         })?
         .bind(py);
 

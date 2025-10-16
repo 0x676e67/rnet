@@ -10,11 +10,11 @@ use wreq::{self, Extension, Uri, redirect, tls::TlsInfo};
 
 use super::Streamer;
 use crate::{
-    bridge::Runtime,
     buffer::PyBuffer,
-    client::{SocketAddr, body::Json, nogil::NoGIL, resp::history::History},
+    client::{SocketAddr, body::Json, future::PyFuture, resp::history::History},
     error::Error,
     http::{Version, cookie::Cookie, header::HeaderMap, status::StatusCode},
+    rt::Runtime,
 };
 
 /// A response from a request.
@@ -185,7 +185,7 @@ impl Response {
             .text()
             .map_err(Error::Library)
             .map_err(Into::into);
-        NoGIL::future(py, fut)
+        PyFuture::future(py, fut)
     }
 
     /// Get the full response text given a specific encoding.
@@ -200,7 +200,7 @@ impl Response {
             .text_with_charset(encoding)
             .map_err(Error::Library)
             .map_err(Into::into);
-        NoGIL::future(py, fut)
+        PyFuture::future(py, fut)
     }
 
     /// Get the JSON content of the response.
@@ -210,7 +210,7 @@ impl Response {
             .json::<Json>()
             .map_err(Error::Library)
             .map_err(Into::into);
-        NoGIL::future(py, fut)
+        PyFuture::future(py, fut)
     }
 
     /// Get the bytes content of the response.
@@ -221,13 +221,13 @@ impl Response {
             .map_ok(PyBuffer::from)
             .map_err(Error::Library)
             .map_err(Into::into);
-        NoGIL::future(py, fut)
+        PyFuture::future(py, fut)
     }
 
     /// Close the response connection.
     pub fn close<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
         py.detach(|| self.body.swap(None));
-        NoGIL::closure(py, || Ok(()))
+        PyFuture::closure(py, || Ok(()))
     }
 }
 
@@ -236,7 +236,7 @@ impl Response {
     #[inline]
     fn __aenter__<'py>(slf: PyRef<'py, Self>, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
         let slf = slf.into_py_any(py)?;
-        NoGIL::closure(py, || Ok(slf))
+        PyFuture::closure(py, || Ok(slf))
     }
 
     #[inline]
