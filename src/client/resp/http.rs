@@ -11,7 +11,7 @@ use wreq::{self, Extension, Uri, redirect, tls::TlsInfo};
 use super::Streamer;
 use crate::{
     buffer::PyBuffer,
-    client::{SocketAddr, body::Json, future::PyFuture, resp::history::History},
+    client::{SocketAddr, body::json::Json, future::PyFuture, resp::history::History},
     error::Error,
     http::{Version, cookie::Cookie, header::HeaderMap, status::StatusCode},
     rt::Runtime,
