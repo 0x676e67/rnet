@@ -22,10 +22,6 @@ pub fn ensure_future<'p>(
 }
 
 #[inline]
-pub fn create_future(event_loop: Bound<'_, PyAny>) -> PyResult<Bound<'_, PyAny>> {
-    event_loop.call_method0(intern!(event_loop.py(), "create_future"))
-}
-#[inline]
 pub fn cancelled(future: &Bound<PyAny>) -> PyResult<bool> {
     future
         .getattr(intern!(future.py(), "cancelled"))?
@@ -41,7 +37,6 @@ pub fn asyncio(py: Python<'_>) -> PyResult<&Bound<'_, PyAny>> {
 }
 
 /// Task-local data to store for Python conversions.
-#[allow(dead_code)]
 #[derive(Debug, Clone)]
 pub struct TaskLocals {
     /// Track the event loop of the Python task
@@ -74,6 +69,7 @@ impl TaskLocals {
     }
 
     /// Manually provide the contextvars for the current task.
+    #[inline]
     pub fn with_context(self, context: Bound<PyAny>) -> Self {
         Self {
             context: Arc::new(context.into()),
@@ -86,11 +82,12 @@ impl TaskLocals {
         let copy_context = CONTEXTVARS
             .get_or_try_init(py, || py.import("contextvars").map(|m| m.into()))?
             .bind(py)
-            .call_method0("copy_context")?;
+            .call_method0(intern!(py, "copy_context"))?;
         Ok(self.with_context(copy_context))
     }
 
     /// Get a reference to the event loop
+    #[inline]
     pub fn event_loop<'p>(&self, py: Python<'p>) -> Bound<'p, PyAny> {
         self.event_loop.clone_ref(py).into_bound(py)
     }

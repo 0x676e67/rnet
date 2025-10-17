@@ -111,14 +111,12 @@ impl PyDoneCallback {
     ///
     /// If the Python future is cancelled, sends a cancellation signal on the
     /// internal oneshot sender so the Rust side can abort the corresponding task.
-    pub fn __call__(&mut self, fut: &Bound<PyAny>) -> PyResult<()> {
+    pub fn __call__(&mut self, fut: &Bound<PyAny>) {
         if cancelled(fut).map_err(dump_err(fut.py())).unwrap_or(false) {
             if let Some(tx) = self.cancel_tx.take() {
                 let _ = tx.send(());
             }
         }
-
-        Ok(())
     }
 }
 
@@ -175,8 +173,7 @@ impl Sender {
     /// Close the underlying channel.
     ///
     /// After calling `close`, no further sends will succeed.
-    pub fn close(&mut self) -> PyResult<()> {
+    pub fn close(&mut self) {
         self.tx.close_channel();
-        Ok(())
     }
 }

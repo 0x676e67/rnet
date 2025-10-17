@@ -11,7 +11,7 @@ use pyo3::{
     types::PyDict,
 };
 use sync::{Cancellable, PyDoneCallback, Sender};
-use task::{TaskLocals, cancelled, create_future};
+use task::{TaskLocals, cancelled};
 use tokio::runtime::{Builder, Runtime as TokioRuntime};
 
 tokio::task_local! {
@@ -188,7 +188,6 @@ impl CheckedCompletor {
     }
 }
 
-#[allow(unused_must_use)]
 fn future_into_py_with_locals<F, T>(
     py: Python,
     locals: TaskLocals,
@@ -210,7 +209,9 @@ where
     let event_loop = locals.event_loop.clone();
 
     // Create the asyncio Future while holding the GIL briefly.
-    let py_fut = create_future(event_loop.clone_ref(py).into_bound(py))?;
+    let py_fut = event_loop
+        .bind(py)
+        .call_method0(intern!(py, "create_future"))?;
     py_fut.call_method1(
         intern!(py, "add_done_callback"),
         (PyDoneCallback {
@@ -238,8 +239,9 @@ where
 
                     // bind the owned event loop and use it to schedule the callback
                     let event_loop = event_loop.bind(py);
+                    #[allow(unused_must_use)]
                     set_result(py, event_loop, future_tx, result).map_err(dump_err(py));
-                });
+                })
             })
         })
     });
