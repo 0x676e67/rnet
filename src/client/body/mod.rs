@@ -9,7 +9,6 @@ use std::{
     task::{Context, Poll},
 };
 
-use crate::rt::Runtime;
 use bytes::Bytes;
 use futures_util::Stream;
 use pyo3::{
@@ -19,6 +18,8 @@ use pyo3::{
     prelude::*,
     pybacked::{PyBackedBytes, PyBackedStr},
 };
+
+use crate::rt::Runtime;
 
 /// Represents the body of an HTTP request.
 /// Supports text, bytes, synchronous and asynchronous streaming bodies.
