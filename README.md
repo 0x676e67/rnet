@@ -105,7 +105,7 @@ Additional learning resources include:
 
 ## Building
 
-1. Development
+1. Manylinux
 
 Install the BoringSSL build environment by referring to [boring](https://github.com/cloudflare/boring/blob/master/.github/workflows/ci.yml) and [boringssl](https://github.com/google/boringssl/blob/master/BUILDING.md#build-prerequisites).
 
@@ -136,10 +136,6 @@ bash .github/musl_build.sh x86_64-unknown-linux-musl
 bash .github/musl_build.sh aarch64-unknown-linux-musl
 bash .github/musl_build.sh armv7-unknown-linux-musleabihf
 ```
-
-3. Manylinux
-
-For Manylinux compilation, refer to [manylinux](https://github.com/PyO3/maturin?tab=readme-ov-file#manylinux-and-auditwheel).
 
 ## Services
 
