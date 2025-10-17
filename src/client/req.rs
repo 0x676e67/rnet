@@ -4,12 +4,11 @@ use pyo3::{PyResult, prelude::*, pybacked::PyBackedStr};
 use wreq::{
     Proxy, Version,
     header::{HeaderMap, HeaderValue, OrigHeaderMap},
-    multipart::Form,
 };
 use wreq_util::EmulationOption;
 
 use crate::{
-    client::body::{Body, Json},
+    client::body::{Body, form::Form, json::Json},
     extractor::Extractor,
 };
 
@@ -81,7 +80,7 @@ pub struct Request {
     pub query: Option<Extractor<Vec<(PyBackedStr, PyBackedStr)>>>,
 
     /// The form parameters to use for the request.
-    pub form: Option<Extractor<Vec<(PyBackedStr, PyBackedStr)>>>,
+    pub form: Option<Form>,
 
     /// The JSON body to use for the request.
     pub json: Option<Json>,
@@ -90,7 +89,7 @@ pub struct Request {
     pub body: Option<Body>,
 
     /// The multipart form to use for the request.
-    pub multipart: Option<Extractor<Form>>,
+    pub multipart: Option<Extractor<wreq::multipart::Form>>,
 }
 
 impl<'py> FromPyObject<'py> for Request {

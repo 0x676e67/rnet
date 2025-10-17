@@ -1,5 +1,7 @@
 //! Types and utilities for representing HTTP request bodies.
 
+pub mod form;
+pub mod json;
 pub mod multipart;
 
 use std::{
@@ -7,9 +9,9 @@ use std::{
     task::{Context, Poll},
 };
 
+use crate::rt::Runtime;
 use bytes::Bytes;
 use futures_util::Stream;
-use indexmap::IndexMap;
 use pyo3::{
     FromPyObject, PyAny, PyResult, Python,
     exceptions::PyTypeError,
@@ -17,9 +19,6 @@ use pyo3::{
     prelude::*,
     pybacked::{PyBackedBytes, PyBackedStr},
 };
-use serde::{Deserialize, Serialize};
-
-use crate::rt::Runtime;
 
 /// Represents the body of an HTTP request.
 /// Supports text, bytes, synchronous and asynchronous streaming bodies.
@@ -63,20 +62,6 @@ impl FromPyObject<'_> for Body {
                 .map(Self::SyncStream)
         }
     }
-}
-
-/// Represents a JSON value for HTTP requests.
-/// Supports objects, arrays, numbers, strings, booleans, and null.
-#[derive(Clone, FromPyObject, IntoPyObject, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum Json {
-    Object(IndexMap<String, Json>),
-    Boolean(bool),
-    Number(isize),
-    Float(f64),
-    String(String),
-    Null(Option<isize>),
-    Array(Vec<Json>),
 }
 
 /// Wraps a Python synchronous iterator for use as a streaming HTTP body.

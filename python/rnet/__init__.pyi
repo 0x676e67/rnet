@@ -905,7 +905,7 @@ class Request(TypedDict):
     The query parameters to use for the request.
     """
 
-    form: NotRequired[List[Tuple[str, str]]]
+    form: NotRequired[Union[List[Tuple[str, str]], Dict[str, str]]]
     """
     The form parameters to use for the request.
     """

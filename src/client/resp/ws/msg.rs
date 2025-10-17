@@ -16,7 +16,7 @@ use pyo3::{
 };
 use wreq::ws::message::{self, CloseCode, CloseFrame, Utf8Bytes};
 
-use crate::{buffer::PyBuffer, client::body::Json, error::Error};
+use crate::{buffer::PyBuffer, client::body::json::Json, error::Error};
 
 /// A WebSocket message.
 #[derive(Debug, Clone)]
