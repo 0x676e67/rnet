@@ -33,7 +33,7 @@ pyo3 = { version = "0.26.0", features = [
     "multiple-pymethods",
     "generate-import-lib",
 ] }
-futures = "0.3"
+# futures = "0.3"
 futures-util = { version = "0.3.31", default-features = false }
 pin-project-lite = "0.2.16"
 serde = { version = "1.0.219", features = ["derive"] }
