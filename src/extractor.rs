@@ -37,22 +37,31 @@ impl Serialize for Extractor<Vec<(PyBackedStr, PyBackedStr)>> {
 }
 
 /// Extractor for URL-encoded values as [`Vec<(PyBackedStr, PyBackedStr)>`].
-impl FromPyObject<'_> for Extractor<Vec<(PyBackedStr, PyBackedStr)>> {
-    fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
+impl FromPyObject<'_, '_> for Extractor<Vec<(PyBackedStr, PyBackedStr)>> {
+    type Error = PyErr;
+
+    fn extract(ob: Borrowed<PyAny>) -> PyResult<Self> {
         ob.extract().map(Self)
     }
 }
 
 /// Extractor for HTTP Version as [`wreq::Version`].
-impl FromPyObject<'_> for Extractor<wreq::Version> {
-    fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
-        ob.extract::<Version>().map(Version::into_ffi).map(Self)
+impl FromPyObject<'_, '_> for Extractor<wreq::Version> {
+    type Error = PyErr;
+
+    fn extract(ob: Borrowed<PyAny>) -> PyResult<Self> {
+        ob.extract::<Version>()
+            .map(Version::into_ffi)
+            .map(Self)
+            .map_err(Into::into)
     }
 }
 
 /// Extractor for cookies as [`Vec<HeaderValue>`].
-impl FromPyObject<'_> for Extractor<Vec<HeaderValue>> {
-    fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
+impl FromPyObject<'_, '_> for Extractor<Vec<HeaderValue>> {
+    type Error = PyErr;
+
+    fn extract(ob: Borrowed<PyAny>) -> PyResult<Self> {
         let dict = ob.cast::<PyDict>()?;
         dict.iter()
             .try_fold(Vec::with_capacity(dict.len()), |mut cookies, (k, v)| {
@@ -72,8 +81,10 @@ impl FromPyObject<'_> for Extractor<Vec<HeaderValue>> {
 }
 
 /// Extractor for headers as [`wreq::header::HeaderMap`].
-impl FromPyObject<'_> for Extractor<wreq::header::HeaderMap> {
-    fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
+impl FromPyObject<'_, '_> for Extractor<wreq::header::HeaderMap> {
+    type Error = PyErr;
+
+    fn extract(ob: Borrowed<PyAny>) -> PyResult<Self> {
         if let Ok(headers) = ob.cast::<HeaderMap>() {
             return Ok(Self(headers.borrow().0.clone()));
         }
@@ -103,8 +114,10 @@ impl FromPyObject<'_> for Extractor<wreq::header::HeaderMap> {
 }
 
 /// Extractor for headers as [`wreq::header::OrigHeaderMap`].
-impl FromPyObject<'_> for Extractor<wreq::header::OrigHeaderMap> {
-    fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
+impl FromPyObject<'_, '_> for Extractor<wreq::header::OrigHeaderMap> {
+    type Error = PyErr;
+
+    fn extract(ob: Borrowed<PyAny>) -> PyResult<Self> {
         if let Ok(headers) = ob.cast::<OrigHeaderMap>() {
             return Ok(Self(headers.borrow().0.clone()));
         }
@@ -127,8 +140,10 @@ impl FromPyObject<'_> for Extractor<wreq::header::OrigHeaderMap> {
 }
 
 /// Extractor for emulation options as [`wreq_util::EmulationOption`].
-impl FromPyObject<'_> for Extractor<wreq_util::EmulationOption> {
-    fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
+impl FromPyObject<'_, '_> for Extractor<wreq_util::EmulationOption> {
+    type Error = PyErr;
+
+    fn extract(ob: Borrowed<PyAny>) -> PyResult<Self> {
         if let Ok(impersonate) = ob.cast::<Emulation>() {
             let emulation = wreq_util::EmulationOption::builder()
                 .emulation(impersonate.borrow().into_ffi())
@@ -143,8 +158,10 @@ impl FromPyObject<'_> for Extractor<wreq_util::EmulationOption> {
 }
 
 /// Extractor for a single proxy as [`wreq::Proxy`].
-impl FromPyObject<'_> for Extractor<wreq::Proxy> {
-    fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
+impl FromPyObject<'_, '_> for Extractor<wreq::Proxy> {
+    type Error = PyErr;
+
+    fn extract(ob: Borrowed<PyAny>) -> PyResult<Self> {
         let proxy = ob.cast::<Proxy>()?;
         let proxy = proxy.borrow().0.clone();
         Ok(Self(proxy))
@@ -152,12 +169,14 @@ impl FromPyObject<'_> for Extractor<wreq::Proxy> {
 }
 
 /// Extractor for a vector of proxies as [`Vec<wreq::Proxy>`].
-impl FromPyObject<'_> for Extractor<Vec<wreq::Proxy>> {
-    fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
+impl FromPyObject<'_, '_> for Extractor<Vec<wreq::Proxy>> {
+    type Error = PyErr;
+
+    fn extract(ob: Borrowed<PyAny>) -> PyResult<Self> {
         let proxies = ob.cast::<PyList>()?;
         let len = proxies.len();
         proxies
-            .into_iter()
+            .iter()
             .try_fold(Vec::with_capacity(len), |mut list, proxy| {
                 let proxy = proxy.cast::<Proxy>()?;
                 list.push(proxy.borrow().0.clone());
@@ -168,8 +187,10 @@ impl FromPyObject<'_> for Extractor<Vec<wreq::Proxy>> {
 }
 
 /// Extractor for multipart forms as [`wreq::multipart::Form`].
-impl FromPyObject<'_> for Extractor<wreq::multipart::Form> {
-    fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
+impl FromPyObject<'_, '_> for Extractor<wreq::multipart::Form> {
+    type Error = PyErr;
+
+    fn extract(ob: Borrowed<PyAny>) -> PyResult<Self> {
         let form = ob.cast::<Multipart>()?;
         form.borrow_mut()
             .0
@@ -181,8 +202,10 @@ impl FromPyObject<'_> for Extractor<wreq::multipart::Form> {
 }
 
 /// Extractor for a single IP address as [`std::net::IpAddr`].
-impl FromPyObject<'_> for Extractor<std::net::IpAddr> {
-    fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
+impl FromPyObject<'_, '_> for Extractor<std::net::IpAddr> {
+    type Error = PyErr;
+
+    fn extract(ob: Borrowed<PyAny>) -> PyResult<Self> {
         ob.extract().map(Self)
     }
 }

@@ -69,7 +69,7 @@ impl Runtime {
         if let Some(locals) = Self::get_task_locals() {
             Ok(locals)
         } else {
-            Ok(TaskLocals::with_running_loop(py)?.copy_context(py)?)
+            TaskLocals::with_running_loop(py)
         }
     }
 
@@ -115,7 +115,7 @@ impl Runtime {
     /// `unstable-streams` crate feature is enabled. This comes with no
     /// stability guarantees, and could be changed or removed at any time.
     #[inline]
-    pub fn into_stream(g: Bound<'_, PyAny>) -> PyResult<impl Stream<Item = Py<PyAny>> + 'static> {
+    pub fn into_stream(g: Borrowed<PyAny>) -> PyResult<impl Stream<Item = Py<PyAny>> + 'static> {
         into_stream_with_locals(Runtime::get_current_locals(g.py())?, g)
     }
 }
@@ -274,7 +274,7 @@ const MODULE_NAME: &CStr = c_str!("pyo3_async_runtimes_glue");
 
 fn into_stream_with_locals(
     locals: TaskLocals,
-    g: Bound<'_, PyAny>,
+    g: Borrowed<PyAny>,
 ) -> PyResult<impl Stream<Item = Py<PyAny>> + 'static> {
     static GLUE_MOD: PyOnceLock<Py<PyAny>> = PyOnceLock::new();
     let py = g.py();

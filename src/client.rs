@@ -160,8 +160,10 @@ pub struct Builder {
     zstd: Option<bool>,
 }
 
-impl<'py> FromPyObject<'py> for Builder {
-    fn extract_bound(ob: &Bound<'py, PyAny>) -> PyResult<Self> {
+impl FromPyObject<'_, '_> for Builder {
+    type Error = PyErr;
+
+    fn extract(ob: Borrowed<PyAny>) -> PyResult<Self> {
         let mut params = Self::default();
         extract_option!(ob, params, emulation);
         extract_option!(ob, params, user_agent);

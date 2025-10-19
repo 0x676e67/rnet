@@ -26,9 +26,11 @@ pub enum JsonString {
     RustString(String),
 }
 
-impl FromPyObject<'_> for JsonString {
+impl FromPyObject<'_, '_> for JsonString {
+    type Error = PyErr;
+
     #[inline]
-    fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
+    fn extract(ob: Borrowed<PyAny>) -> PyResult<Self> {
         ob.extract().map(Self::PyString)
     }
 }

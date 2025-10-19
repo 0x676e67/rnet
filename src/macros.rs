@@ -89,6 +89,7 @@ macro_rules! define_enum {
                 }
             }
 
+            #[allow(dead_code)]
             pub const fn from_ffi(ffi: $ffi_type) -> Self {
                 #[allow(unreachable_patterns)]
                 match ffi {

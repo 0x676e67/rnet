@@ -194,8 +194,10 @@ struct Builder {
     random_aes_hw_override: Option<bool>,
 }
 
-impl<'py> FromPyObject<'py> for Builder {
-    fn extract_bound(ob: &Bound<'py, PyAny>) -> PyResult<Self> {
+impl FromPyObject<'_, '_> for Builder {
+    type Error = PyErr;
+
+    fn extract(ob: Borrowed<PyAny>) -> PyResult<Self> {
         let mut params = Self::default();
         extract_option!(ob, params, alpn_protocols);
         extract_option!(ob, params, alps_protocols);
