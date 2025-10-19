@@ -5,14 +5,17 @@ mod task;
 
 use std::{cell::OnceCell, ffi::CStr, future::Future, sync::LazyLock};
 
-use futures::channel::{mpsc, oneshot};
+use futures_util::Stream;
 use pyo3::{
     IntoPyObjectExt, call::PyCallArgs, ffi::c_str, intern, prelude::*, sync::PyOnceLock,
     types::PyDict,
 };
-use sync::{Cancellable, PyDoneCallback, Sender};
+use sync::{Cancellable, PyDoneCallback, ReceiverStream, Sender};
 use task::{TaskLocals, cancelled};
-use tokio::runtime::{Builder, Runtime as TokioRuntime};
+use tokio::{
+    runtime::{Builder, Runtime as TokioRuntime},
+    sync::{mpsc, oneshot},
+};
 
 tokio::task_local! {
     /// Task-local storage for Python context (`TaskLocals`), used to propagate
@@ -112,9 +115,7 @@ impl Runtime {
     /// `unstable-streams` crate feature is enabled. This comes with no
     /// stability guarantees, and could be changed or removed at any time.
     #[inline]
-    pub fn into_stream(
-        g: Bound<'_, PyAny>,
-    ) -> PyResult<impl futures::Stream<Item = Py<PyAny>> + 'static> {
+    pub fn into_stream(g: Bound<'_, PyAny>) -> PyResult<impl Stream<Item = Py<PyAny>> + 'static> {
         into_stream_with_locals(Runtime::get_current_locals(g.py())?, g)
     }
 }
@@ -274,11 +275,11 @@ const MODULE_NAME: &CStr = c_str!("pyo3_async_runtimes_glue");
 fn into_stream_with_locals(
     locals: TaskLocals,
     g: Bound<'_, PyAny>,
-) -> PyResult<impl futures::Stream<Item = Py<PyAny>> + 'static> {
+) -> PyResult<impl Stream<Item = Py<PyAny>> + 'static> {
     static GLUE_MOD: PyOnceLock<Py<PyAny>> = PyOnceLock::new();
     let py = g.py();
     let glue = GLUE_MOD
-        .get_or_try_init(py, || -> PyResult<Py<PyAny>> {
+        .get_or_try_init(py, || {
             PyModule::from_code(py, STREAM_GLUE, FILE_NAME, MODULE_NAME).map(Into::into)
         })?
         .bind(py);
@@ -292,5 +293,6 @@ fn into_stream_with_locals(
             glue.call_method1(intern!(py, "forward"), (g, Sender::new(locals, tx)))?,
         ),
     )?;
-    Ok(rx)
+
+    Ok(ReceiverStream::new(rx))
 }

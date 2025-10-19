@@ -26,14 +26,13 @@ abi3-py313 = ["pyo3/abi3-py313"]
 abi3-py314 = ["pyo3/abi3-py314"]
 
 [dependencies]
-tokio = { version = "1.47.1", features = ["sync", "rt", "rt-multi-thread", "time"]}
+tokio = { version = "1.48.0", features = ["sync", "rt", "rt-multi-thread", "time"]}
 pyo3 = { version = "0.26.0", features = [
     "indexmap",
     "extension-module",
     "multiple-pymethods",
     "generate-import-lib",
 ] }
-futures = "0.3"
 futures-util = { version = "0.3.31", default-features = false }
 pin-project-lite = "0.2.16"
 serde = { version = "1.0.219", features = ["derive"] }
