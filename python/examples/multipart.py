@@ -35,14 +35,8 @@ async def main():
             ),
         ),
     )
-    print("Status Code: ", resp.status)
-    print("Version: ", resp.version)
-    print("Response URL: ", resp.url)
-    print("Headers: ", resp.headers)
-    print("Cookies: ", resp.cookies)
-    print("Content-Length: ", resp.content_length)
-    print("Remote Address: ", resp.remote_addr)
-    print("Text: ", await resp.text())
+
+    print(await resp.text())
 
 
 if __name__ == "__main__":

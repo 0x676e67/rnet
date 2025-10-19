@@ -3,18 +3,27 @@ import rnet
 
 
 async def main():
-    resp = await rnet.post(
+    client = rnet.Client()
+
+    # use a list of tuples
+    resp = await client.post(
         "https://httpbin.org/anything",
         form=[("key", "value")],
     )
-    print("Status Code: ", resp.status)
-    print("Version: ", resp.version)
-    print("Response URL: ", resp.url)
-    print("Headers: ", resp.headers)
-    print("Cookies: ", resp.cookies)
-    print("Content-Length: ", resp.content_length)
-    print("Remote Address: ", resp.remote_addr)
-    print("Text: ", await resp.text())
+    print(await resp.text())
+
+    # OR use a dictionary
+    resp = await client.post(
+        "https://httpbin.org/anything",
+        form={
+            "key1": "value1",
+            "key2": "value2",
+            "key3": "value3",
+            "key4": "value4",
+            "key5": "value5",
+        },
+    )
+    print(await resp.text())
 
 
 if __name__ == "__main__":
