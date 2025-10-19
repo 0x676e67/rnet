@@ -166,7 +166,7 @@ impl Sender {
     ///
     /// After calling `close`, no further sends will succeed.
     pub fn close(&mut self) {
-        super::Runtime::block_on(self.tx.closed())
+        // noting to await, just drop the sender to close the channel
     }
 }
 
