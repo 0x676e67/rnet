@@ -152,7 +152,7 @@ impl Sender {
                 mpsc::error::TrySendError::Full(_) => {
                     let tx = self.tx.clone();
                     future_into_py_with_locals::<_, bool>(py, self.locals.clone(), async move {
-                        Ok(!tx.send(item).await.is_err())
+                        Ok(tx.send(item).await.is_ok())
                     })
                     .map(Bound::unbind)
                 }
