@@ -8,8 +8,7 @@ use std::{
 use futures_util::Stream;
 use pin_project_lite::pin_project;
 use pyo3::{IntoPyObjectExt, exceptions::PyBaseException, prelude::*};
-use tokio::sync::mpsc::Receiver;
-use tokio::sync::{mpsc, oneshot};
+use tokio::sync::{mpsc, mpsc::Receiver, oneshot};
 
 use super::{
     dump_err, future_into_py_with_locals,

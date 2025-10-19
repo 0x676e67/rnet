@@ -12,8 +12,10 @@ use pyo3::{
 };
 use sync::{Cancellable, PyDoneCallback, ReceiverStream, Sender};
 use task::{TaskLocals, cancelled};
-use tokio::runtime::{Builder, Runtime as TokioRuntime};
-use tokio::sync::{mpsc, oneshot};
+use tokio::{
+    runtime::{Builder, Runtime as TokioRuntime},
+    sync::{mpsc, oneshot},
+};
 
 tokio::task_local! {
     /// Task-local storage for Python context (`TaskLocals`), used to propagate
