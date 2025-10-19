@@ -165,7 +165,7 @@ impl Sender {
     ///
     /// After calling `close`, no further sends will succeed.
     pub fn close(&mut self) {
-        // noting to await, just drop the sender to close the channel
+        // nothing to await, just drop the sender to close the channel
     }
 }
 
