@@ -92,8 +92,10 @@ pub struct Request {
     pub multipart: Option<Extractor<wreq::multipart::Form>>,
 }
 
-impl<'py> FromPyObject<'py> for Request {
-    fn extract_bound(ob: &Bound<'py, PyAny>) -> PyResult<Request> {
+impl FromPyObject<'_, '_> for Request {
+    type Error = PyErr;
+
+    fn extract(ob: Borrowed<PyAny>) -> PyResult<Request> {
         let mut params = Self::default();
         extract_option!(ob, params, emulation);
         extract_option!(ob, params, proxy);
@@ -226,8 +228,10 @@ pub struct WebSocketRequest {
     pub accept_unmasked_frames: Option<bool>,
 }
 
-impl<'py> FromPyObject<'py> for WebSocketRequest {
-    fn extract_bound(ob: &Bound<'py, PyAny>) -> PyResult<Self> {
+impl FromPyObject<'_, '_> for WebSocketRequest {
+    type Error = PyErr;
+
+    fn extract(ob: Borrowed<PyAny>) -> PyResult<Self> {
         let mut params = Self::default();
         extract_option!(ob, params, emulation);
         extract_option!(ob, params, proxy);

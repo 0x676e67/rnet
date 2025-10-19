@@ -126,8 +126,10 @@ impl Part {
     }
 }
 
-impl FromPyObject<'_> for Value {
-    fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
+impl FromPyObject<'_, '_> for Value {
+    type Error = PyErr;
+
+    fn extract(ob: Borrowed<PyAny>) -> PyResult<Self> {
         // Try extracting string
         if let Ok(text) = ob.extract::<PyBackedStr>() {
             return Ok(Value::Text(Bytes::from_owner(text)));
@@ -145,13 +147,14 @@ impl FromPyObject<'_> for Value {
 
         // Determine if it's an async or sync stream
         if ob.hasattr(intern!(ob.py(), "asend"))? {
-            Runtime::into_stream(ob.to_owned())
+            Runtime::into_stream(ob)
                 .map(AsyncStream::new)
                 .map(Value::AsyncStream)
         } else {
             ob.extract::<Py<PyAny>>()
                 .map(SyncStream::new)
                 .map(Value::SyncStream)
+                .map_err(Into::into)
         }
     }
 }

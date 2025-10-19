@@ -4,7 +4,6 @@ use ::tokio::sync::oneshot;
 use pyo3::{intern, prelude::*, sync::PyOnceLock};
 
 static ASYNCIO: PyOnceLock<Py<PyAny>> = PyOnceLock::new();
-static CONTEXTVARS: PyOnceLock<Py<PyAny>> = PyOnceLock::new();
 static ENSURE_FUTURE: PyOnceLock<Py<PyAny>> = PyOnceLock::new();
 static GET_RUNNING_LOOP: PyOnceLock<Py<PyAny>> = PyOnceLock::new();
 
@@ -41,15 +40,12 @@ pub fn asyncio(py: Python<'_>) -> PyResult<&Bound<'_, PyAny>> {
 pub struct TaskLocals {
     /// Track the event loop of the Python task
     pub event_loop: Arc<Py<PyAny>>,
-    /// Track the contextvars of the Python task
-    pub context: Arc<Py<PyAny>>,
 }
 
 impl TaskLocals {
     /// At a minimum, TaskLocals must store the event loop.
     pub fn new(event_loop: Bound<PyAny>) -> Self {
         Self {
-            context: Arc::new(event_loop.py().None()),
             event_loop: Arc::new(event_loop.into()),
         }
     }
@@ -66,24 +62,6 @@ impl TaskLocals {
             .bind(py)
             .call0()
             .map(Self::new)
-    }
-
-    /// Manually provide the contextvars for the current task.
-    #[inline]
-    pub fn with_context(self, context: Bound<PyAny>) -> Self {
-        Self {
-            context: Arc::new(context.into()),
-            ..self
-        }
-    }
-
-    /// Capture the current task's contextvars
-    pub fn copy_context(self, py: Python) -> PyResult<Self> {
-        let copy_context = CONTEXTVARS
-            .get_or_try_init(py, || py.import("contextvars").map(|m| m.into()))?
-            .bind(py)
-            .call_method0(intern!(py, "copy_context"))?;
-        Ok(self.with_context(copy_context))
     }
 
     /// Get a reference to the event loop

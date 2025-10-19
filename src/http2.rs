@@ -284,8 +284,10 @@ impl SettingsOrder {
 
 // ===== impl Builder =====
 
-impl<'py> FromPyObject<'py> for Builder {
-    fn extract_bound(ob: &Bound<'py, PyAny>) -> PyResult<Self> {
+impl FromPyObject<'_, '_> for Builder {
+    type Error = PyErr;
+
+    fn extract(ob: Borrowed<PyAny>) -> PyResult<Self> {
         let mut params = Self::default();
         extract_option!(ob, params, initial_window_size);
         extract_option!(ob, params, initial_connection_window_size);

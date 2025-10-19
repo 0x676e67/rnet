@@ -40,10 +40,12 @@ impl From<Body> for wreq::Body {
     }
 }
 
-impl FromPyObject<'_> for Body {
+impl FromPyObject<'_, '_> for Body {
+    type Error = PyErr;
+
     /// Extracts a `Body` from a Python object.
     /// Accepts str, bytes, sync iterator, or async iterator.
-    fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
+    fn extract(ob: Borrowed<PyAny>) -> PyResult<Self> {
         if let Ok(bytes) = ob.extract::<PyBackedBytes>() {
             return Ok(Self::Bytes(Bytes::from_owner(bytes)));
         }
@@ -53,13 +55,14 @@ impl FromPyObject<'_> for Body {
         }
 
         if ob.hasattr(intern!(ob.py(), "asend"))? {
-            Runtime::into_stream(ob.to_owned())
+            Runtime::into_stream(ob)
                 .map(AsyncStream::new)
                 .map(Self::AsyncStream)
         } else {
             ob.extract::<Py<PyAny>>()
                 .map(SyncStream::new)
                 .map(Self::SyncStream)
+                .map_err(Into::into)
         }
     }
 }

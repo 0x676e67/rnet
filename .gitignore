@@ -80,3 +80,5 @@ dist
 
 keylog.txt
 *.json
+*.jpg
+*.csv
