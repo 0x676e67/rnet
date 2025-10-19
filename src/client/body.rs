@@ -24,7 +24,6 @@ use crate::rt::Runtime;
 /// Represents the body of an HTTP request.
 /// Supports text, bytes, synchronous and asynchronous streaming bodies.
 pub enum Body {
-    Text(Bytes),
     Bytes(Bytes),
     SyncStream(SyncStream),
     AsyncStream(AsyncStream),
@@ -34,7 +33,7 @@ impl From<Body> for wreq::Body {
     /// Converts a `Body` into a `wreq::Body` for internal use.
     fn from(value: Body) -> wreq::Body {
         match value {
-            Body::Text(bytes) | Body::Bytes(bytes) => wreq::Body::from(bytes),
+            Body::Bytes(bytes) => wreq::Body::from(bytes),
             Body::SyncStream(stream) => wreq::Body::wrap_stream(stream),
             Body::AsyncStream(stream) => wreq::Body::wrap_stream(stream),
         }
@@ -45,12 +44,12 @@ impl FromPyObject<'_> for Body {
     /// Extracts a `Body` from a Python object.
     /// Accepts str, bytes, sync iterator, or async iterator.
     fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
-        if let Ok(text) = ob.extract::<PyBackedStr>() {
-            return Ok(Self::Text(Bytes::from_owner(text)));
-        }
-
         if let Ok(bytes) = ob.extract::<PyBackedBytes>() {
             return Ok(Self::Bytes(Bytes::from_owner(bytes)));
+        }
+
+        if let Ok(text) = ob.extract::<PyBackedStr>() {
+            return Ok(Self::Bytes(Bytes::from_owner(text)));
         }
 
         if ob.hasattr(intern!(ob.py(), "asend"))? {
