@@ -210,7 +210,6 @@ jobs:
       - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:
-          maturin-version: v1.9.4
           target: ${{ matrix.platform.target }}
           args: --release --out dist ${{ matrix.build_type.maturin_args }} --features ${{ matrix.platform.allocator || '' }}
           sccache: 'false'
