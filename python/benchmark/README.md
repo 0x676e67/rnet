@@ -20,6 +20,7 @@ Async clients
 - httpx
 - aiohttp
 - rnet
+- ry
 
 Target
 ------

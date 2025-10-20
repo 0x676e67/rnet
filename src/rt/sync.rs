@@ -125,14 +125,17 @@ impl PyDoneCallback {
 #[pyclass]
 pub struct Sender {
     locals: TaskLocals,
-    tx: mpsc::Sender<Py<PyAny>>,
+    tx: Option<mpsc::Sender<Py<PyAny>>>,
 }
 
 impl Sender {
     /// Construct a new [`Sender`] with the given task locals and channel sender.
     #[inline]
     pub fn new(locals: TaskLocals, tx: mpsc::Sender<Py<PyAny>>) -> Sender {
-        Sender { locals, tx }
+        Sender {
+            locals,
+            tx: Some(tx),
+        }
     }
 }
 
@@ -146,26 +149,31 @@ impl Sender {
     ///
     /// Returns a Python boolean indicating success.
     pub fn send(&mut self, py: Python, item: Py<PyAny>) -> PyResult<Py<PyAny>> {
-        match self.tx.try_send(item.clone_ref(py)) {
-            Ok(_) => true.into_py_any(py),
-            Err(e) => match e {
-                mpsc::error::TrySendError::Full(_) => {
-                    let tx = self.tx.clone();
-                    future_into_py_with_locals::<_, bool>(py, self.locals.clone(), async move {
-                        Ok(tx.send(item).await.is_ok())
-                    })
-                    .map(Bound::unbind)
-                }
-                mpsc::error::TrySendError::Closed(_) => false.into_py_any(py),
-            },
+        if let Some(ref tx) = self.tx {
+            return match tx.try_send(item.clone_ref(py)) {
+                Ok(_) => true.into_py_any(py),
+                Err(e) => match e {
+                    mpsc::error::TrySendError::Full(_) => {
+                        let tx = tx.clone();
+                        future_into_py_with_locals::<_, bool>(py, self.locals.clone(), async move {
+                            Ok(tx.send(item).await.is_ok())
+                        })
+                        .map(Bound::unbind)
+                    }
+                    mpsc::error::TrySendError::Closed(_) => false.into_py_any(py),
+                },
+            };
         }
+
+        false.into_py_any(py)
     }
 
     /// Close the underlying channel.
     ///
     /// After calling `close`, no further sends will succeed.
+    #[inline]
     pub fn close(&mut self) {
-        // nothing to await, just drop the sender to close the channel
+        self.tx.take();
     }
 }
 

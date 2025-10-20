@@ -111,9 +111,7 @@ impl Runtime {
         future_into_py_with_locals::<F, T>(py, Runtime::get_current_locals(py)?, fut)
     }
 
-    /// **This API is marked as unstable** and is only available when the
-    /// `unstable-streams` crate feature is enabled. This comes with no
-    /// stability guarantees, and could be changed or removed at any time.
+    /// Convert a Python async generator into a Rust Stream with a generic runtime
     #[inline]
     pub fn into_stream(g: Borrowed<PyAny>) -> PyResult<impl Stream<Item = Py<PyAny>> + 'static> {
         into_stream_with_locals(Runtime::get_current_locals(g.py())?, g)
@@ -140,13 +138,12 @@ where
             err.into_bound_py_any(py)?,
         ),
     };
+
     call_soon_threadsafe(
         event_loop,
         context,
         (CheckedCompletor, future, complete, val),
-    )?;
-
-    Ok(())
+    )
 }
 
 fn call_soon_threadsafe<'py>(
@@ -161,6 +158,7 @@ fn call_soon_threadsafe<'py>(
     Ok(())
 }
 
+#[inline]
 fn dump_err(py: Python<'_>) -> impl FnOnce(PyErr) + '_ {
     move |e| {
         // We can't display Python exceptions via std::fmt::Display,
@@ -200,17 +198,9 @@ where
 {
     let (cancel_tx, cancel_rx) = oneshot::channel();
 
-    // Clone an owned handle to the Python event loop so we can move it across
-    // threads without holding the GIL. `TaskLocals::event_loop` is an
-    // `Arc<Py<PyAny>>` so we can obtain a `Py<PyAny>` (owned, GIL-independent)
-    // and bind it only when we need to call into Python.
-    // Clone the Arc handle to the Python event loop so it can be moved across
-    // threads without holding the GIL. We produce a `Bound<PyAny>` only when
-    // we need to call into Python by using `clone_ref(py).into_bound(py)`.
-    let event_loop = locals.event_loop.clone();
-
     // Create the asyncio Future while holding the GIL briefly.
-    let py_fut = event_loop
+    let py_fut = locals
+        .event_loop()
         .bind(py)
         .call_method0(intern!(py, "create_future"))?;
     py_fut.call_method1(
@@ -225,6 +215,8 @@ where
 
     py.detach(|| {
         Runtime::spawn(async move {
+            let event_loop = locals.event_loop().clone();
+
             // create a scope for the task locals
             let result = Runtime::scope(locals, Cancellable::new(fut, cancel_rx)).await;
 
@@ -286,13 +278,20 @@ fn into_stream_with_locals(
 
     let (tx, rx) = mpsc::channel(10);
 
-    locals.event_loop(py).call_method1(
-        intern!(py, "call_soon_threadsafe"),
-        (
-            locals.event_loop(py).getattr(intern!(py, "create_task"))?,
-            glue.call_method1(intern!(py, "forward"), (g, Sender::new(locals, tx)))?,
-        ),
-    )?;
+    locals
+        .event_loop()
+        .clone_ref(py)
+        .into_bound(py)
+        .call_method1(
+            intern!(py, "call_soon_threadsafe"),
+            (
+                locals
+                    .event_loop()
+                    .bind(py)
+                    .getattr(intern!(py, "create_task"))?,
+                glue.call_method1(intern!(py, "forward"), (g, Sender::new(locals, tx)))?,
+            ),
+        )?;
 
-    Ok(ReceiverStream::new(rx))
+    py.detach(|| Ok(ReceiverStream::new(rx)))
 }

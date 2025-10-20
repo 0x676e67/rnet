@@ -18,6 +18,10 @@ import curl_cffi
 import curl_cffi.requests
 import rnet
 import rnet.blocking
+import uvloop
+import ry
+
+uvloop.install()
 
 
 def parse_arguments():
@@ -93,6 +97,7 @@ def main():
         ("aiohttp", aiohttp.ClientSession),
         ("rnet", rnet.Client),
         ("curl_cffi", curl_cffi.requests.AsyncSession),
+        ("ry", ry.HttpClient),
     ]
 
     sync_packages = add_package_version(sync_packages)

@@ -39,11 +39,12 @@ pub fn asyncio(py: Python<'_>) -> PyResult<&Bound<'_, PyAny>> {
 #[derive(Debug, Clone)]
 pub struct TaskLocals {
     /// Track the event loop of the Python task
-    pub event_loop: Arc<Py<PyAny>>,
+    event_loop: Arc<Py<PyAny>>,
 }
 
 impl TaskLocals {
     /// At a minimum, TaskLocals must store the event loop.
+    #[inline]
     pub fn new(event_loop: Bound<PyAny>) -> Self {
         Self {
             event_loop: Arc::new(event_loop.into()),
@@ -66,8 +67,8 @@ impl TaskLocals {
 
     /// Get a reference to the event loop
     #[inline]
-    pub fn event_loop<'p>(&self, py: Python<'p>) -> Bound<'p, PyAny> {
-        self.event_loop.clone_ref(py).into_bound(py)
+    pub fn event_loop(&self) -> &Arc<Py<PyAny>> {
+        &self.event_loop
     }
 }
 

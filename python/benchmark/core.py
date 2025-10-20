@@ -58,7 +58,7 @@ async def _async_execute_request(session, url, session_class):
     if session_class.__module__ == "aiohttp.client":
         async with session.get(url) as resp:
             return await resp.read()
-    if session_class.__name__ == "Client":
+    if session_class.__name__ == "Client" or session_class.__name__ == "HttpClient":
         resp = await session.get(url)
         return await resp.bytes()
     else:
