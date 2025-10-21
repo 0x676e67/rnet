@@ -31,7 +31,7 @@ A blazing-fast, ergonomic, and modular Python HTTP client for advanced and low-l
 The following example uses the `asyncio` runtime with `rnet` installed via pip:
 
 ```bash
-pip install asyncio rnet==3.0.0rc9
+pip install asyncio rnet==3.0.0rc10
 ```
 
 And then the code:
@@ -103,7 +103,14 @@ Most browser device models share identical TLS and HTTP/2 configurations, differ
 
 ## Building
 
-1. Manylinux
+1. Platforms
+
+- Linux(**glibc**/**musl**): `x86_64`, `aarch64`, `armv7`, `i686`
+- macOS: `x86_64`,`aarch64`
+- Windows: `x86_64`,`i686`,`aarch64`
+- Android: `aarch64`, `x86_64`
+
+2. Manylinux
 
 Install the BoringSSL build environment by referring to [boring](https://github.com/cloudflare/boring/blob/master/.github/workflows/ci.yml) and [boringssl](https://github.com/google/boringssl/blob/master/BUILDING.md#build-prerequisites).
 
@@ -123,7 +130,7 @@ maturin develop --uv
 maturin build --release
 ```
 
-2. Musllinux
+3. Musllinux
 
 Make sure you have Docker installed. The provided image may be outdated, so you might need to build it yourself. See [rust-cross-musl](https://github.com/0x676e67/toolchain/blob/master/rust-musl-cross/Dockerfile) and the upstream [rust-cross/rust-musl-cross](https://github.com/rust-cross/rust-musl-cross) for reference.
 
@@ -133,13 +140,6 @@ bash .github/musl_build.sh x86_64-unknown-linux-musl
 bash .github/musl_build.sh aarch64-unknown-linux-musl
 bash .github/musl_build.sh armv7-unknown-linux-musleabihf
 ```
-
-3. Platforms
-
-- Linux(**glibc**/**musl**): `x86_64`, `aarch64`, `armv7`, `i686`
-- macOS: `x86_64`,`aarch64`
-- Windows: `x86_64`,`i686`,`aarch64`
-- Android: `aarch64`, `x86_64`
 
 ## Services
 
