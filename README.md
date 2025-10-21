@@ -31,7 +31,7 @@ A blazing-fast, ergonomic, and modular Python HTTP client for advanced and low-l
 The following example uses the `asyncio` runtime with `rnet` installed via pip:
 
 ```bash
-pip install asyncio rnet==3.0.0-rc9
+pip install asyncio rnet==3.0.0rc9
 ```
 
 And then the code:
@@ -43,7 +43,7 @@ from rnet import Client, Emulation
 
 async def main():
     # Build a client
-    client = Client(emulation=Emulation.Firefox143)
+    client = Client(emulation=Emulation.Safari26)
 
     # Use the API you're already familiar with
     resp = await client.get("https://tls.peet.ws/api/all")
@@ -64,6 +64,17 @@ Additional learning resources include:
 - [Repository Tests](https://github.com/0x676e67/rnet/tree/main/tests)
 - [Synchronous Examples](https://github.com/0x676e67/rnet/tree/main/python/examples/blocking)
 - [Asynchronous Examples](https://github.com/0x676e67/rnet/tree/main/python/examples)
+
+## Behavior
+
+1. **HTTP/2 over TLS**
+
+Due to the complexity of TLS encryption and the widespread adoption of HTTP/2, browser fingerprints such as **JA3**, **JA4**, and **Akamai** cannot be reliably emulated using simple fingerprint strings. Instead of parsing and emulating these string-based fingerprints, `rnet` provides fine-grained control over TLS and HTTP/2 extensions and settings for precise browser behavior emulation.
+
+2. **Device Emulation**
+
+Most browser device models share identical TLS and HTTP/2 configurations, differing only in the `User-Agent` string.
+
 - <details>
   <summary>Available OS emulations</summary>
 
@@ -81,7 +92,7 @@ Additional learning resources include:
 
   | **Browser** | **Versions**                                                                                                                                                                                                                                                                                                                                                                            |
   | ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-  | **Chrome**  | `Chrome100`, `Chrome101`, `Chrome104`, `Chrome105`, `Chrome106`, `Chrome107`, `Chrome108`, `Chrome109`, `Chrome110`, `Chrome114`, `Chrome116`, `Chrome117`, `Chrome118`, `Chrome119`, `Chrome120`, `Chrome123`, `Chrome124`, `Chrome126`, `Chrome127`, `Chrome128`, `Chrome129`, `Chrome130`, `Chrome131`, `Chrome132`, `Chrome133`, `Chrome134`, `Chrome135`, `Chrome136`, `Chrome137`, `Chrome138`, `Chrome139`, `Chrome140` |
+  | **Chrome**  | `Chrome100`, `Chrome101`, `Chrome104`, `Chrome105`, `Chrome106`, `Chrome107`, `Chrome108`, `Chrome109`, `Chrome110`, `Chrome114`, `Chrome116`, `Chrome117`, `Chrome118`, `Chrome119`, `Chrome120`, `Chrome123`, `Chrome124`, `Chrome126`, `Chrome127`, `Chrome128`, `Chrome129`, `Chrome130`, `Chrome131`, `Chrome132`, `Chrome133`, `Chrome134`, `Chrome135`, `Chrome136`, `Chrome137`, `Chrome138`, `Chrome139`, `Chrome140`, `Chrome141` |
   | **Safari**  | `SafariIos17_2`, `SafariIos17_4_1`, `SafariIos16_5`, `Safari15_3`, `Safari15_5`, `Safari15_6_1`, `Safari16`, `Safari16_5`, `Safari17_0`, `Safari17_2_1`, `Safari17_4_1`, `Safari17_5`, `Safari18`, `SafariIPad18`, `Safari18_2`, `SafariIos18_1_1`, `Safari18_3`, `Safari18_3_1`, `Safari18_5`,  `Safari26`, `SafariIos26`, `SafariIPad26`                                                                                          |
   | **Firefox** | `Firefox109`, `Firefox117`, `Firefox128`, `Firefox133`, `Firefox135`, `FirefoxPrivate135`, `FirefoxAndroid135`, `Firefox136`, `FirefoxPrivate136`, `Firefox139`, `Firefox142`, `Firefox143`                                                                                                                                                                                                                         |
   | **OkHttp**  | `OkHttp3_9`, `OkHttp3_11`, `OkHttp3_13`, `OkHttp3_14`, `OkHttp4_9`, `OkHttp4_10`, `OkHttp4_12`, `OkHttp5`                                                                                                                                                                                                                                                                               |
@@ -89,19 +100,6 @@ Additional learning resources include:
   | **Opera**   | `Opera116`, `Opera117`, `Opera118`, `Opera119`                                                                                                                                                                                                                                                                                                                                          |
 
   </details>
-
-## Platforms
-
-1. Linux
-
-- **glibc >= 2.34**: `x86_64`, `aarch64`, `armv7`, `i686`
-- **musl**: `x86_64`, `aarch64`, `armv7`, `i686`
-
-2. macOS: `x86_64`,`aarch64`
-
-3. Windows: `x86_64`,`i686`,`aarch64`
-
-4. Android: `aarch64`, `x86_64`
 
 ## Building
 
@@ -135,6 +133,13 @@ bash .github/musl_build.sh x86_64-unknown-linux-musl
 bash .github/musl_build.sh aarch64-unknown-linux-musl
 bash .github/musl_build.sh armv7-unknown-linux-musleabihf
 ```
+
+3. Platforms
+
+- Linux(**glibc**/**musl**): `x86_64`, `aarch64`, `armv7`, `i686`
+- macOS: `x86_64`,`aarch64`
+- Windows: `x86_64`,`i686`,`aarch64`
+- Android: `aarch64`, `x86_64`
 
 ## Services
 
