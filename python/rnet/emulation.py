@@ -53,6 +53,7 @@ class Emulation(Enum):
     Chrome138 = auto()
     Chrome139 = auto()
     Chrome140 = auto()
+    Chrome141 = auto()
 
     # Microsoft Edge versions
     Edge101 = auto()
