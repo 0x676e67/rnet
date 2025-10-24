@@ -8,7 +8,10 @@ use wreq::{
 use wreq_util::EmulationOption;
 
 use crate::{
-    client::body::{Body, form::Form, json::Json},
+    client::{
+        body::{Body, form::Form, json::Json},
+        query::Query,
+    },
     extractor::Extractor,
 };
 
@@ -77,7 +80,7 @@ pub struct Request {
     pub basic_auth: Option<(PyBackedStr, Option<PyBackedStr>)>,
 
     /// The query parameters to use for the request.
-    pub query: Option<Extractor<Vec<(PyBackedStr, PyBackedStr)>>>,
+    pub query: Option<Query>,
 
     /// The form parameters to use for the request.
     pub form: Option<Form>,

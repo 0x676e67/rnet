@@ -13,7 +13,7 @@ use serde::{
 #[derive(FromPyObject)]
 pub enum Form {
     Map(IndexMap<PyBackedStr, PyBackedStr>),
-    Tuple(Vec<(PyBackedStr, PyBackedStr)>),
+    List(Vec<(PyBackedStr, PyBackedStr)>),
 }
 
 impl Serialize for Form {
@@ -32,7 +32,7 @@ impl Serialize for Form {
                 }
                 map_serializer.end()
             }
-            Form::Tuple(vec) => {
+            Form::List(vec) => {
                 let mut seq_serializer = serializer.serialize_seq(Some(vec.len()))?;
                 for (key, value) in vec {
                     seq_serializer
