@@ -919,6 +919,8 @@ class Request(TypedDict):
         Union[
             str,
             bytes,
+            Union[List[Tuple[str, str]], Dict[str, str]],
+            Dict[str, Any],
             Generator[bytes, str, None],
             AsyncGenerator[bytes, str],
         ]
