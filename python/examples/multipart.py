@@ -22,14 +22,14 @@ async def main():
             # Unload file data
             Part(
                 name="LICENSE",
-                value=Path("../LICENSE"),
+                value=Path("LICENSE"),
                 filename="LICENSE",
                 mime="text/plain",
             ),
             # Upload bytes stream file data
             Part(
                 name="README",
-                value=file_to_bytes_stream("../README.md"),
+                value=file_to_bytes_stream("README.md"),
                 filename="README.md",
                 mime="text/plain",
             ),
