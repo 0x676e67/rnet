@@ -849,11 +849,13 @@ where
     // JSON options.
     apply_option!(set_if_some_ref, builder, params.json, json);
 
-    // Body options.
-    apply_option!(set_if_some, builder, params.body, body);
-
     // Multipart options.
     apply_option!(set_if_some_inner, builder, params.multipart, multipart);
+
+    // Body options.
+    if let Some(body) = params.body.take() {
+        builder = builder.body(wreq::Body::try_from(body)?);
+    }
 
     // Send request.
     builder

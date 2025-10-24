@@ -73,6 +73,8 @@ pub enum Error {
     Builder(http::Error),
     IO(std::io::Error),
     Decode(cookie::ParseError),
+    Json(serde_json::Error),
+    Form(serde_urlencoded::ser::Error),
     Library(wreq::Error),
 }
 
@@ -97,6 +99,8 @@ impl From<Error> for PyErr {
             Error::IO(err) => PyRuntimeError::new_err(format!("IO error: {err:?}")),
             Error::Decode(err) => DecodingError::new_err(format!("Decode error: {err:?}")),
             Error::Builder(err) => BuilderError::new_err(format!("Builder error: {err:?}")),
+            Error::Json(err) => PyRuntimeError::new_err(format!("JSON error: {err:?}")),
+            Error::Form(err) => PyRuntimeError::new_err(format!("Form error: {err:?}")),
             Error::Library(err) => wrap_error!(err,
                 is_body => BodyError,
                 is_tls => TlsError,

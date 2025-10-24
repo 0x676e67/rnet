@@ -24,18 +24,30 @@ use crate::rt::Runtime;
 /// Represents the body of an HTTP request.
 /// Supports text, bytes, synchronous and asynchronous streaming bodies.
 pub enum Body {
+    Form(form::Form),
+    Json(json::Json),
     Bytes(Bytes),
     SyncStream(SyncStream),
     AsyncStream(AsyncStream),
 }
 
-impl From<Body> for wreq::Body {
+impl TryFrom<Body> for wreq::Body {
+    type Error = PyErr;
+
     /// Converts a `Body` into a `wreq::Body` for internal use.
-    fn from(value: Body) -> wreq::Body {
+    fn try_from(value: Body) -> PyResult<wreq::Body> {
         match value {
-            Body::Bytes(bytes) => wreq::Body::from(bytes),
-            Body::SyncStream(stream) => wreq::Body::wrap_stream(stream),
-            Body::AsyncStream(stream) => wreq::Body::wrap_stream(stream),
+            Body::Form(form) => serde_urlencoded::to_string(form)
+                .map(wreq::Body::from)
+                .map_err(crate::Error::Form)
+                .map_err(Into::into),
+            Body::Json(json) => serde_json::to_vec(&json)
+                .map_err(crate::Error::Json)
+                .map(wreq::Body::from)
+                .map_err(Into::into),
+            Body::Bytes(bytes) => Ok(wreq::Body::from(bytes)),
+            Body::SyncStream(stream) => Ok(wreq::Body::wrap_stream(stream)),
+            Body::AsyncStream(stream) => Ok(wreq::Body::wrap_stream(stream)),
         }
     }
 }
@@ -52,6 +64,14 @@ impl FromPyObject<'_, '_> for Body {
 
         if let Ok(text) = ob.extract::<PyBackedStr>() {
             return Ok(Self::Bytes(Bytes::from_owner(text)));
+        }
+
+        if let Ok(json) = ob.extract::<json::Json>() {
+            return Ok(Self::Json(json));
+        }
+
+        if let Ok(form) = ob.extract::<form::Form>() {
+            return Ok(Self::Form(form));
         }
 
         if ob.hasattr(intern!(ob.py(), "asend"))? {

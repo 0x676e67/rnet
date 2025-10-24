@@ -21,7 +21,7 @@ classifiers = [
   'Operating System :: Unix',
   'Operating System :: MacOS',
 ]
-description = "A blazing-fast Python HTTP client with TLS fingerprint"
+description = "An ergonomic Python HTTP client with TLS fingerprint"
 readme = "README.md"
 dynamic = ["version"]
 license = { text = "Apache-2.0" }
