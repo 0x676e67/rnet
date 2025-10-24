@@ -900,7 +900,7 @@ class Request(TypedDict):
     The basic authentication to use for the request.
     """
 
-    query: NotRequired[List[Tuple[str, str]]]
+    query: NotRequired[Union[List[Tuple[str, str]], Dict[str, str]]]
     """
     The query parameters to use for the request.
     """
