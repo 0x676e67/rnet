@@ -2,19 +2,13 @@ use std::path::PathBuf;
 
 use bytes::Bytes;
 use pyo3::{
-    intern,
     prelude::*,
     pybacked::{PyBackedBytes, PyBackedStr},
     types::PyTuple,
 };
 use wreq::{Body, header::HeaderMap, multipart, multipart::Form};
 
-use crate::{
-    client::body::{AsyncStream, SyncStream},
-    error::Error,
-    extractor::Extractor,
-    rt::Runtime,
-};
+use crate::{client::body::PyStream, error::Error, extractor::Extractor, rt::Runtime};
 
 /// A multipart form for a request.
 #[pyclass(subclass)]
@@ -49,12 +43,12 @@ pub struct Part {
 }
 
 /// The data for a part value of a multipart form.
+#[derive(FromPyObject)]
 pub enum Value {
-    Text(Bytes),
-    Bytes(Bytes),
+    Text(PyBackedStr),
+    Bytes(PyBackedBytes),
     File(PathBuf),
-    SyncStream(SyncStream),
-    AsyncStream(AsyncStream),
+    Stream(PyStream),
 }
 
 #[pymethods]
@@ -81,20 +75,14 @@ impl Part {
         py.detach(|| {
             // Create the inner part
             let mut inner = match value {
-                Value::Text(bytes) | Value::Bytes(bytes) => {
-                    multipart::Part::stream(Body::from(bytes))
+                Value::Text(text) => multipart::Part::stream(Body::from(Bytes::from_owner(text))),
+                Value::Bytes(bytes) => {
+                    multipart::Part::stream(Body::from(Bytes::from_owner(bytes)))
                 }
                 Value::File(path) => {
                     Runtime::block_on(multipart::Part::file(path)).map_err(Error::from)?
                 }
-                Value::SyncStream(stream) => {
-                    let stream = Body::wrap_stream(stream);
-                    match length {
-                        Some(length) => multipart::Part::stream_with_length(stream, length),
-                        None => multipart::Part::stream(stream),
-                    }
-                }
-                Value::AsyncStream(stream) => {
+                Value::Stream(stream) => {
                     let stream = Body::wrap_stream(stream);
                     match length {
                         Some(length) => multipart::Part::stream_with_length(stream, length),
@@ -123,35 +111,5 @@ impl Part {
                 inner: Some(inner),
             })
         })
-    }
-}
-
-impl FromPyObject<'_> for Value {
-    fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
-        // Try extracting string
-        if let Ok(text) = ob.extract::<PyBackedStr>() {
-            return Ok(Value::Text(Bytes::from_owner(text)));
-        }
-
-        // Try extracting bytes
-        if let Ok(bytes) = ob.extract::<PyBackedBytes>() {
-            return Ok(Value::Bytes(Bytes::from_owner(bytes)));
-        }
-
-        // Try extracting file path
-        if let Ok(path) = ob.extract::<PathBuf>() {
-            return Ok(Value::File(path));
-        }
-
-        // Determine if it's an async or sync stream
-        if ob.hasattr(intern!(ob.py(), "asend"))? {
-            Runtime::into_stream(ob.to_owned())
-                .map(AsyncStream::new)
-                .map(Value::AsyncStream)
-        } else {
-            ob.extract::<Py<PyAny>>()
-                .map(SyncStream::new)
-                .map(Value::SyncStream)
-        }
     }
 }

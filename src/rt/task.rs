@@ -4,7 +4,6 @@ use ::tokio::sync::oneshot;
 use pyo3::{intern, prelude::*, sync::PyOnceLock};
 
 static ASYNCIO: PyOnceLock<Py<PyAny>> = PyOnceLock::new();
-static CONTEXTVARS: PyOnceLock<Py<PyAny>> = PyOnceLock::new();
 static ENSURE_FUTURE: PyOnceLock<Py<PyAny>> = PyOnceLock::new();
 static GET_RUNNING_LOOP: PyOnceLock<Py<PyAny>> = PyOnceLock::new();
 
@@ -22,10 +21,6 @@ pub fn ensure_future<'p>(
 }
 
 #[inline]
-pub fn create_future(event_loop: Bound<'_, PyAny>) -> PyResult<Bound<'_, PyAny>> {
-    event_loop.call_method0(intern!(event_loop.py(), "create_future"))
-}
-#[inline]
 pub fn cancelled(future: &Bound<PyAny>) -> PyResult<bool> {
     future
         .getattr(intern!(future.py(), "cancelled"))?
@@ -41,20 +36,17 @@ pub fn asyncio(py: Python<'_>) -> PyResult<&Bound<'_, PyAny>> {
 }
 
 /// Task-local data to store for Python conversions.
-#[allow(dead_code)]
 #[derive(Debug, Clone)]
 pub struct TaskLocals {
     /// Track the event loop of the Python task
-    pub event_loop: Arc<Py<PyAny>>,
-    /// Track the contextvars of the Python task
-    pub context: Arc<Py<PyAny>>,
+    event_loop: Arc<Py<PyAny>>,
 }
 
 impl TaskLocals {
     /// At a minimum, TaskLocals must store the event loop.
+    #[inline]
     pub fn new(event_loop: Bound<PyAny>) -> Self {
         Self {
-            context: Arc::new(event_loop.py().None()),
             event_loop: Arc::new(event_loop.into()),
         }
     }
@@ -73,26 +65,10 @@ impl TaskLocals {
             .map(Self::new)
     }
 
-    /// Manually provide the contextvars for the current task.
-    pub fn with_context(self, context: Bound<PyAny>) -> Self {
-        Self {
-            context: Arc::new(context.into()),
-            ..self
-        }
-    }
-
-    /// Capture the current task's contextvars
-    pub fn copy_context(self, py: Python) -> PyResult<Self> {
-        let copy_context = CONTEXTVARS
-            .get_or_try_init(py, || py.import("contextvars").map(|m| m.into()))?
-            .bind(py)
-            .call_method0("copy_context")?;
-        Ok(self.with_context(copy_context))
-    }
-
     /// Get a reference to the event loop
-    pub fn event_loop<'p>(&self, py: Python<'p>) -> Bound<'p, PyAny> {
-        self.event_loop.clone_ref(py).into_bound(py)
+    #[inline]
+    pub fn event_loop(&self) -> &Arc<Py<PyAny>> {
+        &self.event_loop
     }
 }
 

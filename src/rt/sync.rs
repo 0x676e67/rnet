@@ -5,12 +5,10 @@ use std::{
     task::{Context, Poll},
 };
 
-use futures::{
-    SinkExt,
-    channel::{mpsc, oneshot},
-};
+use futures_util::Stream;
 use pin_project_lite::pin_project;
 use pyo3::{IntoPyObjectExt, exceptions::PyBaseException, prelude::*};
+use tokio::sync::{mpsc, mpsc::Receiver, oneshot};
 
 use super::{
     dump_err, future_into_py_with_locals,
@@ -111,14 +109,12 @@ impl PyDoneCallback {
     ///
     /// If the Python future is cancelled, sends a cancellation signal on the
     /// internal oneshot sender so the Rust side can abort the corresponding task.
-    pub fn __call__(&mut self, fut: &Bound<PyAny>) -> PyResult<()> {
+    pub fn __call__(&mut self, fut: &Bound<PyAny>) {
         if cancelled(fut).map_err(dump_err(fut.py())).unwrap_or(false) {
             if let Some(tx) = self.cancel_tx.take() {
                 let _ = tx.send(());
             }
         }
-
-        Ok(())
     }
 }
 
@@ -129,14 +125,17 @@ impl PyDoneCallback {
 #[pyclass]
 pub struct Sender {
     locals: TaskLocals,
-    tx: mpsc::Sender<Py<PyAny>>,
+    tx: Option<mpsc::Sender<Py<PyAny>>>,
 }
 
 impl Sender {
     /// Construct a new [`Sender`] with the given task locals and channel sender.
     #[inline]
     pub fn new(locals: TaskLocals, tx: mpsc::Sender<Py<PyAny>>) -> Sender {
-        Sender { locals, tx }
+        Sender {
+            locals,
+            tx: Some(tx),
+        }
     }
 }
 
@@ -150,33 +149,71 @@ impl Sender {
     ///
     /// Returns a Python boolean indicating success.
     pub fn send(&mut self, py: Python, item: Py<PyAny>) -> PyResult<Py<PyAny>> {
-        match self.tx.try_send(item.clone_ref(py)) {
-            Ok(_) => true.into_py_any(py),
-            Err(e) => {
-                if e.is_full() {
-                    let mut tx = self.tx.clone();
-                    future_into_py_with_locals::<_, bool>(py, self.locals.clone(), async move {
-                        if tx.flush().await.is_err() {
-                            return Ok(false);
-                        }
-                        if tx.send(item).await.is_err() {
-                            return Ok(false);
-                        }
-                        Ok(true)
-                    })
-                    .map(Bound::unbind)
-                } else {
-                    false.into_py_any(py)
-                }
-            }
+        if let Some(ref tx) = self.tx {
+            return match tx.try_send(item.clone_ref(py)) {
+                Ok(_) => true.into_py_any(py),
+                Err(e) => match e {
+                    mpsc::error::TrySendError::Full(_) => {
+                        let tx = tx.clone();
+                        future_into_py_with_locals::<_, bool>(py, self.locals.clone(), async move {
+                            Ok(tx.send(item).await.is_ok())
+                        })
+                        .map(Bound::unbind)
+                    }
+                    mpsc::error::TrySendError::Closed(_) => false.into_py_any(py),
+                },
+            };
         }
+
+        false.into_py_any(py)
     }
 
     /// Close the underlying channel.
     ///
     /// After calling `close`, no further sends will succeed.
-    pub fn close(&mut self) -> PyResult<()> {
-        self.tx.close_channel();
-        Ok(())
+    #[inline]
+    pub fn close(&mut self) {
+        self.tx.take();
+    }
+}
+
+/// A wrapper around [`tokio::sync::mpsc::Receiver`] that implements [`Stream`].
+pub struct ReceiverStream<T> {
+    inner: Receiver<T>,
+}
+
+impl<T> ReceiverStream<T> {
+    /// Create a new `ReceiverStream`.
+    #[inline]
+    pub fn new(recv: Receiver<T>) -> Self {
+        Self { inner: recv }
+    }
+}
+
+impl<T> Stream for ReceiverStream<T> {
+    type Item = T;
+
+    #[inline]
+    fn poll_next(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
+        self.inner.poll_recv(cx)
+    }
+
+    /// Returns the bounds of the stream based on the underlying receiver.
+    ///
+    /// For open channels, it returns `(receiver.len(), None)`.
+    ///
+    /// For closed channels, it returns `(receiver.len(), Some(used_capacity))`
+    /// where `used_capacity` is calculated as `receiver.max_capacity() -
+    /// receiver.capacity()`. This accounts for any [`Permit`] that is still
+    /// able to send a message.
+    ///
+    /// [`Permit`]: struct@tokio::sync::mpsc::Permit
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        if self.inner.is_closed() {
+            let used_capacity = self.inner.max_capacity() - self.inner.capacity();
+            (self.inner.len(), Some(used_capacity))
+        } else {
+            (self.inner.len(), None)
+        }
     }
 }

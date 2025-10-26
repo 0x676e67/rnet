@@ -11,7 +11,7 @@ use wreq::{self, Extension, Uri, redirect, tls::TlsInfo};
 use super::Streamer;
 use crate::{
     buffer::PyBuffer,
-    client::{SocketAddr, body::Json, future::PyFuture, resp::history::History},
+    client::{SocketAddr, body::json::Json, future::PyFuture, resp::history::History},
     error::Error,
     http::{Version, cookie::Cookie, header::HeaderMap, status::StatusCode},
     rt::Runtime,
@@ -86,7 +86,7 @@ impl Response {
         }
     }
 
-    fn reuse_response(&self, py: Python, stream: bool) -> PyResult<wreq::Response> {
+    fn response(&self, py: Python, stream: bool) -> PyResult<wreq::Response> {
         py.detach(|| {
             let build_response = |body: wreq::Body| -> wreq::Response {
                 let mut response = HttpResponse::new(body);
@@ -164,7 +164,7 @@ impl Response {
 
     /// Turn a response into an error if the server returned an error.
     pub fn raise_for_status(&self, py: Python) -> PyResult<()> {
-        self.reuse_response(py, false)?
+        self.response(py, false)?
             .error_for_status()
             .map(|_| ())
             .map_err(Error::Library)
@@ -173,7 +173,7 @@ impl Response {
 
     /// Get the response into a `Stream` of `Bytes` from the body.
     pub fn stream(&self, py: Python) -> PyResult<Streamer> {
-        self.reuse_response(py, true)
+        self.response(py, true)
             .map(wreq::Response::bytes_stream)
             .map(Streamer::new)
     }
@@ -181,7 +181,7 @@ impl Response {
     /// Get the text content of the response.
     pub fn text<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
         let fut = self
-            .reuse_response(py, false)?
+            .response(py, false)?
             .text()
             .map_err(Error::Library)
             .map_err(Into::into);
@@ -196,7 +196,7 @@ impl Response {
         encoding: PyBackedStr,
     ) -> PyResult<Bound<'py, PyAny>> {
         let fut = self
-            .reuse_response(py, false)?
+            .response(py, false)?
             .text_with_charset(encoding)
             .map_err(Error::Library)
             .map_err(Into::into);
@@ -206,7 +206,7 @@ impl Response {
     /// Get the JSON content of the response.
     pub fn json<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
         let fut = self
-            .reuse_response(py, false)?
+            .response(py, false)?
             .json::<Json>()
             .map_err(Error::Library)
             .map_err(Into::into);
@@ -216,7 +216,7 @@ impl Response {
     /// Get the bytes content of the response.
     pub fn bytes<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
         let fut = self
-            .reuse_response(py, false)?
+            .response(py, false)?
             .bytes()
             .map_ok(PyBuffer::from)
             .map_err(Error::Library)
@@ -328,7 +328,7 @@ impl BlockingResponse {
 
     /// Get the text content of the response.
     pub fn text(&self, py: Python) -> PyResult<String> {
-        let resp = self.0.reuse_response(py, false)?;
+        let resp = self.0.response(py, false)?;
         py.detach(|| {
             Runtime::block_on(resp.text())
                 .map_err(Error::Library)
@@ -339,7 +339,7 @@ impl BlockingResponse {
     /// Get the full response text given a specific encoding.
     #[pyo3(signature = (encoding))]
     pub fn text_with_charset(&self, py: Python, encoding: PyBackedStr) -> PyResult<String> {
-        let resp = self.0.reuse_response(py, false)?;
+        let resp = self.0.response(py, false)?;
         py.detach(|| {
             Runtime::block_on(resp.text_with_charset(&encoding))
                 .map_err(Error::Library)
@@ -349,7 +349,7 @@ impl BlockingResponse {
 
     /// Get the JSON content of the response.
     pub fn json(&self, py: Python) -> PyResult<Json> {
-        let resp = self.0.reuse_response(py, false)?;
+        let resp = self.0.response(py, false)?;
         py.detach(|| {
             Runtime::block_on(resp.json::<Json>())
                 .map_err(Error::Library)
@@ -359,7 +359,7 @@ impl BlockingResponse {
 
     /// Get the bytes content of the response.
     pub fn bytes(&self, py: Python) -> PyResult<PyBuffer> {
-        let resp = self.0.reuse_response(py, false)?;
+        let resp = self.0.response(py, false)?;
         py.detach(|| {
             Runtime::block_on(resp.bytes())
                 .map(PyBuffer::from)

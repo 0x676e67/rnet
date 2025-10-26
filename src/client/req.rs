@@ -4,12 +4,14 @@ use pyo3::{PyResult, prelude::*, pybacked::PyBackedStr};
 use wreq::{
     Proxy, Version,
     header::{HeaderMap, HeaderValue, OrigHeaderMap},
-    multipart::Form,
 };
 use wreq_util::EmulationOption;
 
 use crate::{
-    client::body::{Body, Json},
+    client::{
+        body::{Body, form::Form, json::Json},
+        query::Query,
+    },
     extractor::Extractor,
 };
 
@@ -78,10 +80,10 @@ pub struct Request {
     pub basic_auth: Option<(PyBackedStr, Option<PyBackedStr>)>,
 
     /// The query parameters to use for the request.
-    pub query: Option<Extractor<Vec<(PyBackedStr, PyBackedStr)>>>,
+    pub query: Option<Query>,
 
     /// The form parameters to use for the request.
-    pub form: Option<Extractor<Vec<(PyBackedStr, PyBackedStr)>>>,
+    pub form: Option<Form>,
 
     /// The JSON body to use for the request.
     pub json: Option<Json>,
@@ -90,11 +92,13 @@ pub struct Request {
     pub body: Option<Body>,
 
     /// The multipart form to use for the request.
-    pub multipart: Option<Extractor<Form>>,
+    pub multipart: Option<Extractor<wreq::multipart::Form>>,
 }
 
-impl<'py> FromPyObject<'py> for Request {
-    fn extract_bound(ob: &Bound<'py, PyAny>) -> PyResult<Request> {
+impl FromPyObject<'_, '_> for Request {
+    type Error = PyErr;
+
+    fn extract(ob: Borrowed<PyAny>) -> PyResult<Request> {
         let mut params = Self::default();
         extract_option!(ob, params, emulation);
         extract_option!(ob, params, proxy);
@@ -227,8 +231,10 @@ pub struct WebSocketRequest {
     pub accept_unmasked_frames: Option<bool>,
 }
 
-impl<'py> FromPyObject<'py> for WebSocketRequest {
-    fn extract_bound(ob: &Bound<'py, PyAny>) -> PyResult<Self> {
+impl FromPyObject<'_, '_> for WebSocketRequest {
+    type Error = PyErr;
+
+    fn extract(ob: Borrowed<PyAny>) -> PyResult<Self> {
         let mut params = Self::default();
         extract_option!(ob, params, emulation);
         extract_option!(ob, params, proxy);

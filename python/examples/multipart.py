@@ -22,27 +22,21 @@ async def main():
             # Unload file data
             Part(
                 name="LICENSE",
-                value=Path("../LICENSE"),
+                value=Path("LICENSE"),
                 filename="LICENSE",
                 mime="text/plain",
             ),
             # Upload bytes stream file data
             Part(
                 name="README",
-                value=file_to_bytes_stream("../README.md"),
+                value=file_to_bytes_stream("README.md"),
                 filename="README.md",
                 mime="text/plain",
             ),
         ),
     )
-    print("Status Code: ", resp.status)
-    print("Version: ", resp.version)
-    print("Response URL: ", resp.url)
-    print("Headers: ", resp.headers)
-    print("Cookies: ", resp.cookies)
-    print("Content-Length: ", resp.content_length)
-    print("Remote Address: ", resp.remote_addr)
-    print("Text: ", await resp.text())
+
+    print(await resp.text())
 
 
 if __name__ == "__main__":

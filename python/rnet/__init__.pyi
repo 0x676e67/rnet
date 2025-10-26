@@ -915,12 +915,12 @@ class Request(TypedDict):
     The basic authentication to use for the request.
     """
 
-    query: NotRequired[List[Tuple[str, str]]]
+    query: NotRequired[Union[List[Tuple[str, str]], Dict[str, str]]]
     """
     The query parameters to use for the request.
     """
 
-    form: NotRequired[List[Tuple[str, str]]]
+    form: NotRequired[Union[List[Tuple[str, str]], Dict[str, str]]]
     """
     The form parameters to use for the request.
     """
@@ -934,6 +934,8 @@ class Request(TypedDict):
         Union[
             str,
             bytes,
+            Union[List[Tuple[str, str]], Dict[str, str]],
+            Dict[str, Any],
             Generator[bytes, str, None],
             AsyncGenerator[bytes, str],
         ]

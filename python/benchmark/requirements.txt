@@ -12,3 +12,5 @@ matplotlib
 pandas
 seaborn
 typing_extensions
+uvloop
+ry

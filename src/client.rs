@@ -1,4 +1,5 @@
 pub mod body;
+pub mod query;
 pub mod req;
 pub mod resp;
 
@@ -164,8 +165,10 @@ struct Builder {
     zstd: Option<bool>,
 }
 
-impl<'py> FromPyObject<'py> for Builder {
-    fn extract_bound(ob: &Bound<'py, PyAny>) -> PyResult<Self> {
+impl FromPyObject<'_, '_> for Builder {
+    type Error = PyErr;
+
+    fn extract(ob: Borrowed<PyAny>) -> PyResult<Self> {
         let mut params = Self::default();
         extract_option!(ob, params, emulation);
         extract_option!(ob, params, user_agent);
@@ -859,11 +862,13 @@ where
     // JSON options.
     apply_option!(set_if_some_ref, builder, params.json, json);
 
-    // Body options.
-    apply_option!(set_if_some, builder, params.body, body);
-
     // Multipart options.
     apply_option!(set_if_some_inner, builder, params.multipart, multipart);
+
+    // Body options.
+    if let Some(body) = params.body.take() {
+        builder = builder.body(wreq::Body::try_from(body)?);
+    }
 
     // Send request.
     builder
