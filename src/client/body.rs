@@ -54,7 +54,7 @@ impl TryFrom<Body> for wreq::Body {
 /// Represents a Python streaming body, either synchronous or asynchronous.
 pub enum PyStream {
     Sync(Py<PyAny>),
-    Async(Pin<Box<dyn Stream<Item = Py<PyAny>> + Send + Sync + 'static>>),
+    Async(Pin<Box<dyn Stream<Item = Py<PyAny>> + Send + 'static>>),
 }
 
 impl FromPyObject<'_, '_> for PyStream {
@@ -66,7 +66,7 @@ impl FromPyObject<'_, '_> for PyStream {
         if ob.hasattr(intern!(ob.py(), "asend"))? {
             crate::rt::Runtime::into_stream(ob)
                 .map(Box::pin)
-                .map(|stream| PyStream::Async(stream as _))
+                .map(|stream| PyStream::Async(stream))
         } else {
             ob.extract::<Py<PyAny>>()
                 .map(PyStream::Sync)
