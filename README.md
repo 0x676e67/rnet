@@ -141,13 +141,13 @@ bash .github/musl_build.sh aarch64-unknown-linux-musl
 bash .github/musl_build.sh armv7-unknown-linux-musleabihf
 ```
 
-## Services
-
-Help sustain the ongoing development of this open-source project by reaching out for [commercial support](mailto:gngppz@gmail.com). Receive private guidance, expert reviews, or direct access to the maintainer, with personalized technical assistance tailored to your needs.
-
 ## Benchmark
 
 Outperforms `requests`, `httpx`, `Python-TLS-Client`, and `curl_cffi`. See the [benchmark](https://github.com/0x676e67/rnet/tree/main/python/benchmark) for details. Benchmark data is for reference only—actual performance may vary based on your environment and use case.
+
+## Services
+
+Help sustain the ongoing development of this open-source project by reaching out for [commercial support](mailto:gngppz@gmail.com). Receive private guidance, expert reviews, or direct access to the maintainer, with personalized technical assistance tailored to your needs.
 
 ## License
 
