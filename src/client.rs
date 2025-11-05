@@ -20,10 +20,11 @@ use wreq_util::EmulationOption;
 use self::resp::{BlockingResponse, BlockingWebSocket};
 use crate::{
     client::resp::{Response, WebSocket},
+    cookie::Jar,
     dns::HickoryDnsResolver,
     error::Error,
     extractor::Extractor,
-    http::{Method, cookie::Jar},
+    http::Method,
     http1::Http1Options,
     http2::Http2Options,
     rt::Runtime,

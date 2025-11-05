@@ -12,10 +12,12 @@ use tikv_jemallocator as _;
 mod macros;
 mod buffer;
 mod client;
+mod cookie;
 mod dns;
 mod emulation;
 mod error;
 mod extractor;
+mod header;
 mod http;
 mod http1;
 mod http2;
@@ -35,14 +37,11 @@ use self::{
             BlockingResponse, BlockingWebSocket, History, Message, Response, Streamer, WebSocket,
         },
     },
+    cookie::{Cookie, Jar, SameSite},
     emulation::{Emulation, EmulationOS, EmulationOption},
     error::*,
-    http::{
-        Method, Version,
-        cookie::{Cookie, Jar, SameSite},
-        header::{HeaderMap, OrigHeaderMap},
-        status::StatusCode,
-    },
+    header::{HeaderMap, OrigHeaderMap},
+    http::{Method, StatusCode, Version},
     http1::Http1Options,
     http2::{
         Http2Options, Priorities, Priority, PseudoId, PseudoOrder, SettingId, SettingsOrder,
