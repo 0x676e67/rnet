@@ -17,6 +17,7 @@ from typing import (
 from pathlib import Path
 from enum import Enum, auto
 
+from .dns import ResolverOptions
 from .http1 import Http1Options
 from .http2 import Http2Options
 from .cookie import *
@@ -788,9 +789,7 @@ class ClientParams(TypedDict):
 
     # ========= DNS options =========
 
-    resolve_to_addrs: NotRequired[
-        Dict[str, List[Union[ipaddress.IPv4Address, ipaddress.IPv6Address]]]
-    ]
+    dns_options: NotRequired[ResolverOptions]
 
     # ========= Compression options =========
 

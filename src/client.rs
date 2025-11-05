@@ -21,7 +21,7 @@ use self::resp::{BlockingResponse, BlockingWebSocket};
 use crate::{
     client::resp::{Response, WebSocket},
     cookie::Jar,
-    dns::{HickoryDnsResolver, ResolverOptions},
+    dns::{HickoryDnsResolver, LookupIpStrategy, ResolverOptions},
     error::Error,
     extractor::Extractor,
     http::Method,
@@ -450,13 +450,15 @@ impl Client {
             apply_option!(set_if_some, builder, params.interface, interface);
 
             // DNS options.
-            if let Some(options) = params.dns_options.take() {
+            builder = if let Some(options) = params.dns_options.take() {
                 for (domain, addrs) in options.resolve_to_addrs {
                     builder = builder.resolve_to_addrs(domain.as_ref(), &addrs);
                 }
 
-                builder = builder.dns_resolver(HickoryDnsResolver::new(options.lookup_ip_strategy));
-            }
+                builder.dns_resolver(HickoryDnsResolver::new(options.lookup_ip_strategy))
+            } else {
+                builder.dns_resolver(HickoryDnsResolver::new(LookupIpStrategy::default()))
+            };
 
             // Compression options.
             apply_option!(set_if_some, builder, params.gzip, gzip);
