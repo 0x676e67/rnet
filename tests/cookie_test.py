@@ -10,24 +10,24 @@ client = rnet.Client()
 @pytest.mark.flaky(reruns=3, reruns_delay=2)
 async def test_get_cookie():
     jar = rnet.Jar()
-    url = "https://httpbin.org/cookies"
-    cookie = Cookie("test_cookie", "12345", domain="httpbin.org", path="/cookies")
+    url = "http://localhost:8080/cookies"
+    cookie = Cookie("test_cookie", "12345", domain="localhost", path="/cookies")
     jar.add_cookie(cookie, url)
     cookie = jar.get("test_cookie", url)
     assert cookie is not None
     assert cookie.name == "test_cookie"
     assert cookie.value == "12345"
-    assert cookie.domain == "httpbin.org"
+    assert cookie.domain == "localhost"
     assert cookie.path == "/cookies"
 
     jar.clear()
 
-    jar.add_cookie_str("test_cookie=12345; Path=/cookies; Domain=httpbin.org", url)
+    jar.add_cookie_str("test_cookie=12345; Path=/cookies; Domain=localhost", url)
     cookie = jar.get("test_cookie", url)
     assert cookie is not None
     assert cookie.name == "test_cookie"
     assert cookie.value == "12345"
-    assert cookie.domain == "httpbin.org"
+    assert cookie.domain == "localhost"
     assert cookie.path == "/cookies"
 
     client = rnet.Client(cookie_provider=jar)
@@ -40,9 +40,9 @@ async def test_get_cookie():
 @pytest.mark.flaky(reruns=3, reruns_delay=2)
 async def test_get_all_cookies():
     jar = rnet.Jar()
-    url = "https://httpbin.org/cookies"
-    cookie1 = Cookie("test_cookie1", "12345", domain="httpbin.org", path="/cookies")
-    cookie2 = Cookie("test_cookie2", "67890", domain="httpbin.org", path="/cookies")
+    url = "http://localhost:8080/cookies"
+    cookie1 = Cookie("test_cookie1", "12345", domain="localhost", path="/cookies")
+    cookie2 = Cookie("test_cookie2", "67890", domain="localhost", path="/cookies")
     jar.add_cookie(cookie1, url)
     jar.add_cookie(cookie2, url)
 
@@ -65,8 +65,8 @@ async def test_get_all_cookies():
 async def test_remove_cookie():
     jar = rnet.Jar()
     client = rnet.Client(cookie_provider=jar)
-    url = "https://httpbin.org/cookies"
-    cookie = Cookie("test_cookie", "12345", domain="httpbin.org", path="/cookies")
+    url = "http://localhost:8080/cookies"
+    cookie = Cookie("test_cookie", "12345", domain="localhost", path="/cookies")
     jar.add_cookie(cookie, url)
 
     # Verify the cookie is set
@@ -91,9 +91,9 @@ async def test_remove_cookie():
 async def test_clear_cookies():
     jar = rnet.Jar()
     client = rnet.Client(cookie_provider=jar)
-    url = "https://httpbin.org/cookies"
-    cookie1 = Cookie("test_cookie1", "12345", domain="httpbin.org", path="/cookies")
-    cookie2 = Cookie("test_cookie2", "67890", domain="httpbin.org", path="/cookies")
+    url = "http://localhost:8080/cookies"
+    cookie1 = Cookie("test_cookie1", "12345", domain="localhost", path="/cookies")
+    cookie2 = Cookie("test_cookie2", "67890", domain="localhost", path="/cookies")
 
     jar.add_cookie(cookie1, url)
     jar.add_cookie(cookie2, url)

@@ -49,6 +49,11 @@ jobs:
 
   tests:
     runs-on: ubuntu-latest
+    services:
+      httpbin:
+        image: kennethreitz/httpbin
+        ports:
+          - 8080:80
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-python@v6

@@ -15,7 +15,7 @@ async def test_multiple_requests():
                 yield chunk
 
     resp = await client.post(
-        "https://httpbin.org/anything",
+        "http://localhost:8080/anything",
         multipart=Multipart(
             Part(name="def", value="111", filename="def.txt", mime="text/plain"),
             Part(name="abc", value=b"000", filename="abc.txt", mime="text/plain"),
@@ -44,7 +44,7 @@ async def test_multiple_requests():
 @pytest.mark.asyncio
 @pytest.mark.flaky(reruns=3, reruns_delay=2)
 async def test_get_cookies():
-    url = "https://httpbin.org/cookies/set?mycookie=testvalue"
+    url = "http://localhost:8080/cookies/set?mycookie=testvalue"
     resp = await client.get(url)
     async with resp:
         assert any(cookie.name == "mycookie" for cookie in resp.cookies)
@@ -53,7 +53,7 @@ async def test_get_cookies():
 @pytest.mark.asyncio
 @pytest.mark.flaky(reruns=3, reruns_delay=2)
 async def test_get_headers():
-    url = "https://httpbin.org/headers"
+    url = "http://localhost:8080/headers"
     resp = await client.get(url)
     async with resp:
         assert resp.headers is not None
@@ -62,7 +62,7 @@ async def test_get_headers():
 @pytest.mark.asyncio
 @pytest.mark.flaky(reruns=3, reruns_delay=2)
 async def test_getters():
-    url = "https://httpbin.org/anything"
+    url = "http://localhost:8080/anything"
     resp = await client.get(url, version=Version.HTTP_11)
     async with resp:
         assert resp.url == url
@@ -73,7 +73,7 @@ async def test_getters():
 @pytest.mark.asyncio
 @pytest.mark.flaky(reruns=3, reruns_delay=2)
 async def test_get_json():
-    url = "https://httpbin.org/json"
+    url = "http://localhost:8080/json"
     resp = await client.get(url)
     async with resp:
         json = await resp.json()
@@ -83,7 +83,7 @@ async def test_get_json():
 @pytest.mark.asyncio
 @pytest.mark.flaky(reruns=3, reruns_delay=2)
 async def test_get_text():
-    url = "https://httpbin.org/html"
+    url = "http://localhost:8080/html"
     resp = await client.get(url)
     async with resp:
         text = await resp.text()
@@ -93,7 +93,7 @@ async def test_get_text():
 @pytest.mark.asyncio
 @pytest.mark.flaky(reruns=3, reruns_delay=2)
 async def test_get_bytes():
-    url = "https://httpbin.org/image/png"
+    url = "http://localhost:8080/image/png"
     resp = await client.get(url)
     async with resp:
         bytes = await resp.bytes()
@@ -103,7 +103,7 @@ async def test_get_bytes():
 @pytest.mark.asyncio
 @pytest.mark.flaky(reruns=3, reruns_delay=2)
 async def test_get_stream():
-    url = "https://httpbin.org/stream/1"
+    url = "http://localhost:8080/stream/1"
     resp = await client.get(url)
     async with resp:
         async with resp.stream() as streamer:
@@ -114,6 +114,6 @@ async def test_get_stream():
 @pytest.mark.asyncio
 @pytest.mark.flaky(reruns=3, reruns_delay=2)
 async def test_peer_certificate():
-    resp = await client.get("https://httpbin.org/anything")
+    resp = await client.get("https://www.google.com/anything")
     async with resp:
         assert resp.peer_certificate is not None

@@ -46,7 +46,7 @@ async def test_client_request_enable_redirect():
 @pytest.mark.asyncio
 @pytest.mark.flaky(reruns=3, reruns_delay=2)
 async def test_client_redirec_history():
-    url = "https://google.com"
+    url = "https://google.com/"
     client = rnet.Client(allow_redirects=True, history=True)
     response = await client.get(url)
     assert response.status.is_success()
@@ -54,5 +54,5 @@ async def test_client_redirec_history():
 
     history = response.history
     assert len(history) == 1
-    history[0].url == "https://www.google.com/"
-    history[0].previous == url
+    assert history[0].url == "https://www.google.com/"
+    assert history[0].previous == url
