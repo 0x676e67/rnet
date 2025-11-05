@@ -9,7 +9,7 @@ client = rnet.Client(tls_info=True)
 @pytest.mark.asyncio
 @pytest.mark.flaky(reruns=3, reruns_delay=2)
 async def test_gzip():
-    url = "https://httpbin.org/gzip"
+    url = "http://localhost:8080/gzip"
     resp = await client.get(url)
     async with resp:
         text = await resp.text()
@@ -20,7 +20,7 @@ async def test_gzip():
 @pytest.mark.asyncio
 @pytest.mark.flaky(reruns=3, reruns_delay=2)
 async def test_deflate():
-    url = "https://httpbin.org/deflate"
+    url = "http://localhost:8080/deflate"
     resp = await client.get(url)
     async with resp:
         text = await resp.text()
@@ -31,7 +31,7 @@ async def test_deflate():
 @pytest.mark.asyncio
 @pytest.mark.flaky(reruns=3, reruns_delay=2)
 async def test_brotli():
-    url = "https://httpbin.org/brotli"
+    url = "http://localhost:8080/brotli"
     resp = await client.get(url)
     async with resp:
         text = await resp.text()
@@ -43,7 +43,7 @@ async def test_brotli():
 @pytest.mark.flaky(reruns=3, reruns_delay=2)
 async def test_auth():
     resp = await client.get(
-        "https://httpbin.org/anything",
+        "http://localhost:8080/anything",
         auth="token",
     )
     async with resp:
@@ -56,7 +56,7 @@ async def test_auth():
 @pytest.mark.flaky(reruns=3, reruns_delay=2)
 async def test_bearer_auth():
     resp = await client.get(
-        "https://httpbin.org/anything",
+        "http://localhost:8080/anything",
         bearer_auth="token",
     )
     async with resp:
@@ -69,7 +69,7 @@ async def test_bearer_auth():
 @pytest.mark.flaky(reruns=3, reruns_delay=2)
 async def test_basic_auth():
     resp = await client.get(
-        "https://httpbin.org/anything",
+        "http://localhost:8080/anything",
         basic_auth=("user", "pass"),
     )
     async with resp:
@@ -81,7 +81,7 @@ async def test_basic_auth():
 @pytest.mark.asyncio
 @pytest.mark.flaky(reruns=3, reruns_delay=2)
 async def test_send_with_version():
-    url = "https://httpbin.org/anything"
+    url = "https://www.google.com/anything"
     resp = await client.get(url, version=Version.HTTP_11)
     async with resp:
         assert resp.version == Version.HTTP_11
@@ -94,7 +94,7 @@ async def test_send_with_version():
 @pytest.mark.asyncio
 @pytest.mark.flaky(reruns=3, reruns_delay=2)
 async def test_send_headers():
-    url = "https://httpbin.org/headers"
+    url = "http://localhost:8080/headers"
     headers = {"foo": "bar"}
     resp = await client.get(url, headers=headers)
     async with resp:
@@ -110,7 +110,7 @@ async def test_send_headers():
 @pytest.mark.asyncio
 @pytest.mark.flaky(reruns=3, reruns_delay=2)
 async def test_disable_default_headers():
-    url = "https://httpbin.org/headers"
+    url = "http://localhost:8080/headers"
     headers = {"foo": "bar"}
     client = rnet.Client(tls_info=True, headers=headers)
     resp = await client.get(url)
@@ -127,7 +127,7 @@ async def test_disable_default_headers():
 @pytest.mark.asyncio
 @pytest.mark.flaky(reruns=3, reruns_delay=2)
 async def test_send_cookies():
-    url = "https://httpbin.org/cookies"
+    url = "http://localhost:8080/cookies"
     resp = await client.get(url, cookies={"foo": "bar"})
     async with resp:
         json = await resp.json()
@@ -137,7 +137,7 @@ async def test_send_cookies():
 @pytest.mark.asyncio
 @pytest.mark.flaky(reruns=3, reruns_delay=2)
 async def test_send_form():
-    url = "https://httpbin.org/post"
+    url = "http://localhost:8080/post"
     resp = await client.post(url, form=[("foo", "bar")])
     async with resp:
         json = await resp.json()
@@ -147,7 +147,7 @@ async def test_send_form():
 @pytest.mark.asyncio
 @pytest.mark.flaky(reruns=3, reruns_delay=2)
 async def test_send_json():
-    url = "https://httpbin.org/post"
+    url = "http://localhost:8080/post"
     resp = await client.post(url, json={"foo": "bar"})
     async with resp:
         json = await resp.json()
@@ -157,7 +157,7 @@ async def test_send_json():
 @pytest.mark.asyncio
 @pytest.mark.flaky(reruns=3, reruns_delay=2)
 async def test_send_text():
-    url = "https://httpbin.org/post"
+    url = "http://localhost:8080/post"
     resp = await client.post(url, body="hello")
     async with resp:
         json = await resp.json()
@@ -167,7 +167,7 @@ async def test_send_text():
 @pytest.mark.asyncio
 @pytest.mark.flaky(reruns=3, reruns_delay=2)
 async def test_send_bytes():
-    url = "https://httpbin.org/post"
+    url = "http://localhost:8080/post"
     resp = await client.post(url, body=b"hello")
     async with resp:
         json = await resp.json()
@@ -185,7 +185,7 @@ async def test_send_async_bytes_stream():
                     break
                 yield chunk
 
-    url = "https://httpbin.org/post"
+    url = "http://localhost:8080/post"
     resp = await client.post(url, body=file_bytes_stream())
     async with resp:
         json = await resp.json()
@@ -200,7 +200,7 @@ async def test_send_sync_bytes_stream():
             while chunk := f.read(1024):
                 yield chunk
 
-    url = "https://httpbin.org/post"
+    url = "http://localhost:8080/post"
     resp = await client.post(url, body=file_to_bytes_stream("README.md"))
     async with resp:
         json = await resp.json()
