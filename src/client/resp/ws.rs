@@ -13,8 +13,10 @@ use wreq::{
 
 use crate::{
     client::SocketAddr,
+    cookie::Cookie,
     error::Error,
-    http::{Version, cookie::Cookie, header::HeaderMap, status::StatusCode},
+    header::HeaderMap,
+    http::{StatusCode, Version},
     rt::Runtime,
 };
 

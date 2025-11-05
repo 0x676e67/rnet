@@ -12,10 +12,8 @@ use crate::{
     client::body::multipart::Multipart,
     emulation::{Emulation, EmulationOption},
     error::Error,
-    http::{
-        Version,
-        header::{HeaderMap, OrigHeaderMap},
-    },
+    header::{HeaderMap, OrigHeaderMap},
+    http::Version,
     proxy::Proxy,
 };
 

@@ -2,7 +2,7 @@ use std::fmt::{self, Debug};
 
 use pyo3::prelude::*;
 
-use crate::http::header::HeaderMap;
+use crate::header::HeaderMap;
 
 /// An entry in the redirect history.
 #[pyclass(subclass, str, frozen)]
