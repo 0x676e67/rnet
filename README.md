@@ -18,10 +18,10 @@ An ergonomic and modular Python HTTP client for advanced and low-level emulation
 - Redirect Policy
 - Original Headers
 - Rotating Proxies
-- WebSocket Upgrade
 - Connection Pooling
 - Streaming Transfers
 - Zero-Copy Transfers
+- WebSocket Upgrade
 - HTTPS via BoringSSL
 - Free-Threaded Safety
 - Automatic Decompression

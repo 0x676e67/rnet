@@ -10,6 +10,7 @@ from .emulation import *
 from .http1 import *
 from .http2 import *
 from .tls import *
+from .dns import *
 
 __all__ = (
     header.__all__
@@ -19,4 +20,5 @@ __all__ = (
     + http1.__all__
     + http2.__all__
     + tls.__all__
-)
+    + dns.__all__
+)  # type: ignore

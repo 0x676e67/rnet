@@ -17,6 +17,7 @@ from typing import (
 from pathlib import Path
 from enum import Enum, auto
 
+from .dns import ResolverOptions
 from .http1 import Http1Options
 from .http2 import Http2Options
 from .cookie import *
@@ -629,10 +630,7 @@ class ClientParams(TypedDict):
     Custom cookie provider.
     """
 
-    lookup_ip_strategy: NotRequired[str]
-    """
-    IP lookup strategy.
-    """
+    # ========= Timeout options ========
 
     timeout: NotRequired[int]
     """
@@ -648,6 +646,8 @@ class ClientParams(TypedDict):
     """
     Read timeout (seconds).
     """
+
+    # ======== TCP options ========
 
     tcp_keepalive: NotRequired[int]
     """
@@ -679,6 +679,8 @@ class ClientParams(TypedDict):
     Enable SO_REUSEADDR.
     """
 
+    # ======== Connection pool options ========
+
     pool_idle_timeout: NotRequired[int]
     """
     Connection pool idle timeout (seconds).
@@ -693,6 +695,8 @@ class ClientParams(TypedDict):
     """
     Max total connections in pool.
     """
+
+    # ======== HTTP options ========
 
     http1_only: NotRequired[bool]
     """
@@ -718,6 +722,8 @@ class ClientParams(TypedDict):
     """
     Sets the HTTP/2 options.
     """
+
+    # ======== TLS options ========
 
     verify: NotRequired[Union[bool, Path, CertStore]]
     """
@@ -759,6 +765,8 @@ class ClientParams(TypedDict):
     Sets the TLS options.
     """
 
+    # ======== Network options ========
+
     no_proxy: NotRequired[bool]
     """
     Disable proxy.
@@ -778,6 +786,12 @@ class ClientParams(TypedDict):
     """
     Local network interface.
     """
+
+    # ========= DNS options =========
+
+    dns_options: NotRequired[ResolverOptions]
+
+    # ========= Compression options =========
 
     gzip: NotRequired[bool]
     """
