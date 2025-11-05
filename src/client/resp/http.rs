@@ -12,8 +12,10 @@ use super::Streamer;
 use crate::{
     buffer::PyBuffer,
     client::{SocketAddr, body::json::Json, future::PyFuture, resp::history::History},
+    cookie::Cookie,
     error::Error,
-    http::{Version, cookie::Cookie, header::HeaderMap, status::StatusCode},
+    header::HeaderMap,
+    http::{StatusCode, Version},
     rt::Runtime,
 };
 
