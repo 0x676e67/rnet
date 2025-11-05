@@ -211,8 +211,10 @@ impl FromPyObject<'_, '_> for Extractor<std::net::IpAddr> {
 }
 
 /// Extractor for DNS resolve mappings as [`Vec<(PyBackedStr, Vec<std::net::SocketAddr>)>`].
-impl FromPyObject<'_> for Extractor<Vec<(PyBackedStr, Vec<std::net::SocketAddr>)>> {
-    fn extract_bound(ob: &Bound<'_, PyAny>) -> PyResult<Self> {
+impl FromPyObject<'_, '_> for Extractor<Vec<(PyBackedStr, Vec<std::net::SocketAddr>)>> {
+    type Error = PyErr;
+
+    fn extract(ob: Borrowed<PyAny>) -> PyResult<Self> {
         let dict = ob.cast::<PyDict>()?;
         dict.iter()
             .try_fold(

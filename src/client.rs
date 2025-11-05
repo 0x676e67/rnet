@@ -20,7 +20,7 @@ use wreq_util::EmulationOption;
 use self::resp::{BlockingResponse, BlockingWebSocket};
 use crate::{
     client::resp::{Response, WebSocket},
-    dns::HickoryDnsResolver,
+    dns::{HickoryDnsResolver, ResolverOptions},
     error::Error,
     extractor::Extractor,
     http::{Method, cookie::Jar},
@@ -151,8 +151,7 @@ struct Builder {
     interface: Option<String>,
 
     // ========= DNS options =========
-    #[allow(clippy::type_complexity)]
-    resolve_to_addrs: Option<Extractor<Vec<(PyBackedStr, Vec<std::net::SocketAddr>)>>>,
+    dns_options: Option<ResolverOptions>,
 
     // ========= Compression options =========
     /// Sets gzip as an accepted encoding.
@@ -217,7 +216,7 @@ impl FromPyObject<'_, '_> for Builder {
         extract_option!(ob, params, max_tls_version);
         extract_option!(ob, params, tls_options);
 
-        extract_option!(ob, params, resolve_to_addrs);
+        extract_option!(ob, params, dns_options);
 
         extract_option!(ob, params, gzip);
         extract_option!(ob, params, brotli);
@@ -450,10 +449,12 @@ impl Client {
             apply_option!(set_if_some, builder, params.interface, interface);
 
             // DNS options.
-            if let Some(resolve_to_addrs) = params.resolve_to_addrs.take() {
-                for (domain, addrs) in resolve_to_addrs.0 {
-                    builder = builder.resolve_to_addrs(&domain, addrs.as_slice());
+            if let Some(options) = params.dns_options.take() {
+                for (domain, addrs) in options.resolve_to_addrs {
+                    builder = builder.resolve_to_addrs(domain.as_ref(), &addrs);
                 }
+
+                builder = builder.dns_resolver(HickoryDnsResolver::new(options.lookup_ip_strategy));
             }
 
             // Compression options.
@@ -463,7 +464,6 @@ impl Client {
             apply_option!(set_if_some, builder, params.zstd, zstd);
 
             builder
-                .dns_resolver(HickoryDnsResolver::new())
                 .build()
                 .map(Client)
                 .map_err(Error::Library)
