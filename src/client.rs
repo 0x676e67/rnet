@@ -738,6 +738,43 @@ impl BlockingClient {
     }
 }
 
+fn normalize_url(url: &str) -> String {
+    if let Some(scheme_end) = url.find("://") {
+        let scheme = &url[..scheme_end + 3];
+        let rest = &url[scheme_end + 3..];
+        
+    
+        let authority_end = rest.find(|c| c == '/' || c == '?' || c == '#').unwrap_or(rest.len());
+        let authority = &rest[..authority_end];
+        let path_and_rest = &rest[authority_end..];
+        
+        // Only encode the path and query
+        let encoded_path = path_and_rest
+            .chars()
+            .map(|c| match c {
+                ' ' => "%20".to_string(),
+                '{' => "%7B".to_string(),
+                '}' => "%7D".to_string(),
+                '|' => "%7C".to_string(),
+                '\\' => "%5C".to_string(),
+                '^' => "%5E".to_string(),
+                '[' => "%5B".to_string(),
+                ']' => "%5D".to_string(),
+                '`' => "%60".to_string(),
+                '<' => "%3C".to_string(),
+                '>' => "%3E".to_string(),
+                '"' => "%22".to_string(),
+                _ => c.to_string(),
+            })
+            .collect::<String>();
+        
+        format!("{}{}{}", scheme, authority, encoded_path)
+    } else {
+        // If no scheme found, fallback
+        url.replace(' ', "%20")
+    }
+}
+
 pub async fn execute_request<C, U>(
     client: C,
     method: Method,
@@ -749,9 +786,10 @@ where
     U: AsRef<str>,
 {
     let params = params.get_or_insert_default();
+    let normalized_url = normalize_url(url.as_ref());
     let mut builder = match client.into() {
-        Some(client) => client.request(method.into_ffi(), url.as_ref()),
-        None => wreq::request(method.into_ffi(), url.as_ref()),
+        Some(client) => client.request(method.into_ffi(), &normalized_url),
+        None => wreq::request(method.into_ffi(), &normalized_url),
     };
 
     // Emulation options.
@@ -892,9 +930,10 @@ where
     U: AsRef<str>,
 {
     let params = params.get_or_insert_default();
+    let normalized_url = normalize_url(url.as_ref());
     let mut builder = match client.into() {
-        Some(client) => client.websocket(url.as_ref()),
-        None => wreq::websocket(url.as_ref()),
+        Some(client) => client.websocket(&normalized_url),
+        None => wreq::websocket(&normalized_url),
     };
 
     // The protocols to use for the request.
