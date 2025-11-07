@@ -452,7 +452,7 @@ impl Client {
             // DNS options.
             builder = if let Some(options) = params.dns_options.take() {
                 for (domain, addrs) in options.resolve_to_addrs {
-                    builder = builder.resolve_to_addrs(domain.as_ref(), &addrs);
+                    builder = builder.resolve_to_addrs(domain.as_ref().to_string(), addrs);
                 }
 
                 builder.dns_resolver(HickoryDnsResolver::new(options.lookup_ip_strategy))
