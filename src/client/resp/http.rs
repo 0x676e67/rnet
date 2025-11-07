@@ -101,20 +101,28 @@ impl Response {
 
             if let Some(arc) = self.body.swap(None) {
                 return match Arc::try_unwrap(arc) {
-                    Ok(Body::Streamable(body)) if stream => Ok(build_response(body)),
-                    Ok(Body::Streamable(body)) if !stream => {
-                        let bytes = Runtime::block_on(BodyExt::collect(body))
-                            .map(|buf| buf.to_bytes())
-                            .map_err(Error::Library)?;
+                    Ok(Body::Streamable(body)) => {
+                        if stream {
+                            Ok(build_response(body))
+                        } else {
+                            let bytes = Runtime::block_on(BodyExt::collect(body))
+                                .map(|buf| buf.to_bytes())
+                                .map_err(Error::Library)?;
 
-                        self.body
-                            .store(Some(Arc::new(Body::Reusable(bytes.clone()))));
-                        Ok(build_response(wreq::Body::from(bytes)))
+                            self.body
+                                .store(Some(Arc::new(Body::Reusable(bytes.clone()))));
+                            Ok(build_response(wreq::Body::from(bytes)))
+                        }
                     }
-                    Ok(Body::Reusable(bytes)) if !stream => {
+                    Ok(Body::Reusable(bytes)) => {
                         self.body
                             .store(Some(Arc::new(Body::Reusable(bytes.clone()))));
-                        Ok(build_response(wreq::Body::from(bytes)))
+
+                        if stream {
+                            Err(Error::Memory.into())
+                        } else {
+                            Ok(build_response(wreq::Body::from(bytes)))
+                        }
                     }
                     _ => Err(Error::Memory.into()),
                 };
