@@ -122,6 +122,7 @@ pub async fn task(ws: WebSocket, mut cmd: UnboundedReceiver<Command>) {
 /// Sends a [`Command::Recv`] to the background task and awaits a message from the WebSocket.
 ///
 /// Returns the received message or an error if the connection is closed or timeout.
+#[inline]
 pub async fn recv(
     cmd: UnboundedSender<Command>,
     timeout: Option<Duration>,
