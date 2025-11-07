@@ -5,7 +5,6 @@ from typing import (
     Generator,
     Optional,
     Tuple,
-    Union,
     Any,
     Dict,
     List,
@@ -102,7 +101,7 @@ class SocketAddr:
     """
 
     def __str__(self) -> str: ...
-    def ip(self) -> Union[ipaddress.IPv4Address, ipaddress.IPv6Address]:
+    def ip(self) -> ipaddress.IPv4Address | ipaddress.IPv6Address:
         r"""
         Returns the IP address of the socket address.
         """
@@ -133,13 +132,13 @@ class Part:
     def __init__(
         self,
         name: str,
-        value: Union[
-            str,
-            bytes,
-            Path,
-            Generator[bytes, str, None],
-            AsyncGenerator[bytes, str],
-        ],
+        value: (
+            str
+            | bytes
+            | Path
+            | Generator[bytes, str, None]
+            | AsyncGenerator[bytes, str]
+        ),
         filename: str | None = None,
         mime: str | None = None,
         length: int | None = None,
@@ -168,7 +167,7 @@ class ProxyParams(TypedDict):
     custom_http_auth: NotRequired[str]
     r"""Custom HTTP proxy authentication header value."""
 
-    custom_http_headers: NotRequired[Union[Dict[str, str], HeaderMap]]
+    custom_http_headers: NotRequired[Dict[str, str] | HeaderMap]
     r"""Custom HTTP proxy headers."""
 
     exclusion: NotRequired[str]
@@ -582,7 +581,7 @@ class WebSocket:
     def __aexit__(self, _exc_type: Any, _exc_value: Any, _traceback: Any) -> Any: ...
 
 class ClientParams(TypedDict):
-    emulation: NotRequired[Union[Emulation, EmulationOption]]
+    emulation: NotRequired[Emulation | EmulationOption]
     """Emulation config."""
 
     user_agent: NotRequired[str]
@@ -590,12 +589,12 @@ class ClientParams(TypedDict):
     Default User-Agent string.
     """
 
-    headers: NotRequired[Union[Dict[str, str], HeaderMap]]
+    headers: NotRequired[Dict[str, str] | HeaderMap]
     """
     Default request headers.
     """
 
-    orig_headers: NotRequired[Union[List[str], OrigHeaderMap]]
+    orig_headers: NotRequired[List[str] | OrigHeaderMap]
     """
     Original request headers (case-sensitive and order).
     """
@@ -725,7 +724,7 @@ class ClientParams(TypedDict):
 
     # ======== TLS options ========
 
-    verify: NotRequired[Union[bool, Path, CertStore]]
+    verify: NotRequired[bool | Path | CertStore]
     """
     Verify SSL or specify CA path.
     """
@@ -777,7 +776,7 @@ class ClientParams(TypedDict):
     Proxy server list.
     """
 
-    local_address: NotRequired[Union[str, ipaddress.IPv4Address, ipaddress.IPv6Address]]
+    local_address: NotRequired[str | ipaddress.IPv4Address | ipaddress.IPv6Address]
     """
     Local bind address.
     """
@@ -814,7 +813,7 @@ class ClientParams(TypedDict):
     """
 
 class Request(TypedDict):
-    emulation: NotRequired[Union[Emulation, EmulationOption]]
+    emulation: NotRequired[Emulation | EmulationOption]
     """
     The Emulation settings for the request.
     """
@@ -824,7 +823,7 @@ class Request(TypedDict):
     The proxy to use for the request.
     """
 
-    local_address: NotRequired[Union[ipaddress.IPv4Address, ipaddress.IPv6Address]]
+    local_address: NotRequired[ipaddress.IPv4Address | ipaddress.IPv6Address]
     """
     Bind to a local IP Address.
     """
@@ -849,12 +848,12 @@ class Request(TypedDict):
     The HTTP version to use for the request.
     """
 
-    headers: NotRequired[Union[Dict[str, str], HeaderMap]]
+    headers: NotRequired[Dict[str, str] | HeaderMap]
     """
     The headers to use for the request.
     """
 
-    orig_headers: NotRequired[Union[List[str], OrigHeaderMap]]
+    orig_headers: NotRequired[List[str] | OrigHeaderMap]
     """
     The original headers to use for the request.
     """
@@ -914,12 +913,12 @@ class Request(TypedDict):
     The basic authentication to use for the request.
     """
 
-    query: NotRequired[Union[List[Tuple[str, str]], Dict[str, str]]]
+    query: NotRequired[List[Tuple[str, str]] | Dict[str, str]]
     """
     The query parameters to use for the request.
     """
 
-    form: NotRequired[Union[List[Tuple[str, str]], Dict[str, str]]]
+    form: NotRequired[List[Tuple[str, str]] | Dict[str, str]]
     """
     The form parameters to use for the request.
     """
@@ -930,14 +929,13 @@ class Request(TypedDict):
     """
 
     body: NotRequired[
-        Union[
-            str,
-            bytes,
-            Union[List[Tuple[str, str]], Dict[str, str]],
-            Dict[str, Any],
-            Generator[bytes, str, None],
-            AsyncGenerator[bytes, str],
-        ]
+        str
+        | bytes
+        | list[tuple[str, str]]
+        | dict[str, str]
+        | dict[str, Any]
+        | Generator[bytes, str, None]
+        | AsyncGenerator[bytes, str]
     ]
     """
     The body to use for the request.
@@ -949,7 +947,7 @@ class Request(TypedDict):
     """
 
 class WebSocketRequest(TypedDict):
-    emulation: NotRequired[Union[Emulation, EmulationOption]]
+    emulation: NotRequired[Emulation | EmulationOption]
     """
     The Emulation settings for the request.
     """
@@ -959,7 +957,7 @@ class WebSocketRequest(TypedDict):
     The proxy to use for the request.
     """
 
-    local_address: NotRequired[Union[str, ipaddress.IPv4Address, ipaddress.IPv6Address]]
+    local_address: NotRequired[str | ipaddress.IPv4Address | ipaddress.IPv6Address]
     """
     Bind to a local IP Address.
     """
@@ -969,12 +967,12 @@ class WebSocketRequest(TypedDict):
     Bind to an interface by SO_BINDTODEVICE.
     """
 
-    headers: NotRequired[Union[Dict[str, str], HeaderMap]]
+    headers: NotRequired[Dict[str, str] | HeaderMap]
     """
     The headers to use for the request.
     """
 
-    orig_headers: NotRequired[Union[List[str], OrigHeaderMap]]
+    orig_headers: NotRequired[List[str] | OrigHeaderMap]
     """
     The original headers to use for the request.
     """
