@@ -39,7 +39,6 @@ impl Streamer {
         slf
     }
 
-    #[inline]
     fn __anext__<'py>(&mut self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
         let res = py.detach(|| match self.0.try_recv() {
             Ok(res) => res.map(PyBuffer::from).map(Some).map_err(Error::Library),
@@ -78,7 +77,6 @@ impl Streamer {
         slf
     }
 
-    #[inline]
     fn __next__(&mut self, py: Python) -> PyResult<PyBuffer> {
         py.detach(|| {
             self.0
