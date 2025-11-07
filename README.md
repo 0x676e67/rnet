@@ -31,7 +31,7 @@ An ergonomic and modular Python HTTP client for advanced and low-level emulation
 The following example uses the `asyncio` runtime with `rnet` installed via pip:
 
 ```bash
-pip install asyncio rnet==3.0.0rc10
+pip install asyncio rnet==3.0.0rc12
 ```
 
 And then the code:
@@ -123,10 +123,10 @@ pip install uv maturin
 uv venv
 source .venv/bin/activate
 
-# Development
+# development
 maturin develop --uv
 
-# Build wheels
+# build wheels
 maturin build --release
 ```
 
