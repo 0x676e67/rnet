@@ -11,7 +11,7 @@ including proper support for headers that can have multiple values (like
 Set-Cookie, Accept-Encoding, etc.).
 """
 
-from typing import Dict, Iterator, List, Optional, Tuple
+from typing import Dict, Iterator, Optional, Sequence, Tuple
 
 __all__ = ["HeaderMap", "OrigHeaderMap"]
 
@@ -265,7 +265,7 @@ class OrigHeaderMap:
 
     def __init__(
         self,
-        init: Optional[List[str]] = None,
+        init: Optional[Sequence[str]] = None,
         capacity: Optional[int] = None,
     ) -> None:
         """

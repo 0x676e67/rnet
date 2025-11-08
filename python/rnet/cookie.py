@@ -8,7 +8,7 @@ and provides a cookie jar for automatic cookie handling during HTTP requests.
 
 import datetime
 from enum import Enum, auto
-from typing import List, Optional, final
+from typing import Optional, Sequence, final
 
 __all__ = ["SameSite", "Cookie", "Jar"]
 
@@ -110,7 +110,7 @@ class Jar:
         """
         ...
 
-    def get_all(self) -> List[Cookie]:
+    def get_all(self) -> Sequence[Cookie]:
         r"""
         Get all cookies.
         """
