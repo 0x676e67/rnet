@@ -14,7 +14,7 @@ from rnet import (
 from typing import (
     Optional,
     Any,
-    List,
+    Sequence,
     Unpack,
 )
 
@@ -47,7 +47,7 @@ class Response:
     Get the headers of the response.
     """
 
-    cookies: List[Cookie]
+    cookies: Sequence[Cookie]
     r"""
     Get the cookies of the response.
     """
@@ -67,7 +67,7 @@ class Response:
     Get the local address of the response.
     """
 
-    history: List[History]
+    history: Sequence[History]
     r"""
     Get the redirect history of the Response.
     """
@@ -140,7 +140,7 @@ class WebSocket:
     Get the headers of the response.
     """
 
-    cookies: List[Cookie]
+    cookies: Sequence[Cookie]
     r"""
     Get the cookies of the response.
     """
@@ -169,13 +169,13 @@ class WebSocket:
         * `message` - The message to send.
         """
 
-    def send_all(self, messages: List[Message]) -> None:
+    def send_all(self, messages: Sequence[Message]) -> None:
         r"""
         Send multiple messages to the WebSocket.
 
         # Arguments
 
-        * `messages` - The list of messages to send.
+        * `messages` - The sequence of messages to send.
         """
 
     def close(

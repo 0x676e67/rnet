@@ -1,5 +1,5 @@
 import datetime
-import ipaddress
+from ipaddress import IPv4Address, IPv6Address
 from typing import (
     AsyncGenerator,
     Generator,
@@ -7,7 +7,7 @@ from typing import (
     Tuple,
     Any,
     Dict,
-    List,
+    Sequence,
     TypedDict,
     Unpack,
     NotRequired,
@@ -101,7 +101,7 @@ class SocketAddr:
     """
 
     def __str__(self) -> str: ...
-    def ip(self) -> ipaddress.IPv4Address | ipaddress.IPv6Address:
+    def ip(self) -> IPv4Address | IPv6Address:
         r"""
         Returns the IP address of the socket address.
         """
@@ -446,7 +446,7 @@ class Response:
     Get the headers of the response.
     """
 
-    cookies: List[Cookie]
+    cookies: Sequence[Cookie]
     r"""
     Get the cookies of the response.
     """
@@ -466,7 +466,7 @@ class Response:
     Get the local address of the response.
     """
 
-    history: List[History]
+    history: Sequence[History]
     r"""
     Get the redirect history of the Response.
     """
@@ -536,7 +536,7 @@ class WebSocket:
     Get the headers of the response.
     """
 
-    cookies: List[Cookie]
+    cookies: Sequence[Cookie]
     r"""
     Get the cookies of the response.
     """
@@ -563,7 +563,7 @@ class WebSocket:
         Send a message to the WebSocket.
         """
 
-    async def send_all(self, messages: List[Message]) -> None:
+    async def send_all(self, messages: Sequence[Message]) -> None:
         r"""
         Send multiple messages to the WebSocket.
         """
@@ -594,7 +594,7 @@ class ClientParams(TypedDict):
     Default request headers.
     """
 
-    orig_headers: NotRequired[List[str] | OrigHeaderMap]
+    orig_headers: NotRequired[Sequence[str] | OrigHeaderMap]
     """
     Original request headers (case-sensitive and order).
     """
@@ -771,12 +771,12 @@ class ClientParams(TypedDict):
     Disable proxy.
     """
 
-    proxies: NotRequired[List[Proxy]]
+    proxies: NotRequired[Sequence[Proxy]]
     """
     Proxy server list.
     """
 
-    local_address: NotRequired[str | ipaddress.IPv4Address | ipaddress.IPv6Address]
+    local_address: NotRequired[str | IPv4Address | IPv6Address]
     """
     Local bind address.
     """
@@ -823,7 +823,7 @@ class Request(TypedDict):
     The proxy to use for the request.
     """
 
-    local_address: NotRequired[ipaddress.IPv4Address | ipaddress.IPv6Address]
+    local_address: NotRequired[IPv4Address | IPv6Address]
     """
     Bind to a local IP Address.
     """
@@ -853,7 +853,7 @@ class Request(TypedDict):
     The headers to use for the request.
     """
 
-    orig_headers: NotRequired[List[str] | OrigHeaderMap]
+    orig_headers: NotRequired[Sequence[str] | OrigHeaderMap]
     """
     The original headers to use for the request.
     """
@@ -913,12 +913,12 @@ class Request(TypedDict):
     The basic authentication to use for the request.
     """
 
-    query: NotRequired[List[Tuple[str, str]] | Dict[str, str]]
+    query: NotRequired[Sequence[Tuple[str, str]] | Dict[str, str]]
     """
     The query parameters to use for the request.
     """
 
-    form: NotRequired[List[Tuple[str, str]] | Dict[str, str]]
+    form: NotRequired[Sequence[Tuple[str, str]] | Dict[str, str]]
     """
     The form parameters to use for the request.
     """
@@ -931,9 +931,9 @@ class Request(TypedDict):
     body: NotRequired[
         str
         | bytes
-        | list[tuple[str, str]]
-        | dict[str, str]
-        | dict[str, Any]
+        | Sequence[Tuple[str, str]]
+        | Dict[str, str]
+        | Dict[str, Any]
         | Generator[bytes, str, None]
         | AsyncGenerator[bytes, str]
     ]
@@ -957,7 +957,7 @@ class WebSocketRequest(TypedDict):
     The proxy to use for the request.
     """
 
-    local_address: NotRequired[str | ipaddress.IPv4Address | ipaddress.IPv6Address]
+    local_address: NotRequired[str | IPv4Address | IPv6Address]
     """
     Bind to a local IP Address.
     """
@@ -972,7 +972,7 @@ class WebSocketRequest(TypedDict):
     The headers to use for the request.
     """
 
-    orig_headers: NotRequired[List[str] | OrigHeaderMap]
+    orig_headers: NotRequired[Sequence[str] | OrigHeaderMap]
     """
     The original headers to use for the request.
     """
@@ -987,7 +987,7 @@ class WebSocketRequest(TypedDict):
     The cookies to use for the request.
     """
 
-    protocols: NotRequired[List[str]]
+    protocols: NotRequired[Sequence[str]]
     """
     The protocols to use for the request.
     """
@@ -1012,7 +1012,7 @@ class WebSocketRequest(TypedDict):
     The basic authentication to use for the request.
     """
 
-    query: NotRequired[List[Tuple[str, str]]]
+    query: NotRequired[Sequence[Tuple[str, str]]]
     """
     The query parameters to use for the request.
     """

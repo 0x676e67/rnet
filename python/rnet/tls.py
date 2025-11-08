@@ -8,7 +8,7 @@ These types are typically used to configure client-side TLS authentication and c
 
 from enum import Enum, auto
 from pathlib import Path
-from typing import List, NotRequired, TypedDict, Unpack, final
+from typing import Sequence, NotRequired, TypedDict, Unpack, final
 
 __all__ = [
     "TlsVersion",
@@ -152,8 +152,8 @@ class CertStore:
 
     def __init__(
         self,
-        der_certs: List[bytes] | None = None,
-        pem_certs: List[str] | None = None,
+        der_certs: Sequence[bytes] | None = None,
+        pem_certs: Sequence[str] | None = None,
         default_paths: bool | None = None,
     ) -> None:
         """
@@ -167,7 +167,7 @@ class CertStore:
         ...
 
     @staticmethod
-    def from_der_certs(certs: List[bytes]) -> "CertStore":
+    def from_der_certs(certs: Sequence[bytes]) -> "CertStore":
         """
         Creates a CertStore from a collection of DER-encoded certificates.
 
@@ -177,7 +177,7 @@ class CertStore:
         ...
 
     @staticmethod
-    def from_pem_certs(certs: List[str]) -> "CertStore":
+    def from_pem_certs(certs: Sequence[str]) -> "CertStore":
         """
         Creates a CertStore from a collection of PEM-encoded certificates.
 
@@ -243,7 +243,7 @@ class Params(TypedDict):
     All parameters for TLS connections.
     """
 
-    alpn_protocols: NotRequired[List[AlpnProtocol]]
+    alpn_protocols: NotRequired[Sequence[AlpnProtocol]]
     """
     Application-Layer Protocol Negotiation (RFC 7301).
 
@@ -251,7 +251,7 @@ class Params(TypedDict):
     over a single TLS connection.
     """
 
-    alps_protocols: NotRequired[List[AlpsProtocol]]
+    alps_protocols: NotRequired[Sequence[AlpsProtocol]]
     """
     Application-Layer Protocol Settings (ALPS).
 
@@ -369,13 +369,13 @@ class Params(TypedDict):
     """
 
     certificate_compression_algorithms: NotRequired[
-        List[CertificateCompressionAlgorithm]
+        Sequence[CertificateCompressionAlgorithm]
     ]
     """
     Supported certificate compression algorithms (RFC 8879).
     """
 
-    extension_permutation: NotRequired[List[ExtensionType]]
+    extension_permutation: NotRequired[Sequence[ExtensionType]]
     """
     Supported TLS extensions, used for extension ordering/permutation.
     """
