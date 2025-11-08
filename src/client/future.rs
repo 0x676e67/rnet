@@ -59,9 +59,8 @@ where
 
     #[inline(always)]
     fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
-        let waker = cx.waker();
         match self.project() {
-            PyFutureProj::Future { inner } => inner.poll(&mut Context::from_waker(waker)),
+            PyFutureProj::Future { inner } => inner.poll(cx),
             _ => unreachable!("Future variant should not contain Closure"),
         }
     }
