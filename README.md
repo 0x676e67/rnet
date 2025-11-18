@@ -160,7 +160,7 @@ It’s also nearly 50% cheaper than the competition, giving you faster results a
 
 Start using Salamoonder today:
 
-[Telegram](https://t.me/salamoonder_telegram) • [Register](https://salamoonder.com/auth/register) • [API Documentation](https://apidocs.salamoonder.com/)
+🚀 **[Register](https://salamoonder.com/auth/register)** • 📖 **[Docs](https://apidocs.salamoonder.com/)** • 💬 **[Telegram](https://t.me/salamoonder_telegram)**
 
 ---
 
