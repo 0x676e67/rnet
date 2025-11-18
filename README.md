@@ -146,6 +146,24 @@ Unless you explicitly state otherwise, any contribution intentionally submitted 
 
 ## Sponsors
 
+<a href="https://salamoonder.com/" target="_blank">
+  <img src="https://salamoonder.com/auth/assets/images/3d_logo.png" height="50" width="50">
+</a>
+
+
+Anti-bots evolve quickly, but Salamoonder moves faster. With just two API requests, you can access the data you need without browser automation or unnecessary complexity.
+
+Salamoonder is the easiest API to use. Fully reverse-engineered anti-bots, it delivers reliable anti-bot tokens for Kasada, Incapsula and many more to come. Updates are handled automatically whenever possible, keeping your integration simple and low-maintenance.
+
+
+It’s also nearly 50% cheaper than the competition, giving you faster results at a lower cost.
+
+Start using Salamoonder today:
+
+[Telegram](https://t.me/salamoonder_telegram) • [Register](https://salamoonder.com/auth/register) • [API Documentation](https://apidocs.salamoonder.com/)
+
+---
+
 <a href="https://hypersolutions.co/?utm_source=github&utm_medium=readme&utm_campaign=rnet" target="_blank"><img src="https://raw.githubusercontent.com/0x676e67/rnet/main/.github/assets/hypersolutions.jpg" height="47" width="149"></a>
 
 TLS fingerprinting alone isn't enough for modern bot protection. **[Hyper Solutions](https://hypersolutions.co?utm_source=github&utm_medium=readme&utm_campaign=rnet)** provides the missing piece - API endpoints that generate valid antibot tokens for:
