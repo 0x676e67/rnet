@@ -60,8 +60,6 @@ if __name__ == "__main__":
 Additional learning resources include:
 
 - [DeepWiki](https://deepwiki.com/0x676e67/rnet)
-- [API Documentation](https://github.com/0x676e67/rnet/blob/main/python/rnet)
-- [Repository Tests](https://github.com/0x676e67/rnet/tree/main/tests)
 - [Synchronous Examples](https://github.com/0x676e67/rnet/tree/main/python/examples/blocking)
 - [Asynchronous Examples](https://github.com/0x676e67/rnet/tree/main/python/examples)
 
@@ -110,7 +108,7 @@ Most browser device models share identical TLS and HTTP/2 configurations, differ
 - Windows: `x86_64`,`i686`,`aarch64`
 - Android: `aarch64`, `x86_64`
 
-2. Manylinux
+2. Development
 
 Install the BoringSSL build environment by referring to [boring](https://github.com/cloudflare/boring/blob/master/.github/workflows/ci.yml) and [boringssl](https://github.com/google/boringssl/blob/master/BUILDING.md#build-prerequisites).
 
@@ -128,17 +126,6 @@ maturin develop --uv
 
 # build wheels
 maturin build --release
-```
-
-3. Musllinux
-
-Make sure you have Docker installed. The provided image may be outdated, so you might need to build it yourself. See [rust-cross/rust-musl-cross](https://github.com/rust-cross/rust-musl-cross) for reference.
-
-```bash
-bash .github/musl_build.sh i686-unknown-linux-musl
-bash .github/musl_build.sh x86_64-unknown-linux-musl
-bash .github/musl_build.sh aarch64-unknown-linux-musl
-bash .github/musl_build.sh armv7-unknown-linux-musleabihf
 ```
 
 ## Benchmark
