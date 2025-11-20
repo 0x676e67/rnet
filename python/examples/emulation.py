@@ -74,6 +74,7 @@ async def request_advanced_configuration():
 
     # TLS options configuration - similar to Rust example
     tls_options = TlsOptions(
+        grease_enabled=True,
         enable_ocsp_stapling=True,
         curves_list=":".join(["X25519", "P-256", "P-384"]),
         cipher_list=":".join(
