@@ -9,7 +9,7 @@ use wreq_util::EmulationOption;
 
 use crate::{
     client::{
-        body::{Body, form::Form, json::Json},
+        body::{Body, Form, Json},
         query::Query,
     },
     extractor::Extractor,

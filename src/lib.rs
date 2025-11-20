@@ -30,12 +30,13 @@ use pyo3::{intern, prelude::*, pybacked::PyBackedStr, types::PyDict, wrap_pymodu
 use self::{
     client::{
         BlockingClient, Client, SocketAddr,
-        body::multipart::{Multipart, Part},
+        body::{
+            Streamer,
+            multipart::{Multipart, Part},
+        },
         execute_request, execute_websocket_request,
         req::{Request, WebSocketRequest},
-        resp::{
-            BlockingResponse, BlockingWebSocket, History, Message, Response, Streamer, WebSocket,
-        },
+        resp::{BlockingResponse, BlockingWebSocket, History, Message, Response, WebSocket},
     },
     cookie::{Cookie, Jar, SameSite},
     dns::{LookupIpStrategy, ResolverOptions},
