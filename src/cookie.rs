@@ -213,18 +213,11 @@ impl Jar {
 
     /// Get a cookie by name and URL.
     #[pyo3(signature = (name, url))]
-    pub fn get(&self, py: Python, name: PyBackedStr, url: PyBackedStr) -> PyResult<Option<Cookie>> {
+    pub fn get(&self, py: Python, name: PyBackedStr, url: PyBackedStr) -> Option<Cookie> {
         py.detach(|| {
             self.0
                 .get(&name, AsRef::<str>::as_ref(&url))
-                .map(|cookie| {
-                    // Convert the cookie to a static lifetime to match the Cookie type.
-                    // This is safe because we are only returning a reference to the cookie,
-                    // not the underlying data.
-                    Cookie(RawCookie::from(cookie))
-                })
-                .map(PyResult::Ok)
-                .transpose()
+                .map(|cookie| Cookie(RawCookie::from(cookie)))
         })
     }
 
@@ -235,36 +228,24 @@ impl Jar {
 
     /// Add a cookie to this jar.
     #[pyo3(signature = (cookie, url))]
-    pub fn add_cookie(&self, py: Python, cookie: Cookie, url: PyBackedStr) -> PyResult<()> {
-        py.detach(|| {
-            self.0.add_cookie(cookie.0, AsRef::<str>::as_ref(&url));
-            Ok(())
-        })
+    pub fn add_cookie(&self, py: Python, cookie: Cookie, url: PyBackedStr) {
+        py.detach(|| self.0.add_cookie(cookie.0, AsRef::<str>::as_ref(&url)))
     }
 
     /// Add a cookie str to this jar.
     #[pyo3(signature = (cookie, url))]
-    pub fn add_cookie_str(
-        &self,
-        py: Python,
-        cookie: PyBackedStr,
-        url: PyBackedStr,
-    ) -> PyResult<()> {
-        py.detach(|| {
-            self.0.add_cookie_str(&cookie, AsRef::<str>::as_ref(&url));
-            Ok(())
-        })
+    pub fn add_cookie_str(&self, py: Python, cookie: PyBackedStr, url: PyBackedStr) {
+        py.detach(|| self.0.add_cookie_str(&cookie, AsRef::<str>::as_ref(&url)))
     }
 
     /// Remove a cookie from this jar by name and URL.
     #[pyo3(signature = (name, url))]
-    pub fn remove(&self, py: Python, name: PyBackedStr, url: PyBackedStr) -> PyResult<()> {
+    pub fn remove(&self, py: Python, name: PyBackedStr, url: PyBackedStr) {
         py.detach(|| {
             self.0.remove(
                 AsRef::<str>::as_ref(&name).to_owned(),
                 AsRef::<str>::as_ref(&url),
-            );
-            Ok(())
+            )
         })
     }
 
