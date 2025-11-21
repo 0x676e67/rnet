@@ -217,7 +217,8 @@ impl Jar {
         py.detach(|| {
             self.0
                 .get(&name, AsRef::<str>::as_ref(&url))
-                .map(|cookie| Cookie(RawCookie::from(cookie)))
+                .map(RawCookie::from)
+                .map(Cookie)
         })
     }
 
