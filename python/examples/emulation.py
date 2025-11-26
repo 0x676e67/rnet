@@ -123,21 +123,21 @@ async def request_advanced_configuration():
     )
 
     # Default headers
-    headers = HeaderMap(
-        {
-            "User-Agent": "TwitterAndroid/10.89.0-release.0 (310890000-r-0) G011A/9 (google;G011A;google;G011A;0;;1;2016)",
-            "Accept-Language": "en-US",
-            "Accept-Encoding": "br, gzip, deflate",
-            "Accept": "application/json",
-            "Cache-Control": "no-store",
-            "Cookie": "ct0=YOUR_CT0_VALUE;",
-        }
-    )
+    headers = HeaderMap()
+    headers.insert("User-Agent", "TwitterAndroid/10.89.0-release.0 (310890000-r-0) G011A/9 (google;G011A;google;G011A;0;;1;2016)")
+    headers.insert("Accept-Language", "en-US")
+    headers.insert("Accept-Encoding", "br, gzip, deflate")
+    headers.insert("Accept", "application/json")
+    headers.insert("Cache-Control", "no-store")
+    headers.insert("Cookie", "ct0=YOUR_CT0_VALUE;")
 
     # Original headers to preserve case and order
-    orig_headers = OrigHeaderMap(
-        ["cookie", "content-length", "USER-AGENT", "ACCEPT-LANGUAGE", "ACCEPT-ENCODING"]
-    )
+    orig_headers = OrigHeaderMap()
+    orig_headers.insert("Cookie")
+    orig_headers.insert("Content-Length")
+    orig_headers.insert("User-Agent")
+    orig_headers.insert("ACCEPT-LANGUAGE")
+    orig_headers.insert("ACCEPT-ENCODING")
 
     # Create client with advanced configuration
     client = Client(
