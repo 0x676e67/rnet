@@ -1,3 +1,4 @@
+mod ext;
 mod history;
 mod http;
 mod ws;

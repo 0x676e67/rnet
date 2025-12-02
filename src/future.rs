@@ -60,10 +60,7 @@ where
 
     #[inline(always)]
     fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
-        let waker = cx.waker();
-        Python::attach(|py| {
-            py.detach(|| self.project().inner.poll(&mut Context::from_waker(waker)))
-        })
+        self.project().inner.poll(cx)
     }
 }
 

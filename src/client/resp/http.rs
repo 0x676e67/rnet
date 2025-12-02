@@ -13,7 +13,7 @@ use crate::{
     client::{
         SocketAddr,
         body::{Json, Streamer},
-        resp::history::History,
+        resp::{ext::WreqResponseExt, history::History},
     },
     cookie::Cookie,
     error::Error,
@@ -24,6 +24,7 @@ use crate::{
 };
 
 /// A response from a request.
+#[derive(Clone)]
 #[pyclass(subclass, frozen)]
 pub struct Response {
     /// Get the status code of the response.
@@ -51,7 +52,7 @@ pub struct Response {
     remote_addr: Option<SocketAddr>,
 
     uri: Uri,
-    body: ArcSwapOption<Body>,
+    body: Arc<ArcSwapOption<Body>>,
     extensions: Extensions,
 }
 
@@ -88,50 +89,71 @@ impl Response {
             version: Version::from_ffi(parts.version),
             status: StatusCode::from(parts.status),
             headers: HeaderMap(parts.headers),
-            body: ArcSwapOption::from_pointee(Body::Streamable(body)),
+            body: Arc::new(ArcSwapOption::from_pointee(Body::Streamable(body))),
         }
     }
 
-    fn response(&self, py: Python, stream: bool) -> PyResult<wreq::Response> {
-        py.detach(|| {
-            let build_response = |body: wreq::Body| -> wreq::Response {
-                let mut response = HttpResponse::new(body);
-                *response.version_mut() = self.version.into_ffi();
-                *response.status_mut() = self.status.0;
-                *response.headers_mut() = self.headers.0.clone();
-                *response.extensions_mut() = self.extensions.clone();
-                wreq::Response::from(response)
-            };
+    /// Builds a `wreq::Response` from the current response metadata and the given body.
+    ///
+    /// This creates a new HTTP response with the same version, status, headers, and extensions
+    /// as the current response, but with the provided body.
+    fn build_response(&self, body: wreq::Body) -> wreq::Response {
+        let mut response = HttpResponse::new(body);
+        *response.version_mut() = self.version.into_ffi();
+        *response.status_mut() = self.status.0;
+        *response.headers_mut() = self.headers.0.clone();
+        *response.extensions_mut() = self.extensions.clone();
+        wreq::Response::from(response)
+    }
 
-            if let Some(arc) = self.body.swap(None) {
-                match Arc::try_unwrap(arc) {
-                    Ok(Body::Streamable(body)) => {
-                        return if stream {
-                            Ok(build_response(body))
-                        } else {
-                            let bytes = Runtime::block_on(BodyExt::collect(body))
-                                .map(|buf| buf.to_bytes())
-                                .map_err(Error::Library)?;
+    /// Consumes the response body and caches it in memory for reuse.
+    ///
+    /// If the body is streamable, it will be fully read into memory and cached.
+    /// If the body is already cached, it will be cloned and reused.
+    /// Returns an error if the body has already been consumed or if reading fails.
+    async fn cache_response(self) -> Result<wreq::Response, Error> {
+        if let Some(arc) = self.body.swap(None) {
+            match Arc::try_unwrap(arc) {
+                Ok(Body::Streamable(body)) => {
+                    let bytes = BodyExt::collect(body)
+                        .await
+                        .map(|buf| buf.to_bytes())
+                        .map_err(Error::Library)?;
 
-                            self.body
-                                .store(Some(Arc::new(Body::Reusable(bytes.clone()))));
-                            Ok(build_response(wreq::Body::from(bytes)))
-                        };
-                    }
-                    Ok(Body::Reusable(bytes)) => {
-                        self.body
-                            .store(Some(Arc::new(Body::Reusable(bytes.clone()))));
-
-                        if !stream {
-                            return Ok(build_response(wreq::Body::from(bytes)));
-                        }
-                    }
-                    _ => {}
-                };
+                    self.body
+                        .store(Some(Arc::new(Body::Reusable(bytes.clone()))));
+                    Ok(self.build_response(wreq::Body::from(bytes)))
+                }
+                Ok(Body::Reusable(bytes)) => {
+                    self.body
+                        .store(Some(Arc::new(Body::Reusable(bytes.clone()))));
+                    Ok(self.build_response(wreq::Body::from(bytes)))
+                }
+                _ => Err(Error::Memory),
             }
+        } else {
+            Err(Error::Memory)
+        }
+    }
 
-            Err(Error::Memory.into())
-        })
+    /// Consumes the response body for streaming without caching.
+    ///
+    /// This method transfers ownership of the streamable body for one-time use.
+    /// Returns an error if the body has already been consumed or is not streamable.
+    fn stream_response(self) -> Result<wreq::Response, Error> {
+        if let Some(arc) = self.body.swap(None) {
+            if let Ok(Body::Streamable(body)) = Arc::try_unwrap(arc) {
+                return Ok(self.build_response(body));
+            }
+        }
+        Err(Error::Memory)
+    }
+
+    /// Creates an empty response with the same metadata but no body content.
+    ///
+    /// Useful for operations that only need response headers/metadata without consuming the body.
+    fn empty_response(&self) -> wreq::Response {
+        self.build_response(wreq::Body::from(Bytes::new()))
     }
 }
 
@@ -175,8 +197,9 @@ impl Response {
     }
 
     /// Turn a response into an error if the server returned an error.
-    pub fn raise_for_status(&self, py: Python) -> PyResult<()> {
-        self.response(py, false)?
+    pub fn raise_for_status(&self) -> PyResult<()> {
+        self.clone()
+            .empty_response()
             .error_for_status()
             .map(|_| ())
             .map_err(Error::Library)
@@ -184,18 +207,20 @@ impl Response {
     }
 
     /// Get the response into a `Stream` of `Bytes` from the body.
-    pub fn stream(&self, py: Python) -> PyResult<Streamer> {
-        self.response(py, true)
+    pub fn stream(&self) -> PyResult<Streamer> {
+        self.clone()
+            .stream_response()
             .map(wreq::Response::bytes_stream)
             .map(Streamer::new)
+            .map_err(Into::into)
     }
 
     /// Get the text content of the response.
     pub fn text<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
         let fut = self
-            .response(py, false)?
-            .text()
-            .map_err(Error::Library)
+            .clone()
+            .cache_response()
+            .and_then(WreqResponseExt::text)
             .map_err(Into::into);
         AsyncFuture::future_into_py(py, fut)
     }
@@ -208,9 +233,9 @@ impl Response {
         encoding: PyBackedStr,
     ) -> PyResult<Bound<'py, PyAny>> {
         let fut = self
-            .response(py, false)?
-            .text_with_charset(encoding)
-            .map_err(Error::Library)
+            .clone()
+            .cache_response()
+            .and_then(|resp| WreqResponseExt::text_with_charset(resp, encoding))
             .map_err(Into::into);
         AsyncFuture::future_into_py(py, fut)
     }
@@ -218,9 +243,9 @@ impl Response {
     /// Get the JSON content of the response.
     pub fn json<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
         let fut = self
-            .response(py, false)?
-            .json::<Json>()
-            .map_err(Error::Library)
+            .clone()
+            .cache_response()
+            .and_then(WreqResponseExt::json::<Json>)
             .map_err(Into::into);
         AsyncFuture::future_into_py(py, fut)
     }
@@ -228,17 +253,17 @@ impl Response {
     /// Get the bytes content of the response.
     pub fn bytes<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
         let fut = self
-            .response(py, false)?
-            .bytes()
+            .clone()
+            .cache_response()
+            .and_then(WreqResponseExt::bytes)
             .map_ok(PyBuffer::from)
-            .map_err(Error::Library)
             .map_err(Into::into);
         AsyncFuture::future_into_py(py, fut)
     }
 
     /// Close the response connection.
     pub fn close<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
-        py.detach(|| self.body.swap(None));
+        py.detach(|| self.body.clone().swap(None));
         BlockingFuture::future_into_py(py, || Ok(()))
     }
 }
@@ -328,55 +353,68 @@ impl BlockingResponse {
     }
 
     /// Turn a response into an error if the server returned an error.
-    pub fn raise_for_status(&self, py: Python) -> PyResult<()> {
-        self.0.raise_for_status(py)
+    #[inline]
+    pub fn raise_for_status(&self) -> PyResult<()> {
+        self.0.raise_for_status()
     }
 
     /// Get the response into a `Stream` of `Bytes` from the body.
     #[inline]
-    pub fn stream(&self, py: Python) -> PyResult<Streamer> {
-        self.0.stream(py)
+    pub fn stream(&self) -> PyResult<Streamer> {
+        self.0.stream()
     }
 
     /// Get the text content of the response.
     pub fn text(&self, py: Python) -> PyResult<String> {
-        let resp = self.0.response(py, false)?;
         py.detach(|| {
-            Runtime::block_on(resp.text())
-                .map_err(Error::Library)
-                .map_err(Into::into)
+            let fut = self
+                .0
+                .clone()
+                .cache_response()
+                .and_then(WreqResponseExt::text)
+                .map_err(Into::into);
+            Runtime::block_on(fut)
         })
     }
 
     /// Get the full response text given a specific encoding.
     #[pyo3(signature = (encoding))]
     pub fn text_with_charset(&self, py: Python, encoding: PyBackedStr) -> PyResult<String> {
-        let resp = self.0.response(py, false)?;
         py.detach(|| {
-            Runtime::block_on(resp.text_with_charset(&encoding))
-                .map_err(Error::Library)
-                .map_err(Into::into)
+            let fut = self
+                .0
+                .clone()
+                .cache_response()
+                .and_then(|resp| WreqResponseExt::text_with_charset(resp, encoding))
+                .map_err(Into::into);
+            Runtime::block_on(fut)
         })
     }
 
     /// Get the JSON content of the response.
     pub fn json(&self, py: Python) -> PyResult<Json> {
-        let resp = self.0.response(py, false)?;
         py.detach(|| {
-            Runtime::block_on(resp.json::<Json>())
-                .map_err(Error::Library)
-                .map_err(Into::into)
+            let fut = self
+                .0
+                .clone()
+                .cache_response()
+                .and_then(WreqResponseExt::json::<Json>)
+                .map_err(Into::into);
+            Runtime::block_on(fut)
         })
     }
 
     /// Get the bytes content of the response.
     pub fn bytes(&self, py: Python) -> PyResult<PyBuffer> {
-        let resp = self.0.response(py, false)?;
         py.detach(|| {
-            Runtime::block_on(resp.bytes())
-                .map(PyBuffer::from)
-                .map_err(Error::Library)
-                .map_err(Into::into)
+            let fut = self
+                .0
+                .clone()
+                .cache_response()
+                .and_then(WreqResponseExt::bytes)
+                .map_ok(PyBuffer::from)
+                .map_err(Into::into);
+            Runtime::block_on(fut)
         })
     }
 
