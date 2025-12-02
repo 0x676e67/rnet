@@ -27,10 +27,6 @@ pub enum PyStream {
 }
 
 /// A byte stream response.
-/// An asynchronous iterator yielding data chunks from the response stream.
-/// Used to stream response content.
-/// Implemented in the `stream` method of the `Response` class.
-/// Can be used in an asynchronous for loop in Python.
 #[pyclass(subclass)]
 pub struct Streamer(Arc<Mutex<Option<BoxedStream<wreq::Result<Bytes>>>>>);
 
