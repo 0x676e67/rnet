@@ -31,7 +31,7 @@ An ergonomic and modular Python HTTP client for advanced and low-level emulation
 The following example uses the `asyncio` runtime with `rnet` installed via pip:
 
 ```bash
-pip install asyncio rnet==3.0.0rc13
+pip install asyncio rnet --pre --upgrade
 ```
 
 And then the code:
