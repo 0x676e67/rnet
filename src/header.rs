@@ -4,7 +4,7 @@ use bytes::Bytes;
 use pyo3::{
     prelude::*,
     pybacked::{PyBackedBytes, PyBackedStr},
-    types::{PyDict, PyIterator, PyList},
+    types::{PyDict, PyList},
 };
 use wreq::header::{self, HeaderName, HeaderValue};
 
@@ -88,17 +88,15 @@ impl HeaderMap {
 
     /// Returns a view of all values associated with a key.
     #[pyo3(signature = (key))]
-    fn get_all<'py>(&self, py: Python<'py>, key: PyBackedStr) -> PyResult<Bound<'py, PyIterator>> {
-        let values: Vec<_> = py.detach(|| {
+    fn get_all<'py>(&self, py: Python<'py>, key: PyBackedStr) -> Vec<PyBuffer> {
+        py.detach(|| {
             self.0
                 .get_all::<&str>(key.as_ref())
                 .iter()
                 .cloned()
                 .map(PyBuffer::from)
                 .collect()
-        });
-        let pylist = PyList::new(py, values)?;
-        PyIterator::from_object(&pylist)
+        })
     }
 
     /// Insert a key-value pair into the header map.
@@ -143,30 +141,26 @@ impl HeaderMap {
 
     /// An iterator visiting all keys.
     #[inline]
-    fn keys<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyIterator>> {
-        let items = py.detach(|| {
+    fn keys<'py>(&self, py: Python<'py>) -> Vec<PyBuffer> {
+        py.detach(|| {
             self.0
                 .keys()
                 .cloned()
                 .map(PyBuffer::from)
                 .collect::<Vec<_>>()
-        });
-        let pylist = PyList::new(py, items)?;
-        PyIterator::from_object(&pylist)
+        })
     }
 
     ///  An iterator visiting all values.
     #[inline]
-    fn values<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyIterator>> {
-        let items = py.detach(|| {
+    fn values<'py>(&self, py: Python<'py>) -> Vec<PyBuffer> {
+        py.detach(|| {
             self.0
                 .values()
                 .cloned()
                 .map(PyBuffer::from)
                 .collect::<Vec<_>>()
-        });
-        let pylist = PyList::new(py, items)?;
-        PyIterator::from_object(&pylist)
+        })
     }
 
     /// Returns the number of headers stored in the map.
@@ -228,15 +222,13 @@ impl HeaderMap {
         self.0.len()
     }
 
-    fn __iter__<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyIterator>> {
-        let items: Vec<_> = py.detach(|| {
+    fn __iter__<'py>(&self, py: Python<'py>) -> Vec<(PyBuffer, PyBuffer)> {
+        py.detach(|| {
             self.0
                 .iter()
                 .map(|(k, v)| (PyBuffer::from(k.clone()), PyBuffer::from(v.clone())))
                 .collect()
-        });
-        let pylist = PyList::new(py, items)?;
-        PyIterator::from_object(&pylist)
+        })
     }
 }
 
@@ -305,8 +297,8 @@ impl OrigHeaderMap {
         self.0.len()
     }
 
-    fn __iter__<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyIterator>> {
-        let items: Vec<_> = py.detach(|| {
+    fn __iter__<'py>(&self, py: Python<'py>) -> Vec<(PyBuffer, PyBuffer)> {
+        py.detach(|| {
             self.0
                 .iter()
                 .map(|(name, orig_name)| {
@@ -318,9 +310,7 @@ impl OrigHeaderMap {
                     (name, orig_name)
                 })
                 .collect()
-        });
-        let pylist = PyList::new(py, items)?;
-        PyIterator::from_object(&pylist)
+        })
     }
 }
 
