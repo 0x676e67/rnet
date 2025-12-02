@@ -10,21 +10,14 @@ use pyo3::prelude::*;
 use crate::rt::Runtime;
 
 pin_project! {
-    /// Async future wrapper
-    pub struct AsyncFuture<Fut> {
+     /// A future that can be either a Rust Future to be executed in a thread pool.
+    pub struct PyFuture<Fut> {
         #[pin]
         inner: Fut,
     }
 }
 
-pin_project! {
-    /// Blocking closure wrapper
-    pub struct BlockingFuture<F> {
-        inner: Option<F>,
-    }
-}
-
-impl<Fut, T> AsyncFuture<Fut>
+impl<Fut, T> PyFuture<Fut>
 where
     Fut: Future<Output = PyResult<T>> + Send + 'static,
     T: Send + for<'py> IntoPyObject<'py> + 'static,
@@ -35,23 +28,7 @@ where
     }
 }
 
-impl<F, R> BlockingFuture<F>
-where
-    F: FnOnce() -> Result<R, PyErr> + Send + 'static,
-    R: Send + for<'py> IntoPyObject<'py> + 'static,
-{
-    #[inline(always)]
-    pub fn future_into_py<'py>(py: Python<'py>, closure: F) -> PyResult<Bound<'py, PyAny>> {
-        Runtime::future_into_py(
-            py,
-            Self {
-                inner: Some(closure),
-            },
-        )
-    }
-}
-
-impl<Fut> Future for AsyncFuture<Fut>
+impl<Fut> Future for PyFuture<Fut>
 where
     Fut: Future + Send,
     Fut::Output: Send,
@@ -61,23 +38,5 @@ where
     #[inline(always)]
     fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
         self.project().inner.poll(cx)
-    }
-}
-
-impl<F, R> Future for BlockingFuture<F>
-where
-    F: FnOnce() -> R + Send,
-    R: Send,
-{
-    type Output = R;
-
-    #[inline(always)]
-    fn poll(self: Pin<&mut Self>, _cx: &mut Context<'_>) -> Poll<Self::Output> {
-        let closure = self
-            .project()
-            .inner
-            .take()
-            .expect("Closure already executed");
-        Poll::Ready(closure())
     }
 }

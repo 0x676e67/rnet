@@ -8,7 +8,7 @@ use pyo3::{
 };
 use wreq::header::{self, HeaderName, HeaderValue};
 
-use crate::buffer::PyBuffer;
+use crate::buffer::PyBytes;
 
 /// A HTTP header map.
 #[pyclass(subclass, str)]
@@ -71,7 +71,7 @@ impl HeaderMap {
         py: Python<'py>,
         key: PyBackedStr,
         default: Option<PyBackedBytes>,
-    ) -> Option<PyBuffer> {
+    ) -> Option<PyBytes> {
         py.detach(|| {
             self.0.get::<&str>(key.as_ref()).cloned().or_else(|| {
                 match default
@@ -83,7 +83,7 @@ impl HeaderMap {
                 }
             })
         })
-        .map(PyBuffer::from)
+        .map(PyBytes::from)
     }
 
     /// Returns a view of all values associated with a key.
@@ -94,7 +94,7 @@ impl HeaderMap {
                 .get_all::<&str>(key.as_ref())
                 .iter()
                 .cloned()
-                .map(PyBuffer::from)
+                .map(PyBytes::from)
                 .collect()
         });
         let pylist = PyList::new(py, values)?;
@@ -147,7 +147,7 @@ impl HeaderMap {
         let items = py.detach(|| {
             self.0
                 .keys()
-                .map(|k| PyBuffer::from(k.clone()))
+                .map(|k| PyBytes::from(k.clone()))
                 .collect::<Vec<_>>()
         });
         let pylist = PyList::new(py, items)?;
@@ -160,7 +160,7 @@ impl HeaderMap {
         let items = py.detach(|| {
             self.0
                 .values()
-                .map(|v| PyBuffer::from(v.clone()))
+                .map(|v| PyBytes::from(v.clone()))
                 .collect::<Vec<_>>()
         });
         let pylist = PyList::new(py, items)?;
@@ -202,7 +202,7 @@ impl HeaderMap {
 #[pymethods]
 impl HeaderMap {
     #[inline]
-    fn __getitem__<'py>(&self, py: Python<'py>, key: PyBackedStr) -> Option<PyBuffer> {
+    fn __getitem__<'py>(&self, py: Python<'py>, key: PyBackedStr) -> Option<PyBytes> {
         self.get(py, key, None)
     }
 
@@ -230,7 +230,7 @@ impl HeaderMap {
         let items: Vec<_> = py.detach(|| {
             self.0
                 .iter()
-                .map(|(k, v)| (PyBuffer::from(k.clone()), PyBuffer::from(v.clone())))
+                .map(|(k, v)| (PyBytes::from(k.clone()), PyBytes::from(v.clone())))
                 .collect()
         });
         let pylist = PyList::new(py, items)?;
@@ -308,10 +308,10 @@ impl OrigHeaderMap {
             self.0
                 .iter()
                 .map(|(name, orig_name)| {
-                    let name = PyBuffer::from(name.clone());
+                    let name = PyBytes::from(name.clone());
                     let orig_name = match orig_name.clone() {
-                        header::OrigHeaderName::Cased(bytes) => PyBuffer::from(bytes),
-                        header::OrigHeaderName::Standard(name) => PyBuffer::from(name),
+                        header::OrigHeaderName::Cased(bytes) => PyBytes::from(bytes),
+                        header::OrigHeaderName::Standard(name) => PyBytes::from(name),
                     };
                     (name, orig_name)
                 })

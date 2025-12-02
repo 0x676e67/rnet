@@ -1,10 +1,12 @@
 use std::{
+    future,
     pin::Pin,
+    sync::Arc,
     task::{Context, Poll},
 };
 
 use bytes::Bytes;
-use futures_util::{Stream, StreamExt};
+use futures_util::{Stream, StreamExt, TryStreamExt};
 use pyo3::{
     IntoPyObjectExt,
     exceptions::PyTypeError,
@@ -12,9 +14,11 @@ use pyo3::{
     prelude::*,
     pybacked::{PyBackedBytes, PyBackedStr},
 };
-use tokio::sync::mpsc::{self, error::TryRecvError};
+use tokio::sync::Mutex;
 
-use crate::{buffer::PyBuffer, error::Error, future::BlockingFuture, rt::Runtime};
+use crate::{buffer::PyBytes, error::Error, future::PyFuture, rt::Runtime};
+
+type BoxedStream<T> = Pin<Box<dyn Stream<Item = T> + Send + 'static>>;
 
 /// Represents a Python streaming body, either synchronous or asynchronous.
 pub enum PyStream {
@@ -28,50 +32,78 @@ pub enum PyStream {
 /// Implemented in the `stream` method of the `Response` class.
 /// Can be used in an asynchronous for loop in Python.
 #[pyclass(subclass)]
-pub struct Streamer(mpsc::Receiver<wreq::Result<Bytes>>);
+pub struct Streamer(Arc<Mutex<Option<BoxedStream<wreq::Result<Bytes>>>>>);
+
+async fn anext(
+    streamer: Arc<Mutex<Option<BoxedStream<wreq::Result<Bytes>>>>>,
+    error: fn() -> Error,
+) -> PyResult<PyBytes> {
+    let val = streamer
+        .lock()
+        .await
+        .as_mut()
+        .ok_or_else(error)?
+        .try_next()
+        .await;
+
+    val.map_err(Error::Library)?
+        .map(PyBytes::from)
+        .ok_or_else(error)
+        .map_err(Into::into)
+}
 
 // ===== impl Streamer =====
 
 impl Streamer {
     /// Create a new [`Streamer`] instance.
+    #[inline]
     pub fn new(stream: impl Stream<Item = wreq::Result<Bytes>> + Send + 'static) -> Streamer {
-        let (tx, rx) = mpsc::channel(8);
-        Runtime::spawn(async move {
-            futures_util::pin_mut!(stream);
-            while let Some(item) = stream.next().await {
-                if tx.send(item).await.is_err() {
-                    break;
-                }
-            }
-        });
-
-        Streamer(rx)
+        Streamer(Arc::new(Mutex::new(Some(stream.boxed()))))
     }
 }
 
-/// Asynchronous iterator implementation for `Streamer`.
 #[pymethods]
 impl Streamer {
+    #[inline]
+    fn __iter__(slf: PyRef<Self>) -> PyRef<Self> {
+        slf
+    }
+
     #[inline]
     fn __aiter__(slf: PyRef<Self>) -> PyRef<Self> {
         slf
     }
 
+    #[inline]
+    fn __next__(&mut self, py: Python) -> PyResult<PyBytes> {
+        py.detach(|| Runtime::block_on(anext(self.0.clone(), || Error::StopAsyncIteration)))
+    }
+
+    #[inline]
     fn __anext__<'py>(&mut self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
-        let res = py.detach(|| match self.0.try_recv() {
-            Ok(res) => res.map(PyBuffer::from).map(Some).map_err(Error::Library),
-            Err(err) => match err {
-                TryRecvError::Empty => Ok(None),
-                TryRecvError::Disconnected => Err(Error::StopAsyncIteration),
-            },
-        })?;
-        BlockingFuture::future_into_py(py, move || Ok(res))
+        PyFuture::future_into_py(py, anext(self.0.clone(), || Error::StopAsyncIteration))
+    }
+
+    #[inline]
+    fn __enter__(slf: PyRef<Self>) -> PyRef<Self> {
+        slf
     }
 
     #[inline]
     fn __aenter__<'py>(slf: PyRef<'py, Self>, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
         let slf = slf.into_py_any(py)?;
-        BlockingFuture::future_into_py(py, move || Ok(slf))
+        PyFuture::future_into_py(py, future::ready(Ok(slf)))
+    }
+
+    #[inline]
+    fn __exit__<'py>(
+        &mut self,
+        py: Python,
+        _exc_type: &Bound<'py, PyAny>,
+        _exc_value: &Bound<'py, PyAny>,
+        _traceback: &Bound<'py, PyAny>,
+    ) {
+        py.detach(|| self.0.blocking_lock().take());
     }
 
     #[inline]
@@ -82,43 +114,15 @@ impl Streamer {
         _exc_value: &Bound<'py, PyAny>,
         _traceback: &Bound<'py, PyAny>,
     ) -> PyResult<Bound<'py, PyAny>> {
-        self.0.close();
-        BlockingFuture::future_into_py(py, move || Ok(()))
-    }
-}
-
-/// Synchronous iterator implementation for `Streamer`.
-#[pymethods]
-impl Streamer {
-    #[inline]
-    fn __iter__(slf: PyRef<Self>) -> PyRef<Self> {
-        slf
-    }
-
-    fn __next__(&mut self, py: Python) -> PyResult<PyBuffer> {
-        py.detach(|| {
-            self.0
-                .blocking_recv()
-                .ok_or(Error::StopIteration)?
-                .map(PyBuffer::from)
-                .map_err(Error::Library)
-                .map_err(Into::into)
+        let this = self.0.clone();
+        PyFuture::future_into_py(py, async move {
+            this.lock()
+                .await
+                .take()
+                .map(drop)
+                .map(PyResult::Ok)
+                .transpose()
         })
-    }
-
-    #[inline]
-    fn __enter__(slf: PyRef<Self>) -> PyRef<Self> {
-        slf
-    }
-
-    #[inline]
-    fn __exit__<'py>(
-        &mut self,
-        _exc_type: &Bound<'py, PyAny>,
-        _exc_value: &Bound<'py, PyAny>,
-        _traceback: &Bound<'py, PyAny>,
-    ) {
-        self.0.close();
     }
 }
 

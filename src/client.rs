@@ -22,7 +22,7 @@ use crate::{
     dns::{HickoryDnsResolver, LookupIpStrategy, ResolverOptions},
     error::Error,
     extractor::Extractor,
-    future::AsyncFuture,
+    future::PyFuture,
     http::Method,
     http1::Http1Options,
     http2::Http2Options,
@@ -582,7 +582,7 @@ impl Client {
         url: PyBackedStr,
         kwds: Option<Request>,
     ) -> PyResult<Bound<'py, PyAny>> {
-        AsyncFuture::future_into_py(py, execute_request(self.clone().0, method, url, kwds))
+        PyFuture::future_into_py(py, execute_request(self.clone().0, method, url, kwds))
     }
 
     /// Make a WebSocket request to the given URL.
@@ -594,7 +594,7 @@ impl Client {
         url: PyBackedStr,
         kwds: Option<WebSocketRequest>,
     ) -> PyResult<Bound<'py, PyAny>> {
-        AsyncFuture::future_into_py(py, execute_websocket_request(self.clone().0, url, kwds))
+        PyFuture::future_into_py(py, execute_websocket_request(self.clone().0, url, kwds))
     }
 }
 

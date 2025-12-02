@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::{future, sync::Arc};
 
 use arc_swap::ArcSwapOption;
 use bytes::Bytes;
@@ -9,15 +9,15 @@ use pyo3::{IntoPyObjectExt, prelude::*, pybacked::PyBackedStr};
 use wreq::{self, Extension, Uri, redirect, tls::TlsInfo};
 
 use crate::{
-    buffer::PyBuffer,
+    buffer::PyBytes,
     client::{
         SocketAddr,
         body::{Json, Streamer},
-        resp::{ext::WreqResponseExt, history::History},
+        resp::{ext::ResponseExt, history::History},
     },
     cookie::Cookie,
     error::Error,
-    future::{AsyncFuture, BlockingFuture},
+    future::PyFuture,
     header::HeaderMap,
     http::{StatusCode, Version},
     rt::Runtime,
@@ -185,14 +185,14 @@ impl Response {
 
     /// Get the DER encoded leaf certificate of the response.
     #[getter]
-    pub fn peer_certificate(&self, py: Python) -> Option<PyBuffer> {
+    pub fn peer_certificate(&self, py: Python) -> Option<PyBytes> {
         py.detach(|| {
             self.extensions
                 .get::<Extension<TlsInfo>>()?
                 .0
                 .peer_certificate()
                 .map(ToOwned::to_owned)
-                .map(PyBuffer::from)
+                .map(PyBytes::from)
         })
     }
 
@@ -220,9 +220,9 @@ impl Response {
         let fut = self
             .clone()
             .cache_response()
-            .and_then(WreqResponseExt::text)
+            .and_then(ResponseExt::text)
             .map_err(Into::into);
-        AsyncFuture::future_into_py(py, fut)
+        PyFuture::future_into_py(py, fut)
     }
 
     /// Get the full response text given a specific encoding.
@@ -235,9 +235,9 @@ impl Response {
         let fut = self
             .clone()
             .cache_response()
-            .and_then(|resp| WreqResponseExt::text_with_charset(resp, encoding))
+            .and_then(|resp| ResponseExt::text_with_charset(resp, encoding))
             .map_err(Into::into);
-        AsyncFuture::future_into_py(py, fut)
+        PyFuture::future_into_py(py, fut)
     }
 
     /// Get the JSON content of the response.
@@ -245,9 +245,9 @@ impl Response {
         let fut = self
             .clone()
             .cache_response()
-            .and_then(WreqResponseExt::json::<Json>)
+            .and_then(ResponseExt::json::<Json>)
             .map_err(Into::into);
-        AsyncFuture::future_into_py(py, fut)
+        PyFuture::future_into_py(py, fut)
     }
 
     /// Get the bytes content of the response.
@@ -255,16 +255,16 @@ impl Response {
         let fut = self
             .clone()
             .cache_response()
-            .and_then(WreqResponseExt::bytes)
-            .map_ok(PyBuffer::from)
+            .and_then(ResponseExt::bytes)
+            .map_ok(PyBytes::from)
             .map_err(Into::into);
-        AsyncFuture::future_into_py(py, fut)
+        PyFuture::future_into_py(py, fut)
     }
 
     /// Close the response connection.
     pub fn close<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
         py.detach(|| self.body.clone().swap(None));
-        BlockingFuture::future_into_py(py, || Ok(()))
+        PyFuture::future_into_py(py, future::ready(Ok(())))
     }
 }
 
@@ -273,7 +273,7 @@ impl Response {
     #[inline]
     fn __aenter__<'py>(slf: PyRef<'py, Self>, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
         let slf = slf.into_py_any(py)?;
-        BlockingFuture::future_into_py(py, || Ok(slf))
+        PyFuture::future_into_py(py, future::ready(Ok(slf)))
     }
 
     #[inline]
@@ -348,7 +348,7 @@ impl BlockingResponse {
 
     /// Get the DER encoded leaf certificate of the response.
     #[getter]
-    pub fn peer_certificate(&self, py: Python) -> Option<PyBuffer> {
+    pub fn peer_certificate(&self, py: Python) -> Option<PyBytes> {
         self.0.peer_certificate(py)
     }
 
@@ -371,7 +371,7 @@ impl BlockingResponse {
                 .0
                 .clone()
                 .cache_response()
-                .and_then(WreqResponseExt::text)
+                .and_then(ResponseExt::text)
                 .map_err(Into::into);
             Runtime::block_on(fut)
         })
@@ -385,7 +385,7 @@ impl BlockingResponse {
                 .0
                 .clone()
                 .cache_response()
-                .and_then(|resp| WreqResponseExt::text_with_charset(resp, encoding))
+                .and_then(|resp| ResponseExt::text_with_charset(resp, encoding))
                 .map_err(Into::into);
             Runtime::block_on(fut)
         })
@@ -398,21 +398,21 @@ impl BlockingResponse {
                 .0
                 .clone()
                 .cache_response()
-                .and_then(WreqResponseExt::json::<Json>)
+                .and_then(ResponseExt::json::<Json>)
                 .map_err(Into::into);
             Runtime::block_on(fut)
         })
     }
 
     /// Get the bytes content of the response.
-    pub fn bytes(&self, py: Python) -> PyResult<PyBuffer> {
+    pub fn bytes(&self, py: Python) -> PyResult<PyBytes> {
         py.detach(|| {
             let fut = self
                 .0
                 .clone()
                 .cache_response()
-                .and_then(WreqResponseExt::bytes)
-                .map_ok(PyBuffer::from)
+                .and_then(ResponseExt::bytes)
+                .map_ok(PyBytes::from)
                 .map_err(Into::into);
             Runtime::block_on(fut)
         })

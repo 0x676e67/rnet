@@ -1,41 +1,46 @@
-use crate::error::Error;
 use bytes::Bytes;
 
-pub trait WreqResponseExt {
-    fn text(self) -> impl Future<Output = Result<String, Error>>;
-    fn text_with_charset(
-        self,
-        encoding: impl AsRef<str>,
-    ) -> impl Future<Output = Result<String, Error>>;
-    fn json<T: serde::de::DeserializeOwned>(self) -> impl Future<Output = Result<T, Error>>;
-    fn bytes(self) -> impl Future<Output = Result<Bytes, Error>>;
+use crate::error::Error;
+
+/// Extension trait for [`wreq::Response`] that provides convenient methods for consuming response
+/// bodies.
+///
+/// This trait wraps the underlying [`wreq::Response`] methods and converts their errors to our
+/// custom `Error` type.
+pub trait ResponseExt {
+    /// Returns an error if the body cannot be decoded as valid UTF-8.
+    async fn text(self) -> Result<String, Error>;
+
+    /// Returns an error if the encoding is unsupported or decoding fails.
+    async fn text_with_charset(self, encoding: impl AsRef<str>) -> Result<String, Error>;
+
+    /// Returns an error if the body is not valid JSON or cannot be deserialized into `T`.
+    async fn json<T: serde::de::DeserializeOwned>(self) -> Result<T, Error>;
+
+    /// This method consumes the response and returns all body data as a [`Bytes`] buffer.
+    async fn bytes(self) -> Result<Bytes, Error>;
 }
 
-impl WreqResponseExt for wreq::Response {
+impl ResponseExt for wreq::Response {
     #[inline]
-    fn text(self) -> impl Future<Output = Result<String, Error>> {
-        async move { self.text().await.map_err(Error::Library) }
+    async fn text(self) -> Result<String, Error> {
+        self.text().await.map_err(Error::Library)
     }
 
     #[inline]
-    fn text_with_charset(
-        self,
-        encoding: impl AsRef<str>,
-    ) -> impl Future<Output = Result<String, Error>> {
-        async move {
-            self.text_with_charset(encoding)
-                .await
-                .map_err(Error::Library)
-        }
+    async fn text_with_charset(self, encoding: impl AsRef<str>) -> Result<String, Error> {
+        self.text_with_charset(encoding)
+            .await
+            .map_err(Error::Library)
     }
 
     #[inline]
-    fn json<T: serde::de::DeserializeOwned>(self) -> impl Future<Output = Result<T, Error>> {
-        async move { self.json::<T>().await.map_err(Error::Library) }
+    async fn json<T: serde::de::DeserializeOwned>(self) -> Result<T, Error> {
+        self.json::<T>().await.map_err(Error::Library)
     }
 
     #[inline]
-    fn bytes(self) -> impl Future<Output = Result<Bytes, Error>> {
-        async move { self.bytes().await.map_err(Error::Library) }
+    async fn bytes(self) -> Result<Bytes, Error> {
+        self.bytes().await.map_err(Error::Library)
     }
 }
