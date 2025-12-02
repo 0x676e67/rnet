@@ -16,7 +16,7 @@ use pyo3::{
 };
 use tokio::sync::Mutex;
 
-use crate::{buffer::PyBytes, error::Error, future::PyFuture, rt::Runtime};
+use crate::{buffer::PyBytes, error::Error, rt::Runtime};
 
 type BoxedStream<T> = Pin<Box<dyn Stream<Item = T> + Send + 'static>>;
 
@@ -77,7 +77,7 @@ impl Streamer {
 
     #[inline]
     fn __anext__<'py>(&mut self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
-        PyFuture::future_into_py(py, anext(self.0.clone(), || Error::StopAsyncIteration))
+        Runtime::future_into_py(py, anext(self.0.clone(), || Error::StopAsyncIteration))
     }
 
     #[inline]
@@ -88,7 +88,7 @@ impl Streamer {
     #[inline]
     fn __aenter__<'py>(slf: PyRef<'py, Self>, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
         let slf = slf.into_py_any(py)?;
-        PyFuture::future_into_py(py, future::ready(Ok(slf)))
+        Runtime::future_into_py(py, future::ready(Ok(slf)))
     }
 
     #[inline]
@@ -111,7 +111,7 @@ impl Streamer {
         _traceback: &Bound<'py, PyAny>,
     ) -> PyResult<Bound<'py, PyAny>> {
         let this = self.0.clone();
-        PyFuture::future_into_py(py, async move {
+        Runtime::future_into_py(py, async move {
             this.lock()
                 .await
                 .take()

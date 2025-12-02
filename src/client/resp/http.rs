@@ -17,7 +17,6 @@ use crate::{
     },
     cookie::Cookie,
     error::Error,
-    future::PyFuture,
     header::HeaderMap,
     http::{StatusCode, Version},
     rt::Runtime,
@@ -222,7 +221,7 @@ impl Response {
             .cache_response()
             .and_then(ResponseExt::text)
             .map_err(Into::into);
-        PyFuture::future_into_py(py, fut)
+        Runtime::future_into_py(py, fut)
     }
 
     /// Get the full response text given a specific encoding.
@@ -237,7 +236,7 @@ impl Response {
             .cache_response()
             .and_then(|resp| ResponseExt::text_with_charset(resp, encoding))
             .map_err(Into::into);
-        PyFuture::future_into_py(py, fut)
+        Runtime::future_into_py(py, fut)
     }
 
     /// Get the JSON content of the response.
@@ -247,7 +246,7 @@ impl Response {
             .cache_response()
             .and_then(ResponseExt::json::<Json>)
             .map_err(Into::into);
-        PyFuture::future_into_py(py, fut)
+        Runtime::future_into_py(py, fut)
     }
 
     /// Get the bytes content of the response.
@@ -258,13 +257,13 @@ impl Response {
             .and_then(ResponseExt::bytes)
             .map_ok(PyBytes::from)
             .map_err(Into::into);
-        PyFuture::future_into_py(py, fut)
+        Runtime::future_into_py(py, fut)
     }
 
     /// Close the response connection.
     pub fn close<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
         py.detach(|| self.body.clone().swap(None));
-        PyFuture::future_into_py(py, future::ready(Ok(())))
+        Runtime::future_into_py(py, future::ready(Ok(())))
     }
 }
 
@@ -273,7 +272,7 @@ impl Response {
     #[inline]
     fn __aenter__<'py>(slf: PyRef<'py, Self>, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
         let slf = slf.into_py_any(py)?;
-        PyFuture::future_into_py(py, future::ready(Ok(slf)))
+        Runtime::future_into_py(py, future::ready(Ok(slf)))
     }
 
     #[inline]
