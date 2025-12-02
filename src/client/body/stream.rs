@@ -14,7 +14,7 @@ use pyo3::{
 };
 use tokio::sync::mpsc::{self, error::TryRecvError};
 
-use crate::{buffer::PyBuffer, client::future::PyFuture, error::Error, rt::Runtime};
+use crate::{buffer::PyBuffer, error::Error, future::BlockingFuture, rt::Runtime};
 
 /// Represents a Python streaming body, either synchronous or asynchronous.
 pub enum PyStream {
@@ -65,13 +65,13 @@ impl Streamer {
                 TryRecvError::Disconnected => Err(Error::StopAsyncIteration),
             },
         })?;
-        PyFuture::closure(py, move || Ok(res))
+        BlockingFuture::new(py, move || Ok(res))
     }
 
     #[inline]
     fn __aenter__<'py>(slf: PyRef<'py, Self>, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
         let slf = slf.into_py_any(py)?;
-        PyFuture::closure(py, move || Ok(slf))
+        BlockingFuture::new(py, move || Ok(slf))
     }
 
     #[inline]
@@ -83,7 +83,7 @@ impl Streamer {
         _traceback: &Bound<'py, PyAny>,
     ) -> PyResult<Bound<'py, PyAny>> {
         self.0.close();
-        PyFuture::closure(py, move || Ok(()))
+        BlockingFuture::new(py, move || Ok(()))
     }
 }
 

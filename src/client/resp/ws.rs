@@ -15,6 +15,7 @@ use crate::{
     client::SocketAddr,
     cookie::Cookie,
     error::Error,
+    future::AsyncFuture,
     header::HeaderMap,
     http::{StatusCode, Version},
     rt::Runtime,
@@ -106,14 +107,14 @@ impl WebSocket {
         timeout: Option<Duration>,
     ) -> PyResult<Bound<'py, PyAny>> {
         let tx = self.cmd.clone();
-        Runtime::future_into_py(py, cmd::recv(tx, timeout))
+        AsyncFuture::new(py, cmd::recv(tx, timeout))
     }
 
     /// Send a message to the WebSocket.
     #[pyo3(signature = (message))]
     pub fn send<'py>(&self, py: Python<'py>, message: Message) -> PyResult<Bound<'py, PyAny>> {
         let tx = self.cmd.clone();
-        Runtime::future_into_py(py, cmd::send(tx, message))
+        AsyncFuture::new(py, cmd::send(tx, message))
     }
 
     /// Send multiple messages to the WebSocket.
@@ -124,7 +125,7 @@ impl WebSocket {
         messages: Vec<Message>,
     ) -> PyResult<Bound<'py, PyAny>> {
         let tx = self.cmd.clone();
-        Runtime::future_into_py(py, cmd::send_all(tx, messages))
+        AsyncFuture::new(py, cmd::send_all(tx, messages))
     }
 
     /// Close the WebSocket connection.
@@ -136,7 +137,7 @@ impl WebSocket {
         reason: Option<PyBackedStr>,
     ) -> PyResult<Bound<'py, PyAny>> {
         let tx = self.cmd.clone();
-        Runtime::future_into_py(py, cmd::close(tx, code, reason))
+        AsyncFuture::new(py, cmd::close(tx, code, reason))
     }
 }
 
@@ -145,7 +146,7 @@ impl WebSocket {
     #[inline]
     fn __aenter__<'py>(slf: PyRef<'py, Self>, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
         let slf = slf.into_py_any(py)?;
-        Runtime::future_into_py(py, async move { Ok(slf) })
+        AsyncFuture::new(py, async move { Ok(slf) })
     }
 
     #[inline]

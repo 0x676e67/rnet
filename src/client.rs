@@ -3,8 +3,6 @@ pub mod query;
 pub mod req;
 pub mod resp;
 
-mod future;
-
 use std::{fmt, net::IpAddr, sync::Arc, time::Duration};
 
 use pyo3::{IntoPyObjectExt, prelude::*, pybacked::PyBackedStr};
@@ -24,6 +22,7 @@ use crate::{
     dns::{HickoryDnsResolver, LookupIpStrategy, ResolverOptions},
     error::Error,
     extractor::Extractor,
+    future::AsyncFuture,
     http::Method,
     http1::Http1Options,
     http2::Http2Options,
@@ -583,7 +582,7 @@ impl Client {
         url: PyBackedStr,
         kwds: Option<Request>,
     ) -> PyResult<Bound<'py, PyAny>> {
-        Runtime::future_into_py(py, execute_request(self.clone().0, method, url, kwds))
+        AsyncFuture::new(py, execute_request(self.clone().0, method, url, kwds))
     }
 
     /// Make a WebSocket request to the given URL.
@@ -595,7 +594,7 @@ impl Client {
         url: PyBackedStr,
         kwds: Option<WebSocketRequest>,
     ) -> PyResult<Bound<'py, PyAny>> {
-        Runtime::future_into_py(py, execute_websocket_request(self.clone().0, url, kwds))
+        AsyncFuture::new(py, execute_websocket_request(self.clone().0, url, kwds))
     }
 }
 

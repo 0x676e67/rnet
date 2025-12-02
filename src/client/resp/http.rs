@@ -13,11 +13,11 @@ use crate::{
     client::{
         SocketAddr,
         body::{Json, Streamer},
-        future::PyFuture,
         resp::history::History,
     },
     cookie::Cookie,
     error::Error,
+    future::{AsyncFuture, BlockingFuture},
     header::HeaderMap,
     http::{StatusCode, Version},
     rt::Runtime,
@@ -197,7 +197,7 @@ impl Response {
             .text()
             .map_err(Error::Library)
             .map_err(Into::into);
-        PyFuture::future(py, fut)
+        AsyncFuture::new(py, fut)
     }
 
     /// Get the full response text given a specific encoding.
@@ -212,7 +212,7 @@ impl Response {
             .text_with_charset(encoding)
             .map_err(Error::Library)
             .map_err(Into::into);
-        PyFuture::future(py, fut)
+        AsyncFuture::new(py, fut)
     }
 
     /// Get the JSON content of the response.
@@ -222,7 +222,7 @@ impl Response {
             .json::<Json>()
             .map_err(Error::Library)
             .map_err(Into::into);
-        PyFuture::future(py, fut)
+        AsyncFuture::new(py, fut)
     }
 
     /// Get the bytes content of the response.
@@ -233,13 +233,13 @@ impl Response {
             .map_ok(PyBuffer::from)
             .map_err(Error::Library)
             .map_err(Into::into);
-        PyFuture::future(py, fut)
+        AsyncFuture::new(py, fut)
     }
 
     /// Close the response connection.
     pub fn close<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
         py.detach(|| self.body.swap(None));
-        PyFuture::closure(py, || Ok(()))
+        BlockingFuture::new(py, || Ok(()))
     }
 }
 
@@ -248,7 +248,7 @@ impl Response {
     #[inline]
     fn __aenter__<'py>(slf: PyRef<'py, Self>, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
         let slf = slf.into_py_any(py)?;
-        PyFuture::closure(py, || Ok(slf))
+        BlockingFuture::new(py, || Ok(slf))
     }
 
     #[inline]
