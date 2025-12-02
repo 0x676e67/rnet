@@ -3,8 +3,6 @@ pub mod query;
 pub mod req;
 pub mod resp;
 
-mod future;
-
 use std::{fmt, net::IpAddr, sync::Arc, time::Duration};
 
 use pyo3::{IntoPyObjectExt, prelude::*, pybacked::PyBackedStr};

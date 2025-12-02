@@ -50,12 +50,12 @@ use self::{
         StreamDependency, StreamId,
     },
     proxy::Proxy,
-    rt::Runtime,
     tls::{
         AlpnProtocol, AlpsProtocol, CertStore, CertificateCompressionAlgorithm, ExtensionType,
         Identity, KeyLog, TlsOptions, TlsVersion,
     },
 };
+use crate::rt::Runtime;
 
 #[cfg(all(feature = "jemalloc", not(feature = "mimalloc"),))]
 #[global_allocator]

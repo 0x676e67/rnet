@@ -218,7 +218,7 @@ class Client:
             user_agent="Mozilla/5.0",
             timeout=10,
         )
-        response = client.get('https://httpbin.org/get')
+        response = client.get('https://httpbin.io/get')
         print(response.text())
         ```
         """
@@ -240,7 +240,7 @@ class Client:
         from rnet import Method
 
         client = rnet.blocking.Client()
-        response = client.request(Method.GET, "https://httpbin.org/anything")
+        response = client.request(Method.GET, "https://httpbin.io/anything")
         ```
         """
         ...
@@ -279,7 +279,7 @@ class Client:
         from rnet import Method
 
         client = rnet.blocking.Client()
-        response = client.trace("https://httpbin.org/anything")
+        response = client.trace("https://httpbin.io/anything")
         print(response.text())
         ```
         """
@@ -300,7 +300,7 @@ class Client:
         from rnet import Method
 
         client = rnet.blocking.Client()
-        response = client.options("https://httpbin.org/anything")
+        response = client.options("https://httpbin.io/anything")
         print(response.text())
         ```
         """
@@ -322,7 +322,7 @@ class Client:
 
         def main():
         client = rnet.blocking.Client()
-        response = client.head("https://httpbin.org/anything")
+        response = client.head("https://httpbin.io/anything")
         print(response.text())
         ```
         """
@@ -343,7 +343,7 @@ class Client:
         from rnet import Method
 
         client = rnet.blocking.Client()
-        response = client.delete("https://httpbin.org/anything")
+        response = client.delete("https://httpbin.io/anything")
         print(response.text())
         ```
         """
@@ -364,7 +364,7 @@ class Client:
         from rnet import Method
 
         client = rnet.blocking.Client()
-        response = client.patch("https://httpbin.org/anything", json={"key": "value"})
+        response = client.patch("https://httpbin.io/anything", json={"key": "value"})
         print(response.text())
         ```
         """
@@ -385,7 +385,7 @@ class Client:
         from rnet import Method
 
         client = rnet.blocking.Client()
-        response = client.put("https://httpbin.org/anything", json={"key": "value"})
+        response = client.put("https://httpbin.io/anything", json={"key": "value"})
         print(response.text())
         ```
         """
@@ -406,7 +406,7 @@ class Client:
         from rnet import Method
 
         client = rnet.blocking.Client()
-        response = client.post("https://httpbin.org/anything", json={"key": "value"})
+        response = client.post("https://httpbin.io/anything", json={"key": "value"})
         print(response.text())
         ```
         """
@@ -427,7 +427,7 @@ class Client:
         from rnet import Method
 
         client = rnet.blocking.Client()
-        response = client.get("https://httpbin.org/anything")
+        response = client.get("https://httpbin.io/anything")
         print(response.text())
         ```
         """

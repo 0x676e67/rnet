@@ -4,11 +4,11 @@ from rnet import Response
 
 
 async def main():
-    resp: Response = await rnet.get("https://httpbin.org/stream/20")
+    resp: Response = await rnet.get("https://httpbin.io/stream/20")
     async with resp:
         async with resp.stream() as streamer:
             async for chunk in streamer:
-                print("Chunk: ", chunk)
+                print(chunk)
                 await asyncio.sleep(0.1)
 
 

@@ -4,7 +4,7 @@ import rnet
 
 async def main():
     resp = await rnet.post(
-        "https://httpbin.org/anything",
+        "https://httpbin.io/anything",
         json={"key": "value"},
     )
     print(await resp.json())

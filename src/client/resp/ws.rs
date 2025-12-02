@@ -1,7 +1,7 @@
 mod cmd;
 pub mod msg;
 
-use std::time::Duration;
+use std::{future, time::Duration};
 
 use msg::Message;
 use pyo3::{IntoPyObjectExt, prelude::*, pybacked::PyBackedStr};
@@ -145,7 +145,7 @@ impl WebSocket {
     #[inline]
     fn __aenter__<'py>(slf: PyRef<'py, Self>, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
         let slf = slf.into_py_any(py)?;
-        Runtime::future_into_py(py, async move { Ok(slf) })
+        Runtime::future_into_py(py, future::ready(Ok(slf)))
     }
 
     #[inline]

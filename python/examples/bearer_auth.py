@@ -4,7 +4,7 @@ import rnet
 
 async def main():
     resp = await rnet.get(
-        "https://httpbin.org/anything",
+        "https://httpbin.io/anything",
         bearer_auth="token",
     )
     print(await resp.text())
