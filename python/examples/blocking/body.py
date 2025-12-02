@@ -9,7 +9,7 @@ def gen():
 def main():
     client = Client()
     resp = client.post(
-        "https://httpbin.org/anything",
+        "https://httpbin.io/anything",
         headers={"Content-Type": "application/x-www-form-urlencoded"},
         body=gen(),
     )

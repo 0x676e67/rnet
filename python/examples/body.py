@@ -16,7 +16,7 @@ async def gen():
 
 async def main():
     resp = await rnet.post(
-        "https://httpbin.org/anything",
+        "https://httpbin.io/anything",
         body=gen(),
     )
     print(await resp.text())

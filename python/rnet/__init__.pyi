@@ -376,7 +376,7 @@ class Streamer:
     from rnet import Method, Emulation
 
     async def main():
-        resp = await rnet.get("https://httpbin.org/stream/20")
+        resp = await rnet.get("https://httpbin.io/stream/20")
         async with resp.stream() as streamer:
             async for chunk in streamer:
                 print("Chunk: ", chunk)
@@ -1101,7 +1101,7 @@ class Client:
                 user_agent="Mozilla/5.0",
                 timeout=10,
             )
-            response = await client.get('https://httpbin.org/get')
+            response = await client.get('https://httpbin.io/get')
             print(await response.text())
 
         asyncio.run(main())
@@ -1127,7 +1127,7 @@ class Client:
 
         async def main():
             client = rnet.Client()
-            response = await client.request(Method.GET, "https://httpbin.org/anything")
+            response = await client.request(Method.GET, "https://httpbin.io/anything")
             print(await response.text())
 
         asyncio.run(main())
@@ -1177,7 +1177,7 @@ class Client:
 
         async def main():
             client = rnet.Client()
-            response = await client.trace("https://httpbin.org/anything")
+            response = await client.trace("https://httpbin.io/anything")
             print(await response.text())
 
         asyncio.run(main())
@@ -1201,7 +1201,7 @@ class Client:
 
         async def main():
             client = rnet.Client()
-            response = await client.options("https://httpbin.org/anything")
+            response = await client.options("https://httpbin.io/anything")
             print(await response.text())
 
         asyncio.run(main())
@@ -1225,7 +1225,7 @@ class Client:
 
         async def main():
             client = rnet.Client()
-            response = await client.patch("https://httpbin.org/anything", json={"key": "value"})
+            response = await client.patch("https://httpbin.io/anything", json={"key": "value"})
             print(await response.text())
 
         asyncio.run(main())
@@ -1249,7 +1249,7 @@ class Client:
 
         async def main():
             client = rnet.Client()
-            response = await client.delete("https://httpbin.org/anything")
+            response = await client.delete("https://httpbin.io/anything")
             print(await response.text())
 
         asyncio.run(main())
@@ -1273,7 +1273,7 @@ class Client:
 
         async def main():
             client = rnet.Client()
-            response = await client.put("https://httpbin.org/anything", json={"key": "value"})
+            response = await client.put("https://httpbin.io/anything", json={"key": "value"})
             print(await response.text())
 
         asyncio.run(main())
@@ -1297,7 +1297,7 @@ class Client:
 
         async def main():
             client = rnet.Client()
-            response = await client.post("https://httpbin.org/anything", json={"key": "value"})
+            response = await client.post("https://httpbin.io/anything", json={"key": "value"})
             print(await response.text())
 
         asyncio.run(main())
@@ -1321,7 +1321,7 @@ class Client:
 
         async def main():
             client = rnet.Client()
-            response = await client.head("https://httpbin.org/anything")
+            response = await client.head("https://httpbin.io/anything")
             print(response.status)
 
         asyncio.run(main())
@@ -1345,7 +1345,7 @@ class Client:
 
         async def main():
             client = rnet.Client()
-            response = await client.get("https://httpbin.org/anything")
+            response = await client.get("https://httpbin.io/anything")
             print(await response.text())
 
         asyncio.run(main())
@@ -1366,7 +1366,7 @@ async def delete(
     import asyncio
 
     async def run():
-        response = await rnet.delete("https://httpbin.org/anything")
+        response = await rnet.delete("https://httpbin.io/anything")
         body = await response.text()
         print(body)
 
@@ -1388,7 +1388,7 @@ async def get(
     import asyncio
 
     async def run():
-        response = await rnet.get("https://httpbin.org/anything")
+        response = await rnet.get("https://httpbin.io/anything")
         body = await response.text()
         print(body)
 
@@ -1410,7 +1410,7 @@ async def head(
     import asyncio
 
     async def run():
-        response = await rnet.head("https://httpbin.org/anything")
+        response = await rnet.head("https://httpbin.io/anything")
         print(response.status)
 
     asyncio.run(run())
@@ -1431,7 +1431,7 @@ async def options(
     import asyncio
 
     async def run():
-        response = await rnet.options("https://httpbin.org/anything")
+        response = await rnet.options("https://httpbin.io/anything")
         print(response.status)
 
     asyncio.run(run())
@@ -1452,7 +1452,7 @@ async def patch(
     import asyncio
 
     async def run():
-        response = await rnet.patch("https://httpbin.org/anything")
+        response = await rnet.patch("https://httpbin.io/anything")
         body = await response.text()
         print(body)
 
@@ -1474,7 +1474,7 @@ async def post(
     import asyncio
 
     async def run():
-        response = await rnet.post("https://httpbin.org/anything")
+        response = await rnet.post("https://httpbin.io/anything")
         body = await response.text()
         print(body)
 
@@ -1496,7 +1496,7 @@ async def put(
     import asyncio
 
     async def run():
-        response = await rnet.put("https://httpbin.org/anything")
+        response = await rnet.put("https://httpbin.io/anything")
         body = await response.text()
         print(body)
 
@@ -1548,7 +1548,7 @@ async def trace(
     import asyncio
 
     async def run():
-        response = await rnet.trace("https://httpbin.org/anything")
+        response = await rnet.trace("https://httpbin.io/anything")
         print(response.status)
 
     asyncio.run(run())

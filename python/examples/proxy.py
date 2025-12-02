@@ -22,12 +22,12 @@ async def main():
         ],
     )
 
-    resp = await client.get("https://httpbin.org/anything")
+    resp = await client.get("https://httpbin.io/anything")
     print(await resp.text())
 
     # OR use Proxy directly in request
     resp = await rnet.get(
-        "https://httpbin.org/anything",
+        "https://httpbin.io/anything",
         proxy=Proxy.all(
             url="http://127.0.0.1:6152",
             custom_http_headers={

@@ -72,7 +72,7 @@ impl Streamer {
 
     #[inline]
     fn __next__(&mut self, py: Python) -> PyResult<PyBytes> {
-        py.detach(|| Runtime::block_on(anext(self.0.clone(), || Error::StopAsyncIteration)))
+        py.detach(|| Runtime::block_on(anext(self.0.clone(), || Error::StopIteration)))
     }
 
     #[inline]

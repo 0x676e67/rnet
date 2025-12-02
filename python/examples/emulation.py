@@ -124,7 +124,10 @@ async def request_advanced_configuration():
 
     # Default headers
     headers = HeaderMap()
-    headers.insert("User-Agent", "TwitterAndroid/10.89.0-release.0 (310890000-r-0) G011A/9 (google;G011A;google;G011A;0;;1;2016)")
+    headers.insert(
+        "User-Agent",
+        "TwitterAndroid/10.89.0-release.0 (310890000-r-0) G011A/9 (google;G011A;google;G011A;0;;1;2016)",
+    )
     headers.insert("Accept-Language", "en-US")
     headers.insert("Accept-Encoding", "br, gzip, deflate")
     headers.insert("Accept", "application/json")

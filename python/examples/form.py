@@ -7,14 +7,14 @@ async def main():
 
     # use a list of tuples
     resp = await client.post(
-        "https://httpbin.org/anything",
+        "https://httpbin.io/anything",
         form=[("key", "value")],
     )
     print(await resp.text())
 
     # OR use a dictionary
     resp = await client.post(
-        "https://httpbin.org/anything",
+        "https://httpbin.io/anything",
         form={
             "key1": "value1",
             "key2": "value2",

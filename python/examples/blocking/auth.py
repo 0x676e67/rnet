@@ -4,7 +4,7 @@ from rnet.blocking import Client
 def main():
     client = Client()
     resp = client.get(
-        "https://httpbin.org/anything",
+        "https://httpbin.io/anything",
         auth="token",
     )
     print("Status Code: ", resp.status)

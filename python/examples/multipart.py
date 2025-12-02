@@ -13,7 +13,7 @@ async def file_to_bytes_stream(file_path):
 
 async def main():
     resp = await rnet.post(
-        "https://httpbin.org/anything",
+        "https://httpbin.io/anything",
         multipart=Multipart(
             # Upload text data
             Part(name="def", value="111", filename="def.txt", mime="text/plain"),
