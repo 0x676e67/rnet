@@ -4,7 +4,7 @@ use bytes::Bytes;
 use pyo3::{
     prelude::*,
     pybacked::{PyBackedBytes, PyBackedStr},
-    types::{PyDict, PyList},
+    types::{PyDict, PyIterator, PyList},
 };
 use wreq::header::{self, HeaderName, HeaderValue};
 
@@ -222,13 +222,15 @@ impl HeaderMap {
         self.0.len()
     }
 
-    fn __iter__<'py>(&self, py: Python<'py>) -> Vec<(PyBuffer, PyBuffer)> {
-        py.detach(|| {
+    fn __iter__<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyIterator>> {
+        let items: Vec<_> = py.detach(|| {
             self.0
                 .iter()
                 .map(|(k, v)| (PyBuffer::from(k.clone()), PyBuffer::from(v.clone())))
                 .collect()
-        })
+        });
+        let pylist = PyList::new(py, items)?;
+        PyIterator::from_object(&pylist)
     }
 }
 
@@ -297,8 +299,8 @@ impl OrigHeaderMap {
         self.0.len()
     }
 
-    fn __iter__<'py>(&self, py: Python<'py>) -> Vec<(PyBuffer, PyBuffer)> {
-        py.detach(|| {
+    fn __iter__<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyIterator>> {
+        let items: Vec<_> = py.detach(|| {
             self.0
                 .iter()
                 .map(|(name, orig_name)| {
@@ -310,7 +312,9 @@ impl OrigHeaderMap {
                     (name, orig_name)
                 })
                 .collect()
-        })
+        });
+        let pylist = PyList::new(py, items)?;
+        PyIterator::from_object(&pylist)
     }
 }
 
