@@ -96,12 +96,12 @@ impl Response {
     ///
     /// This creates a new HTTP response with the same version, status, headers, and extensions
     /// as the current response, but with the provided body.
-    fn build_response(&self, body: wreq::Body) -> wreq::Response {
+    fn build_response(self, body: wreq::Body) -> wreq::Response {
         let mut response = HttpResponse::new(body);
         *response.version_mut() = self.version.into_ffi();
         *response.status_mut() = self.status.0;
-        *response.headers_mut() = self.headers.0.clone();
-        *response.extensions_mut() = self.extensions.clone();
+        *response.headers_mut() = self.headers.0;
+        *response.extensions_mut() = self.extensions;
         wreq::Response::from(response)
     }
 
@@ -151,7 +151,7 @@ impl Response {
     /// Creates an empty response with the same metadata but no body content.
     ///
     /// Useful for operations that only need response headers/metadata without consuming the body.
-    fn empty_response(&self) -> wreq::Response {
+    fn empty_response(self) -> wreq::Response {
         self.build_response(wreq::Body::from(Bytes::new()))
     }
 }
