@@ -16,7 +16,7 @@ use pyo3::{
 };
 use tokio::sync::Mutex;
 
-use crate::{buffer::PyBytes, error::Error, rt::Runtime};
+use crate::{buffer::PyBuffer, error::Error, rt::Runtime};
 
 type BoxedStream<T> = Pin<Box<dyn Stream<Item = T> + Send + 'static>>;
 
@@ -33,7 +33,7 @@ pub struct Streamer(Arc<Mutex<Option<BoxedStream<wreq::Result<Bytes>>>>>);
 async fn anext(
     streamer: Arc<Mutex<Option<BoxedStream<wreq::Result<Bytes>>>>>,
     error: fn() -> Error,
-) -> PyResult<PyBytes> {
+) -> PyResult<PyBuffer> {
     let val = streamer
         .lock()
         .await
@@ -43,7 +43,7 @@ async fn anext(
         .await;
 
     val.map_err(Error::Library)?
-        .map(PyBytes::from)
+        .map(PyBuffer::from)
         .ok_or_else(error)
         .map_err(Into::into)
 }
@@ -71,7 +71,7 @@ impl Streamer {
     }
 
     #[inline]
-    fn __next__(&mut self, py: Python) -> PyResult<PyBytes> {
+    fn __next__(&mut self, py: Python) -> PyResult<PyBuffer> {
         py.detach(|| Runtime::block_on(anext(self.0.clone(), || Error::StopIteration)))
     }
 

@@ -16,7 +16,7 @@ use pyo3::{
 };
 use wreq::ws::message::{self, CloseCode, CloseFrame, Utf8Bytes};
 
-use crate::{buffer::PyBytes, client::body::Json, error::Error};
+use crate::{buffer::PyBuffer, client::body::Json, error::Error};
 
 /// A WebSocket message.
 #[derive(Debug, Clone)]
@@ -37,7 +37,7 @@ impl Message {
 
     /// Returns the data of the message as bytes.
     #[getter]
-    pub fn data(&self) -> Option<PyBytes> {
+    pub fn data(&self) -> Option<PyBuffer> {
         let bytes = match &self.0 {
             message::Message::Text(text) => text.clone().into(),
             message::Message::Binary(bytes)
@@ -45,7 +45,7 @@ impl Message {
             | message::Message::Pong(bytes) => bytes.clone(),
             _ => return None,
         };
-        Some(PyBytes::from(bytes))
+        Some(PyBuffer::from(bytes))
     }
 
     /// Returns the text content of the message if it is a text message.
@@ -60,9 +60,9 @@ impl Message {
 
     /// Returns the binary data of the message if it is a binary message.
     #[getter]
-    pub fn binary(&self) -> Option<PyBytes> {
+    pub fn binary(&self) -> Option<PyBuffer> {
         if let message::Message::Binary(data) = &self.0 {
-            Some(PyBytes::from(data))
+            Some(PyBuffer::from(data))
         } else {
             None
         }
@@ -70,9 +70,9 @@ impl Message {
 
     /// Returns the ping data of the message if it is a ping message.
     #[getter]
-    pub fn ping(&self) -> Option<PyBytes> {
+    pub fn ping(&self) -> Option<PyBuffer> {
         if let message::Message::Ping(data) = &self.0 {
-            Some(PyBytes::from(data))
+            Some(PyBuffer::from(data))
         } else {
             None
         }
@@ -80,9 +80,9 @@ impl Message {
 
     /// Returns the pong data of the message if it is a pong message.
     #[getter]
-    pub fn pong(&self) -> Option<PyBytes> {
+    pub fn pong(&self) -> Option<PyBuffer> {
         if let message::Message::Pong(data) = &self.0 {
-            Some(PyBytes::from(data))
+            Some(PyBuffer::from(data))
         } else {
             None
         }

@@ -21,15 +21,15 @@ use bytes::Bytes;
 use pyo3::{ffi, prelude::*};
 use wreq::header::{HeaderName, HeaderValue};
 
-/// [`PyBytes`] enables zero-copy conversion of Rust [`Bytes`] to Python bytes.
-pub struct PyBytes(BufferView);
+/// [`PyBuffer`] enables zero-copy conversion of Rust [`Bytes`] to Python bytes.
+pub struct PyBuffer(BufferView);
 
 #[pyclass(frozen)]
 struct BufferView(Bytes);
 
-// ===== PyBytes =====
+// ===== PyBuffer =====
 
-impl<'a> IntoPyObject<'a> for PyBytes {
+impl<'a> IntoPyObject<'a> for PyBuffer {
     type Target = PyAny;
     type Output = Bound<'a, Self::Target>;
     type Error = PyErr;
@@ -44,35 +44,35 @@ impl<'a> IntoPyObject<'a> for PyBytes {
     }
 }
 
-impl From<Vec<u8>> for PyBytes {
+impl From<Vec<u8>> for PyBuffer {
     #[inline]
     fn from(value: Vec<u8>) -> Self {
         Self::from(Bytes::from(value))
     }
 }
 
-impl From<&Bytes> for PyBytes {
+impl From<&Bytes> for PyBuffer {
     #[inline]
     fn from(value: &Bytes) -> Self {
         Self::from(value.clone())
     }
 }
 
-impl From<Bytes> for PyBytes {
+impl From<Bytes> for PyBuffer {
     #[inline]
     fn from(value: Bytes) -> Self {
-        PyBytes(BufferView(value))
+        PyBuffer(BufferView(value))
     }
 }
 
-impl From<HeaderName> for PyBytes {
+impl From<HeaderName> for PyBuffer {
     #[inline]
     fn from(value: HeaderName) -> Self {
         Self::from(Bytes::from_owner(value))
     }
 }
 
-impl From<HeaderValue> for PyBytes {
+impl From<HeaderValue> for PyBuffer {
     #[inline]
     fn from(value: HeaderValue) -> Self {
         Self::from(Bytes::from_owner(value))

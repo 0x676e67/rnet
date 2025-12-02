@@ -9,7 +9,7 @@ use pyo3::{IntoPyObjectExt, prelude::*, pybacked::PyBackedStr};
 use wreq::{self, Extension, Uri, redirect, tls::TlsInfo};
 
 use crate::{
-    buffer::PyBytes,
+    buffer::PyBuffer,
     client::{
         SocketAddr,
         body::{Json, Streamer},
@@ -184,14 +184,14 @@ impl Response {
 
     /// Get the DER encoded leaf certificate of the response.
     #[getter]
-    pub fn peer_certificate(&self, py: Python) -> Option<PyBytes> {
+    pub fn peer_certificate(&self, py: Python) -> Option<PyBuffer> {
         py.detach(|| {
             self.extensions
                 .get::<Extension<TlsInfo>>()?
                 .0
                 .peer_certificate()
                 .map(ToOwned::to_owned)
-                .map(PyBytes::from)
+                .map(PyBuffer::from)
         })
     }
 
@@ -255,7 +255,7 @@ impl Response {
             .clone()
             .cache_response()
             .and_then(ResponseExt::bytes)
-            .map_ok(PyBytes::from)
+            .map_ok(PyBuffer::from)
             .map_err(Into::into);
         Runtime::future_into_py(py, fut)
     }
@@ -347,7 +347,7 @@ impl BlockingResponse {
 
     /// Get the DER encoded leaf certificate of the response.
     #[getter]
-    pub fn peer_certificate(&self, py: Python) -> Option<PyBytes> {
+    pub fn peer_certificate(&self, py: Python) -> Option<PyBuffer> {
         self.0.peer_certificate(py)
     }
 
@@ -404,14 +404,14 @@ impl BlockingResponse {
     }
 
     /// Get the bytes content of the response.
-    pub fn bytes(&self, py: Python) -> PyResult<PyBytes> {
+    pub fn bytes(&self, py: Python) -> PyResult<PyBuffer> {
         py.detach(|| {
             let fut = self
                 .0
                 .clone()
                 .cache_response()
                 .and_then(ResponseExt::bytes)
-                .map_ok(PyBytes::from)
+                .map_ok(PyBuffer::from)
                 .map_err(Into::into);
             Runtime::block_on(fut)
         })
