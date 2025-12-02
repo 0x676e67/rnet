@@ -23,10 +23,10 @@ type BoxedStream<T> = Pin<Box<dyn Stream<Item = T> + Send + 'static>>;
 /// Represents a Python streaming body, either synchronous or asynchronous.
 pub enum PyStream {
     Sync(Py<PyAny>),
-    Async(Pin<Box<dyn Stream<Item = Py<PyAny>> + Send + 'static>>),
+    Async(BoxedStream<Py<PyAny>>),
 }
 
-/// A byte stream response.
+/// A bytes stream response.
 #[pyclass(subclass)]
 pub struct Streamer(Arc<Mutex<Option<BoxedStream<wreq::Result<Bytes>>>>>);
 
