@@ -65,13 +65,13 @@ impl Streamer {
                 TryRecvError::Disconnected => Err(Error::StopAsyncIteration),
             },
         })?;
-        BlockingFuture::new(py, move || Ok(res))
+        BlockingFuture::future_into_py(py, move || Ok(res))
     }
 
     #[inline]
     fn __aenter__<'py>(slf: PyRef<'py, Self>, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
         let slf = slf.into_py_any(py)?;
-        BlockingFuture::new(py, move || Ok(slf))
+        BlockingFuture::future_into_py(py, move || Ok(slf))
     }
 
     #[inline]
@@ -83,7 +83,7 @@ impl Streamer {
         _traceback: &Bound<'py, PyAny>,
     ) -> PyResult<Bound<'py, PyAny>> {
         self.0.close();
-        BlockingFuture::new(py, move || Ok(()))
+        BlockingFuture::future_into_py(py, move || Ok(()))
     }
 }
 

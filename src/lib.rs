@@ -70,21 +70,21 @@ static GLOBAL: mimalloc::MiMalloc = mimalloc::MiMalloc;
 #[pyfunction]
 #[pyo3(signature = (url, **kwds))]
 pub fn get(py: Python<'_>, url: PyBackedStr, kwds: Option<Request>) -> PyResult<Bound<'_, PyAny>> {
-    AsyncFuture::new(py, execute_request(None, Method::GET, url, kwds))
+    AsyncFuture::future_into_py(py, execute_request(None, Method::GET, url, kwds))
 }
 
 /// Make a POST request with the given parameters.
 #[pyfunction]
 #[pyo3(signature = (url, **kwds))]
 pub fn post(py: Python<'_>, url: PyBackedStr, kwds: Option<Request>) -> PyResult<Bound<'_, PyAny>> {
-    AsyncFuture::new(py, execute_request(None, Method::POST, url, kwds))
+    AsyncFuture::future_into_py(py, execute_request(None, Method::POST, url, kwds))
 }
 
 /// Make a PUT request with the given parameters.
 #[pyfunction]
 #[pyo3(signature = (url, **kwds))]
 pub fn put(py: Python<'_>, url: PyBackedStr, kwds: Option<Request>) -> PyResult<Bound<'_, PyAny>> {
-    AsyncFuture::new(py, execute_request(None, Method::PUT, url, kwds))
+    AsyncFuture::future_into_py(py, execute_request(None, Method::PUT, url, kwds))
 }
 
 /// Make a PATCH request with the given parameters.
@@ -95,7 +95,7 @@ pub fn patch(
     url: PyBackedStr,
     kwds: Option<Request>,
 ) -> PyResult<Bound<'_, PyAny>> {
-    AsyncFuture::new(py, execute_request(None, Method::PATCH, url, kwds))
+    AsyncFuture::future_into_py(py, execute_request(None, Method::PATCH, url, kwds))
 }
 
 /// Make a DELETE request with the given parameters.
@@ -106,14 +106,14 @@ pub fn delete(
     url: PyBackedStr,
     kwds: Option<Request>,
 ) -> PyResult<Bound<'_, PyAny>> {
-    AsyncFuture::new(py, execute_request(None, Method::DELETE, url, kwds))
+    AsyncFuture::future_into_py(py, execute_request(None, Method::DELETE, url, kwds))
 }
 
 /// Make a HEAD request with the given parameters.
 #[pyfunction]
 #[pyo3(signature = (url, **kwds))]
 pub fn head(py: Python<'_>, url: PyBackedStr, kwds: Option<Request>) -> PyResult<Bound<'_, PyAny>> {
-    AsyncFuture::new(py, execute_request(None, Method::HEAD, url, kwds))
+    AsyncFuture::future_into_py(py, execute_request(None, Method::HEAD, url, kwds))
 }
 
 /// Make a OPTIONS request with the given parameters.
@@ -124,7 +124,7 @@ pub fn options(
     url: PyBackedStr,
     kwds: Option<Request>,
 ) -> PyResult<Bound<'_, PyAny>> {
-    AsyncFuture::new(py, execute_request(None, Method::OPTIONS, url, kwds))
+    AsyncFuture::future_into_py(py, execute_request(None, Method::OPTIONS, url, kwds))
 }
 
 /// Make a TRACE request with the given parameters.
@@ -135,7 +135,7 @@ pub fn trace(
     url: PyBackedStr,
     kwds: Option<Request>,
 ) -> PyResult<Bound<'_, PyAny>> {
-    AsyncFuture::new(py, execute_request(None, Method::TRACE, url, kwds))
+    AsyncFuture::future_into_py(py, execute_request(None, Method::TRACE, url, kwds))
 }
 
 /// Make a request with the given parameters.
@@ -147,7 +147,7 @@ pub fn request(
     url: PyBackedStr,
     kwds: Option<Request>,
 ) -> PyResult<Bound<'_, PyAny>> {
-    AsyncFuture::new(py, execute_request(None, method, url, kwds))
+    AsyncFuture::future_into_py(py, execute_request(None, method, url, kwds))
 }
 
 /// Make a WebSocket connection with the given parameters.
@@ -158,7 +158,7 @@ pub fn websocket(
     url: PyBackedStr,
     kwds: Option<WebSocketRequest>,
 ) -> PyResult<Bound<'_, PyAny>> {
-    AsyncFuture::new(py, execute_websocket_request(None, url, kwds))
+    AsyncFuture::future_into_py(py, execute_websocket_request(None, url, kwds))
 }
 
 #[pymodule(gil_used = false)]

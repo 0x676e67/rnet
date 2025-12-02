@@ -107,14 +107,14 @@ impl WebSocket {
         timeout: Option<Duration>,
     ) -> PyResult<Bound<'py, PyAny>> {
         let tx = self.cmd.clone();
-        AsyncFuture::new(py, cmd::recv(tx, timeout))
+        AsyncFuture::future_into_py(py, cmd::recv(tx, timeout))
     }
 
     /// Send a message to the WebSocket.
     #[pyo3(signature = (message))]
     pub fn send<'py>(&self, py: Python<'py>, message: Message) -> PyResult<Bound<'py, PyAny>> {
         let tx = self.cmd.clone();
-        AsyncFuture::new(py, cmd::send(tx, message))
+        AsyncFuture::future_into_py(py, cmd::send(tx, message))
     }
 
     /// Send multiple messages to the WebSocket.
@@ -125,7 +125,7 @@ impl WebSocket {
         messages: Vec<Message>,
     ) -> PyResult<Bound<'py, PyAny>> {
         let tx = self.cmd.clone();
-        AsyncFuture::new(py, cmd::send_all(tx, messages))
+        AsyncFuture::future_into_py(py, cmd::send_all(tx, messages))
     }
 
     /// Close the WebSocket connection.
@@ -137,7 +137,7 @@ impl WebSocket {
         reason: Option<PyBackedStr>,
     ) -> PyResult<Bound<'py, PyAny>> {
         let tx = self.cmd.clone();
-        AsyncFuture::new(py, cmd::close(tx, code, reason))
+        AsyncFuture::future_into_py(py, cmd::close(tx, code, reason))
     }
 }
 
@@ -146,7 +146,7 @@ impl WebSocket {
     #[inline]
     fn __aenter__<'py>(slf: PyRef<'py, Self>, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
         let slf = slf.into_py_any(py)?;
-        AsyncFuture::new(py, async move { Ok(slf) })
+        AsyncFuture::future_into_py(py, async move { Ok(slf) })
     }
 
     #[inline]

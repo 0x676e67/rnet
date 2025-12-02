@@ -30,7 +30,7 @@ where
     T: Send + for<'py> IntoPyObject<'py> + 'static,
 {
     #[inline(always)]
-    pub fn new<'py>(py: Python<'py>, future: Fut) -> PyResult<Bound<'py, PyAny>> {
+    pub fn future_into_py<'py>(py: Python<'py>, future: Fut) -> PyResult<Bound<'py, PyAny>> {
         Runtime::future_into_py(py, Self { inner: future })
     }
 }
@@ -41,7 +41,7 @@ where
     R: Send + for<'py> IntoPyObject<'py> + 'static,
 {
     #[inline(always)]
-    pub fn new<'py>(py: Python<'py>, closure: F) -> PyResult<Bound<'py, PyAny>> {
+    pub fn future_into_py<'py>(py: Python<'py>, closure: F) -> PyResult<Bound<'py, PyAny>> {
         Runtime::future_into_py(
             py,
             Self {
