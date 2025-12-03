@@ -47,8 +47,6 @@ async def main():
 
     # Use the API you're already familiar with
     resp = await client.get("https://tls.peet.ws/api/all")
-
-    # Print the response
     print(await resp.text())
 
 
