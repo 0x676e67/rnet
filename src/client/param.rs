@@ -61,12 +61,12 @@ pub enum Params {
 /// ```
 #[derive(FromPyObject)]
 pub enum ParamValue {
+    /// A boolean value from Python `bool`.
+    Boolean(bool),
     /// An integer value from Python `int`.
     Number(isize),
     /// A floating-point value from Python `float`.
     Float64(f64),
-    /// A boolean value from Python `bool`.
-    Boolean(bool),
     /// A string value from Python `str`.
     String(PyBackedStr),
 }
