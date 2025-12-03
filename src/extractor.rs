@@ -5,7 +5,6 @@ use pyo3::{
     pybacked::PyBackedStr,
     types::{PyDict, PyList},
 };
-use serde::ser::{Serialize, SerializeSeq, Serializer};
 use wreq::header::{self, HeaderName, HeaderValue};
 
 use crate::{
@@ -19,29 +18,6 @@ use crate::{
 
 /// A generic extractor for various types.
 pub struct Extractor<T>(pub T);
-
-/// Serialize implementation for [`Vec<(PyBackedStr, PyBackedStr)>`].
-impl Serialize for Extractor<Vec<(PyBackedStr, PyBackedStr)>> {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        let mut seq = serializer.serialize_seq(Some(self.0.len()))?;
-        for (key, value) in &self.0 {
-            seq.serialize_element::<(&str, &str)>(&(key.as_ref(), value.as_ref()))?;
-        }
-        seq.end()
-    }
-}
-
-/// Extractor for URL-encoded values as [`Vec<(PyBackedStr, PyBackedStr)>`].
-impl FromPyObject<'_, '_> for Extractor<Vec<(PyBackedStr, PyBackedStr)>> {
-    type Error = PyErr;
-
-    fn extract(ob: Borrowed<PyAny>) -> PyResult<Self> {
-        ob.extract().map(Self)
-    }
-}
 
 /// Extractor for HTTP Version as [`wreq::Version`].
 impl FromPyObject<'_, '_> for Extractor<wreq::Version> {
@@ -196,14 +172,5 @@ impl FromPyObject<'_, '_> for Extractor<wreq::multipart::Form> {
             .map(Self)
             .ok_or_else(|| Error::Memory)
             .map_err(Into::into)
-    }
-}
-
-/// Extractor for a single IP address as [`std::net::IpAddr`].
-impl FromPyObject<'_, '_> for Extractor<std::net::IpAddr> {
-    type Error = PyErr;
-
-    fn extract(ob: Borrowed<PyAny>) -> PyResult<Self> {
-        ob.extract().map(Self)
     }
 }
