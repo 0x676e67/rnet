@@ -55,8 +55,8 @@ def _plot_main_sessions(df, main_sessions, sizes, stat_types, filename):
         hspace=0.5, top=0.95, bottom=0.1, left=0.08, right=0.98
     )
     # Set explicit margins for all sides
-    plt.savefig(filename, format="png", bbox_inches="tight")
-    plt.show()
+    plt.savefig(filename, format="png", dpi=150, bbox_inches="tight")
+    plt.close(fig)
 
 
 def _plot_threaded_sessions(df, threaded_sessions, sizes, stat_types, filename):
@@ -132,8 +132,8 @@ def _plot_threaded_sessions(df, threaded_sessions, sizes, stat_types, filename):
         hspace=0.5, top=0.95, bottom=0.1, left=0.08, right=0.98
     )
     # Set explicit margins for all sides
-    plt.savefig(threaded_filename, format="png", bbox_inches="tight")
-    plt.show()
+    plt.savefig(threaded_filename, format="png", dpi=150, bbox_inches="tight")
+    plt.close(fig2)
 
 
 def plot_benchmark_multi(df, filename):
