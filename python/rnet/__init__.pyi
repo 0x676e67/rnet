@@ -913,12 +913,18 @@ class Request(TypedDict):
     The basic authentication to use for the request.
     """
 
-    query: NotRequired[Sequence[Tuple[str, str]] | Dict[str, str]]
+    query: NotRequired[
+        Sequence[Tuple[str, str | int | float | bool]]
+        | Dict[str, str | int | float | bool]
+    ]
     """
     The query parameters to use for the request.
     """
 
-    form: NotRequired[Sequence[Tuple[str, str]] | Dict[str, str]]
+    form: NotRequired[
+        Sequence[Tuple[str, str | int | float | bool]]
+        | Dict[str, str | int | float | bool]
+    ]
     """
     The form parameters to use for the request.
     """

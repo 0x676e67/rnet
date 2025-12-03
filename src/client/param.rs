@@ -1,0 +1,112 @@
+use indexmap::IndexMap;
+use pyo3::{FromPyObject, pybacked::PyBackedStr};
+use serde::{
+    Serialize, Serializer,
+    ser::{SerializeMap, SerializeSeq},
+};
+
+/// Represents HTTP parameters from Python as either a mapping or a sequence of key-value pairs.
+///
+/// This enum is used for both URL query parameters and form-encoded data. It supports extracting
+/// parameter data from Python objects such as:
+/// - Dictionaries (`dict`): `{"name": "value", "count": 42}`
+/// - Sequences of tuples (`list` or `tuple`): `[("name", "value"), ("count", 42)]`
+///
+/// The sequence form allows duplicate keys, which is useful for multi-value parameters:
+/// ```python
+/// params = [("tag", "rust"), ("tag", "python"), ("tag", "http")]
+/// # Results in: ?tag=rust&tag=python&tag=http
+/// ```
+///
+/// # Variants
+///
+/// - `Map`: A dictionary-like mapping of keys to values. Each key is unique.
+/// - `List`: A sequence of key-value pairs. Allows duplicate keys for multi-value parameters.
+#[derive(FromPyObject)]
+pub enum Params {
+    /// A mapping of unique keys to values, extracted from Python `dict` objects.
+    Map(IndexMap<PyBackedStr, ParamValue>),
+    /// A sequence of key-value pairs, extracted from Python sequences like `list` or `tuple`.
+    /// Preserves order and allows duplicate keys.
+    List(Vec<(PyBackedStr, ParamValue)>),
+}
+
+/// Represents a single parameter value that can be automatically converted from Python types.
+///
+/// This enum supports the most common Python types used in HTTP parameters:
+/// - Integers (`int`)
+/// - Floating-point numbers (`float`)
+/// - Booleans (`bool`)
+/// - Strings (`str`)
+///
+/// # Type Conversion
+///
+/// When serialized to HTTP parameters, values are converted as follows:
+/// - `Number(123)` → `"123"`
+/// - `Float64(3.14)` → `"3.14"`
+/// - `Boolean(true)` → `"true"` (lowercase)
+/// - `String("hello")` → `"hello"`
+///
+/// # Examples
+///
+/// ```python
+/// # All these values are automatically converted to ParamValue:
+/// params = {
+///     "page": 1,              # Number
+///     "limit": 10,            # Number
+///     "price": 19.99,         # Float64
+///     "active": True,         # Boolean
+///     "name": "product",      # String
+/// }
+/// ```
+#[derive(FromPyObject)]
+pub enum ParamValue {
+    /// A boolean value from Python `bool`.
+    Boolean(bool),
+    /// An integer value from Python `int`.
+    Number(isize),
+    /// A floating-point value from Python `float`.
+    Float64(f64),
+    /// A string value from Python `str`.
+    String(PyBackedStr),
+}
+
+impl Serialize for ParamValue {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        match self {
+            ParamValue::String(s) => serializer.serialize_str(s.as_ref()),
+            ParamValue::Number(n) => serializer.serialize_i64(*n as i64),
+            ParamValue::Float64(f) => serializer.serialize_f64(*f),
+            ParamValue::Boolean(b) => serializer.serialize_bool(*b),
+        }
+    }
+}
+
+impl Serialize for Params {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        match self {
+            Params::Map(map) => {
+                let mut map_serializer = serializer.serialize_map(Some(map.len()))?;
+                for (key, value) in map {
+                    map_serializer
+                        .serialize_entry(<PyBackedStr as AsRef<str>>::as_ref(key), value)?;
+                }
+                map_serializer.end()
+            }
+            Params::List(vec) => {
+                let mut seq_serializer = serializer.serialize_seq(Some(vec.len()))?;
+                for (key, value) in vec {
+                    seq_serializer
+                        .serialize_element(&(<PyBackedStr as AsRef<str>>::as_ref(key), value))?;
+                }
+                seq_serializer.end()
+            }
+        }
+    }
+}

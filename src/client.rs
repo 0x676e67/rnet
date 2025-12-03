@@ -1,7 +1,9 @@
 pub mod body;
-pub mod query;
 pub mod req;
 pub mod resp;
+
+mod param;
+mod query;
 
 use std::{fmt, net::IpAddr, sync::Arc, time::Duration};
 

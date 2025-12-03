@@ -8,7 +8,13 @@ async def main():
     # use a list of tuples
     resp = await client.post(
         "https://httpbin.io/anything",
-        form=[("key", "value")],
+        form=[
+            ("key1", "value1"),
+            ("key2", "value2"),
+            ("number", 123),
+            ("flag", True),
+            ("float", 45.67),
+        ],
     )
     print(await resp.text())
 
@@ -16,11 +22,11 @@ async def main():
     resp = await client.post(
         "https://httpbin.io/anything",
         form={
-            "key1": "value1",
-            "key2": "value2",
-            "key3": "value3",
-            "key4": "value4",
-            "key5": "value5",
+            "keyA": "valueA",
+            "keyB": "valueB",
+            "number": 789,
+            "flag": False,
+            "float": 12.34,
         },
     )
     print(await resp.text())

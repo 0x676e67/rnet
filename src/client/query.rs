@@ -1,2 +1,2 @@
-/// Internally uses the same representation as Form data.
-pub type Query = super::body::Form;
+/// Alias for query parameters.
+pub type Query = super::param::Params;
