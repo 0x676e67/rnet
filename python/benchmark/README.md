@@ -43,12 +43,14 @@ Sync clients
 - [python-tls-client](https://github.com/FlorianREGAZ/Python-Tls-Client.git)
 - httpx
 - rnet
+- ry
 
 Async clients
 ------
 
 - curl_cffi
 - httpx
+- niquests
 - aiohttp
 - rnet
 - ry
