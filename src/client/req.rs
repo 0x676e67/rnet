@@ -1,9 +1,10 @@
-use std::net::IpAddr;
+use std::{net::IpAddr, time::Duration};
 
 use pyo3::{PyResult, prelude::*, pybacked::PyBackedStr};
 use wreq::{
-    Proxy, Version,
-    header::{HeaderMap, HeaderValue, OrigHeaderMap},
+    Client, Proxy, Version,
+    header::{self, HeaderMap, HeaderValue, OrigHeaderMap},
+    redirect::Policy,
 };
 use wreq_util::EmulationOption;
 
@@ -11,8 +12,11 @@ use crate::{
     client::{
         body::{Body, Form, Json},
         query::Query,
+        resp::{Response, WebSocket},
     },
+    error::Error,
     extractor::Extractor,
+    http::Method,
 };
 
 /// The parameters for a request.
@@ -20,79 +24,79 @@ use crate::{
 #[non_exhaustive]
 pub struct Request {
     /// The Emulation settings for the request.
-    pub emulation: Option<Extractor<EmulationOption>>,
+    emulation: Option<Extractor<EmulationOption>>,
 
     /// The proxy to use for the request.
-    pub proxy: Option<Extractor<Proxy>>,
+    proxy: Option<Extractor<Proxy>>,
 
     /// Bind to a local IP Address.
-    pub local_address: Option<Extractor<IpAddr>>,
+    local_address: Option<Extractor<IpAddr>>,
 
     /// Bind to an interface by `SO_BINDTODEVICE`.
-    pub interface: Option<String>,
+    interface: Option<String>,
 
     /// The timeout to use for the request.
-    pub timeout: Option<u64>,
+    timeout: Option<u64>,
 
     /// The read timeout to use for the request.
-    pub read_timeout: Option<u64>,
+    read_timeout: Option<u64>,
 
     /// The HTTP version to use for the request.
-    pub version: Option<Extractor<Version>>,
+    version: Option<Extractor<Version>>,
 
     /// The headers to use for the request.
-    pub headers: Option<Extractor<HeaderMap>>,
+    headers: Option<Extractor<HeaderMap>>,
 
     /// The original headers to use for the request.
-    pub orig_headers: Option<Extractor<OrigHeaderMap>>,
+    orig_headers: Option<Extractor<OrigHeaderMap>>,
 
     /// The option enables default headers.
-    pub default_headers: Option<bool>,
+    default_headers: Option<bool>,
 
     /// The cookies to use for the request.
-    pub cookies: Option<Extractor<Vec<HeaderValue>>>,
+    cookies: Option<Extractor<Vec<HeaderValue>>>,
 
     /// Whether to allow redirects.
-    pub allow_redirects: Option<bool>,
+    allow_redirects: Option<bool>,
 
     /// The maximum number of redirects to follow.
-    pub max_redirects: Option<usize>,
+    max_redirects: Option<usize>,
 
     /// Sets gzip as an accepted encoding.
-    pub gzip: Option<bool>,
+    gzip: Option<bool>,
 
     /// Sets brotli as an accepted encoding.
-    pub brotli: Option<bool>,
+    brotli: Option<bool>,
 
     /// Sets deflate as an accepted encoding.
-    pub deflate: Option<bool>,
+    deflate: Option<bool>,
 
     /// Sets zstd as an accepted encoding.
-    pub zstd: Option<bool>,
+    zstd: Option<bool>,
 
     /// The authentication to use for the request.
-    pub auth: Option<PyBackedStr>,
+    auth: Option<PyBackedStr>,
 
     /// The bearer authentication to use for the request.
-    pub bearer_auth: Option<PyBackedStr>,
+    bearer_auth: Option<PyBackedStr>,
 
     /// The basic authentication to use for the request.
-    pub basic_auth: Option<(PyBackedStr, Option<PyBackedStr>)>,
+    basic_auth: Option<(PyBackedStr, Option<PyBackedStr>)>,
 
     /// The query parameters to use for the request.
-    pub query: Option<Query>,
+    query: Option<Query>,
 
     /// The form parameters to use for the request.
-    pub form: Option<Form>,
+    form: Option<Form>,
 
     /// The JSON body to use for the request.
-    pub json: Option<Json>,
+    json: Option<Json>,
 
     /// The body to use for the request.
-    pub body: Option<Body>,
+    body: Option<Body>,
 
     /// The multipart form to use for the request.
-    pub multipart: Option<Extractor<wreq::multipart::Form>>,
+    multipart: Option<Extractor<wreq::multipart::Form>>,
 }
 
 impl FromPyObject<'_, '_> for Request {
@@ -137,46 +141,46 @@ impl FromPyObject<'_, '_> for Request {
 #[non_exhaustive]
 pub struct WebSocketRequest {
     /// The Emulation settings for the request.
-    pub emulation: Option<Extractor<EmulationOption>>,
+    emulation: Option<Extractor<EmulationOption>>,
 
     /// The proxy to use for the request.
-    pub proxy: Option<Extractor<Proxy>>,
+    proxy: Option<Extractor<Proxy>>,
 
     /// Bind to a local IP Address.
-    pub local_address: Option<Extractor<IpAddr>>,
+    local_address: Option<Extractor<IpAddr>>,
 
     /// Bind to an interface by `SO_BINDTODEVICE`.
-    pub interface: Option<String>,
+    interface: Option<String>,
 
     /// The headers to use for the request.
-    pub headers: Option<Extractor<HeaderMap>>,
+    headers: Option<Extractor<HeaderMap>>,
 
     /// The original headers to use for the request.
-    pub orig_headers: Option<Extractor<OrigHeaderMap>>,
+    orig_headers: Option<Extractor<OrigHeaderMap>>,
 
     /// The option enables default headers.
-    pub default_headers: Option<bool>,
+    default_headers: Option<bool>,
 
     /// The cookies to use for the request.
-    pub cookies: Option<Extractor<Vec<HeaderValue>>>,
+    cookies: Option<Extractor<Vec<HeaderValue>>>,
 
     /// The protocols to use for the request.
-    pub protocols: Option<Vec<String>>,
+    protocols: Option<Vec<String>>,
 
     /// Whether to use HTTP/2 for the websocket.
-    pub force_http2: Option<bool>,
+    force_http2: Option<bool>,
 
     /// The authentication to use for the request.
-    pub auth: Option<PyBackedStr>,
+    auth: Option<PyBackedStr>,
 
     /// The bearer authentication to use for the request.
-    pub bearer_auth: Option<PyBackedStr>,
+    bearer_auth: Option<PyBackedStr>,
 
     /// The basic authentication to use for the request.
-    pub basic_auth: Option<(PyBackedStr, Option<PyBackedStr>)>,
+    basic_auth: Option<(PyBackedStr, Option<PyBackedStr>)>,
 
     /// The query parameters to use for the request.
-    pub query: Option<Extractor<Vec<(PyBackedStr, PyBackedStr)>>>,
+    query: Option<Extractor<Vec<(PyBackedStr, PyBackedStr)>>>,
 
     /// Read buffer capacity. This buffer is eagerly allocated and used for receiving
     /// messages.
@@ -188,7 +192,7 @@ pub struct WebSocketRequest {
     /// memory usage.
     ///
     /// The default value is 128 KiB.
-    pub read_buffer_size: Option<usize>,
+    read_buffer_size: Option<usize>,
 
     /// The target minimum size of the write buffer to reach before writing the data
     /// to the underlying stream.
@@ -198,7 +202,7 @@ pub struct WebSocketRequest {
     /// It is often more optimal to allow them to buffer a little, hence the default value.
     ///
     /// Note: [`flush`](WebSocket::flush) will always fully write the buffer regardless.
-    pub write_buffer_size: Option<usize>,
+    write_buffer_size: Option<usize>,
 
     /// The max size of the write buffer in bytes. Setting this can provide backpressure
     /// in the case the write buffer is filling up due to write errors.
@@ -210,25 +214,25 @@ pub struct WebSocketRequest {
     ///
     /// Note: Should always be at least [`write_buffer_size + 1 message`](Self::write_buffer_size)
     /// and probably a little more depending on error handling strategy.
-    pub max_write_buffer_size: Option<usize>,
+    max_write_buffer_size: Option<usize>,
 
     /// The maximum size of an incoming message. `None` means no size limit. The default value is
     /// 64 MiB which should be reasonably big for all normal use-cases but small enough to
     /// prevent memory eating by a malicious user.
-    pub max_message_size: Option<usize>,
+    max_message_size: Option<usize>,
 
     /// The maximum size of a single incoming message frame. `None` means no size limit. The limit
     /// is for frame payload NOT including the frame header. The default value is 16 MiB which
     /// should be reasonably big for all normal use-cases but small enough to prevent memory
     /// eating by a malicious user.
-    pub max_frame_size: Option<usize>,
+    max_frame_size: Option<usize>,
 
     /// When set to `true`, the server will accept and handle unmasked frames
     /// from the client. According to the RFC 6455, the server must close the
     /// connection to the client in such cases, however it seems like there are
     /// some popular libraries that are sending unmasked frames, ignoring the RFC.
     /// By default this option is set to `false`, i.e. according to RFC 6455.
-    pub accept_unmasked_frames: Option<bool>,
+    accept_unmasked_frames: Option<bool>,
 }
 
 impl FromPyObject<'_, '_> for WebSocketRequest {
@@ -260,4 +264,262 @@ impl FromPyObject<'_, '_> for WebSocketRequest {
         extract_option!(ob, params, accept_unmasked_frames);
         Ok(params)
     }
+}
+
+pub async fn execute_request<U>(
+    client: Client,
+    method: Method,
+    url: U,
+    mut params: Option<Request>,
+) -> PyResult<Response>
+where
+    U: AsRef<str>,
+{
+    let params = params.get_or_insert_default();
+    let mut builder = client.request(method.into_ffi(), url.as_ref());
+
+    // Emulation options.
+    apply_option!(set_if_some_inner, builder, params.emulation, emulation);
+
+    // Version options.
+    apply_option!(set_if_some_inner, builder, params.version, version);
+
+    // Timeout options.
+    apply_option!(
+        set_if_some_map,
+        builder,
+        params.timeout,
+        timeout,
+        Duration::from_secs
+    );
+    apply_option!(
+        set_if_some_map,
+        builder,
+        params.read_timeout,
+        read_timeout,
+        Duration::from_secs
+    );
+
+    // Network options.
+    apply_option!(set_if_some_inner, builder, params.proxy, proxy);
+    apply_option!(
+        set_if_some_inner,
+        builder,
+        params.local_address,
+        local_address
+    );
+    #[cfg(any(
+        target_os = "android",
+        target_os = "fuchsia",
+        target_os = "illumos",
+        target_os = "ios",
+        target_os = "linux",
+        target_os = "macos",
+        target_os = "solaris",
+        target_os = "tvos",
+        target_os = "visionos",
+        target_os = "watchos",
+    ))]
+    apply_option!(set_if_some, builder, params.interface, interface);
+
+    // Headers options.
+    apply_option!(set_if_some_inner, builder, params.headers, headers);
+    apply_option!(
+        set_if_some_inner,
+        builder,
+        params.orig_headers,
+        orig_headers
+    );
+    apply_option!(
+        set_if_some,
+        builder,
+        params.default_headers,
+        default_headers
+    );
+
+    // Authentication options.
+    apply_option!(
+        set_if_some_map_ref,
+        builder,
+        params.auth,
+        auth,
+        AsRef::<str>::as_ref
+    );
+    apply_option!(set_if_some, builder, params.bearer_auth, bearer_auth);
+    if let Some(basic_auth) = params.basic_auth.take() {
+        builder = builder.basic_auth(basic_auth.0, basic_auth.1);
+    }
+
+    // Cookies options.
+    if let Some(cookies) = params.cookies.take() {
+        for cookie in cookies.0 {
+            builder = builder.header_append(header::COOKIE, cookie);
+        }
+    }
+
+    // Allow redirects options.
+    match params.allow_redirects {
+        Some(false) => {
+            builder = builder.redirect(Policy::none());
+        }
+        Some(true) => {
+            builder = builder.redirect(
+                params
+                    .max_redirects
+                    .take()
+                    .map(Policy::limited)
+                    .unwrap_or_default(),
+            );
+        }
+        None => {}
+    };
+
+    // Compression options.
+    apply_option!(set_if_some, builder, params.gzip, gzip);
+    apply_option!(set_if_some, builder, params.brotli, brotli);
+    apply_option!(set_if_some, builder, params.deflate, deflate);
+    apply_option!(set_if_some, builder, params.zstd, zstd);
+
+    // Query options.
+    apply_option!(set_if_some_ref, builder, params.query, query);
+
+    // Form options.
+    apply_option!(set_if_some_ref, builder, params.form, form);
+
+    // JSON options.
+    apply_option!(set_if_some_ref, builder, params.json, json);
+
+    // Multipart options.
+    apply_option!(set_if_some_inner, builder, params.multipart, multipart);
+
+    // Body options.
+    if let Some(body) = params.body.take() {
+        builder = builder.body(wreq::Body::try_from(body)?);
+    }
+
+    // Send request.
+    builder
+        .send()
+        .await
+        .map(Response::new)
+        .map_err(Error::Library)
+        .map_err(Into::into)
+}
+
+pub async fn execute_websocket_request<U>(
+    client: Client,
+    url: U,
+    mut params: Option<WebSocketRequest>,
+) -> PyResult<WebSocket>
+where
+    U: AsRef<str>,
+{
+    let params = params.get_or_insert_default();
+    let mut builder = client.websocket(url.as_ref());
+
+    // The protocols to use for the request.
+    apply_option!(set_if_some, builder, params.protocols, protocols);
+
+    // The WebSocket config
+    apply_option!(
+        set_if_some,
+        builder,
+        params.read_buffer_size,
+        read_buffer_size
+    );
+    apply_option!(
+        set_if_some,
+        builder,
+        params.write_buffer_size,
+        write_buffer_size
+    );
+    apply_option!(
+        set_if_some,
+        builder,
+        params.max_write_buffer_size,
+        max_write_buffer_size
+    );
+    apply_option!(set_if_some, builder, params.max_frame_size, max_frame_size);
+    apply_option!(
+        set_if_some,
+        builder,
+        params.max_message_size,
+        max_message_size
+    );
+    apply_option!(
+        set_if_some,
+        builder,
+        params.accept_unmasked_frames,
+        accept_unmasked_frames
+    );
+
+    // Use http2 options.
+    apply_option!(set_if_true, builder, params.force_http2, force_http2, false);
+
+    // Network options.
+    apply_option!(set_if_some_inner, builder, params.proxy, proxy);
+    apply_option!(
+        set_if_some_inner,
+        builder,
+        params.local_address,
+        local_address
+    );
+    #[cfg(any(
+        target_os = "android",
+        target_os = "fuchsia",
+        target_os = "illumos",
+        target_os = "ios",
+        target_os = "linux",
+        target_os = "macos",
+        target_os = "solaris",
+        target_os = "tvos",
+        target_os = "visionos",
+        target_os = "watchos",
+    ))]
+    apply_option!(set_if_some, builder, params.interface, interface);
+
+    // Headers options.
+    apply_option!(set_if_some_inner, builder, params.headers, headers);
+    apply_option!(
+        set_if_some_inner,
+        builder,
+        params.orig_headers,
+        orig_headers
+    );
+    apply_option!(
+        set_if_some,
+        builder,
+        params.default_headers,
+        default_headers
+    );
+
+    // Authentication options.
+    apply_option!(
+        set_if_some_map_ref,
+        builder,
+        params.auth,
+        auth,
+        AsRef::<str>::as_ref
+    );
+    apply_option!(set_if_some, builder, params.bearer_auth, bearer_auth);
+    if let Some(basic_auth) = params.basic_auth.take() {
+        builder = builder.basic_auth(basic_auth.0, basic_auth.1);
+    }
+
+    // Cookies options.
+    if let Some(cookies) = params.cookies.take() {
+        for cookie in cookies.0 {
+            builder = builder.header_append(header::COOKIE, cookie);
+        }
+    }
+
+    // Query options.
+    apply_option!(set_if_some_ref, builder, params.query, query);
+
+    // Send the WebSocket request.
+    let response = builder.send().await.map_err(Error::Library)?;
+    WebSocket::new(response)
+        .await
+        .map_err(Error::Library)
+        .map_err(Into::into)
 }
