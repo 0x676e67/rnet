@@ -1,4 +1,5 @@
 pub mod body;
+mod param;
 pub mod query;
 pub mod req;
 pub mod resp;

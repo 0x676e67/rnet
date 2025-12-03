@@ -3,9 +3,29 @@ import rnet
 
 
 async def main():
+    # Send list of tuples as query parameters
     resp = await rnet.get(
         "https://httpbin.io/anything",
-        query=[("key", "value")],
+        query=[
+            ("key1", "value1"),
+            ("key2", "value2"),
+            ("number", 123),
+            ("flag", True),
+            ("float", 45.67),
+        ],
+    )
+    print(await resp.text())
+
+    # OR send dictionary as query parameters
+    resp = await rnet.get(
+        "https://httpbin.io/anything",
+        query={
+            "keyA": "valueA",
+            "keyB": "valueB",
+            "number": 789,
+            "flag": False,
+            "float": 12.34,
+        },
     )
     print(await resp.text())
 
