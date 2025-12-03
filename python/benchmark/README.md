@@ -43,12 +43,14 @@ Sync clients
 - [python-tls-client](https://github.com/FlorianREGAZ/Python-Tls-Client.git)
 - httpx
 - rnet
+- ry
 
 Async clients
 ------
 
 - curl_cffi
 - httpx
+- niquests
 - aiohttp
 - rnet
 - ry
@@ -69,5 +71,5 @@ pip install -r requirements.txt
 python server.py
 
 # Start benchmark
-python bench.py
+python benchmark.py
 ```
