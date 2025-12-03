@@ -19,7 +19,6 @@ use crate::{
     error::Error,
     header::HeaderMap,
     http::{StatusCode, Version},
-    rt::Runtime,
 };
 
 /// A response from a request.
@@ -221,7 +220,7 @@ impl Response {
             .cache_response()
             .and_then(ResponseExt::text)
             .map_err(Into::into);
-        Runtime::future_into_py(py, fut)
+        pyo3_async_runtimes::tokio::future_into_py(py, fut)
     }
 
     /// Get the full response text given a specific encoding.
@@ -236,7 +235,7 @@ impl Response {
             .cache_response()
             .and_then(|resp| ResponseExt::text_with_charset(resp, encoding))
             .map_err(Into::into);
-        Runtime::future_into_py(py, fut)
+        pyo3_async_runtimes::tokio::future_into_py(py, fut)
     }
 
     /// Get the JSON content of the response.
@@ -246,7 +245,7 @@ impl Response {
             .cache_response()
             .and_then(ResponseExt::json::<Json>)
             .map_err(Into::into);
-        Runtime::future_into_py(py, fut)
+        pyo3_async_runtimes::tokio::future_into_py(py, fut)
     }
 
     /// Get the bytes content of the response.
@@ -257,13 +256,13 @@ impl Response {
             .and_then(ResponseExt::bytes)
             .map_ok(PyBuffer::from)
             .map_err(Into::into);
-        Runtime::future_into_py(py, fut)
+        pyo3_async_runtimes::tokio::future_into_py(py, fut)
     }
 
     /// Close the response connection.
     pub fn close<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
         py.detach(|| self.body.clone().swap(None));
-        Runtime::future_into_py(py, future::ready(Ok(())))
+        pyo3_async_runtimes::tokio::future_into_py(py, future::ready(Ok(())))
     }
 }
 
@@ -272,7 +271,7 @@ impl Response {
     #[inline]
     fn __aenter__<'py>(slf: PyRef<'py, Self>, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
         let slf = slf.into_py_any(py)?;
-        Runtime::future_into_py(py, future::ready(Ok(slf)))
+        pyo3_async_runtimes::tokio::future_into_py(py, future::ready(Ok(slf)))
     }
 
     #[inline]
@@ -372,7 +371,7 @@ impl BlockingResponse {
                 .cache_response()
                 .and_then(ResponseExt::text)
                 .map_err(Into::into);
-            Runtime::block_on(fut)
+            pyo3_async_runtimes::tokio::get_runtime().block_on(fut)
         })
     }
 
@@ -386,7 +385,7 @@ impl BlockingResponse {
                 .cache_response()
                 .and_then(|resp| ResponseExt::text_with_charset(resp, encoding))
                 .map_err(Into::into);
-            Runtime::block_on(fut)
+            pyo3_async_runtimes::tokio::get_runtime().block_on(fut)
         })
     }
 
@@ -399,7 +398,7 @@ impl BlockingResponse {
                 .cache_response()
                 .and_then(ResponseExt::json::<Json>)
                 .map_err(Into::into);
-            Runtime::block_on(fut)
+            pyo3_async_runtimes::tokio::get_runtime().block_on(fut)
         })
     }
 
@@ -413,7 +412,7 @@ impl BlockingResponse {
                 .and_then(ResponseExt::bytes)
                 .map_ok(PyBuffer::from)
                 .map_err(Into::into);
-            Runtime::block_on(fut)
+            pyo3_async_runtimes::tokio::get_runtime().block_on(fut)
         })
     }
 

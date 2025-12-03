@@ -25,7 +25,6 @@ use crate::{
     http::Method,
     http1::Http1Options,
     http2::Http2Options,
-    rt::Runtime,
     tls::{Identity, KeyLog, TlsOptions, TlsVerify, TlsVersion},
 };
 
@@ -581,7 +580,10 @@ impl Client {
         url: PyBackedStr,
         kwds: Option<Request>,
     ) -> PyResult<Bound<'py, PyAny>> {
-        Runtime::future_into_py(py, execute_request(self.clone().0, method, url, kwds))
+        pyo3_async_runtimes::tokio::future_into_py(
+            py,
+            execute_request(self.clone().0, method, url, kwds),
+        )
     }
 
     /// Make a WebSocket request to the given URL.
@@ -593,7 +595,10 @@ impl Client {
         url: PyBackedStr,
         kwds: Option<WebSocketRequest>,
     ) -> PyResult<Bound<'py, PyAny>> {
-        Runtime::future_into_py(py, execute_websocket_request(self.clone().0, url, kwds))
+        pyo3_async_runtimes::tokio::future_into_py(
+            py,
+            execute_websocket_request(self.clone().0, url, kwds),
+        )
     }
 }
 
@@ -717,7 +722,9 @@ impl BlockingClient {
         kwds: Option<Request>,
     ) -> PyResult<BlockingResponse> {
         py.detach(|| {
-            Runtime::block_on(execute_request(self.0.clone().0, method, url, kwds)).map(Into::into)
+            pyo3_async_runtimes::tokio::get_runtime()
+                .block_on(execute_request(self.0.clone().0, method, url, kwds))
+                .map(Into::into)
         })
     }
 
@@ -730,7 +737,8 @@ impl BlockingClient {
         kwds: Option<WebSocketRequest>,
     ) -> PyResult<BlockingWebSocket> {
         py.detach(|| {
-            Runtime::block_on(execute_websocket_request(self.0.clone().0, url, kwds))
+            pyo3_async_runtimes::tokio::get_runtime()
+                .block_on(execute_websocket_request(self.0.clone().0, url, kwds))
                 .map(Into::into)
         })
     }
