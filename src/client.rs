@@ -9,15 +9,17 @@ use pyo3::{IntoPyObjectExt, prelude::*, pybacked::PyBackedStr};
 use req::{Request, WebSocketRequest};
 use wreq::{
     Proxy,
-    header::{self, HeaderMap, OrigHeaderMap},
+    header::{HeaderMap, OrigHeaderMap},
     redirect::Policy,
     tls::CertStore,
 };
 use wreq_util::EmulationOption;
 
-use self::resp::{BlockingResponse, BlockingWebSocket};
+use self::{
+    req::{execute_request, execute_websocket_request},
+    resp::{BlockingResponse, BlockingWebSocket},
+};
 use crate::{
-    client::resp::{Response, WebSocket},
     cookie::Jar,
     dns::{HickoryDnsResolver, LookupIpStrategy, ResolverOptions},
     error::Error,
@@ -225,7 +227,7 @@ impl FromPyObject<'_, '_> for Builder {
 }
 
 /// A client for making HTTP requests.
-#[derive(Clone)]
+#[derive(Clone, Default)]
 #[pyclass(subclass, frozen)]
 pub struct Client(wreq::Client);
 
@@ -742,270 +744,4 @@ impl BlockingClient {
                 .map(Into::into)
         })
     }
-}
-
-pub async fn execute_request<C, U>(
-    client: C,
-    method: Method,
-    url: U,
-    mut params: Option<Request>,
-) -> PyResult<Response>
-where
-    C: Into<Option<wreq::Client>>,
-    U: AsRef<str>,
-{
-    let params = params.get_or_insert_default();
-    let mut builder = match client.into() {
-        Some(client) => client.request(method.into_ffi(), url.as_ref()),
-        None => wreq::request(method.into_ffi(), url.as_ref()),
-    };
-
-    // Emulation options.
-    apply_option!(set_if_some_inner, builder, params.emulation, emulation);
-
-    // Version options.
-    apply_option!(set_if_some_inner, builder, params.version, version);
-
-    // Timeout options.
-    apply_option!(
-        set_if_some_map,
-        builder,
-        params.timeout,
-        timeout,
-        Duration::from_secs
-    );
-    apply_option!(
-        set_if_some_map,
-        builder,
-        params.read_timeout,
-        read_timeout,
-        Duration::from_secs
-    );
-
-    // Network options.
-    apply_option!(set_if_some_inner, builder, params.proxy, proxy);
-    apply_option!(
-        set_if_some_inner,
-        builder,
-        params.local_address,
-        local_address
-    );
-    #[cfg(any(
-        target_os = "android",
-        target_os = "fuchsia",
-        target_os = "illumos",
-        target_os = "ios",
-        target_os = "linux",
-        target_os = "macos",
-        target_os = "solaris",
-        target_os = "tvos",
-        target_os = "visionos",
-        target_os = "watchos",
-    ))]
-    apply_option!(set_if_some, builder, params.interface, interface);
-
-    // Headers options.
-    apply_option!(set_if_some_inner, builder, params.headers, headers);
-    apply_option!(
-        set_if_some_inner,
-        builder,
-        params.orig_headers,
-        orig_headers
-    );
-    apply_option!(
-        set_if_some,
-        builder,
-        params.default_headers,
-        default_headers
-    );
-
-    // Authentication options.
-    apply_option!(
-        set_if_some_map_ref,
-        builder,
-        params.auth,
-        auth,
-        AsRef::<str>::as_ref
-    );
-    apply_option!(set_if_some, builder, params.bearer_auth, bearer_auth);
-    if let Some(basic_auth) = params.basic_auth.take() {
-        builder = builder.basic_auth(basic_auth.0, basic_auth.1);
-    }
-
-    // Cookies options.
-    if let Some(cookies) = params.cookies.take() {
-        for cookie in cookies.0 {
-            builder = builder.header_append(header::COOKIE, cookie);
-        }
-    }
-
-    // Allow redirects options.
-    match params.allow_redirects {
-        Some(false) => {
-            builder = builder.redirect(Policy::none());
-        }
-        Some(true) => {
-            builder = builder.redirect(
-                params
-                    .max_redirects
-                    .take()
-                    .map(Policy::limited)
-                    .unwrap_or_default(),
-            );
-        }
-        None => {}
-    };
-
-    // Compression options.
-    apply_option!(set_if_some, builder, params.gzip, gzip);
-    apply_option!(set_if_some, builder, params.brotli, brotli);
-    apply_option!(set_if_some, builder, params.deflate, deflate);
-    apply_option!(set_if_some, builder, params.zstd, zstd);
-
-    // Query options.
-    apply_option!(set_if_some_ref, builder, params.query, query);
-
-    // Form options.
-    apply_option!(set_if_some_ref, builder, params.form, form);
-
-    // JSON options.
-    apply_option!(set_if_some_ref, builder, params.json, json);
-
-    // Multipart options.
-    apply_option!(set_if_some_inner, builder, params.multipart, multipart);
-
-    // Body options.
-    if let Some(body) = params.body.take() {
-        builder = builder.body(wreq::Body::try_from(body)?);
-    }
-
-    // Send request.
-    builder
-        .send()
-        .await
-        .map(Response::new)
-        .map_err(Error::Library)
-        .map_err(Into::into)
-}
-
-pub async fn execute_websocket_request<C, U>(
-    client: C,
-    url: U,
-    mut params: Option<WebSocketRequest>,
-) -> PyResult<WebSocket>
-where
-    C: Into<Option<wreq::Client>>,
-    U: AsRef<str>,
-{
-    let params = params.get_or_insert_default();
-    let mut builder = match client.into() {
-        Some(client) => client.websocket(url.as_ref()),
-        None => wreq::websocket(url.as_ref()),
-    };
-
-    // The protocols to use for the request.
-    apply_option!(set_if_some, builder, params.protocols, protocols);
-
-    // The WebSocket config
-    apply_option!(
-        set_if_some,
-        builder,
-        params.read_buffer_size,
-        read_buffer_size
-    );
-    apply_option!(
-        set_if_some,
-        builder,
-        params.write_buffer_size,
-        write_buffer_size
-    );
-    apply_option!(
-        set_if_some,
-        builder,
-        params.max_write_buffer_size,
-        max_write_buffer_size
-    );
-    apply_option!(set_if_some, builder, params.max_frame_size, max_frame_size);
-    apply_option!(
-        set_if_some,
-        builder,
-        params.max_message_size,
-        max_message_size
-    );
-    apply_option!(
-        set_if_some,
-        builder,
-        params.accept_unmasked_frames,
-        accept_unmasked_frames
-    );
-
-    // Use http2 options.
-    apply_option!(set_if_true, builder, params.force_http2, force_http2, false);
-
-    // Network options.
-    apply_option!(set_if_some_inner, builder, params.proxy, proxy);
-    apply_option!(
-        set_if_some_inner,
-        builder,
-        params.local_address,
-        local_address
-    );
-    #[cfg(any(
-        target_os = "android",
-        target_os = "fuchsia",
-        target_os = "illumos",
-        target_os = "ios",
-        target_os = "linux",
-        target_os = "macos",
-        target_os = "solaris",
-        target_os = "tvos",
-        target_os = "visionos",
-        target_os = "watchos",
-    ))]
-    apply_option!(set_if_some, builder, params.interface, interface);
-
-    // Headers options.
-    apply_option!(set_if_some_inner, builder, params.headers, headers);
-    apply_option!(
-        set_if_some_inner,
-        builder,
-        params.orig_headers,
-        orig_headers
-    );
-    apply_option!(
-        set_if_some,
-        builder,
-        params.default_headers,
-        default_headers
-    );
-
-    // Authentication options.
-    apply_option!(
-        set_if_some_map_ref,
-        builder,
-        params.auth,
-        auth,
-        AsRef::<str>::as_ref
-    );
-    apply_option!(set_if_some, builder, params.bearer_auth, bearer_auth);
-    if let Some(basic_auth) = params.basic_auth.take() {
-        builder = builder.basic_auth(basic_auth.0, basic_auth.1);
-    }
-
-    // Cookies options.
-    if let Some(cookies) = params.cookies.take() {
-        for cookie in cookies.0 {
-            builder = builder.header_append(header::COOKIE, cookie);
-        }
-    }
-
-    // Query options.
-    apply_option!(set_if_some_ref, builder, params.query, query);
-
-    // Send the WebSocket request.
-    let response = builder.send().await.map_err(Error::Library)?;
-    WebSocket::new(response)
-        .await
-        .map_err(Error::Library)
-        .map_err(Into::into)
 }
