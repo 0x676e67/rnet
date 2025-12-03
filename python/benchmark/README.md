@@ -69,5 +69,5 @@ pip install -r requirements.txt
 python server.py
 
 # Start benchmark
-python bench.py
+python benchmark.py
 ```
