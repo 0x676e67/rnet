@@ -22,7 +22,6 @@ mod http;
 mod http1;
 mod http2;
 mod proxy;
-mod rt;
 mod tls;
 
 use pyo3::{intern, prelude::*, pybacked::PyBackedStr, types::PyDict, wrap_pymodule};
@@ -55,7 +54,6 @@ use self::{
         Identity, KeyLog, TlsOptions, TlsVersion,
     },
 };
-use crate::rt::Runtime;
 
 #[cfg(all(feature = "jemalloc", not(feature = "mimalloc"),))]
 #[global_allocator]
@@ -69,21 +67,21 @@ static GLOBAL: mimalloc::MiMalloc = mimalloc::MiMalloc;
 #[pyfunction]
 #[pyo3(signature = (url, **kwds))]
 pub fn get(py: Python<'_>, url: PyBackedStr, kwds: Option<Request>) -> PyResult<Bound<'_, PyAny>> {
-    Runtime::future_into_py(py, execute_request(None, Method::GET, url, kwds))
+    pyo3_async_runtimes::tokio::future_into_py(py, execute_request(None, Method::GET, url, kwds))
 }
 
 /// Make a POST request with the given parameters.
 #[pyfunction]
 #[pyo3(signature = (url, **kwds))]
 pub fn post(py: Python<'_>, url: PyBackedStr, kwds: Option<Request>) -> PyResult<Bound<'_, PyAny>> {
-    Runtime::future_into_py(py, execute_request(None, Method::POST, url, kwds))
+    pyo3_async_runtimes::tokio::future_into_py(py, execute_request(None, Method::POST, url, kwds))
 }
 
 /// Make a PUT request with the given parameters.
 #[pyfunction]
 #[pyo3(signature = (url, **kwds))]
 pub fn put(py: Python<'_>, url: PyBackedStr, kwds: Option<Request>) -> PyResult<Bound<'_, PyAny>> {
-    Runtime::future_into_py(py, execute_request(None, Method::PUT, url, kwds))
+    pyo3_async_runtimes::tokio::future_into_py(py, execute_request(None, Method::PUT, url, kwds))
 }
 
 /// Make a PATCH request with the given parameters.
@@ -94,7 +92,7 @@ pub fn patch(
     url: PyBackedStr,
     kwds: Option<Request>,
 ) -> PyResult<Bound<'_, PyAny>> {
-    Runtime::future_into_py(py, execute_request(None, Method::PATCH, url, kwds))
+    pyo3_async_runtimes::tokio::future_into_py(py, execute_request(None, Method::PATCH, url, kwds))
 }
 
 /// Make a DELETE request with the given parameters.
@@ -105,14 +103,14 @@ pub fn delete(
     url: PyBackedStr,
     kwds: Option<Request>,
 ) -> PyResult<Bound<'_, PyAny>> {
-    Runtime::future_into_py(py, execute_request(None, Method::DELETE, url, kwds))
+    pyo3_async_runtimes::tokio::future_into_py(py, execute_request(None, Method::DELETE, url, kwds))
 }
 
 /// Make a HEAD request with the given parameters.
 #[pyfunction]
 #[pyo3(signature = (url, **kwds))]
 pub fn head(py: Python<'_>, url: PyBackedStr, kwds: Option<Request>) -> PyResult<Bound<'_, PyAny>> {
-    Runtime::future_into_py(py, execute_request(None, Method::HEAD, url, kwds))
+    pyo3_async_runtimes::tokio::future_into_py(py, execute_request(None, Method::HEAD, url, kwds))
 }
 
 /// Make a OPTIONS request with the given parameters.
@@ -123,7 +121,10 @@ pub fn options(
     url: PyBackedStr,
     kwds: Option<Request>,
 ) -> PyResult<Bound<'_, PyAny>> {
-    Runtime::future_into_py(py, execute_request(None, Method::OPTIONS, url, kwds))
+    pyo3_async_runtimes::tokio::future_into_py(
+        py,
+        execute_request(None, Method::OPTIONS, url, kwds),
+    )
 }
 
 /// Make a TRACE request with the given parameters.
@@ -134,7 +135,7 @@ pub fn trace(
     url: PyBackedStr,
     kwds: Option<Request>,
 ) -> PyResult<Bound<'_, PyAny>> {
-    Runtime::future_into_py(py, execute_request(None, Method::TRACE, url, kwds))
+    pyo3_async_runtimes::tokio::future_into_py(py, execute_request(None, Method::TRACE, url, kwds))
 }
 
 /// Make a request with the given parameters.
@@ -146,7 +147,7 @@ pub fn request(
     url: PyBackedStr,
     kwds: Option<Request>,
 ) -> PyResult<Bound<'_, PyAny>> {
-    Runtime::future_into_py(py, execute_request(None, method, url, kwds))
+    pyo3_async_runtimes::tokio::future_into_py(py, execute_request(None, method, url, kwds))
 }
 
 /// Make a WebSocket connection with the given parameters.
@@ -157,7 +158,7 @@ pub fn websocket(
     url: PyBackedStr,
     kwds: Option<WebSocketRequest>,
 ) -> PyResult<Bound<'_, PyAny>> {
-    Runtime::future_into_py(py, execute_websocket_request(None, url, kwds))
+    pyo3_async_runtimes::tokio::future_into_py(py, execute_websocket_request(None, url, kwds))
 }
 
 #[pymodule(gil_used = false)]

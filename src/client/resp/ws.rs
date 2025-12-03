@@ -17,7 +17,6 @@ use crate::{
     error::Error,
     header::HeaderMap,
     http::{StatusCode, Version},
-    rt::Runtime,
 };
 
 /// A WebSocket response.
@@ -106,14 +105,14 @@ impl WebSocket {
         timeout: Option<Duration>,
     ) -> PyResult<Bound<'py, PyAny>> {
         let tx = self.cmd.clone();
-        Runtime::future_into_py(py, cmd::recv(tx, timeout))
+        pyo3_async_runtimes::tokio::future_into_py(py, cmd::recv(tx, timeout))
     }
 
     /// Send a message to the WebSocket.
     #[pyo3(signature = (message))]
     pub fn send<'py>(&self, py: Python<'py>, message: Message) -> PyResult<Bound<'py, PyAny>> {
         let tx = self.cmd.clone();
-        Runtime::future_into_py(py, cmd::send(tx, message))
+        pyo3_async_runtimes::tokio::future_into_py(py, cmd::send(tx, message))
     }
 
     /// Send multiple messages to the WebSocket.
@@ -124,7 +123,7 @@ impl WebSocket {
         messages: Vec<Message>,
     ) -> PyResult<Bound<'py, PyAny>> {
         let tx = self.cmd.clone();
-        Runtime::future_into_py(py, cmd::send_all(tx, messages))
+        pyo3_async_runtimes::tokio::future_into_py(py, cmd::send_all(tx, messages))
     }
 
     /// Close the WebSocket connection.
@@ -136,7 +135,7 @@ impl WebSocket {
         reason: Option<PyBackedStr>,
     ) -> PyResult<Bound<'py, PyAny>> {
         let tx = self.cmd.clone();
-        Runtime::future_into_py(py, cmd::close(tx, code, reason))
+        pyo3_async_runtimes::tokio::future_into_py(py, cmd::close(tx, code, reason))
     }
 }
 
@@ -145,7 +144,7 @@ impl WebSocket {
     #[inline]
     fn __aenter__<'py>(slf: PyRef<'py, Self>, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
         let slf = slf.into_py_any(py)?;
-        Runtime::future_into_py(py, future::ready(Ok(slf)))
+        pyo3_async_runtimes::tokio::future_into_py(py, future::ready(Ok(slf)))
     }
 
     #[inline]
@@ -209,19 +208,28 @@ impl BlockingWebSocket {
     /// Receive a message from the WebSocket.
     #[pyo3(signature = (timeout=None))]
     pub fn recv(&self, py: Python, timeout: Option<Duration>) -> PyResult<Option<Message>> {
-        py.detach(|| Runtime::block_on(cmd::recv(self.0.cmd.clone(), timeout)))
+        py.detach(|| {
+            pyo3_async_runtimes::tokio::get_runtime()
+                .block_on(cmd::recv(self.0.cmd.clone(), timeout))
+        })
     }
 
     /// Send a message to the WebSocket.
     #[pyo3(signature = (message))]
     pub fn send(&self, py: Python, message: Message) -> PyResult<()> {
-        py.detach(|| Runtime::block_on(cmd::send(self.0.cmd.clone(), message)))
+        py.detach(|| {
+            pyo3_async_runtimes::tokio::get_runtime()
+                .block_on(cmd::send(self.0.cmd.clone(), message))
+        })
     }
 
     /// Send multiple messages to the WebSocket.
     #[pyo3(signature = (messages))]
     pub fn send_all(&self, py: Python, messages: Vec<Message>) -> PyResult<()> {
-        py.detach(|| Runtime::block_on(cmd::send_all(self.0.cmd.clone(), messages)))
+        py.detach(|| {
+            pyo3_async_runtimes::tokio::get_runtime()
+                .block_on(cmd::send_all(self.0.cmd.clone(), messages))
+        })
     }
 
     /// Close the WebSocket connection.
@@ -232,7 +240,13 @@ impl BlockingWebSocket {
         code: Option<u16>,
         reason: Option<PyBackedStr>,
     ) -> PyResult<()> {
-        py.detach(|| Runtime::block_on(cmd::close(self.0.cmd.clone(), code, reason)))
+        py.detach(|| {
+            pyo3_async_runtimes::tokio::get_runtime().block_on(cmd::close(
+                self.0.cmd.clone(),
+                code,
+                reason,
+            ))
+        })
     }
 }
 

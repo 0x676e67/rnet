@@ -8,7 +8,7 @@ use pyo3::{
 };
 use wreq::{Body, header::HeaderMap, multipart, multipart::Form};
 
-use crate::{client::body::PyStream, error::Error, extractor::Extractor, rt::Runtime};
+use crate::{client::body::PyStream, error::Error, extractor::Extractor};
 
 /// A multipart form for a request.
 #[pyclass(subclass)]
@@ -79,9 +79,9 @@ impl Part {
                 Value::Bytes(bytes) => {
                     multipart::Part::stream(Body::from(Bytes::from_owner(bytes)))
                 }
-                Value::File(path) => {
-                    Runtime::block_on(multipart::Part::file(path)).map_err(Error::from)?
-                }
+                Value::File(path) => pyo3_async_runtimes::tokio::get_runtime()
+                    .block_on(multipart::Part::file(path))
+                    .map_err(Error::from)?,
                 Value::Stream(stream) => {
                     let stream = Body::wrap_stream(stream);
                     match length {

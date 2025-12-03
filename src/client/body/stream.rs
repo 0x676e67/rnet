@@ -16,7 +16,7 @@ use pyo3::{
 };
 use tokio::sync::Mutex;
 
-use crate::{buffer::PyBuffer, error::Error, rt::Runtime};
+use crate::{buffer::PyBuffer, error::Error};
 
 type BoxedStream<T> = Pin<Box<dyn Stream<Item = T> + Send + 'static>>;
 
@@ -72,12 +72,18 @@ impl Streamer {
 
     #[inline]
     fn __next__(&mut self, py: Python) -> PyResult<PyBuffer> {
-        py.detach(|| Runtime::block_on(anext(self.0.clone(), || Error::StopIteration)))
+        py.detach(|| {
+            pyo3_async_runtimes::tokio::get_runtime()
+                .block_on(anext(self.0.clone(), || Error::StopIteration))
+        })
     }
 
     #[inline]
     fn __anext__<'py>(&mut self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
-        Runtime::future_into_py(py, anext(self.0.clone(), || Error::StopAsyncIteration))
+        pyo3_async_runtimes::tokio::future_into_py(
+            py,
+            anext(self.0.clone(), || Error::StopAsyncIteration),
+        )
     }
 
     #[inline]
@@ -88,7 +94,7 @@ impl Streamer {
     #[inline]
     fn __aenter__<'py>(slf: PyRef<'py, Self>, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
         let slf = slf.into_py_any(py)?;
-        Runtime::future_into_py(py, future::ready(Ok(slf)))
+        pyo3_async_runtimes::tokio::future_into_py(py, future::ready(Ok(slf)))
     }
 
     #[inline]
@@ -111,7 +117,7 @@ impl Streamer {
         _traceback: &Bound<'py, PyAny>,
     ) -> PyResult<Bound<'py, PyAny>> {
         let this = self.0.clone();
-        Runtime::future_into_py(py, async move {
+        pyo3_async_runtimes::tokio::future_into_py(py, async move {
             this.lock()
                 .await
                 .take()
@@ -131,7 +137,7 @@ impl FromPyObject<'_, '_> for PyStream {
     /// Accepts sync or async iterators.
     fn extract(ob: Borrowed<PyAny>) -> PyResult<Self> {
         if ob.hasattr(intern!(ob.py(), "asend"))? {
-            crate::rt::Runtime::into_stream(ob)
+            pyo3_async_runtimes::tokio::into_stream_v2(ob.to_owned())
                 .map(Box::pin)
                 .map(|stream| PyStream::Async(stream))
         } else {
