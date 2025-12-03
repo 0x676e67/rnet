@@ -30,7 +30,7 @@ pub struct Request {
     proxy: Option<Extractor<Proxy>>,
 
     /// Bind to a local IP Address.
-    local_address: Option<Extractor<IpAddr>>,
+    local_address: Option<IpAddr>,
 
     /// Bind to an interface by `SO_BINDTODEVICE`.
     interface: Option<String>,
@@ -108,6 +108,7 @@ impl FromPyObject<'_, '_> for Request {
         extract_option!(ob, params, proxy);
         extract_option!(ob, params, local_address);
         extract_option!(ob, params, interface);
+
         extract_option!(ob, params, timeout);
         extract_option!(ob, params, read_timeout);
 
@@ -147,7 +148,7 @@ pub struct WebSocketRequest {
     proxy: Option<Extractor<Proxy>>,
 
     /// Bind to a local IP Address.
-    local_address: Option<Extractor<IpAddr>>,
+    local_address: Option<IpAddr>,
 
     /// Bind to an interface by `SO_BINDTODEVICE`.
     interface: Option<String>,
@@ -180,7 +181,7 @@ pub struct WebSocketRequest {
     basic_auth: Option<(PyBackedStr, Option<PyBackedStr>)>,
 
     /// The query parameters to use for the request.
-    query: Option<Extractor<Vec<(PyBackedStr, PyBackedStr)>>>,
+    query: Option<Query>,
 
     /// Read buffer capacity. This buffer is eagerly allocated and used for receiving
     /// messages.
@@ -302,12 +303,7 @@ where
 
     // Network options.
     apply_option!(set_if_some_inner, builder, params.proxy, proxy);
-    apply_option!(
-        set_if_some_inner,
-        builder,
-        params.local_address,
-        local_address
-    );
+    apply_option!(set_if_some, builder, params.local_address, local_address);
     #[cfg(any(
         target_os = "android",
         target_os = "fuchsia",
@@ -458,12 +454,7 @@ where
 
     // Network options.
     apply_option!(set_if_some_inner, builder, params.proxy, proxy);
-    apply_option!(
-        set_if_some_inner,
-        builder,
-        params.local_address,
-        local_address
-    );
+    apply_option!(set_if_some, builder, params.local_address, local_address);
     #[cfg(any(
         target_os = "android",
         target_os = "fuchsia",

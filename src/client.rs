@@ -148,7 +148,7 @@ struct Builder {
     /// The proxy to use for the client.
     proxies: Option<Extractor<Vec<Proxy>>>,
     /// Bind to a local IP Address.
-    local_address: Option<Extractor<IpAddr>>,
+    local_address: Option<IpAddr>,
     /// Bind to an interface by `SO_BINDTODEVICE`.
     interface: Option<String>,
 
@@ -432,12 +432,7 @@ impl Client {
                 }
             }
             apply_option!(set_if_true, builder, params.no_proxy, no_proxy, false);
-            apply_option!(
-                set_if_some_inner,
-                builder,
-                params.local_address,
-                local_address
-            );
+            apply_option!(set_if_some, builder, params.local_address, local_address);
             #[cfg(any(
                 target_os = "android",
                 target_os = "fuchsia",
