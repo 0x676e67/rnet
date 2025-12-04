@@ -15,6 +15,7 @@ from typing import (
 )
 from pathlib import Path
 from enum import Enum, auto
+from . import redirect
 
 from .dns import ResolverOptions
 from .http1 import Http1Options
@@ -515,7 +516,6 @@ class Response:
     async def __aexit__(
         self, _exc_type: Any, _exc_value: Any, _traceback: Any
     ) -> Any: ...
-    
     def __str__(self) -> str: ...
 
 class WebSocket:
@@ -612,14 +612,9 @@ class ClientParams(TypedDict):
     Store redirect history.
     """
 
-    allow_redirects: NotRequired[bool]
+    redirect: NotRequired[redirect.Policy]
     """
-    Allow automatic redirects.
-    """
-
-    max_redirects: NotRequired[int]
-    """
-    Maximum number of redirects.
+    Redirect policy.
     """
 
     cookie_store: NotRequired[bool]
@@ -881,14 +876,9 @@ class Request(TypedDict):
     The cookies to use for the request.
     """
 
-    allow_redirects: NotRequired[bool]
+    redirect: NotRequired[redirect.Policy]
     """
-    Whether to allow redirects.
-    """
-
-    max_redirects: NotRequired[int]
-    """
-    The maximum number of redirects to follow.
+    The redirect policy.
     """
 
     gzip: NotRequired[bool]
