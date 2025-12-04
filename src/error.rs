@@ -19,7 +19,6 @@ Potential solutions:
 "#;
 
 // System-level and runtime errors
-create_exception!(exceptions, DNSResolverError, PyRuntimeError);
 create_exception!(exceptions, RustPanic, PyException);
 
 // Network connection errors

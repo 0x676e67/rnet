@@ -309,10 +309,6 @@ fn blocking_module(m: &Bound<'_, PyModule>) -> PyResult<()> {
 
 #[pymodule(gil_used = false, name = "exceptions")]
 fn exceptions_module(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
-    m.add(
-        intern!(py, "DNSResolverError"),
-        py.get_type::<DNSResolverError>(),
-    )?;
     m.add(intern!(py, "TlsError"), py.get_type::<TlsError>())?;
     m.add(intern!(py, "BodyError"), py.get_type::<BodyError>())?;
     m.add(intern!(py, "BuilderError"), py.get_type::<BuilderError>())?;
