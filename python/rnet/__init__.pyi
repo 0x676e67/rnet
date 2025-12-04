@@ -776,9 +776,14 @@ class ClientParams(TypedDict):
     Proxy server list.
     """
 
-    local_address: NotRequired[str | IPv4Address | IPv6Address]
+    local_address: NotRequired[IPv4Address | IPv6Address]
     """
     Local bind address.
+    """
+
+    local_addresses: NotRequired[Tuple[Optional[IPv4Address], Optional[IPv6Address]]]
+    """
+    Bind to dual-stack local IP Addresses.
     """
 
     interface: NotRequired[str]
@@ -826,6 +831,11 @@ class Request(TypedDict):
     local_address: NotRequired[IPv4Address | IPv6Address]
     """
     Bind to a local IP Address.
+    """
+
+    local_addresses: NotRequired[Tuple[Optional[IPv4Address], Optional[IPv6Address]]]
+    """
+    Bind to dual-stack local IP Addresses.
     """
 
     interface: NotRequired[str]
@@ -963,9 +973,14 @@ class WebSocketRequest(TypedDict):
     The proxy to use for the request.
     """
 
-    local_address: NotRequired[str | IPv4Address | IPv6Address]
+    local_address: NotRequired[IPv4Address | IPv6Address]
     """
     Bind to a local IP Address.
+    """
+
+    local_addresses: NotRequired[Tuple[Optional[IPv4Address], Optional[IPv6Address]]]
+    """
+    Bind to dual-stack local IP Addresses.
     """
 
     interface: NotRequired[str]

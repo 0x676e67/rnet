@@ -1,4 +1,7 @@
-use std::{net::IpAddr, time::Duration};
+use std::{
+    net::{IpAddr, Ipv4Addr, Ipv6Addr},
+    time::Duration,
+};
 
 use pyo3::{PyResult, prelude::*, pybacked::PyBackedStr};
 use wreq::{
@@ -31,6 +34,9 @@ pub struct Request {
 
     /// Bind to a local IP Address.
     local_address: Option<IpAddr>,
+
+    /// Bind to local IP Addresses (IPv4, IPv6).
+    local_addresses: Option<Extractor<(Option<Ipv4Addr>, Option<Ipv6Addr>)>>,
 
     /// Bind to an interface by `SO_BINDTODEVICE`.
     interface: Option<String>,
@@ -107,6 +113,7 @@ impl FromPyObject<'_, '_> for Request {
         extract_option!(ob, params, emulation);
         extract_option!(ob, params, proxy);
         extract_option!(ob, params, local_address);
+        extract_option!(ob, params, local_addresses);
         extract_option!(ob, params, interface);
 
         extract_option!(ob, params, timeout);
@@ -149,6 +156,9 @@ pub struct WebSocketRequest {
 
     /// Bind to a local IP Address.
     local_address: Option<IpAddr>,
+
+    /// Bind to local IP Addresses (IPv4, IPv6).
+    local_addresses: Option<Extractor<(Option<Ipv4Addr>, Option<Ipv6Addr>)>>,
 
     /// Bind to an interface by `SO_BINDTODEVICE`.
     interface: Option<String>,
@@ -244,6 +254,7 @@ impl FromPyObject<'_, '_> for WebSocketRequest {
         extract_option!(ob, params, emulation);
         extract_option!(ob, params, proxy);
         extract_option!(ob, params, local_address);
+        extract_option!(ob, params, local_addresses);
         extract_option!(ob, params, interface);
 
         extract_option!(ob, params, force_http2);
@@ -304,6 +315,13 @@ where
     // Network options.
     apply_option!(set_if_some_inner, builder, params.proxy, proxy);
     apply_option!(set_if_some, builder, params.local_address, local_address);
+    apply_option!(
+        set_if_some_tuple_inner,
+        builder,
+        params.local_addresses,
+        local_addresses
+    );
+
     #[cfg(any(
         target_os = "android",
         target_os = "fuchsia",
@@ -455,6 +473,12 @@ where
     // Network options.
     apply_option!(set_if_some_inner, builder, params.proxy, proxy);
     apply_option!(set_if_some, builder, params.local_address, local_address);
+    apply_option!(
+        set_if_some_tuple_inner,
+        builder,
+        params.local_addresses,
+        local_addresses
+    );
     #[cfg(any(
         target_os = "android",
         target_os = "fuchsia",
