@@ -22,6 +22,7 @@ mod http;
 mod http1;
 mod http2;
 mod proxy;
+mod redirect;
 mod tls;
 
 use pyo3::{intern, prelude::*, pybacked::PyBackedStr, types::PyDict, wrap_pymodule};
@@ -203,6 +204,7 @@ fn rnet(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_wrapped(wrap_pymodule!(header_module))?;
     m.add_wrapped(wrap_pymodule!(cookie_module))?;
     m.add_wrapped(wrap_pymodule!(emulation_module))?;
+    m.add_wrapped(wrap_pymodule!(redirect_module))?;
     m.add_wrapped(wrap_pymodule!(blocking_module))?;
     m.add_wrapped(wrap_pymodule!(exceptions_module))?;
 
@@ -223,6 +225,10 @@ fn rnet(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     sys_modules.set_item(
         intern!(py, "rnet.emulation"),
         m.getattr(intern!(py, "emulation"))?,
+    )?;
+    sys_modules.set_item(
+        intern!(py, "rnet.redirect"),
+        m.getattr(intern!(py, "redirect"))?,
     )?;
     sys_modules.set_item(
         intern!(py, "rnet.blocking"),
@@ -296,6 +302,14 @@ fn emulation_module(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<Emulation>()?;
     m.add_class::<EmulationOS>()?;
     m.add_class::<EmulationOption>()?;
+    Ok(())
+}
+
+#[pymodule(gil_used = false, name = "redirect")]
+fn redirect_module(m: &Bound<'_, PyModule>) -> PyResult<()> {
+    m.add_class::<redirect::Policy>()?;
+    m.add_class::<redirect::Attempt>()?;
+    m.add_class::<redirect::Action>()?;
     Ok(())
 }
 
