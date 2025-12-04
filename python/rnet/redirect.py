@@ -80,6 +80,7 @@ class Policy:
 
     def __str__(self) -> str: ...
 
+
 class Attempt:
     """
     A type that holds information on the next request and previous requests
@@ -141,6 +142,7 @@ class Attempt:
         ...
 
     def __str__(self) -> str: ...
+
 
 class Action:
     """
