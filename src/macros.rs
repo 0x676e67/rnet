@@ -4,11 +4,6 @@ macro_rules! apply_option {
             $builder = $builder.$method(value);
         }
     };
-    (set_if_some_tuple_inner, $builder:expr, $option:expr, $method:ident) => {
-        if let Some(value) = $option.take() {
-            $builder = $builder.$method(value.0.0, value.0.1);
-        }
-    };
     (set_if_some_ref, $builder:expr, $option:expr, $method:ident) => {
         if let Some(value) = $option.take() {
             $builder = $builder.$method(&value);
@@ -29,6 +24,11 @@ macro_rules! apply_option {
             $builder = $builder.$method($transform(&value));
         }
     };
+    (set_if_some_map_try, $builder:expr, $option:expr, $method:ident, $transform:expr) => {
+        if let Some(value) = $option.take() {
+            $builder = $builder.$method($transform(value)?);
+        }
+    };
     (set_if_true, $builder:expr, $option:expr, $method:ident, $default:expr) => {
         if $option.unwrap_or($default) {
             $builder = $builder.$method();
@@ -37,6 +37,23 @@ macro_rules! apply_option {
     (set_if_true_with, $builder:expr, $option:expr, $method:ident, $default:expr, $value:expr) => {
         if $option.unwrap_or($default) {
             $builder = $builder.$method($value);
+        }
+    };
+    (set_if_some_tuple, $builder:expr, $option:expr, $method:ident) => {
+        if let Some(value) = $option.take() {
+            $builder = $builder.$method(value.0, value.1);
+        }
+    };
+    (set_if_some_tuple_inner, $builder:expr, $option:expr, $method:ident) => {
+        if let Some(value) = $option.take() {
+            $builder = $builder.$method(value.0.0, value.0.1);
+        }
+    };
+    (set_if_some_iter_inner_values, $builder:expr, $option:expr, $method:ident, $key:ident) => {
+        if let Some(value) = $option.take() {
+            for item in value.0 {
+                $builder = $builder.$method($key, item);
+            }
         }
     };
 }

@@ -3,10 +3,12 @@ use std::{
     time::Duration,
 };
 
+use futures_util::TryFutureExt;
+use http::header::COOKIE;
 use pyo3::{PyResult, prelude::*, pybacked::PyBackedStr};
 use wreq::{
     Client, Proxy, Version,
-    header::{self, HeaderMap, HeaderValue, OrigHeaderMap},
+    header::{HeaderMap, HeaderValue, OrigHeaderMap},
     redirect::Policy,
 };
 use wreq_util::EmulationOption;
@@ -350,6 +352,13 @@ where
         params.default_headers,
         default_headers
     );
+    apply_option!(
+        set_if_some_iter_inner_values,
+        builder,
+        params.cookies,
+        header_append,
+        COOKIE
+    );
 
     // Authentication options.
     apply_option!(
@@ -360,16 +369,7 @@ where
         AsRef::<str>::as_ref
     );
     apply_option!(set_if_some, builder, params.bearer_auth, bearer_auth);
-    if let Some(basic_auth) = params.basic_auth.take() {
-        builder = builder.basic_auth(basic_auth.0, basic_auth.1);
-    }
-
-    // Cookies options.
-    if let Some(cookies) = params.cookies.take() {
-        for cookie in cookies.0 {
-            builder = builder.header_append(header::COOKIE, cookie);
-        }
-    }
+    apply_option!(set_if_some_tuple, builder, params.basic_auth, basic_auth);
 
     // Allow redirects options.
     match params.allow_redirects {
@@ -397,19 +397,17 @@ where
     // Query options.
     apply_option!(set_if_some_ref, builder, params.query, query);
 
-    // Form options.
-    apply_option!(set_if_some_ref, builder, params.form, form);
-
-    // JSON options.
-    apply_option!(set_if_some_ref, builder, params.json, json);
-
-    // Multipart options.
-    apply_option!(set_if_some_inner, builder, params.multipart, multipart);
-
     // Body options.
-    if let Some(body) = params.body.take() {
-        builder = builder.body(wreq::Body::try_from(body)?);
-    }
+    apply_option!(set_if_some_ref, builder, params.form, form);
+    apply_option!(set_if_some_ref, builder, params.json, json);
+    apply_option!(set_if_some_inner, builder, params.multipart, multipart);
+    apply_option!(
+        set_if_some_map_try,
+        builder,
+        params.body,
+        body,
+        wreq::Body::try_from
+    );
 
     // Send request.
     builder
@@ -507,6 +505,13 @@ where
         params.default_headers,
         default_headers
     );
+    apply_option!(
+        set_if_some_iter_inner_values,
+        builder,
+        params.cookies,
+        header_append,
+        COOKIE
+    );
 
     // Authentication options.
     apply_option!(
@@ -517,23 +522,15 @@ where
         AsRef::<str>::as_ref
     );
     apply_option!(set_if_some, builder, params.bearer_auth, bearer_auth);
-    if let Some(basic_auth) = params.basic_auth.take() {
-        builder = builder.basic_auth(basic_auth.0, basic_auth.1);
-    }
-
-    // Cookies options.
-    if let Some(cookies) = params.cookies.take() {
-        for cookie in cookies.0 {
-            builder = builder.header_append(header::COOKIE, cookie);
-        }
-    }
+    apply_option!(set_if_some_tuple, builder, params.basic_auth, basic_auth);
 
     // Query options.
     apply_option!(set_if_some_ref, builder, params.query, query);
 
     // Send the WebSocket request.
-    let response = builder.send().await.map_err(Error::Library)?;
-    WebSocket::new(response)
+    builder
+        .send()
+        .and_then(WebSocket::new)
         .await
         .map_err(Error::Library)
         .map_err(Into::into)
