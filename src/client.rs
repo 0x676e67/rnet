@@ -5,7 +5,12 @@ pub mod resp;
 mod param;
 mod query;
 
-use std::{fmt, net::IpAddr, sync::Arc, time::Duration};
+use std::{
+    fmt,
+    net::{IpAddr, Ipv4Addr, Ipv6Addr},
+    sync::Arc,
+    time::Duration,
+};
 
 use pyo3::{IntoPyObjectExt, prelude::*, pybacked::PyBackedStr};
 use req::{Request, WebSocketRequest};
@@ -149,6 +154,8 @@ struct Builder {
     proxies: Option<Extractor<Vec<Proxy>>>,
     /// Bind to a local IP Address.
     local_address: Option<IpAddr>,
+    /// Bind to local IP Addresses (IPv4, IPv6).
+    local_addresses: Option<Extractor<(Option<Ipv4Addr>, Option<Ipv6Addr>)>>,
     /// Bind to an interface by `SO_BINDTODEVICE`.
     interface: Option<String>,
 
@@ -201,6 +208,7 @@ impl FromPyObject<'_, '_> for Builder {
         extract_option!(ob, params, no_proxy);
         extract_option!(ob, params, proxies);
         extract_option!(ob, params, local_address);
+        extract_option!(ob, params, local_addresses);
         extract_option!(ob, params, interface);
 
         extract_option!(ob, params, https_only);
@@ -433,6 +441,12 @@ impl Client {
             }
             apply_option!(set_if_true, builder, params.no_proxy, no_proxy, false);
             apply_option!(set_if_some, builder, params.local_address, local_address);
+            apply_option!(
+                set_if_some_tuple_inner,
+                builder,
+                params.local_addresses,
+                local_addresses
+            );
             #[cfg(any(
                 target_os = "android",
                 target_os = "fuchsia",
@@ -446,14 +460,16 @@ impl Client {
             apply_option!(set_if_some, builder, params.interface, interface);
 
             // DNS options.
-            builder = if let Some(options) = params.dns_options.take() {
-                for (domain, addrs) in options.resolve_to_addrs {
-                    builder = builder.resolve_to_addrs(domain.as_ref().to_string(), addrs);
-                }
-
-                builder.dns_resolver(HickoryDnsResolver::new(options.lookup_ip_strategy))
-            } else {
-                builder.dns_resolver(HickoryDnsResolver::new(LookupIpStrategy::default()))
+            builder = {
+                let dns_resolver = if let Some(options) = params.dns_options.take() {
+                    for (domain, addrs) in options.resolve_to_addrs {
+                        builder = builder.resolve_to_addrs(domain.as_ref().to_string(), addrs);
+                    }
+                    HickoryDnsResolver::new(options.lookup_ip_strategy)
+                } else {
+                    HickoryDnsResolver::new(LookupIpStrategy::default())
+                };
+                builder.dns_resolver(Arc::new(dns_resolver))
             };
 
             // Compression options.
