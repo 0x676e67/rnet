@@ -1,7 +1,7 @@
 mod cmd;
 pub mod msg;
 
-use std::{future, time::Duration};
+use std::{fmt::Display, future, time::Duration};
 
 use msg::Message;
 use pyo3::{IntoPyObjectExt, prelude::*, pybacked::PyBackedStr};
@@ -20,7 +20,7 @@ use crate::{
 };
 
 /// A WebSocket response.
-#[pyclass(subclass, frozen)]
+#[pyclass(subclass, frozen, str)]
 pub struct WebSocket {
     /// Returns the status code of the response.
     #[pyo3(get)]
@@ -46,7 +46,7 @@ pub struct WebSocket {
 }
 
 /// A blocking WebSocket response.
-#[pyclass(name = "WebSocket", subclass, frozen)]
+#[pyclass(name = "WebSocket", subclass, frozen, str)]
 pub struct BlockingWebSocket(WebSocket);
 
 // ===== impl WebSocket =====
@@ -156,6 +156,12 @@ impl WebSocket {
         _traceback: &Bound<'py, PyAny>,
     ) -> PyResult<Bound<'py, PyAny>> {
         self.close(py, None, None)
+    }
+}
+
+impl Display for WebSocket {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "<{} [{}] >", stringify!(WebSocket), self.status.0,)
     }
 }
 
@@ -272,5 +278,16 @@ impl BlockingWebSocket {
 impl From<WebSocket> for BlockingWebSocket {
     fn from(inner: WebSocket) -> Self {
         Self(inner)
+    }
+}
+
+impl Display for BlockingWebSocket {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "<{} [{}] >",
+            stringify!(BlockingWebSocket),
+            self.0.status,
+        )
     }
 }

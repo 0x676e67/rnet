@@ -1,13 +1,13 @@
-import asyncio
 import rnet
+import asyncio
 
 
 async def main():
-    resp = await rnet.get(
-        "https://httpbin.io/anything",
-        auth="token",
-    )
-    print(await resp.text())
+    client = rnet.Client(emulation=rnet.Emulation.OkHttp3_11)
+    response: rnet.Response = await client.get(url="https://www.google.com")
+    print(response)
+    # print(await response.text())
+        
 
 
 if __name__ == "__main__":
