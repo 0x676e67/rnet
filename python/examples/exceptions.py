@@ -3,7 +3,6 @@ import asyncio
 import rnet.exceptions as exceptions
 
 rnet_errors = (
-    exceptions.DNSResolverError,
     exceptions.BodyError,
     exceptions.BuilderError,
     exceptions.ConnectionError,

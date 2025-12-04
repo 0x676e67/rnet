@@ -7,7 +7,6 @@ severity, making it easier to handle specific types of errors appropriately.
 """
 
 __all__ = [
-    "DNSResolverError",
     "TlsError",
     "ConnectionError",
     "ConnectionResetError",
@@ -31,19 +30,6 @@ __all__ = [
 class RustPanic(Exception):
     r"""
     A panic occurred in the underlying Rust code.
-    """
-
-
-class DNSResolverError(RuntimeError):
-    r"""
-    An error occurred while resolving a DNS name.
-
-    This exception is raised when the DNS resolver fails to resolve
-    a hostname to an IP address. This is typically due to network
-    issues, invalid hostnames, or DNS server problems.
-
-    Since this is a system-level issue that usually cannot be resolved
-    by retrying the request, it inherits from RuntimeError.
     """
 
 
