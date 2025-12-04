@@ -485,10 +485,7 @@ impl Client {
                 .map_err(Into::into)
         })
     }
-}
 
-#[pymethods]
-impl Client {
     /// Make a GET request to the given URL.
     #[inline]
     #[pyo3(signature = (url, **kwds))]
@@ -617,8 +614,6 @@ impl Client {
     }
 }
 
-// ====== BlockingClient ======
-
 #[pymethods]
 impl BlockingClient {
     /// Creates a new blocking Client instance.
@@ -627,10 +622,7 @@ impl BlockingClient {
     fn new(py: Python, kwds: Option<Builder>) -> PyResult<BlockingClient> {
         Client::new(py, kwds).map(BlockingClient)
     }
-}
 
-#[pymethods]
-impl BlockingClient {
     /// Make a GET request to the specified URL.
     #[inline]
     #[pyo3(signature = (url, **kwds))]
