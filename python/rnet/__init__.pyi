@@ -515,6 +515,8 @@ class Response:
     async def __aexit__(
         self, _exc_type: Any, _exc_value: Any, _traceback: Any
     ) -> Any: ...
+    
+    def __str__(self) -> str: ...
 
 class WebSocket:
     r"""
@@ -579,6 +581,7 @@ class WebSocket:
 
     def __aenter__(self) -> Any: ...
     def __aexit__(self, _exc_type: Any, _exc_value: Any, _traceback: Any) -> Any: ...
+    def __str__(self) -> str: ...
 
 class ClientParams(TypedDict):
     emulation: NotRequired[Emulation | EmulationOption]

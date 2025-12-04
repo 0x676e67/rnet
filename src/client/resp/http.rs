@@ -1,4 +1,4 @@
-use std::{future, sync::Arc};
+use std::{fmt::Display, future, sync::Arc};
 
 use arc_swap::ArcSwapOption;
 use bytes::Bytes;
@@ -23,7 +23,7 @@ use crate::{
 
 /// A response from a request.
 #[derive(Clone)]
-#[pyclass(subclass, frozen)]
+#[pyclass(subclass, frozen, str)]
 pub struct Response {
     /// Get the status code of the response.
     #[pyo3(get)]
@@ -63,7 +63,7 @@ enum Body {
 }
 
 /// A blocking response from a request.
-#[pyclass(name = "Response", subclass, frozen)]
+#[pyclass(name = "Response", subclass, frozen, str)]
 pub struct BlockingResponse(Response);
 
 // ===== impl Response =====
@@ -286,6 +286,18 @@ impl Response {
     }
 }
 
+impl Display for Response {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "<{}({}) [{}] >",
+            stringify!(Response),
+            self.uri,
+            self.status.0,
+        )
+    }
+}
+
 // ===== impl BlockingResponse =====
 
 #[pymethods]
@@ -446,5 +458,17 @@ impl From<Response> for BlockingResponse {
     #[inline]
     fn from(response: Response) -> Self {
         Self(response)
+    }
+}
+
+impl Display for BlockingResponse {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "<{}({}) [{}] >",
+            stringify!(BlockingResponse),
+            self.0.uri,
+            self.0.status.0,
+        )
     }
 }
