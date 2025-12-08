@@ -19,13 +19,13 @@ pub use self::{
 };
 
 /// Represents the body of an HTTP request.
-/// Supports text, bytes, form, json, synchronous and asynchronous streaming bodies.
+/// Supports text, bytes, form, json, and streaming bodies.
 #[derive(FromPyObject)]
 pub enum Body {
     Text(PyBackedStr),
     Bytes(PyBackedBytes),
-    Form(form::Form),
-    Json(json::Json),
+    Form(Form),
+    Json(Json),
     Stream(PyStream),
 }
 
