@@ -6,7 +6,7 @@ use std::{
 };
 
 use bytes::Bytes;
-use futures_util::{Stream, StreamExt, TryStreamExt};
+use futures_util::{FutureExt, Stream, StreamExt, TryStreamExt, stream::BoxStream};
 use pyo3::{
     IntoPyObjectExt,
     exceptions::PyTypeError,
@@ -14,39 +14,28 @@ use pyo3::{
     prelude::*,
     pybacked::{PyBackedBytes, PyBackedStr},
 };
-use tokio::sync::Mutex;
+use tokio::{runtime::Handle, sync::Mutex, task::JoinHandle};
 
 use crate::{buffer::PyBuffer, error::Error};
 
-type BoxedStream<T> = Pin<Box<dyn Stream<Item = T> + Send + 'static>>;
+type Pending = Option<JoinHandle<Option<PyResult<Bytes>>>>;
 
-/// Represents a Python streaming body, either synchronous or asynchronous.
-pub enum PyStream {
-    Sync(Py<PyAny>),
-    Async(BoxedStream<Py<PyAny>>),
+/// Python stream source (sync or async iterator)
+enum StreamSource {
+    Sync(Arc<Py<PyAny>>),
+    Async(Arc<Mutex<BoxStream<'static, Py<PyAny>>>>),
+}
+
+/// A Python stream wrapper.
+pub struct PyStream {
+    source: StreamSource,
+    pending: Option<JoinHandle<Option<PyResult<Bytes>>>>,
 }
 
 /// A bytes stream response.
+#[derive(Clone)]
 #[pyclass(subclass)]
-pub struct Streamer(Arc<Mutex<Option<BoxedStream<wreq::Result<Bytes>>>>>);
-
-async fn anext(
-    streamer: Arc<Mutex<Option<BoxedStream<wreq::Result<Bytes>>>>>,
-    error: fn() -> Error,
-) -> PyResult<PyBuffer> {
-    let val = streamer
-        .lock()
-        .await
-        .as_mut()
-        .ok_or_else(error)?
-        .try_next()
-        .await;
-
-    val.map_err(Error::Library)?
-        .map(PyBuffer::from)
-        .ok_or_else(error)
-        .map_err(Into::into)
-}
+pub struct Streamer(Arc<Mutex<Option<BoxStream<'static, wreq::Result<Bytes>>>>>);
 
 // ===== impl Streamer =====
 
@@ -55,6 +44,22 @@ impl Streamer {
     #[inline]
     pub fn new(stream: impl Stream<Item = wreq::Result<Bytes>> + Send + 'static) -> Streamer {
         Streamer(Arc::new(Mutex::new(Some(stream.boxed()))))
+    }
+
+    async fn next(self, error: fn() -> Error) -> PyResult<PyBuffer> {
+        let val = self
+            .0
+            .lock()
+            .await
+            .as_mut()
+            .ok_or_else(error)?
+            .try_next()
+            .await;
+
+        val.map_err(Error::Library)?
+            .map(PyBuffer::from)
+            .ok_or_else(error)
+            .map_err(Into::into)
     }
 }
 
@@ -74,7 +79,7 @@ impl Streamer {
     fn __next__(&mut self, py: Python) -> PyResult<PyBuffer> {
         py.detach(|| {
             pyo3_async_runtimes::tokio::get_runtime()
-                .block_on(anext(self.0.clone(), || Error::StopIteration))
+                .block_on(self.clone().next(|| Error::StopIteration))
         })
     }
 
@@ -82,7 +87,7 @@ impl Streamer {
     fn __anext__<'py>(&mut self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
         pyo3_async_runtimes::tokio::future_into_py(
             py,
-            anext(self.0.clone(), || Error::StopAsyncIteration),
+            self.clone().next(|| Error::StopAsyncIteration),
         )
     }
 
@@ -138,11 +143,22 @@ impl FromPyObject<'_, '_> for PyStream {
     fn extract(ob: Borrowed<PyAny>) -> PyResult<Self> {
         if ob.hasattr(intern!(ob.py(), "asend"))? {
             pyo3_async_runtimes::tokio::into_stream_v2(ob.to_owned())
-                .map(Box::pin)
-                .map(|stream| PyStream::Async(stream))
+                .map(StreamExt::boxed)
+                .map(Mutex::new)
+                .map(Arc::new)
+                .map(StreamSource::Async)
+                .map(|source| PyStream {
+                    source,
+                    pending: None,
+                })
         } else {
             ob.extract::<Py<PyAny>>()
-                .map(PyStream::Sync)
+                .map(Arc::new)
+                .map(StreamSource::Sync)
+                .map(|source| PyStream {
+                    source,
+                    pending: None,
+                })
                 .map_err(Into::into)
         }
     }
@@ -151,21 +167,62 @@ impl FromPyObject<'_, '_> for PyStream {
 impl Stream for PyStream {
     type Item = PyResult<Bytes>;
 
-    /// Yields the next chunk from the Python stream as bytes.
     fn poll_next(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
-        match self.get_mut() {
-            PyStream::Sync(iter) => Python::attach(|py| {
-                let next = iter
-                    .call_method0(py, intern!(py, "__next__"))
-                    .ok()
-                    .map(|item| extract_bytes(py, item));
-                py.detach(|| Poll::Ready(next))
-            }),
-            PyStream::Async(stream) => {
-                let waker = cx.waker();
-                Python::attach(|py| {
-                    py.detach(|| stream.as_mut().poll_next(&mut Context::from_waker(waker)))
-                        .map(|item| item.map(|item| extract_bytes(py, item)))
+        fn poll_or_create<F>(
+            pending: &mut Pending,
+            cx: &mut Context<'_>,
+            create_task: F,
+        ) -> Poll<Option<PyResult<Bytes>>>
+        where
+            F: FnOnce() -> JoinHandle<Option<PyResult<Bytes>>>,
+        {
+            if let Some(mut fut) = pending.take() {
+                match fut.poll_unpin(cx) {
+                    Poll::Ready(Ok(res)) => return Poll::Ready(res),
+                    Poll::Ready(Err(_)) => return Poll::Ready(None),
+                    Poll::Pending => {
+                        *pending = Some(fut);
+                        return Poll::Pending;
+                    }
+                }
+            }
+
+            let mut fut = create_task();
+            match fut.poll_unpin(cx) {
+                Poll::Ready(Ok(res)) => Poll::Ready(res),
+                Poll::Ready(Err(_)) => Poll::Ready(None),
+                Poll::Pending => {
+                    *pending = Some(fut);
+                    Poll::Pending
+                }
+            }
+        }
+
+        match &self.source {
+            StreamSource::Sync(ob) => {
+                let ob = ob.clone();
+                poll_or_create(&mut self.get_mut().pending, cx, || {
+                    pyo3_async_runtimes::tokio::get_runtime().spawn_blocking(move || {
+                        Python::attach(|py| {
+                            ob.call_method0(py, intern!(py, "__next__"))
+                                .ok()
+                                .map(|ob| extract_bytes(py, ob))
+                        })
+                    })
+                })
+            }
+            StreamSource::Async(stream) => {
+                let stream = stream.clone();
+                poll_or_create(&mut self.get_mut().pending, cx, || {
+                    pyo3_async_runtimes::tokio::get_runtime().spawn(async move {
+                        let ob = stream.lock().await.next().await;
+                        Handle::current()
+                            .spawn_blocking(move || {
+                                Python::attach(|py| ob.map(|ob| extract_bytes(py, ob)))
+                            })
+                            .await
+                            .ok()?
+                    })
                 })
             }
         }
