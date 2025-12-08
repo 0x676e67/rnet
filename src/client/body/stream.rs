@@ -8,9 +8,7 @@ use std::{
 use bytes::Bytes;
 use futures_util::{FutureExt, Stream, StreamExt, TryStreamExt, stream::BoxStream};
 use pyo3::{
-    IntoPyObjectExt,
-    exceptions::PyTypeError,
-    intern,
+    IntoPyObjectExt, intern,
     prelude::*,
     pybacked::{PyBackedBytes, PyBackedStr},
 };
@@ -18,18 +16,25 @@ use tokio::{runtime::Handle, sync::Mutex, task::JoinHandle};
 
 use crate::{buffer::PyBuffer, error::Error};
 
-type Pending = Option<JoinHandle<Option<PyResult<Bytes>>>>;
+type Pending = Option<JoinHandle<Option<PyResult<PyBytesLike>>>>;
 
-/// Python stream source (sync or async iterator)
-enum StreamSource {
+/// Python stream source.
+enum PyStreamSource {
     Sync(Arc<Py<PyAny>>),
     Async(Arc<Mutex<BoxStream<'static, Py<PyAny>>>>),
 }
 
+/// A bytes-like object that can be extracted from Python.
+#[derive(FromPyObject)]
+pub enum PyBytesLike {
+    Bytes(PyBackedBytes),
+    String(PyBackedStr),
+}
+
 /// A Python stream wrapper.
 pub struct PyStream {
-    source: StreamSource,
-    pending: Option<JoinHandle<Option<PyResult<Bytes>>>>,
+    source: PyStreamSource,
+    pending: Pending,
 }
 
 /// A bytes stream response.
@@ -133,20 +138,30 @@ impl Streamer {
     }
 }
 
+// ===== PyBytesLike =====
+
+impl From<PyBytesLike> for Bytes {
+    #[inline]
+    fn from(value: PyBytesLike) -> Self {
+        match value {
+            PyBytesLike::Bytes(b) => Bytes::from_owner(b),
+            PyBytesLike::String(s) => Bytes::from_owner(s),
+        }
+    }
+}
+
 // ===== impl PyStream =====
 
 impl FromPyObject<'_, '_> for PyStream {
     type Error = PyErr;
 
-    /// Extracts a [`PyStream`] from a Python object.
-    /// Accepts sync or async iterators.
     fn extract(ob: Borrowed<PyAny>) -> PyResult<Self> {
         if ob.hasattr(intern!(ob.py(), "asend"))? {
             pyo3_async_runtimes::tokio::into_stream_v2(ob.to_owned())
                 .map(StreamExt::boxed)
                 .map(Mutex::new)
                 .map(Arc::new)
-                .map(StreamSource::Async)
+                .map(PyStreamSource::Async)
                 .map(|source| PyStream {
                     source,
                     pending: None,
@@ -154,7 +169,7 @@ impl FromPyObject<'_, '_> for PyStream {
         } else {
             ob.extract::<Py<PyAny>>()
                 .map(Arc::new)
-                .map(StreamSource::Sync)
+                .map(PyStreamSource::Sync)
                 .map(|source| PyStream {
                     source,
                     pending: None,
@@ -165,60 +180,30 @@ impl FromPyObject<'_, '_> for PyStream {
 }
 
 impl Stream for PyStream {
-    type Item = PyResult<Bytes>;
+    type Item = PyResult<PyBytesLike>;
 
     fn poll_next(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
-        fn poll_or_create<F>(
-            pending: &mut Pending,
-            cx: &mut Context<'_>,
-            create_task: F,
-        ) -> Poll<Option<PyResult<Bytes>>>
-        where
-            F: FnOnce() -> JoinHandle<Option<PyResult<Bytes>>>,
-        {
-            if let Some(mut fut) = pending.take() {
-                match fut.poll_unpin(cx) {
-                    Poll::Ready(Ok(res)) => return Poll::Ready(res),
-                    Poll::Ready(Err(_)) => return Poll::Ready(None),
-                    Poll::Pending => {
-                        *pending = Some(fut);
-                        return Poll::Pending;
-                    }
-                }
-            }
-
-            let mut fut = create_task();
-            match fut.poll_unpin(cx) {
-                Poll::Ready(Ok(res)) => Poll::Ready(res),
-                Poll::Ready(Err(_)) => Poll::Ready(None),
-                Poll::Pending => {
-                    *pending = Some(fut);
-                    Poll::Pending
-                }
-            }
-        }
-
         match &self.source {
-            StreamSource::Sync(ob) => {
+            PyStreamSource::Sync(ob) => {
                 let ob = ob.clone();
                 poll_or_create(&mut self.get_mut().pending, cx, || {
                     pyo3_async_runtimes::tokio::get_runtime().spawn_blocking(move || {
                         Python::attach(|py| {
                             ob.call_method0(py, intern!(py, "__next__"))
                                 .ok()
-                                .map(|ob| extract_bytes(py, ob))
+                                .map(|ob| ob.extract(py))
                         })
                     })
                 })
             }
-            StreamSource::Async(stream) => {
+            PyStreamSource::Async(stream) => {
                 let stream = stream.clone();
                 poll_or_create(&mut self.get_mut().pending, cx, || {
                     pyo3_async_runtimes::tokio::get_runtime().spawn(async move {
                         let ob = stream.lock().await.next().await;
                         Handle::current()
                             .spawn_blocking(move || {
-                                Python::attach(|py| ob.map(|ob| extract_bytes(py, ob)))
+                                Python::attach(|py| ob.map(|ob| ob.extract(py)))
                             })
                             .await
                             .ok()?
@@ -229,17 +214,32 @@ impl Stream for PyStream {
     }
 }
 
-/// Extracts a [`Bytes`] object from a Python object.
-/// Accepts bytes-like or str-like objects, otherwise raises a `TypeError`.
-#[inline]
-fn extract_bytes(py: Python<'_>, ob: Py<PyAny>) -> PyResult<Bytes> {
-    match ob.extract::<PyBackedBytes>(py) {
-        Ok(chunk) => Ok(Bytes::from_owner(chunk)),
-        Err(_) => ob
-            .extract::<PyBackedStr>(py)
-            .map(Bytes::from_owner)
-            .map_err(|err| {
-                PyTypeError::new_err(format!("Stream must yield bytes/str - like objects: {err}"))
-            }),
+fn poll_or_create<F>(
+    pending: &mut Pending,
+    cx: &mut Context<'_>,
+    create_task: F,
+) -> Poll<Option<PyResult<PyBytesLike>>>
+where
+    F: FnOnce() -> JoinHandle<Option<PyResult<PyBytesLike>>>,
+{
+    if let Some(mut fut) = pending.take() {
+        match fut.poll_unpin(cx) {
+            Poll::Ready(Ok(res)) => return Poll::Ready(res),
+            Poll::Ready(Err(_)) => return Poll::Ready(None),
+            Poll::Pending => {
+                *pending = Some(fut);
+                return Poll::Pending;
+            }
+        }
+    }
+
+    let mut fut = create_task();
+    match fut.poll_unpin(cx) {
+        Poll::Ready(Ok(res)) => Poll::Ready(res),
+        Poll::Ready(Err(_)) => Poll::Ready(None),
+        Poll::Pending => {
+            *pending = Some(fut);
+            Poll::Pending
+        }
     }
 }
