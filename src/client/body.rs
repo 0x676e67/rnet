@@ -19,7 +19,6 @@ pub use self::{
 };
 
 /// Represents the body of an HTTP request.
-/// Supports text, bytes, form, json, and streaming bodies.
 #[derive(FromPyObject)]
 pub enum Body {
     Text(PyBackedStr),
@@ -32,7 +31,6 @@ pub enum Body {
 impl TryFrom<Body> for wreq::Body {
     type Error = PyErr;
 
-    /// Converts a [`Body`] into a [`wreq::Body`] for internal use.
     fn try_from(value: Body) -> PyResult<wreq::Body> {
         match value {
             Body::Form(form) => serde_urlencoded::to_string(form)
