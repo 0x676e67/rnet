@@ -34,11 +34,6 @@ macro_rules! apply_option {
             $builder = $builder.$method();
         }
     };
-    (set_if_true_with, $builder:expr, $option:expr, $method:ident, $default:expr, $value:expr) => {
-        if $option.unwrap_or($default) {
-            $builder = $builder.$method($value);
-        }
-    };
     (set_if_some_tuple, $builder:expr, $option:expr, $method:ident) => {
         if let Some(value) = $option.take() {
             $builder = $builder.$method(value.0, value.1);

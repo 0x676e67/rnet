@@ -77,3 +77,6 @@ lto = "fat"
 opt-level = 3
 panic = "abort"
 strip = true
+
+[patch.crates-io]
+wreq = { git = "https://github.com/0x676e67/wreq" }

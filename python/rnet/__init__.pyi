@@ -15,10 +15,12 @@ from typing import (
 )
 from pathlib import Path
 from enum import Enum, auto
+from . import redirect
 
 from .dns import ResolverOptions
 from .http1 import Http1Options
 from .http2 import Http2Options
+from .redirect import History
 from .cookie import *
 from .header import *
 from .emulation import *
@@ -340,26 +342,6 @@ class Message:
 
     def __str__(self) -> str: ...
 
-@final
-class History:
-    """
-    An entry in the redirect history.
-    """
-
-    status: int
-    """Get the status code of the redirect response."""
-
-    url: str
-    """Get the URL of the redirect response."""
-
-    previous: str
-    """Get the previous URL before the redirect response."""
-
-    headers: HeaderMap
-    """Get the headers of the redirect response."""
-
-    def __str__(self) -> str: ...
-
 class Streamer:
     r"""
     A byte stream response.
@@ -515,7 +497,6 @@ class Response:
     async def __aexit__(
         self, _exc_type: Any, _exc_value: Any, _traceback: Any
     ) -> Any: ...
-    
     def __str__(self) -> str: ...
 
 class WebSocket:
@@ -607,19 +588,9 @@ class ClientParams(TypedDict):
     Automatically set Referer.
     """
 
-    history: NotRequired[bool]
+    redirect: NotRequired[redirect.Policy]
     """
-    Store redirect history.
-    """
-
-    allow_redirects: NotRequired[bool]
-    """
-    Allow automatic redirects.
-    """
-
-    max_redirects: NotRequired[int]
-    """
-    Maximum number of redirects.
+    Redirect policy.
     """
 
     cookie_store: NotRequired[bool]
@@ -881,14 +852,9 @@ class Request(TypedDict):
     The cookies to use for the request.
     """
 
-    allow_redirects: NotRequired[bool]
+    redirect: NotRequired[redirect.Policy]
     """
-    Whether to allow redirects.
-    """
-
-    max_redirects: NotRequired[int]
-    """
-    The maximum number of redirects to follow.
+    The redirect policy.
     """
 
     gzip: NotRequired[bool]
