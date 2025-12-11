@@ -9,7 +9,6 @@ use pyo3::{PyResult, prelude::*, pybacked::PyBackedStr};
 use wreq::{
     Client, Proxy, Version,
     header::{HeaderMap, HeaderValue, OrigHeaderMap},
-    redirect::Policy,
 };
 use wreq_util::EmulationOption;
 
@@ -22,6 +21,7 @@ use crate::{
     error::Error,
     extractor::Extractor,
     http::Method,
+    redirect,
 };
 
 /// The parameters for a request.
@@ -64,11 +64,8 @@ pub struct Request {
     /// The cookies to use for the request.
     cookies: Option<Extractor<Vec<HeaderValue>>>,
 
-    /// Whether to allow redirects.
-    allow_redirects: Option<bool>,
-
-    /// The maximum number of redirects to follow.
-    max_redirects: Option<usize>,
+    /// The redirect policy to use for the request.
+    redirect: Option<redirect::Policy>,
 
     /// Sets gzip as an accepted encoding.
     gzip: Option<bool>,
@@ -126,8 +123,7 @@ impl FromPyObject<'_, '_> for Request {
         extract_option!(ob, params, orig_headers);
         extract_option!(ob, params, default_headers);
         extract_option!(ob, params, cookies);
-        extract_option!(ob, params, allow_redirects);
-        extract_option!(ob, params, max_redirects);
+        extract_option!(ob, params, redirect);
         extract_option!(ob, params, auth);
         extract_option!(ob, params, bearer_auth);
         extract_option!(ob, params, basic_auth);
@@ -356,7 +352,7 @@ where
         set_if_some_iter_inner_values,
         builder,
         params.cookies,
-        header_append,
+        header,
         COOKIE
     );
 
@@ -372,21 +368,7 @@ where
     apply_option!(set_if_some_tuple, builder, params.basic_auth, basic_auth);
 
     // Allow redirects options.
-    match params.allow_redirects {
-        Some(false) => {
-            builder = builder.redirect(Policy::none());
-        }
-        Some(true) => {
-            builder = builder.redirect(
-                params
-                    .max_redirects
-                    .take()
-                    .map(Policy::limited)
-                    .unwrap_or_default(),
-            );
-        }
-        None => {}
-    };
+    apply_option!(set_if_some_inner, builder, params.redirect, redirect);
 
     // Compression options.
     apply_option!(set_if_some, builder, params.gzip, gzip);
@@ -509,7 +491,7 @@ where
         set_if_some_iter_inner_values,
         builder,
         params.cookies,
-        header_append,
+        header,
         COOKIE
     );
 

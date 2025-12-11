@@ -6,19 +6,20 @@ use futures_util::TryFutureExt;
 use http::{Extensions, response::Response as HttpResponse};
 use http_body_util::BodyExt;
 use pyo3::{IntoPyObjectExt, prelude::*, pybacked::PyBackedStr};
-use wreq::{self, Extension, Uri, redirect, tls::TlsInfo};
+use wreq::{self, Uri, tls::TlsInfo};
 
 use crate::{
     buffer::PyBuffer,
     client::{
         SocketAddr,
         body::{Json, Streamer},
-        resp::{ext::ResponseExt, history::History},
+        resp::ext::ResponseExt,
     },
     cookie::Cookie,
     error::Error,
     header::HeaderMap,
     http::{StatusCode, Version},
+    redirect::History,
 };
 
 /// A response from a request.
@@ -174,9 +175,9 @@ impl Response {
     pub fn history(&self, py: Python) -> Vec<History> {
         py.detach(|| {
             self.extensions
-                .get::<Extension<Vec<redirect::History>>>()
-                .map_or_else(Vec::new, |Extension(history)| {
-                    history.iter().cloned().map(History::from).collect()
+                .get::<wreq::redirect::History>()
+                .map_or_else(Vec::new, |history| {
+                    history.into_iter().cloned().map(History::from).collect()
                 })
         })
     }
@@ -186,8 +187,7 @@ impl Response {
     pub fn peer_certificate(&self, py: Python) -> Option<PyBuffer> {
         py.detach(|| {
             self.extensions
-                .get::<Extension<TlsInfo>>()?
-                .0
+                .get::<TlsInfo>()?
                 .peer_certificate()
                 .map(ToOwned::to_owned)
                 .map(PyBuffer::from)

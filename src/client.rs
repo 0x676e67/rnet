@@ -17,7 +17,6 @@ use req::{Request, WebSocketRequest};
 use wreq::{
     Proxy,
     header::{HeaderMap, OrigHeaderMap},
-    redirect::Policy,
     tls::CertStore,
 };
 use wreq_util::EmulationOption;
@@ -34,6 +33,7 @@ use crate::{
     http::Method,
     http1::Http1Options,
     http2::Http2Options,
+    redirect,
     tls::{Identity, KeyLog, TlsOptions, TlsVerify, TlsVersion},
 };
 
@@ -74,12 +74,8 @@ struct Builder {
     orig_headers: Option<Extractor<OrigHeaderMap>>,
     /// Whether to use referer.
     referer: Option<bool>,
-    /// Whether to keep track of request history.
-    history: Option<bool>,
-    /// Whether to allow redirects.
-    allow_redirects: Option<bool>,
-    /// The maximum number of redirects to follow.
-    max_redirects: Option<usize>,
+    /// Whether to redirect policy.
+    redirect: Option<redirect::Policy>,
 
     // ========= Cookie options =========
     /// Whether to use cookie store.
@@ -183,9 +179,7 @@ impl FromPyObject<'_, '_> for Builder {
         extract_option!(ob, params, headers);
         extract_option!(ob, params, orig_headers);
         extract_option!(ob, params, referer);
-        extract_option!(ob, params, history);
-        extract_option!(ob, params, allow_redirects);
-        extract_option!(ob, params, max_redirects);
+        extract_option!(ob, params, redirect);
 
         extract_option!(ob, params, cookie_store);
         extract_option!(ob, params, cookie_provider);
@@ -280,19 +274,7 @@ impl Client {
 
             // Allow redirects options.
             apply_option!(set_if_some, builder, params.referer, referer);
-            apply_option!(set_if_some, builder, params.history, history);
-            apply_option!(
-                set_if_true_with,
-                builder,
-                params.allow_redirects,
-                redirect,
-                false,
-                params
-                    .max_redirects
-                    .take()
-                    .map(Policy::limited)
-                    .unwrap_or_default()
-            );
+            apply_option!(set_if_some_inner, builder, params.redirect, redirect);
 
             // Cookie options.
             if let Some(cookie_provider) = params.cookie_provider.take() {
