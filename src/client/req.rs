@@ -7,7 +7,7 @@ use futures_util::TryFutureExt;
 use http::header::COOKIE;
 use pyo3::{PyResult, prelude::*, pybacked::PyBackedStr};
 use wreq::{
-    Client, Proxy, Version,
+    Client,
     header::{HeaderMap, HeaderValue, OrigHeaderMap},
 };
 use wreq_util::EmulationOption;
@@ -21,7 +21,8 @@ use crate::{
     cookie::Jar,
     error::Error,
     extractor::Extractor,
-    http::Method,
+    http::{Method, Version},
+    proxy::Proxy,
     redirect,
 };
 
@@ -33,7 +34,7 @@ pub struct Request {
     emulation: Option<Extractor<EmulationOption>>,
 
     /// The proxy to use for the request.
-    proxy: Option<Extractor<Proxy>>,
+    proxy: Option<Proxy>,
 
     /// Bind to a local IP Address.
     local_address: Option<IpAddr>,
@@ -51,7 +52,7 @@ pub struct Request {
     read_timeout: Option<u64>,
 
     /// The HTTP version to use for the request.
-    version: Option<Extractor<Version>>,
+    version: Option<Version>,
 
     /// The headers to use for the request.
     headers: Option<Extractor<HeaderMap>>,
@@ -155,7 +156,7 @@ pub struct WebSocketRequest {
     emulation: Option<Extractor<EmulationOption>>,
 
     /// The proxy to use for the request.
-    proxy: Option<Extractor<Proxy>>,
+    proxy: Option<Proxy>,
 
     /// Bind to a local IP Address.
     local_address: Option<IpAddr>,
@@ -285,43 +286,49 @@ pub async fn execute_request<U>(
     client: Client,
     method: Method,
     url: U,
-    mut params: Option<Request>,
+    mut request: Option<Request>,
 ) -> PyResult<Response>
 where
     U: AsRef<str>,
 {
-    let params = params.get_or_insert_default();
+    let request = request.get_or_insert_default();
     let mut builder = client.request(method.into_ffi(), url.as_ref());
 
     // Emulation options.
-    apply_option!(set_if_some_inner, builder, params.emulation, emulation);
+    apply_option!(set_if_some_inner, builder, request.emulation, emulation);
 
     // Version options.
-    apply_option!(set_if_some_inner, builder, params.version, version);
+    apply_option!(
+        set_if_some_map,
+        builder,
+        request.version,
+        version,
+        Version::into_ffi
+    );
 
     // Timeout options.
     apply_option!(
         set_if_some_map,
         builder,
-        params.timeout,
+        request.timeout,
         timeout,
         Duration::from_secs
     );
     apply_option!(
         set_if_some_map,
         builder,
-        params.read_timeout,
+        request.read_timeout,
         read_timeout,
         Duration::from_secs
     );
 
     // Network options.
-    apply_option!(set_if_some_inner, builder, params.proxy, proxy);
-    apply_option!(set_if_some, builder, params.local_address, local_address);
+    apply_option!(set_if_some_inner, builder, request.proxy, proxy);
+    apply_option!(set_if_some, builder, request.local_address, local_address);
     apply_option!(
         set_if_some_tuple_inner,
         builder,
-        params.local_addresses,
+        request.local_addresses,
         local_addresses
     );
 
@@ -337,20 +344,20 @@ where
         target_os = "visionos",
         target_os = "watchos",
     ))]
-    apply_option!(set_if_some, builder, params.interface, interface);
+    apply_option!(set_if_some, builder, request.interface, interface);
 
     // Headers options.
-    apply_option!(set_if_some_inner, builder, params.headers, headers);
+    apply_option!(set_if_some_inner, builder, request.headers, headers);
     apply_option!(
         set_if_some_inner,
         builder,
-        params.orig_headers,
+        request.orig_headers,
         orig_headers
     );
     apply_option!(
         set_if_some,
         builder,
-        params.default_headers,
+        request.default_headers,
         default_headers
     );
 
@@ -358,14 +365,14 @@ where
     apply_option!(
         set_if_some_iter_inner_with_key,
         builder,
-        params.cookies,
+        request.cookies,
         header,
         COOKIE
     );
     apply_option!(
-        set_if_some,
+        set_if_some_inner,
         builder,
-        params.cookie_provider,
+        request.cookie_provider,
         cookie_provider
     );
 
@@ -373,33 +380,33 @@ where
     apply_option!(
         set_if_some_map_ref,
         builder,
-        params.auth,
+        request.auth,
         auth,
         AsRef::<str>::as_ref
     );
-    apply_option!(set_if_some, builder, params.bearer_auth, bearer_auth);
-    apply_option!(set_if_some_tuple, builder, params.basic_auth, basic_auth);
+    apply_option!(set_if_some, builder, request.bearer_auth, bearer_auth);
+    apply_option!(set_if_some_tuple, builder, request.basic_auth, basic_auth);
 
     // Allow redirects options.
-    apply_option!(set_if_some_inner, builder, params.redirect, redirect);
+    apply_option!(set_if_some_inner, builder, request.redirect, redirect);
 
     // Compression options.
-    apply_option!(set_if_some, builder, params.gzip, gzip);
-    apply_option!(set_if_some, builder, params.brotli, brotli);
-    apply_option!(set_if_some, builder, params.deflate, deflate);
-    apply_option!(set_if_some, builder, params.zstd, zstd);
+    apply_option!(set_if_some, builder, request.gzip, gzip);
+    apply_option!(set_if_some, builder, request.brotli, brotli);
+    apply_option!(set_if_some, builder, request.deflate, deflate);
+    apply_option!(set_if_some, builder, request.zstd, zstd);
 
     // Query options.
-    apply_option!(set_if_some_ref, builder, params.query, query);
+    apply_option!(set_if_some_ref, builder, request.query, query);
 
     // Body options.
-    apply_option!(set_if_some_ref, builder, params.form, form);
-    apply_option!(set_if_some_ref, builder, params.json, json);
-    apply_option!(set_if_some_inner, builder, params.multipart, multipart);
+    apply_option!(set_if_some_ref, builder, request.form, form);
+    apply_option!(set_if_some_ref, builder, request.json, json);
+    apply_option!(set_if_some_inner, builder, request.multipart, multipart);
     apply_option!(
         set_if_some_map_try,
         builder,
-        params.body,
+        request.body,
         body,
         wreq::Body::try_from
     );
@@ -416,60 +423,66 @@ where
 pub async fn execute_websocket_request<U>(
     client: Client,
     url: U,
-    mut params: Option<WebSocketRequest>,
+    mut request: Option<WebSocketRequest>,
 ) -> PyResult<WebSocket>
 where
     U: AsRef<str>,
 {
-    let params = params.get_or_insert_default();
+    let request = request.get_or_insert_default();
     let mut builder = client.websocket(url.as_ref());
 
     // The protocols to use for the request.
-    apply_option!(set_if_some, builder, params.protocols, protocols);
+    apply_option!(set_if_some, builder, request.protocols, protocols);
 
     // The WebSocket config
     apply_option!(
         set_if_some,
         builder,
-        params.read_buffer_size,
+        request.read_buffer_size,
         read_buffer_size
     );
     apply_option!(
         set_if_some,
         builder,
-        params.write_buffer_size,
+        request.write_buffer_size,
         write_buffer_size
     );
     apply_option!(
         set_if_some,
         builder,
-        params.max_write_buffer_size,
+        request.max_write_buffer_size,
         max_write_buffer_size
     );
-    apply_option!(set_if_some, builder, params.max_frame_size, max_frame_size);
+    apply_option!(set_if_some, builder, request.max_frame_size, max_frame_size);
     apply_option!(
         set_if_some,
         builder,
-        params.max_message_size,
+        request.max_message_size,
         max_message_size
     );
     apply_option!(
         set_if_some,
         builder,
-        params.accept_unmasked_frames,
+        request.accept_unmasked_frames,
         accept_unmasked_frames
     );
 
     // Use http2 options.
-    apply_option!(set_if_true, builder, params.force_http2, force_http2, false);
+    apply_option!(
+        set_if_true,
+        builder,
+        request.force_http2,
+        force_http2,
+        false
+    );
 
     // Network options.
-    apply_option!(set_if_some_inner, builder, params.proxy, proxy);
-    apply_option!(set_if_some, builder, params.local_address, local_address);
+    apply_option!(set_if_some_inner, builder, request.proxy, proxy);
+    apply_option!(set_if_some, builder, request.local_address, local_address);
     apply_option!(
         set_if_some_tuple_inner,
         builder,
-        params.local_addresses,
+        request.local_addresses,
         local_addresses
     );
     #[cfg(any(
@@ -484,26 +497,26 @@ where
         target_os = "visionos",
         target_os = "watchos",
     ))]
-    apply_option!(set_if_some, builder, params.interface, interface);
+    apply_option!(set_if_some, builder, request.interface, interface);
 
     // Headers options.
-    apply_option!(set_if_some_inner, builder, params.headers, headers);
+    apply_option!(set_if_some_inner, builder, request.headers, headers);
     apply_option!(
         set_if_some_inner,
         builder,
-        params.orig_headers,
+        request.orig_headers,
         orig_headers
     );
     apply_option!(
         set_if_some,
         builder,
-        params.default_headers,
+        request.default_headers,
         default_headers
     );
     apply_option!(
         set_if_some_iter_inner_with_key,
         builder,
-        params.cookies,
+        request.cookies,
         header,
         COOKIE
     );
@@ -512,15 +525,15 @@ where
     apply_option!(
         set_if_some_map_ref,
         builder,
-        params.auth,
+        request.auth,
         auth,
         AsRef::<str>::as_ref
     );
-    apply_option!(set_if_some, builder, params.bearer_auth, bearer_auth);
-    apply_option!(set_if_some_tuple, builder, params.basic_auth, basic_auth);
+    apply_option!(set_if_some, builder, request.bearer_auth, bearer_auth);
+    apply_option!(set_if_some_tuple, builder, request.basic_auth, basic_auth);
 
     // Query options.
-    apply_option!(set_if_some_ref, builder, params.query, query);
+    apply_option!(set_if_some_ref, builder, request.query, query);
 
     // Send the WebSocket request.
     builder

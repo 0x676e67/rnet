@@ -466,7 +466,7 @@ impl Display for BlockingResponse {
         write!(
             f,
             "<{}({}) [{}] >",
-            stringify!(BlockingResponse),
+            stringify!(Response),
             self.0.uri,
             self.0.status.0,
         )

@@ -2,11 +2,7 @@ use std::{fmt, sync::Arc, time::SystemTime};
 
 use cookie::{Cookie as RawCookie, Expiration, ParseError, time::Duration};
 use pyo3::{prelude::*, pybacked::PyBackedStr};
-use wreq::{
-    Uri,
-    cookie::{CookieStore, Cookies},
-    header::{self, HeaderMap, HeaderValue},
-};
+use wreq::header::{self, HeaderMap, HeaderValue};
 
 define_enum!(
     /// The Cookie SameSite attribute.
@@ -185,23 +181,11 @@ impl Cookie {
 
 impl fmt::Display for Cookie {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.0)
+        self.0.fmt(f)
     }
 }
 
 // ===== impl Jar =====
-
-impl CookieStore for Jar {
-    #[inline]
-    fn set_cookies(&self, cookie_headers: &mut dyn Iterator<Item = &HeaderValue>, uri: &Uri) {
-        self.0.set_cookies(cookie_headers, uri);
-    }
-
-    #[inline]
-    fn cookies(&self, uri: &Uri) -> Cookies {
-        self.0.cookies(uri)
-    }
-}
 
 #[pymethods]
 impl Jar {

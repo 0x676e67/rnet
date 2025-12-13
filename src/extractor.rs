@@ -14,23 +14,11 @@ use crate::{
     emulation::{Emulation, EmulationOption},
     error::Error,
     header::{HeaderMap, OrigHeaderMap},
-    http::Version,
     proxy::Proxy,
 };
 
 /// A generic extractor for various types.
 pub struct Extractor<T>(pub T);
-
-impl FromPyObject<'_, '_> for Extractor<wreq::Version> {
-    type Error = PyErr;
-
-    fn extract(ob: Borrowed<PyAny>) -> PyResult<Self> {
-        ob.extract::<Version>()
-            .map(Version::into_ffi)
-            .map(Self)
-            .map_err(Into::into)
-    }
-}
 
 impl FromPyObject<'_, '_> for Extractor<Vec<HeaderValue>> {
     type Error = PyErr;
@@ -125,16 +113,6 @@ impl FromPyObject<'_, '_> for Extractor<wreq_util::EmulationOption> {
 
         let option = ob.cast::<EmulationOption>()?.borrow();
         Ok(Self(option.0.clone()))
-    }
-}
-
-impl FromPyObject<'_, '_> for Extractor<wreq::Proxy> {
-    type Error = PyErr;
-
-    fn extract(ob: Borrowed<PyAny>) -> PyResult<Self> {
-        let proxy = ob.cast::<Proxy>()?;
-        let proxy = proxy.borrow().0.clone();
-        Ok(Self(proxy))
     }
 }
 
