@@ -16,6 +16,7 @@ struct Builder {
 
 /// A proxy server for a request.
 /// Supports HTTP, HTTPS, SOCKS4, SOCKS4a, SOCKS5, and SOCKS5h protocols.
+#[derive(Clone)]
 #[pyclass(subclass, frozen)]
 pub struct Proxy(pub wreq::Proxy);
 
@@ -67,6 +68,7 @@ impl Proxy {
     }
 
     /// Creates a new UNIX domain socket proxy.
+    #[allow(unused)]
     #[staticmethod]
     #[pyo3(signature = (path, **kwds))]
     fn unix(py: Python, path: &str, kwds: Option<Builder>) -> PyResult<Self> {
