@@ -4,7 +4,7 @@ use cookie::{Cookie as RawCookie, Expiration, ParseError, time::Duration};
 use pyo3::{prelude::*, pybacked::PyBackedStr};
 use wreq::{
     Uri,
-    cookie::CookieStore,
+    cookie::{CookieStore, Cookies},
     header::{self, HeaderMap, HeaderValue},
 };
 
@@ -198,7 +198,7 @@ impl CookieStore for Jar {
     }
 
     #[inline]
-    fn cookies(&self, uri: &Uri) -> Vec<HeaderValue> {
+    fn cookies(&self, uri: &Uri) -> Cookies {
         self.0.cookies(uri)
     }
 }

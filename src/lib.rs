@@ -344,7 +344,6 @@ fn exceptions_module(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
         intern!(py, "WebSocketError"),
         py.get_type::<WebSocketError>(),
     )?;
-    m.add(intern!(py, "URLParseError"), py.get_type::<URLParseError>())?;
     m.add(intern!(py, "RustPanic"), py.get_type::<RustPanic>())?;
     Ok(())
 }
