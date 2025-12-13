@@ -43,9 +43,6 @@ create_exception!(exceptions, BuilderError, PyException);
 create_exception!(exceptions, UpgradeError, PyException);
 create_exception!(exceptions, WebSocketError, PyException);
 
-// Input validation and parsing errors
-create_exception!(exceptions, URLParseError, PyException);
-
 macro_rules! wrap_error {
     ($error:expr, $($variant:ident => $exception:ident),*) => {
         {

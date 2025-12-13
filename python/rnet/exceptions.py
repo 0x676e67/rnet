@@ -18,7 +18,6 @@ __all__ = [
     "RedirectError",
     "UpgradeError",
     "WebSocketError",
-    "URLParseError",
     "TimeoutError",
 ]
 
@@ -169,24 +168,6 @@ class WebSocketError(Exception):
     - Frame parsing errors
     - Connection state violations
     - Message sending/receiving errors
-    """
-
-
-# ========================================
-# Parsing and Validation Errors
-# ========================================
-
-
-class URLParseError(Exception):
-    r"""
-    An error occurred while parsing a URL.
-
-    This exception is raised when a provided URL cannot be parsed
-    or is malformed. Common issues include:
-    - Invalid URL schemes
-    - Malformed hostnames or ports
-    - Invalid characters in URL components
-    - Missing required URL components
     """
 
 

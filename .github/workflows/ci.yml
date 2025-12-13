@@ -212,6 +212,9 @@ jobs:
         run: |
           choco install nasm -y
         shell: cmd
+      - name: Pin some dependencies, temporary patch for cmake breakage
+        run: |
+          cargo update --package cmake --precise 0.1.54
       - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:
