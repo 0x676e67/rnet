@@ -18,6 +18,7 @@ use crate::{
         query::Query,
         resp::{Response, WebSocket},
     },
+    cookie::Jar,
     error::Error,
     extractor::Extractor,
     http::Method,
@@ -66,6 +67,9 @@ pub struct Request {
 
     /// The redirect policy to use for the request.
     redirect: Option<redirect::Policy>,
+
+    /// The cookie provider to use for the request.
+    cookie_provider: Option<Jar>,
 
     /// Sets gzip as an accepted encoding.
     gzip: Option<bool>,
@@ -124,6 +128,7 @@ impl FromPyObject<'_, '_> for Request {
         extract_option!(ob, request, default_headers);
         extract_option!(ob, request, cookies);
         extract_option!(ob, request, redirect);
+        extract_option!(ob, request, cookie_provider);
         extract_option!(ob, request, auth);
         extract_option!(ob, request, bearer_auth);
         extract_option!(ob, request, basic_auth);
@@ -348,12 +353,20 @@ where
         params.default_headers,
         default_headers
     );
+
+    // Cookies options.
     apply_option!(
         set_if_some_iter_inner_with_key,
         builder,
         params.cookies,
         header,
         COOKIE
+    );
+    apply_option!(
+        set_if_some,
+        builder,
+        params.cookie_provider,
+        cookie_provider
     );
 
     // Authentication options.

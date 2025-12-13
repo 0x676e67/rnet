@@ -787,6 +787,11 @@ class Request(TypedDict):
     The redirect policy.
     """
 
+    cookie_provider: NotRequired[Jar]
+    """
+    Set cookie provider for the request.
+    """
+
     gzip: NotRequired[bool]
     """
     Sets gzip as an accepted encoding.
