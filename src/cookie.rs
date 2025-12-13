@@ -31,7 +31,7 @@ pub struct Cookie(RawCookie<'static>);
 /// existing cookies more easily, before creating a `Client`.
 #[derive(Clone, Default)]
 #[pyclass(subclass, frozen)]
-pub struct Jar(Arc<wreq::cookie::Jar>);
+pub struct Jar(pub Arc<wreq::cookie::Jar>);
 
 // ===== impl Cookie =====
 

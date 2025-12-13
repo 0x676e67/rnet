@@ -12,6 +12,7 @@ from .http2 import *
 from .tls import *
 from .dns import *
 from .redirect import *
+from .proxy import *
 
 __all__ = (
     header.__all__
@@ -23,4 +24,5 @@ __all__ = (
     + tls.__all__
     + dns.__all__
     + redirect.__all__
+    + proxy.__all__
 )  # type: ignore

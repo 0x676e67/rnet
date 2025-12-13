@@ -181,7 +181,6 @@ fn rnet(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<Response>()?;
     m.add_class::<WebSocket>()?;
     m.add_class::<Streamer>()?;
-    m.add_class::<Proxy>()?;
     m.add_class::<Method>()?;
     m.add_class::<Version>()?;
 
@@ -196,6 +195,7 @@ fn rnet(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(request, m)?)?;
     m.add_function(wrap_pyfunction!(websocket, m)?)?;
 
+    m.add_wrapped(wrap_pymodule!(proxy_module))?;
     m.add_wrapped(wrap_pymodule!(dns_module))?;
     m.add_wrapped(wrap_pymodule!(http1_module))?;
     m.add_wrapped(wrap_pymodule!(http2_module))?;
@@ -209,6 +209,7 @@ fn rnet(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
 
     let sys = PyModule::import(py, intern!(py, "sys"))?;
     let sys_modules: Bound<'_, PyDict> = sys.getattr(intern!(py, "modules"))?.cast_into()?;
+    sys_modules.set_item(intern!(py, "rnet.proxy"), m.getattr(intern!(py, "proxy"))?)?;
     sys_modules.set_item(intern!(py, "rnet.dns"), m.getattr(intern!(py, "dns"))?)?;
     sys_modules.set_item(intern!(py, "rnet.http1"), m.getattr(intern!(py, "http1"))?)?;
     sys_modules.set_item(intern!(py, "rnet.http2"), m.getattr(intern!(py, "http2"))?)?;
@@ -237,6 +238,12 @@ fn rnet(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
         intern!(py, "rnet.exceptions"),
         m.getattr(intern!(py, "exceptions"))?,
     )?;
+    Ok(())
+}
+
+#[pymodule(gil_used = false, name = "proxy")]
+fn proxy_module(m: &Bound<'_, PyModule>) -> PyResult<()> {
+    m.add_class::<Proxy>()?;
     Ok(())
 }
 

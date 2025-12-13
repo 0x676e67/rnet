@@ -1,31 +1,19 @@
 import asyncio
 import rnet
 from rnet import Client, Proxy
-from rnet.emulation import Emulation
 
 
 async def main():
     # Create a client with multiple proxies
     client = Client(
-        proxies=[
-            Proxy.http("socks5h://abc:def@127.0.0.1:6152"),
-            Proxy.https(url="socks5h://127.0.0.1:6153", username="abc", password="def"),
-            Proxy.http(
-                url="http://abc:def@127.0.0.1:6152",
-                custom_http_auth="abcedf",
-                custom_http_headers={"User-Agent": "rnet", "x-custom-header": "value"},
-            ),
-            Proxy.all(
-                url="socks5h://abc:def@127.0.0.1:6153",
-                exclusion="google.com, facebook.com, twitter.com",
-            ),
-        ],
+        proxies=[Proxy.http("socks5h://abc:def@127.0.0.1:6152")],
     )
 
+    # Send request via the client proxy
     resp = await client.get("https://httpbin.io/anything")
     print(await resp.text())
 
-    # OR use Proxy directly in request
+    # Send request via custom proxy
     resp = await rnet.get(
         "https://httpbin.io/anything",
         proxy=Proxy.all(
@@ -37,6 +25,13 @@ async def main():
                 "x-proxy": "rnet",
             },
         ),
+    )
+    print(await resp.text())
+
+    # Send request via Unix socket proxy
+    resp = await rnet.get(
+        "http://localhost/v1.41/containers/json",
+        proxy=Proxy.unix("/var/run/docker.sock"),
     )
     print(await resp.text())
 
