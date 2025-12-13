@@ -46,7 +46,6 @@ async def test_connection_error():
         print(f"Other error: {type(e).__name__}: {e}")
 
 
-
 async def main():
     await test_bad_builder()
     await test_timeout_error()

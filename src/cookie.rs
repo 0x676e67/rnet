@@ -207,8 +207,22 @@ impl CookieStore for Jar {
 impl Jar {
     /// Create a new [`Jar`] with an empty cookie store.
     #[new]
-    pub fn new() -> Self {
-        Jar(Arc::new(wreq::cookie::Jar::default()))
+    #[pyo3(signature = (compression = None))]
+    pub fn new(compression: Option<bool>) -> Self {
+        Self(Arc::new(compression.map_or_else(
+            wreq::cookie::Jar::default,
+            wreq::cookie::Jar::new,
+        )))
+    }
+
+    /// Clone this [`Jar`], sharing storage but enabling compression.
+    pub fn compreessed(&self) -> Self {
+        Self(self.0.compressed())
+    }
+
+    /// Clone this [`Jar`], sharing storage but disabling compression.
+    pub fn uncompressed(&self) -> Self {
+        Self(self.0.uncompressed())
     }
 
     /// Get a cookie by name and URL.

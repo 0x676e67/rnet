@@ -96,11 +96,30 @@ class Jar:
 
     This cookie jar can be safely shared across multiple threads and is used
     to automatically handle cookies during HTTP requests and responses.
+
+    By default, cookie compression is enabled to reduce storage overhead.
+    Use `uncompressed()` to create a variant without compression if needed.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, compression: int | None = None) -> None:
         r"""
-        Create a new cookie jar.
+        Create a new cookie jar with compression enabled by default.
+
+        Args:
+            compression: Optional compression level. If not specified, compression
+                        is enabled automatically for better storage efficiency.
+        """
+        ...
+
+    def compressed(self) -> "Jar":
+        r"""
+        Clone this Jar, sharing storage but enabling compression.
+        """
+        ...
+
+    def uncompressed(self) -> "Jar":
+        r"""
+        Clone this Jar, sharing storage but disabling compression.
         """
         ...
 
