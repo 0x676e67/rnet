@@ -72,7 +72,7 @@ impl Proxy {
     fn unix(py: Python, path: &str, kwds: Option<Builder>) -> PyResult<Self> {
         #[cfg(not(unix))]
         {
-            Err(PyRuntimeError::new_err(
+            Err(pyo3::exceptions::PyRuntimeError::new_err(
                 "UNIX domain socket proxies are not supported on this platform.",
             ))
         }
