@@ -1,4 +1,4 @@
-from typing import Callable, Optional, Sequence, final
+from typing import Callable, Sequence, final
 
 from .header import HeaderMap
 from . import StatusCode

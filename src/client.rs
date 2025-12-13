@@ -173,60 +173,60 @@ impl FromPyObject<'_, '_> for Builder {
     type Error = PyErr;
 
     fn extract(ob: Borrowed<PyAny>) -> PyResult<Self> {
-        let mut params = Self::default();
-        extract_option!(ob, params, emulation);
-        extract_option!(ob, params, user_agent);
-        extract_option!(ob, params, headers);
-        extract_option!(ob, params, orig_headers);
-        extract_option!(ob, params, referer);
-        extract_option!(ob, params, redirect);
+        let mut builder = Self::default();
+        extract_option!(ob, builder, emulation);
+        extract_option!(ob, builder, user_agent);
+        extract_option!(ob, builder, headers);
+        extract_option!(ob, builder, orig_headers);
+        extract_option!(ob, builder, referer);
+        extract_option!(ob, builder, redirect);
 
-        extract_option!(ob, params, cookie_store);
-        extract_option!(ob, params, cookie_provider);
+        extract_option!(ob, builder, cookie_store);
+        extract_option!(ob, builder, cookie_provider);
 
-        extract_option!(ob, params, timeout);
-        extract_option!(ob, params, connect_timeout);
-        extract_option!(ob, params, read_timeout);
+        extract_option!(ob, builder, timeout);
+        extract_option!(ob, builder, connect_timeout);
+        extract_option!(ob, builder, read_timeout);
 
-        extract_option!(ob, params, tcp_keepalive);
-        extract_option!(ob, params, tcp_keepalive_interval);
-        extract_option!(ob, params, tcp_keepalive_retries);
-        extract_option!(ob, params, tcp_user_timeout);
-        extract_option!(ob, params, tcp_nodelay);
-        extract_option!(ob, params, tcp_reuse_address);
+        extract_option!(ob, builder, tcp_keepalive);
+        extract_option!(ob, builder, tcp_keepalive_interval);
+        extract_option!(ob, builder, tcp_keepalive_retries);
+        extract_option!(ob, builder, tcp_user_timeout);
+        extract_option!(ob, builder, tcp_nodelay);
+        extract_option!(ob, builder, tcp_reuse_address);
 
-        extract_option!(ob, params, pool_idle_timeout);
-        extract_option!(ob, params, pool_max_idle_per_host);
-        extract_option!(ob, params, pool_max_size);
+        extract_option!(ob, builder, pool_idle_timeout);
+        extract_option!(ob, builder, pool_max_idle_per_host);
+        extract_option!(ob, builder, pool_max_size);
 
-        extract_option!(ob, params, no_proxy);
-        extract_option!(ob, params, proxies);
-        extract_option!(ob, params, local_address);
-        extract_option!(ob, params, local_addresses);
-        extract_option!(ob, params, interface);
+        extract_option!(ob, builder, no_proxy);
+        extract_option!(ob, builder, proxies);
+        extract_option!(ob, builder, local_address);
+        extract_option!(ob, builder, local_addresses);
+        extract_option!(ob, builder, interface);
 
-        extract_option!(ob, params, https_only);
-        extract_option!(ob, params, http1_only);
-        extract_option!(ob, params, http2_only);
-        extract_option!(ob, params, http1_options);
-        extract_option!(ob, params, http2_options);
+        extract_option!(ob, builder, https_only);
+        extract_option!(ob, builder, http1_only);
+        extract_option!(ob, builder, http2_only);
+        extract_option!(ob, builder, http1_options);
+        extract_option!(ob, builder, http2_options);
 
-        extract_option!(ob, params, verify);
-        extract_option!(ob, params, verify_hostname);
-        extract_option!(ob, params, identity);
-        extract_option!(ob, params, keylog);
-        extract_option!(ob, params, tls_info);
-        extract_option!(ob, params, min_tls_version);
-        extract_option!(ob, params, max_tls_version);
-        extract_option!(ob, params, tls_options);
+        extract_option!(ob, builder, verify);
+        extract_option!(ob, builder, verify_hostname);
+        extract_option!(ob, builder, identity);
+        extract_option!(ob, builder, keylog);
+        extract_option!(ob, builder, tls_info);
+        extract_option!(ob, builder, min_tls_version);
+        extract_option!(ob, builder, max_tls_version);
+        extract_option!(ob, builder, tls_options);
 
-        extract_option!(ob, params, dns_options);
+        extract_option!(ob, builder, dns_options);
 
-        extract_option!(ob, params, gzip);
-        extract_option!(ob, params, brotli);
-        extract_option!(ob, params, deflate);
-        extract_option!(ob, params, zstd);
-        Ok(params)
+        extract_option!(ob, builder, gzip);
+        extract_option!(ob, builder, brotli);
+        extract_option!(ob, builder, deflate);
+        extract_option!(ob, builder, zstd);
+        Ok(builder)
     }
 }
 
@@ -277,11 +277,13 @@ impl Client {
             apply_option!(set_if_some_inner, builder, params.redirect, redirect);
 
             // Cookie options.
-            if let Some(cookie_provider) = params.cookie_provider.take() {
-                builder = builder.cookie_provider(Arc::new(cookie_provider));
-            } else {
-                apply_option!(set_if_some, builder, params.cookie_store, cookie_store);
-            }
+            apply_option!(
+                set_if_some_inner,
+                builder,
+                params.cookie_provider,
+                cookie_provider
+            );
+            apply_option!(set_if_some, builder, params.cookie_store, cookie_store);
 
             // TCP options.
             apply_option!(
@@ -416,11 +418,7 @@ impl Client {
             apply_option!(set_if_some_inner, builder, params.tls_options, tls_options);
 
             // Network options.
-            if let Some(proxies) = params.proxies.take() {
-                for proxy in proxies.0 {
-                    builder = builder.proxy(proxy);
-                }
-            }
+            apply_option!(set_if_some_iter_inner, builder, params.proxies, proxy);
             apply_option!(set_if_true, builder, params.no_proxy, no_proxy, false);
             apply_option!(set_if_some, builder, params.local_address, local_address);
             apply_option!(

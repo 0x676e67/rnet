@@ -1,6 +1,6 @@
 import datetime
 from rnet import (
-    ClientParams,
+    ClientConfig,
     History,
     Message,
     Request,
@@ -205,7 +205,7 @@ class Client:
 
     def __init__(
         self,
-        **kwargs: Unpack[ClientParams],
+        **kwargs: Unpack[ClientConfig],
     ) -> None:
         r"""
         Creates a new blocking Client instance.

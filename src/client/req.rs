@@ -108,37 +108,37 @@ impl FromPyObject<'_, '_> for Request {
     type Error = PyErr;
 
     fn extract(ob: Borrowed<PyAny>) -> PyResult<Request> {
-        let mut params = Self::default();
-        extract_option!(ob, params, emulation);
-        extract_option!(ob, params, proxy);
-        extract_option!(ob, params, local_address);
-        extract_option!(ob, params, local_addresses);
-        extract_option!(ob, params, interface);
+        let mut request = Self::default();
+        extract_option!(ob, request, emulation);
+        extract_option!(ob, request, proxy);
+        extract_option!(ob, request, local_address);
+        extract_option!(ob, request, local_addresses);
+        extract_option!(ob, request, interface);
 
-        extract_option!(ob, params, timeout);
-        extract_option!(ob, params, read_timeout);
+        extract_option!(ob, request, timeout);
+        extract_option!(ob, request, read_timeout);
 
-        extract_option!(ob, params, version);
-        extract_option!(ob, params, headers);
-        extract_option!(ob, params, orig_headers);
-        extract_option!(ob, params, default_headers);
-        extract_option!(ob, params, cookies);
-        extract_option!(ob, params, redirect);
-        extract_option!(ob, params, auth);
-        extract_option!(ob, params, bearer_auth);
-        extract_option!(ob, params, basic_auth);
-        extract_option!(ob, params, query);
-        extract_option!(ob, params, form);
-        extract_option!(ob, params, json);
-        extract_option!(ob, params, body);
-        extract_option!(ob, params, multipart);
+        extract_option!(ob, request, version);
+        extract_option!(ob, request, headers);
+        extract_option!(ob, request, orig_headers);
+        extract_option!(ob, request, default_headers);
+        extract_option!(ob, request, cookies);
+        extract_option!(ob, request, redirect);
+        extract_option!(ob, request, auth);
+        extract_option!(ob, request, bearer_auth);
+        extract_option!(ob, request, basic_auth);
+        extract_option!(ob, request, query);
+        extract_option!(ob, request, form);
+        extract_option!(ob, request, json);
+        extract_option!(ob, request, body);
+        extract_option!(ob, request, multipart);
 
-        extract_option!(ob, params, gzip);
-        extract_option!(ob, params, brotli);
-        extract_option!(ob, params, deflate);
-        extract_option!(ob, params, zstd);
+        extract_option!(ob, request, gzip);
+        extract_option!(ob, request, brotli);
+        extract_option!(ob, request, deflate);
+        extract_option!(ob, request, zstd);
 
-        Ok(params)
+        Ok(request)
     }
 }
 
@@ -349,7 +349,7 @@ where
         default_headers
     );
     apply_option!(
-        set_if_some_iter_inner_values,
+        set_if_some_iter_inner_with_key,
         builder,
         params.cookies,
         header,
@@ -488,7 +488,7 @@ where
         default_headers
     );
     apply_option!(
-        set_if_some_iter_inner_values,
+        set_if_some_iter_inner_with_key,
         builder,
         params.cookies,
         header,

@@ -44,7 +44,14 @@ macro_rules! apply_option {
             $builder = $builder.$method(value.0.0, value.0.1);
         }
     };
-    (set_if_some_iter_inner_values, $builder:expr, $option:expr, $method:ident, $key:ident) => {
+    (set_if_some_iter_inner, $builder:expr, $option:expr, $method:ident) => {
+        if let Some(value) = $option.take() {
+            for item in value.0 {
+                $builder = $builder.$method(item);
+            }
+        }
+    };
+    (set_if_some_iter_inner_with_key, $builder:expr, $option:expr, $method:ident, $key:ident) => {
         if let Some(value) = $option.take() {
             for item in value.0 {
                 $builder = $builder.$method($key, item);
