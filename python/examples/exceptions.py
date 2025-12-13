@@ -13,7 +13,6 @@ rnet_errors = (
     exceptions.StatusError,
     exceptions.RequestError,
     exceptions.UpgradeError,
-    exceptions.URLParseError,
 )
 
 
@@ -47,21 +46,11 @@ async def test_connection_error():
         print(f"Other error: {type(e).__name__}: {e}")
 
 
-async def test_urlparse_error():
-    print("\n--- URLParseError (bad url) ---")
-    try:
-        await rnet.get("ht!tp://bad_url")
-    except rnet_errors as e:
-        print(f"Caught: {type(e).__name__}: {e}")
-    except Exception as e:
-        print(f"Other error: {type(e).__name__}: {e}")
-
 
 async def main():
     await test_bad_builder()
     await test_timeout_error()
     await test_connection_error()
-    await test_urlparse_error()
 
 
 if __name__ == "__main__":
