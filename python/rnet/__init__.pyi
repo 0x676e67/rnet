@@ -66,26 +66,31 @@ class StatusCode:
         Return the status code as an integer.
         """
         ...
+
     def is_informational(self) -> bool:
         r"""
         Check if status is within 100-199.
         """
         ...
+
     def is_success(self) -> bool:
         r"""
         Check if status is within 200-299.
         """
         ...
+
     def is_redirection(self) -> bool:
         r"""
         Check if status is within 300-399.
         """
         ...
+
     def is_client_error(self) -> bool:
         r"""
         Check if status is within 400-499.
         """
         ...
+
     def is_server_error(self) -> bool:
         r"""
         Check if status is within 500-599.
@@ -103,6 +108,7 @@ class SocketAddr:
         r"""
         Returns the IP address of the socket address.
         """
+
     def port(self) -> int:
         r"""
         Returns the port number of the socket address.
@@ -207,6 +213,7 @@ class Message:
         # Arguments
         * `json` - The JSON representation of the message.
         """
+
     @staticmethod
     def from_text(text: str) -> "Message":
         r"""
@@ -216,6 +223,7 @@ class Message:
 
         * `text` - The text content of the message.
         """
+
     @staticmethod
     def from_binary(data: bytes) -> "Message":
         r"""
@@ -225,6 +233,7 @@ class Message:
 
         * `data` - The binary data of the message.
         """
+
     @staticmethod
     def from_ping(data: bytes) -> "Message":
         r"""
@@ -234,6 +243,7 @@ class Message:
 
         * `data` - The ping data of the message.
         """
+
     @staticmethod
     def from_pong(data: bytes) -> "Message":
         r"""
@@ -243,6 +253,7 @@ class Message:
 
         * `data` - The pong data of the message.
         """
+
     @staticmethod
     def from_close(code: int, reason: str | None = None) -> "Message":
         r"""
@@ -253,10 +264,12 @@ class Message:
         * `code` - The close code.
         * `reason` - An optional reason for closing.
         """
+
     def json(self) -> Dict[str, Any]:
         r"""
         Returns the JSON representation of the message.
         """
+
     def __str__(self) -> str: ...
 
 class Streamer:
@@ -379,30 +392,37 @@ class Response:
         r"""
         Turn a response into an error if the server returned an error.
         """
+
     def stream(self) -> Streamer:
         r"""
         Get the response into a `Streamer` of `bytes` from the body.
         """
+
     async def text(self) -> str:
         r"""
         Get the text content of the response.
         """
+
     async def text_with_charset(self, encoding: str) -> str:
         r"""
         Get the full response text given a specific encoding.
         """
+
     async def json(self) -> Any:
         r"""
         Get the JSON content of the response.
         """
+
     async def bytes(self) -> bytes:
         r"""
         Get the bytes content of the response.
         """
+
     async def close(self) -> None:
         r"""
         Close the response connection.
         """
+
     async def __aenter__(self) -> Any: ...
     async def __aexit__(
         self, _exc_type: Any, _exc_value: Any, _traceback: Any
@@ -450,14 +470,17 @@ class WebSocket:
         r"""
         Receive a message from the WebSocket.
         """
+
     async def send(self, message: Message) -> None:
         r"""
         Send a message to the WebSocket.
         """
+
     async def send_all(self, messages: Sequence[Message]) -> None:
         r"""
         Send multiple messages to the WebSocket.
         """
+
     async def close(
         self,
         code: int | None = None,
@@ -466,6 +489,7 @@ class WebSocket:
         r"""
         Close the WebSocket connection.
         """
+
     def __aenter__(self) -> Any: ...
     def __aexit__(self, _exc_type: Any, _exc_value: Any, _traceback: Any) -> Any: ...
     def __str__(self) -> str: ...
@@ -1013,6 +1037,7 @@ class Client:
         ```
         """
         ...
+
     async def request(
         self,
         method: Method,
@@ -1037,6 +1062,7 @@ class Client:
         asyncio.run(main())
         ```
         """
+
     async def websocket(
         self,
         url: str,
@@ -1062,6 +1088,7 @@ class Client:
         asyncio.run(main())
         ```
         """
+
     async def trace(
         self,
         url: str,
@@ -1085,6 +1112,7 @@ class Client:
         asyncio.run(main())
         ```
         """
+
     async def options(
         self,
         url: str,
@@ -1108,6 +1136,7 @@ class Client:
         asyncio.run(main())
         ```
         """
+
     async def patch(
         self,
         url: str,
@@ -1131,6 +1160,7 @@ class Client:
         asyncio.run(main())
         ```
         """
+
     async def delete(
         self,
         url: str,
@@ -1154,6 +1184,7 @@ class Client:
         asyncio.run(main())
         ```
         """
+
     async def put(
         self,
         url: str,
@@ -1177,6 +1208,7 @@ class Client:
         asyncio.run(main())
         ```
         """
+
     async def post(
         self,
         url: str,
@@ -1200,6 +1232,7 @@ class Client:
         asyncio.run(main())
         ```
         """
+
     async def head(
         self,
         url: str,
@@ -1223,6 +1256,7 @@ class Client:
         asyncio.run(main())
         ```
         """
+
     async def get(
         self,
         url: str,
