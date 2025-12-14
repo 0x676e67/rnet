@@ -11,7 +11,6 @@ rust-version = "1.85.0"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [lib]
-name = "rnet"
 crate-type = ["cdylib"]
 doctest = false
 
