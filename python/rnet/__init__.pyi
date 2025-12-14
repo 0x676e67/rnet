@@ -133,19 +133,19 @@ class Part:
     """
 
     def __init__(
-        self,
-        name: str,
-        value: (
-            str
-            | bytes
-            | Path
-            | Generator[bytes, str, None]
-            | AsyncGenerator[bytes, str]
-        ),
-        filename: str | None = None,
-        mime: str | None = None,
-        length: int | None = None,
-        headers: HeaderMap | None = None,
+            self,
+            name: str,
+            value: (
+                    str
+                    | bytes
+                    | Path
+                    | Generator[bytes, str, None]
+                    | AsyncGenerator[bytes, str]
+            ),
+            filename: str | None = None,
+            mime: str | None = None,
+            length: int | None = None,
+            headers: HeaderMap | None = None,
     ) -> None:
         r"""
         Creates a new part.
@@ -303,7 +303,7 @@ class Streamer:
     async def __anext__(self) -> Optional[bytes]: ...
     async def __aenter__(self) -> Any: ...
     async def __aexit__(
-        self, _exc_type: Any, _exc_value: Any, _traceback: Any
+            self, _exc_type: Any, _exc_value: Any, _traceback: Any
     ) -> Any: ...
     def __iter__(self) -> "Streamer": ...
     def __next__(self) -> bytes: ...
@@ -425,7 +425,7 @@ class Response:
 
     async def __aenter__(self) -> Any: ...
     async def __aexit__(
-        self, _exc_type: Any, _exc_value: Any, _traceback: Any
+            self, _exc_type: Any, _exc_value: Any, _traceback: Any
     ) -> Any: ...
     def __str__(self) -> str: ...
 
@@ -465,7 +465,7 @@ class WebSocket:
     """
 
     async def recv(
-        self, timeout: datetime.timedelta | None = None
+            self, timeout: datetime.timedelta | None = None
     ) -> Optional[Message]:
         r"""
         Receive a message from the WebSocket.
@@ -482,9 +482,9 @@ class WebSocket:
         """
 
     async def close(
-        self,
-        code: int | None = None,
-        reason: str | None = None,
+            self,
+            code: int | None = None,
+            reason: str | None = None,
     ) -> None:
         r"""
         Close the WebSocket connection.
@@ -830,7 +830,7 @@ class Request(TypedDict):
     query: NotRequired[
         Sequence[Tuple[str, str | int | float | bool]]
         | Dict[str, str | int | float | bool]
-    ]
+        ]
     """
     The query parameters to use for the request.
     """
@@ -838,12 +838,12 @@ class Request(TypedDict):
     form: NotRequired[
         Sequence[Tuple[str, str | int | float | bool]]
         | Dict[str, str | int | float | bool]
-    ]
+        ]
     """
     The form parameters to use for the request.
     """
 
-    json: NotRequired[Dict[str, Any]]
+    json: NotRequired[Any]
     """
     The JSON body to use for the request.
     """
@@ -852,11 +852,12 @@ class Request(TypedDict):
         str
         | bytes
         | Sequence[Tuple[str, str]]
-        | Dict[str, str]
-        | Dict[str, Any]
+        | Tuple[str, str | int | float | bool]
+        | Dict[str, str | int | float | bool]
+        | Any
         | Generator[bytes, str, None]
         | AsyncGenerator[bytes, str]
-    ]
+        ]
     """
     The body to use for the request.
     """
@@ -940,7 +941,7 @@ class WebSocketRequest(TypedDict):
     query: NotRequired[
         Sequence[Tuple[str, str | int | float | bool]]
         | Dict[str, str | int | float | bool]
-    ]
+        ]
     """
     The query parameters to use for the request.
     """
@@ -1012,8 +1013,8 @@ class Client:
     """
 
     def __init__(
-        self,
-        **kwargs: Unpack[ClientConfig],
+            self,
+            **kwargs: Unpack[ClientConfig],
     ) -> None:
         r"""
         Creates a new Client instance.
@@ -1038,10 +1039,10 @@ class Client:
         ...
 
     async def request(
-        self,
-        method: Method,
-        url: str,
-        **kwargs: Unpack[Request],
+            self,
+            method: Method,
+            url: str,
+            **kwargs: Unpack[Request],
     ) -> Response:
         r"""
         Sends a request with the given method and URL.
@@ -1063,9 +1064,9 @@ class Client:
         """
 
     async def websocket(
-        self,
-        url: str,
-        **kwargs: Unpack[WebSocketRequest],
+            self,
+            url: str,
+            **kwargs: Unpack[WebSocketRequest],
     ) -> WebSocket:
         r"""
         Sends a WebSocket request.
@@ -1089,9 +1090,9 @@ class Client:
         """
 
     async def trace(
-        self,
-        url: str,
-        **kwargs: Unpack[Request],
+            self,
+            url: str,
+            **kwargs: Unpack[Request],
     ) -> Response:
         r"""
         Sends a request with the given URL
@@ -1113,9 +1114,9 @@ class Client:
         """
 
     async def options(
-        self,
-        url: str,
-        **kwargs: Unpack[Request],
+            self,
+            url: str,
+            **kwargs: Unpack[Request],
     ) -> Response:
         r"""
         Sends a request with the given URL
@@ -1137,9 +1138,9 @@ class Client:
         """
 
     async def patch(
-        self,
-        url: str,
-        **kwargs: Unpack[Request],
+            self,
+            url: str,
+            **kwargs: Unpack[Request],
     ) -> Response:
         r"""
         Sends a request with the given URL
@@ -1161,9 +1162,9 @@ class Client:
         """
 
     async def delete(
-        self,
-        url: str,
-        **kwargs: Unpack[Request],
+            self,
+            url: str,
+            **kwargs: Unpack[Request],
     ) -> Response:
         r"""
         Sends a request with the given URL
@@ -1185,9 +1186,9 @@ class Client:
         """
 
     async def put(
-        self,
-        url: str,
-        **kwargs: Unpack[Request],
+            self,
+            url: str,
+            **kwargs: Unpack[Request],
     ) -> Response:
         r"""
         Sends a request with the given URL
@@ -1209,9 +1210,9 @@ class Client:
         """
 
     async def post(
-        self,
-        url: str,
-        **kwargs: Unpack[Request],
+            self,
+            url: str,
+            **kwargs: Unpack[Request],
     ) -> Response:
         r"""
         Sends a request with the given URL
@@ -1233,9 +1234,9 @@ class Client:
         """
 
     async def head(
-        self,
-        url: str,
-        **kwargs: Unpack[Request],
+            self,
+            url: str,
+            **kwargs: Unpack[Request],
     ) -> Response:
         r"""
         Sends a request with the given URL
@@ -1257,9 +1258,9 @@ class Client:
         """
 
     async def get(
-        self,
-        url: str,
-        **kwargs: Unpack[Request],
+            self,
+            url: str,
+            **kwargs: Unpack[Request],
     ) -> Response:
         r"""
         Sends a request with the given URL
@@ -1281,8 +1282,8 @@ class Client:
         """
 
 async def delete(
-    url: str,
-    **kwargs: Unpack[Request],
+        url: str,
+        **kwargs: Unpack[Request],
 ) -> Response:
     r"""
     Shortcut method to quickly make a request.
@@ -1303,8 +1304,8 @@ async def delete(
     """
 
 async def get(
-    url: str,
-    **kwargs: Unpack[Request],
+        url: str,
+        **kwargs: Unpack[Request],
 ) -> Response:
     r"""
     Shortcut method to quickly make a request.
@@ -1325,8 +1326,8 @@ async def get(
     """
 
 async def head(
-    url: str,
-    **kwargs: Unpack[Request],
+        url: str,
+        **kwargs: Unpack[Request],
 ) -> Response:
     r"""
     Shortcut method to quickly make a request.
@@ -1346,8 +1347,8 @@ async def head(
     """
 
 async def options(
-    url: str,
-    **kwargs: Unpack[Request],
+        url: str,
+        **kwargs: Unpack[Request],
 ) -> Response:
     r"""
     Shortcut method to quickly make a request.
@@ -1367,8 +1368,8 @@ async def options(
     """
 
 async def patch(
-    url: str,
-    **kwargs: Unpack[Request],
+        url: str,
+        **kwargs: Unpack[Request],
 ) -> Response:
     r"""
     Shortcut method to quickly make a request.
@@ -1389,8 +1390,8 @@ async def patch(
     """
 
 async def post(
-    url: str,
-    **kwargs: Unpack[Request],
+        url: str,
+        **kwargs: Unpack[Request],
 ) -> Response:
     r"""
     Shortcut method to quickly make a request.
@@ -1411,8 +1412,8 @@ async def post(
     """
 
 async def put(
-    url: str,
-    **kwargs: Unpack[Request],
+        url: str,
+        **kwargs: Unpack[Request],
 ) -> Response:
     r"""
     Shortcut method to quickly make a request.
@@ -1433,9 +1434,9 @@ async def put(
     """
 
 async def request(
-    method: Method,
-    url: str,
-    **kwargs: Unpack[Request],
+        method: Method,
+        url: str,
+        **kwargs: Unpack[Request],
 ) -> Response:
     r"""
     Make a request with the given parameters.
@@ -1463,8 +1464,8 @@ async def request(
     """
 
 async def trace(
-    url: str,
-    **kwargs: Unpack[Request],
+        url: str,
+        **kwargs: Unpack[Request],
 ) -> Response:
     r"""
     Shortcut method to quickly make a request.
@@ -1484,8 +1485,8 @@ async def trace(
     """
 
 async def websocket(
-    url: str,
-    **kwargs: Unpack[WebSocketRequest],
+        url: str,
+        **kwargs: Unpack[WebSocketRequest],
 ) -> WebSocket:
     r"""
     Make a WebSocket connection with the given parameters.
