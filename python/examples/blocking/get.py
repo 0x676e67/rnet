@@ -1,3 +1,4 @@
+import datetime
 from rnet.blocking import Client
 from rnet.emulation import Emulation
 
@@ -6,7 +7,7 @@ def main():
     client = Client()
     resp = client.get(
         "https://tls.peet.ws/api/all",
-        timeout=10,
+        timeout=datetime.timedelta(seconds=10),
         emulation=Emulation.Firefox139,
     )
     print(resp.text())

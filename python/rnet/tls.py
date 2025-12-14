@@ -228,7 +228,7 @@ class KeyLog:
         ...
 
     @staticmethod
-    def file(path: Path) -> "KeyLog":
+    def file(path: Path | str) -> "KeyLog":
         """
         Log keys to the specified file path.
 

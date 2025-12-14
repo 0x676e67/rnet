@@ -46,10 +46,10 @@ pub struct Request {
     interface: Option<String>,
 
     /// The timeout to use for the request.
-    timeout: Option<u64>,
+    timeout: Option<Duration>,
 
     /// The read timeout to use for the request.
-    read_timeout: Option<u64>,
+    read_timeout: Option<Duration>,
 
     /// The HTTP version to use for the request.
     version: Option<Version>,
@@ -307,20 +307,8 @@ where
     );
 
     // Timeout options.
-    apply_option!(
-        set_if_some_map,
-        builder,
-        request.timeout,
-        timeout,
-        Duration::from_secs
-    );
-    apply_option!(
-        set_if_some_map,
-        builder,
-        request.read_timeout,
-        read_timeout,
-        Duration::from_secs
-    );
+    apply_option!(set_if_some, builder, request.timeout, timeout);
+    apply_option!(set_if_some, builder, request.read_timeout, read_timeout);
 
     // Network options.
     apply_option!(set_if_some_inner, builder, request.proxy, proxy);

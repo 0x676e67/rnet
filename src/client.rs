@@ -84,30 +84,30 @@ struct Builder {
     cookie_provider: Option<Jar>,
 
     // ========= Timeout options =========
-    /// The timeout to use for the client. (in seconds)
-    timeout: Option<u64>,
-    /// The connect timeout to use for the client. (in seconds)
-    connect_timeout: Option<u64>,
-    /// The read timeout to use for the client. (in seconds)
-    read_timeout: Option<u64>,
+    /// The timeout to use for the client.
+    timeout: Option<Duration>,
+    /// The connect timeout to use for the client.
+    connect_timeout: Option<Duration>,
+    /// The read timeout to use for the client.
+    read_timeout: Option<Duration>,
 
     // ========= TCP options =========
-    /// Set that all sockets have `SO_KEEPALIVE` set with the supplied duration. (in seconds)
-    tcp_keepalive: Option<u64>,
-    /// Set the interval between TCP keepalive probes. (in seconds)
-    tcp_keepalive_interval: Option<u64>,
+    /// Set that all sockets have `SO_KEEPALIVE` set with the supplied duration.
+    tcp_keepalive: Option<Duration>,
+    /// Set the interval between TCP keepalive probes.
+    tcp_keepalive_interval: Option<Duration>,
     /// Set the number of retries for TCP keepalive.
     tcp_keepalive_retries: Option<u32>,
-    /// Set an optional user timeout for TCP sockets. (in seconds)
-    tcp_user_timeout: Option<u64>,
+    /// Set an optional user timeout for TCP sockets.
+    tcp_user_timeout: Option<Duration>,
     /// Set that all sockets have `NO_DELAY` set.
     tcp_nodelay: Option<bool>,
     /// Set that all sockets have `SO_REUSEADDR` set.
     tcp_reuse_address: Option<bool>,
 
     // ========= Connection pool options =========
-    /// Set an optional timeout for idle sockets being kept-alive. (in seconds)
-    pool_idle_timeout: Option<u64>,
+    /// Set an optional timeout for idle sockets being kept-alive.
+    pool_idle_timeout: Option<Duration>,
     /// Sets the maximum idle connection per host allowed in the pool.
     pool_max_idle_per_host: Option<usize>,
     /// Sets the maximum number of connections in the pool.
@@ -286,19 +286,12 @@ impl Client {
             apply_option!(set_if_some, builder, params.cookie_store, cookie_store);
 
             // TCP options.
+            apply_option!(set_if_some, builder, params.tcp_keepalive, tcp_keepalive);
             apply_option!(
-                set_if_some_map,
-                builder,
-                params.tcp_keepalive,
-                tcp_keepalive,
-                Duration::from_secs
-            );
-            apply_option!(
-                set_if_some_map,
+                set_if_some,
                 builder,
                 params.tcp_keepalive_interval,
-                tcp_keepalive_interval,
-                Duration::from_secs
+                tcp_keepalive_interval
             );
             apply_option!(
                 set_if_some,
@@ -308,11 +301,10 @@ impl Client {
             );
             #[cfg(any(target_os = "android", target_os = "fuchsia", target_os = "linux"))]
             apply_option!(
-                set_if_some_map,
+                set_if_some,
                 builder,
                 params.tcp_user_timeout,
-                tcp_user_timeout,
-                Duration::from_secs
+                tcp_user_timeout
             );
             apply_option!(set_if_some, builder, params.tcp_nodelay, tcp_nodelay);
             apply_option!(
@@ -323,35 +315,21 @@ impl Client {
             );
 
             // Timeout options.
+            apply_option!(set_if_some, builder, params.timeout, timeout);
             apply_option!(
-                set_if_some_map,
-                builder,
-                params.timeout,
-                timeout,
-                Duration::from_secs
-            );
-            apply_option!(
-                set_if_some_map,
+                set_if_some,
                 builder,
                 params.connect_timeout,
-                connect_timeout,
-                Duration::from_secs
+                connect_timeout
             );
-            apply_option!(
-                set_if_some_map,
-                builder,
-                params.read_timeout,
-                read_timeout,
-                Duration::from_secs
-            );
+            apply_option!(set_if_some, builder, params.read_timeout, read_timeout);
 
             // Pool options.
             apply_option!(
-                set_if_some_map,
+                set_if_some,
                 builder,
                 params.pool_idle_timeout,
-                pool_idle_timeout,
-                Duration::from_secs
+                pool_idle_timeout
             );
             apply_option!(
                 set_if_some,
