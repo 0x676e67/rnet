@@ -843,7 +843,7 @@ class Request(TypedDict):
     The form parameters to use for the request.
     """
 
-    json: NotRequired[Dict[str, Any]]
+    json: NotRequired[Any]
     """
     The JSON body to use for the request.
     """
@@ -852,8 +852,9 @@ class Request(TypedDict):
         str
         | bytes
         | Sequence[Tuple[str, str]]
-        | Dict[str, str]
-        | Dict[str, Any]
+        | Tuple[str, str | int | float | bool]
+        | Dict[str, str | int | float | bool]
+        | Any
         | Generator[bytes, str, None]
         | AsyncGenerator[bytes, str]
     ]
