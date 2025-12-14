@@ -12,7 +12,7 @@ use pyo3::{
     prelude::*,
     pybacked::{PyBackedBytes, PyBackedStr},
 };
-use tokio::{runtime::Handle, sync::Mutex, task::JoinHandle};
+use tokio::{sync::Mutex, task::JoinHandle};
 
 use crate::{buffer::PyBuffer, error::Error};
 
@@ -33,7 +33,7 @@ pub enum PyBytesLike {
 
 /// A Python stream wrapper.
 pub struct PyStream {
-    source: PyStreamSource,
+    inner: PyStreamSource,
     pending: Pending,
 }
 
@@ -41,6 +41,18 @@ pub struct PyStream {
 #[derive(Clone)]
 #[pyclass(subclass)]
 pub struct Streamer(Arc<Mutex<Option<BoxStream<'static, wreq::Result<Bytes>>>>>);
+
+// ===== impl PyStream =====
+
+impl From<PyStreamSource> for PyStream {
+    #[inline]
+    fn from(inner: PyStreamSource) -> Self {
+        PyStream {
+            inner,
+            pending: None,
+        }
+    }
+}
 
 // ===== impl Streamer =====
 
@@ -162,18 +174,12 @@ impl FromPyObject<'_, '_> for PyStream {
                 .map(Mutex::new)
                 .map(Arc::new)
                 .map(PyStreamSource::Async)
-                .map(|source| PyStream {
-                    source,
-                    pending: None,
-                })
+                .map(PyStream::from)
         } else {
             ob.extract::<Py<PyAny>>()
                 .map(Arc::new)
                 .map(PyStreamSource::Sync)
-                .map(|source| PyStream {
-                    source,
-                    pending: None,
-                })
+                .map(PyStream::from)
                 .map_err(Into::into)
         }
     }
@@ -182,64 +188,45 @@ impl FromPyObject<'_, '_> for PyStream {
 impl Stream for PyStream {
     type Item = PyResult<PyBytesLike>;
 
-    fn poll_next(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
-        match &self.source {
-            PyStreamSource::Sync(ob) => {
-                let ob = ob.clone();
-                poll_or_create(&mut self.get_mut().pending, cx, || {
-                    pyo3_async_runtimes::tokio::get_runtime().spawn_blocking(move || {
-                        Python::attach(|py| {
-                            ob.call_method0(py, intern!(py, "__next__"))
-                                .ok()
-                                .map(|ob| ob.extract(py))
+    fn poll_next(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
+        let this = self.as_mut().get_mut();
+        let mut pending = match this.pending.take() {
+            Some(pending) => pending,
+            None => {
+                let runtime = pyo3_async_runtimes::tokio::get_runtime();
+                match this.inner {
+                    PyStreamSource::Sync(ref ob) => {
+                        let ob = ob.clone();
+                        runtime.spawn_blocking(move || {
+                            Python::attach(|py| {
+                                ob.call_method0(py, intern!(py, "__next__"))
+                                    .ok()
+                                    .map(|ob| ob.extract(py))
+                            })
                         })
-                    })
-                })
-            }
-            PyStreamSource::Async(stream) => {
-                let stream = stream.clone();
-                poll_or_create(&mut self.get_mut().pending, cx, || {
-                    pyo3_async_runtimes::tokio::get_runtime().spawn(async move {
-                        let ob = stream.lock().await.next().await;
-                        Handle::current()
-                            .spawn_blocking(move || {
+                    }
+                    PyStreamSource::Async(ref stream) => {
+                        let stream = stream.clone();
+                        runtime.spawn(async move {
+                            let ob = stream.lock().await.next().await;
+                            tokio::task::spawn_blocking(move || {
                                 Python::attach(|py| ob.map(|ob| ob.extract(py)))
                             })
                             .await
                             .ok()?
-                    })
-                })
+                        })
+                    }
+                }
             }
-        }
-    }
-}
+        };
 
-fn poll_or_create<F>(
-    pending: &mut Pending,
-    cx: &mut Context<'_>,
-    create_task: F,
-) -> Poll<Option<PyResult<PyBytesLike>>>
-where
-    F: FnOnce() -> JoinHandle<Option<PyResult<PyBytesLike>>>,
-{
-    if let Some(mut fut) = pending.take() {
-        match fut.poll_unpin(cx) {
-            Poll::Ready(Ok(res)) => return Poll::Ready(res),
-            Poll::Ready(Err(_)) => return Poll::Ready(None),
+        match pending.poll_unpin(cx) {
+            Poll::Ready(Ok(res)) => Poll::Ready(res),
+            Poll::Ready(Err(_)) => Poll::Ready(None),
             Poll::Pending => {
-                *pending = Some(fut);
-                return Poll::Pending;
+                this.pending = Some(pending);
+                Poll::Pending
             }
-        }
-    }
-
-    let mut fut = create_task();
-    match fut.poll_unpin(cx) {
-        Poll::Ready(Ok(res)) => Poll::Ready(res),
-        Poll::Ready(Err(_)) => Poll::Ready(None),
-        Poll::Pending => {
-            *pending = Some(fut);
-            Poll::Pending
         }
     }
 }
