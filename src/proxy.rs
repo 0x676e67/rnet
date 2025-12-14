@@ -1,3 +1,6 @@
+use core::fmt;
+use std::fmt::Debug;
+
 use bytes::Bytes;
 use pyo3::{prelude::*, pybacked::PyBackedStr};
 use wreq::header::{HeaderMap, HeaderValue};
@@ -7,17 +10,26 @@ use crate::{error::Error, extractor::Extractor};
 /// A builder for `Proxy`.
 #[derive(Default)]
 struct Builder {
+    // Optional username for proxy authentication.
     username: Option<PyBackedStr>,
+
+    // Optional password for proxy authentication.
     password: Option<PyBackedStr>,
+
+    // Optional custom HTTP authentication header.
     custom_http_auth: Option<PyBackedStr>,
+
+    /// Optional custom HTTP headers for the proxy.
     custom_http_headers: Option<Extractor<HeaderMap>>,
+
+    // Optional exclusion list for the proxy.
     exclusion: Option<PyBackedStr>,
 }
 
 /// A proxy server for a request.
 /// Supports HTTP, HTTPS, SOCKS4, SOCKS4a, SOCKS5, and SOCKS5h protocols.
 #[derive(Clone)]
-#[pyclass(subclass, frozen)]
+#[pyclass(subclass, frozen, str)]
 pub struct Proxy(pub wreq::Proxy);
 
 // ===== impl Builder =====
@@ -84,9 +96,12 @@ impl Proxy {
     }
 }
 
-/// Internal helper for creating a configured proxy.
-/// Handles auth, custom headers, and exclusion rules.
-#[allow(clippy::too_many_arguments)]
+impl fmt::Display for Proxy {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        self.0.fmt(f)
+    }
+}
+
 fn create_proxy<'py>(
     py: Python<'py>,
     proxy_fn: fn(&'py str) -> wreq::Result<wreq::Proxy>,
