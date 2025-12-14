@@ -66,31 +66,26 @@ class StatusCode:
         Return the status code as an integer.
         """
         ...
-
     def is_informational(self) -> bool:
         r"""
         Check if status is within 100-199.
         """
         ...
-
     def is_success(self) -> bool:
         r"""
         Check if status is within 200-299.
         """
         ...
-
     def is_redirection(self) -> bool:
         r"""
         Check if status is within 300-399.
         """
         ...
-
     def is_client_error(self) -> bool:
         r"""
         Check if status is within 400-499.
         """
         ...
-
     def is_server_error(self) -> bool:
         r"""
         Check if status is within 500-599.
@@ -108,7 +103,6 @@ class SocketAddr:
         r"""
         Returns the IP address of the socket address.
         """
-
     def port(self) -> int:
         r"""
         Returns the port number of the socket address.
@@ -133,19 +127,19 @@ class Part:
     """
 
     def __init__(
-            self,
-            name: str,
-            value: (
-                    str
-                    | bytes
-                    | Path
-                    | Generator[bytes, str, None]
-                    | AsyncGenerator[bytes, str]
-            ),
-            filename: str | None = None,
-            mime: str | None = None,
-            length: int | None = None,
-            headers: HeaderMap | None = None,
+        self,
+        name: str,
+        value: (
+            str
+            | bytes
+            | Path
+            | Generator[bytes, str, None]
+            | AsyncGenerator[bytes, str]
+        ),
+        filename: str | None = None,
+        mime: str | None = None,
+        length: int | None = None,
+        headers: HeaderMap | None = None,
     ) -> None:
         r"""
         Creates a new part.
@@ -213,7 +207,6 @@ class Message:
         # Arguments
         * `json` - The JSON representation of the message.
         """
-
     @staticmethod
     def from_text(text: str) -> "Message":
         r"""
@@ -223,7 +216,6 @@ class Message:
 
         * `text` - The text content of the message.
         """
-
     @staticmethod
     def from_binary(data: bytes) -> "Message":
         r"""
@@ -233,7 +225,6 @@ class Message:
 
         * `data` - The binary data of the message.
         """
-
     @staticmethod
     def from_ping(data: bytes) -> "Message":
         r"""
@@ -243,7 +234,6 @@ class Message:
 
         * `data` - The ping data of the message.
         """
-
     @staticmethod
     def from_pong(data: bytes) -> "Message":
         r"""
@@ -253,7 +243,6 @@ class Message:
 
         * `data` - The pong data of the message.
         """
-
     @staticmethod
     def from_close(code: int, reason: str | None = None) -> "Message":
         r"""
@@ -264,12 +253,10 @@ class Message:
         * `code` - The close code.
         * `reason` - An optional reason for closing.
         """
-
     def json(self) -> Dict[str, Any]:
         r"""
         Returns the JSON representation of the message.
         """
-
     def __str__(self) -> str: ...
 
 class Streamer:
@@ -303,7 +290,7 @@ class Streamer:
     async def __anext__(self) -> Optional[bytes]: ...
     async def __aenter__(self) -> Any: ...
     async def __aexit__(
-            self, _exc_type: Any, _exc_value: Any, _traceback: Any
+        self, _exc_type: Any, _exc_value: Any, _traceback: Any
     ) -> Any: ...
     def __iter__(self) -> "Streamer": ...
     def __next__(self) -> bytes: ...
@@ -392,40 +379,33 @@ class Response:
         r"""
         Turn a response into an error if the server returned an error.
         """
-
     def stream(self) -> Streamer:
         r"""
         Get the response into a `Streamer` of `bytes` from the body.
         """
-
     async def text(self) -> str:
         r"""
         Get the text content of the response.
         """
-
     async def text_with_charset(self, encoding: str) -> str:
         r"""
         Get the full response text given a specific encoding.
         """
-
     async def json(self) -> Any:
         r"""
         Get the JSON content of the response.
         """
-
     async def bytes(self) -> bytes:
         r"""
         Get the bytes content of the response.
         """
-
     async def close(self) -> None:
         r"""
         Close the response connection.
         """
-
     async def __aenter__(self) -> Any: ...
     async def __aexit__(
-            self, _exc_type: Any, _exc_value: Any, _traceback: Any
+        self, _exc_type: Any, _exc_value: Any, _traceback: Any
     ) -> Any: ...
     def __str__(self) -> str: ...
 
@@ -465,31 +445,27 @@ class WebSocket:
     """
 
     async def recv(
-            self, timeout: datetime.timedelta | None = None
+        self, timeout: datetime.timedelta | None = None
     ) -> Optional[Message]:
         r"""
         Receive a message from the WebSocket.
         """
-
     async def send(self, message: Message) -> None:
         r"""
         Send a message to the WebSocket.
         """
-
     async def send_all(self, messages: Sequence[Message]) -> None:
         r"""
         Send multiple messages to the WebSocket.
         """
-
     async def close(
-            self,
-            code: int | None = None,
-            reason: str | None = None,
+        self,
+        code: int | None = None,
+        reason: str | None = None,
     ) -> None:
         r"""
         Close the WebSocket connection.
         """
-
     def __aenter__(self) -> Any: ...
     def __aexit__(self, _exc_type: Any, _exc_value: Any, _traceback: Any) -> Any: ...
     def __str__(self) -> str: ...
@@ -830,7 +806,7 @@ class Request(TypedDict):
     query: NotRequired[
         Sequence[Tuple[str, str | int | float | bool]]
         | Dict[str, str | int | float | bool]
-        ]
+    ]
     """
     The query parameters to use for the request.
     """
@@ -838,7 +814,7 @@ class Request(TypedDict):
     form: NotRequired[
         Sequence[Tuple[str, str | int | float | bool]]
         | Dict[str, str | int | float | bool]
-        ]
+    ]
     """
     The form parameters to use for the request.
     """
@@ -857,7 +833,7 @@ class Request(TypedDict):
         | Any
         | Generator[bytes, str, None]
         | AsyncGenerator[bytes, str]
-        ]
+    ]
     """
     The body to use for the request.
     """
@@ -941,7 +917,7 @@ class WebSocketRequest(TypedDict):
     query: NotRequired[
         Sequence[Tuple[str, str | int | float | bool]]
         | Dict[str, str | int | float | bool]
-        ]
+    ]
     """
     The query parameters to use for the request.
     """
@@ -1013,8 +989,8 @@ class Client:
     """
 
     def __init__(
-            self,
-            **kwargs: Unpack[ClientConfig],
+        self,
+        **kwargs: Unpack[ClientConfig],
     ) -> None:
         r"""
         Creates a new Client instance.
@@ -1037,12 +1013,11 @@ class Client:
         ```
         """
         ...
-
     async def request(
-            self,
-            method: Method,
-            url: str,
-            **kwargs: Unpack[Request],
+        self,
+        method: Method,
+        url: str,
+        **kwargs: Unpack[Request],
     ) -> Response:
         r"""
         Sends a request with the given method and URL.
@@ -1062,11 +1037,10 @@ class Client:
         asyncio.run(main())
         ```
         """
-
     async def websocket(
-            self,
-            url: str,
-            **kwargs: Unpack[WebSocketRequest],
+        self,
+        url: str,
+        **kwargs: Unpack[WebSocketRequest],
     ) -> WebSocket:
         r"""
         Sends a WebSocket request.
@@ -1088,11 +1062,10 @@ class Client:
         asyncio.run(main())
         ```
         """
-
     async def trace(
-            self,
-            url: str,
-            **kwargs: Unpack[Request],
+        self,
+        url: str,
+        **kwargs: Unpack[Request],
     ) -> Response:
         r"""
         Sends a request with the given URL
@@ -1112,11 +1085,10 @@ class Client:
         asyncio.run(main())
         ```
         """
-
     async def options(
-            self,
-            url: str,
-            **kwargs: Unpack[Request],
+        self,
+        url: str,
+        **kwargs: Unpack[Request],
     ) -> Response:
         r"""
         Sends a request with the given URL
@@ -1136,11 +1108,10 @@ class Client:
         asyncio.run(main())
         ```
         """
-
     async def patch(
-            self,
-            url: str,
-            **kwargs: Unpack[Request],
+        self,
+        url: str,
+        **kwargs: Unpack[Request],
     ) -> Response:
         r"""
         Sends a request with the given URL
@@ -1160,11 +1131,10 @@ class Client:
         asyncio.run(main())
         ```
         """
-
     async def delete(
-            self,
-            url: str,
-            **kwargs: Unpack[Request],
+        self,
+        url: str,
+        **kwargs: Unpack[Request],
     ) -> Response:
         r"""
         Sends a request with the given URL
@@ -1184,11 +1154,10 @@ class Client:
         asyncio.run(main())
         ```
         """
-
     async def put(
-            self,
-            url: str,
-            **kwargs: Unpack[Request],
+        self,
+        url: str,
+        **kwargs: Unpack[Request],
     ) -> Response:
         r"""
         Sends a request with the given URL
@@ -1208,11 +1177,10 @@ class Client:
         asyncio.run(main())
         ```
         """
-
     async def post(
-            self,
-            url: str,
-            **kwargs: Unpack[Request],
+        self,
+        url: str,
+        **kwargs: Unpack[Request],
     ) -> Response:
         r"""
         Sends a request with the given URL
@@ -1232,11 +1200,10 @@ class Client:
         asyncio.run(main())
         ```
         """
-
     async def head(
-            self,
-            url: str,
-            **kwargs: Unpack[Request],
+        self,
+        url: str,
+        **kwargs: Unpack[Request],
     ) -> Response:
         r"""
         Sends a request with the given URL
@@ -1256,11 +1223,10 @@ class Client:
         asyncio.run(main())
         ```
         """
-
     async def get(
-            self,
-            url: str,
-            **kwargs: Unpack[Request],
+        self,
+        url: str,
+        **kwargs: Unpack[Request],
     ) -> Response:
         r"""
         Sends a request with the given URL
@@ -1282,8 +1248,8 @@ class Client:
         """
 
 async def delete(
-        url: str,
-        **kwargs: Unpack[Request],
+    url: str,
+    **kwargs: Unpack[Request],
 ) -> Response:
     r"""
     Shortcut method to quickly make a request.
@@ -1304,8 +1270,8 @@ async def delete(
     """
 
 async def get(
-        url: str,
-        **kwargs: Unpack[Request],
+    url: str,
+    **kwargs: Unpack[Request],
 ) -> Response:
     r"""
     Shortcut method to quickly make a request.
@@ -1326,8 +1292,8 @@ async def get(
     """
 
 async def head(
-        url: str,
-        **kwargs: Unpack[Request],
+    url: str,
+    **kwargs: Unpack[Request],
 ) -> Response:
     r"""
     Shortcut method to quickly make a request.
@@ -1347,8 +1313,8 @@ async def head(
     """
 
 async def options(
-        url: str,
-        **kwargs: Unpack[Request],
+    url: str,
+    **kwargs: Unpack[Request],
 ) -> Response:
     r"""
     Shortcut method to quickly make a request.
@@ -1368,8 +1334,8 @@ async def options(
     """
 
 async def patch(
-        url: str,
-        **kwargs: Unpack[Request],
+    url: str,
+    **kwargs: Unpack[Request],
 ) -> Response:
     r"""
     Shortcut method to quickly make a request.
@@ -1390,8 +1356,8 @@ async def patch(
     """
 
 async def post(
-        url: str,
-        **kwargs: Unpack[Request],
+    url: str,
+    **kwargs: Unpack[Request],
 ) -> Response:
     r"""
     Shortcut method to quickly make a request.
@@ -1412,8 +1378,8 @@ async def post(
     """
 
 async def put(
-        url: str,
-        **kwargs: Unpack[Request],
+    url: str,
+    **kwargs: Unpack[Request],
 ) -> Response:
     r"""
     Shortcut method to quickly make a request.
@@ -1434,9 +1400,9 @@ async def put(
     """
 
 async def request(
-        method: Method,
-        url: str,
-        **kwargs: Unpack[Request],
+    method: Method,
+    url: str,
+    **kwargs: Unpack[Request],
 ) -> Response:
     r"""
     Make a request with the given parameters.
@@ -1464,8 +1430,8 @@ async def request(
     """
 
 async def trace(
-        url: str,
-        **kwargs: Unpack[Request],
+    url: str,
+    **kwargs: Unpack[Request],
 ) -> Response:
     r"""
     Shortcut method to quickly make a request.
@@ -1485,8 +1451,8 @@ async def trace(
     """
 
 async def websocket(
-        url: str,
-        **kwargs: Unpack[WebSocketRequest],
+    url: str,
+    **kwargs: Unpack[WebSocketRequest],
 ) -> WebSocket:
     r"""
     Make a WebSocket connection with the given parameters.
