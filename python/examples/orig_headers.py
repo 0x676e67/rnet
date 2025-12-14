@@ -20,7 +20,8 @@ async def main():
     )
 
     msg = await ws.recv()
-    print(msg.json())
+    if msg is not None:
+        print(msg.json())
     await ws.close()
 
 

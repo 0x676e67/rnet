@@ -1,3 +1,4 @@
+import datetime
 import rnet
 import asyncio
 import rnet.exceptions as exceptions
@@ -29,7 +30,9 @@ async def test_bad_builder():
 async def test_timeout_error():
     print("\n--- TimeoutError (timeout) ---")
     try:
-        await rnet.get("https://httpbin.io/delay/10", timeout=1)
+        await rnet.get(
+            "https://httpbin.io/delay/10", timeout=datetime.timedelta(seconds=1)
+        )
     except rnet_errors as e:
         print(f"Caught: {type(e).__name__}: {e}")
     except Exception as e:

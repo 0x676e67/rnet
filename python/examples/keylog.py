@@ -1,7 +1,6 @@
 import asyncio
 from rnet import Client
 from rnet.tls import KeyLog
-from rnet.emulation import Emulation
 
 
 async def main():

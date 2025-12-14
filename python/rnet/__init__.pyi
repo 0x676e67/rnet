@@ -203,7 +203,7 @@ class Message:
         # Arguments
         * `json` - The JSON representation of the message.
         """
-    ...
+        ...
 
     @staticmethod
     def binary_from_json(json: Dict[str, Any]) -> "Message":
@@ -213,6 +213,7 @@ class Message:
         # Arguments
         * `json` - The JSON representation of the message.
         """
+        ...
 
     @staticmethod
     def from_text(text: str) -> "Message":
@@ -223,6 +224,7 @@ class Message:
 
         * `text` - The text content of the message.
         """
+        ...
 
     @staticmethod
     def from_binary(data: bytes) -> "Message":
@@ -233,6 +235,7 @@ class Message:
 
         * `data` - The binary data of the message.
         """
+        ...
 
     @staticmethod
     def from_ping(data: bytes) -> "Message":
@@ -243,6 +246,7 @@ class Message:
 
         * `data` - The ping data of the message.
         """
+        ...
 
     @staticmethod
     def from_pong(data: bytes) -> "Message":
@@ -253,6 +257,7 @@ class Message:
 
         * `data` - The pong data of the message.
         """
+        ...
 
     @staticmethod
     def from_close(code: int, reason: str | None = None) -> "Message":
@@ -264,11 +269,13 @@ class Message:
         * `code` - The close code.
         * `reason` - An optional reason for closing.
         """
+        ...
 
-    def json(self) -> Dict[str, Any]:
+    def json(self) -> Any:
         r"""
         Returns the JSON representation of the message.
         """
+        ...
 
     def __str__(self) -> str: ...
 
@@ -535,31 +542,31 @@ class ClientConfig(TypedDict):
 
     # ========= Timeout options ========
 
-    timeout: NotRequired[int]
+    timeout: NotRequired[datetime.timedelta]
     """
-    Total timeout (seconds).
-    """
-
-    connect_timeout: NotRequired[int]
-    """
-    Connection timeout (seconds).
+    Total timeout.
     """
 
-    read_timeout: NotRequired[int]
+    connect_timeout: NotRequired[datetime.timedelta]
     """
-    Read timeout (seconds).
+    Connection timeout.
+    """
+
+    read_timeout: NotRequired[datetime.timedelta]
+    """
+    Read timeout.
     """
 
     # ======== TCP options ========
 
-    tcp_keepalive: NotRequired[int]
+    tcp_keepalive: NotRequired[datetime.timedelta]
     """
-    TCP keepalive time (seconds).
+    TCP keepalive time.
     """
 
-    tcp_keepalive_interval: NotRequired[int]
+    tcp_keepalive_interval: NotRequired[datetime.timedelta]
     """
-    TCP keepalive interval (seconds).
+    TCP keepalive interval.
     """
 
     tcp_keepalive_retries: NotRequired[int]
@@ -567,9 +574,9 @@ class ClientConfig(TypedDict):
     TCP keepalive retry count.
     """
 
-    tcp_user_timeout: NotRequired[int]
+    tcp_user_timeout: NotRequired[datetime.timedelta]
     """
-    TCP user timeout (seconds).
+    TCP user timeout.
     """
 
     tcp_nodelay: NotRequired[bool]
@@ -584,9 +591,9 @@ class ClientConfig(TypedDict):
 
     # ======== Connection pool options ========
 
-    pool_idle_timeout: NotRequired[int]
+    pool_idle_timeout: NotRequired[datetime.timedelta]
     """
-    Connection pool idle timeout (seconds).
+    Connection pool idle timeout.
     """
 
     pool_max_idle_per_host: NotRequired[int]
@@ -747,12 +754,12 @@ class Request(TypedDict):
     Bind to an interface by SO_BINDTODEVICE.
     """
 
-    timeout: NotRequired[int]
+    timeout: NotRequired[datetime.timedelta]
     """
     The timeout to use for the request.
     """
 
-    read_timeout: NotRequired[int]
+    read_timeout: NotRequired[datetime.timedelta]
     """
     The read timeout to use for the request.
     """
