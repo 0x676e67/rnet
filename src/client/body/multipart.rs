@@ -6,9 +6,9 @@ use pyo3::{
     pybacked::{PyBackedBytes, PyBackedStr},
     types::PyTuple,
 };
-use wreq::{Body, header::HeaderMap, multipart, multipart::Form};
+use wreq::{Body, multipart, multipart::Form};
 
-use crate::{client::body::PyStream, error::Error, extractor::Extractor};
+use crate::{client::body::PyStream, error::Error, header::HeaderMap};
 
 /// A multipart form for a request.
 #[pyclass(subclass)]
@@ -70,7 +70,7 @@ impl Part {
         filename: Option<String>,
         mime: Option<&str>,
         length: Option<u64>,
-        headers: Option<Extractor<HeaderMap>>,
+        headers: Option<HeaderMap>,
     ) -> PyResult<Part> {
         py.detach(|| {
             // Create the inner part

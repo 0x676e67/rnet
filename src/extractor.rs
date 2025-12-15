@@ -7,13 +7,12 @@ use pyo3::{
     pybacked::PyBackedStr,
     types::{PyDict, PyList},
 };
-use wreq::header::{self, HeaderName, HeaderValue};
+use wreq::header::HeaderValue;
 
 use crate::{
     client::body::multipart::Multipart,
     emulation::{Emulation, EmulationOption},
     error::Error,
-    header::{HeaderMap, OrigHeaderMap},
     proxy::Proxy,
 };
 
@@ -38,63 +37,6 @@ impl FromPyObject<'_, '_> for Extractor<Vec<HeaderValue>> {
                 cookies.push(cookie);
                 Ok(cookies)
             })
-            .map(Self)
-    }
-}
-
-impl FromPyObject<'_, '_> for Extractor<wreq::header::HeaderMap> {
-    type Error = PyErr;
-
-    fn extract(ob: Borrowed<PyAny>) -> PyResult<Self> {
-        if let Ok(headers) = ob.cast::<HeaderMap>() {
-            return Ok(Self(headers.borrow().0.clone()));
-        }
-
-        let dict = ob.cast::<PyDict>()?;
-        dict.iter()
-            .try_fold(
-                header::HeaderMap::with_capacity(dict.len()),
-                |mut headers, (name, value)| {
-                    let name = {
-                        let name = name.extract::<PyBackedStr>()?;
-                        HeaderName::from_bytes(name.as_bytes()).map_err(Error::from)?
-                    };
-
-                    let value = {
-                        let value = value.extract::<PyBackedStr>()?;
-                        HeaderValue::from_maybe_shared(Bytes::from_owner(value))
-                            .map_err(Error::from)?
-                    };
-
-                    headers.insert(name, value);
-                    Ok(headers)
-                },
-            )
-            .map(Self)
-    }
-}
-
-impl FromPyObject<'_, '_> for Extractor<wreq::header::OrigHeaderMap> {
-    type Error = PyErr;
-
-    fn extract(ob: Borrowed<PyAny>) -> PyResult<Self> {
-        if let Ok(headers) = ob.cast::<OrigHeaderMap>() {
-            return Ok(Self(headers.borrow().0.clone()));
-        }
-
-        let list = ob.cast::<PyList>()?;
-        list.iter()
-            .try_fold(
-                header::OrigHeaderMap::with_capacity(list.len()),
-                |mut headers, name| {
-                    let name = {
-                        let name = name.extract::<PyBackedStr>()?;
-                        Bytes::from_owner(name)
-                    };
-                    headers.insert(name);
-                    Ok(headers)
-                },
-            )
             .map(Self)
     }
 }

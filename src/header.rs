@@ -8,16 +8,16 @@ use pyo3::{
 };
 use wreq::header::{self, HeaderName, HeaderValue};
 
-use crate::buffer::PyBuffer;
+use crate::{buffer::PyBuffer, error::Error};
 
 /// A HTTP header map.
 #[derive(Clone)]
-#[pyclass(subclass, str)]
+#[pyclass(subclass, str, skip_from_py_object)]
 pub struct HeaderMap(pub header::HeaderMap);
 
 /// A HTTP original header map.
 #[derive(Clone)]
-#[pyclass(subclass, str)]
+#[pyclass(subclass, str, skip_from_py_object)]
 pub struct OrigHeaderMap(pub header::OrigHeaderMap);
 
 // ===== impl HeaderMap =====
@@ -240,6 +240,38 @@ impl fmt::Display for HeaderMap {
     }
 }
 
+impl FromPyObject<'_, '_> for HeaderMap {
+    type Error = PyErr;
+
+    fn extract(ob: Borrowed<PyAny>) -> PyResult<Self> {
+        if let Ok(headers) = ob.cast::<HeaderMap>() {
+            return Ok(Self(headers.borrow().0.clone()));
+        }
+
+        let dict = ob.cast::<PyDict>()?;
+        dict.iter()
+            .try_fold(
+                header::HeaderMap::with_capacity(dict.len()),
+                |mut headers, (name, value)| {
+                    let name = {
+                        let name = name.extract::<PyBackedStr>()?;
+                        HeaderName::from_bytes(name.as_bytes()).map_err(Error::from)?
+                    };
+
+                    let value = {
+                        let value = value.extract::<PyBackedStr>()?;
+                        HeaderValue::from_maybe_shared(Bytes::from_owner(value))
+                            .map_err(Error::from)?
+                    };
+
+                    headers.insert(name, value);
+                    Ok(headers)
+                },
+            )
+            .map(Self)
+    }
+}
+
 // ===== impl OrigHeaderMap =====
 
 #[pymethods]
@@ -321,5 +353,30 @@ impl OrigHeaderMap {
 impl fmt::Display for OrigHeaderMap {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{:?}", self.0)
+    }
+}
+
+impl FromPyObject<'_, '_> for OrigHeaderMap {
+    type Error = PyErr;
+
+    fn extract(ob: Borrowed<PyAny>) -> PyResult<Self> {
+        if let Ok(headers) = ob.cast::<OrigHeaderMap>() {
+            return Ok(Self(headers.borrow().0.clone()));
+        }
+
+        let list = ob.cast::<PyList>()?;
+        list.iter()
+            .try_fold(
+                header::OrigHeaderMap::with_capacity(list.len()),
+                |mut headers, name| {
+                    let name = {
+                        let name = name.extract::<PyBackedStr>()?;
+                        Bytes::from_owner(name)
+                    };
+                    headers.insert(name);
+                    Ok(headers)
+                },
+            )
+            .map(Self)
     }
 }
