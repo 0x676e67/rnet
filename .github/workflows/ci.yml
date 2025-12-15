@@ -141,7 +141,7 @@ jobs:
           container: 'off'
         env: ${{ matrix.platform.custom_env }}
       - name: Upload wheels
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: wheels-linux-${{ matrix.platform.target }}-${{ matrix.build_type.name }}
           path: dist
@@ -175,7 +175,7 @@ jobs:
         run: 
           bash .github/musl_build.sh ${{ matrix.platform.target }} "${{ matrix.build_type.maturin_args }}" --features "${{ matrix.platform.allocator }}"
       - name: Upload wheels
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: wheels-musllinux-${{ matrix.platform.target }}-${{ matrix.build_type.name }}
           path: dist
@@ -222,7 +222,7 @@ jobs:
           args: --release --out dist ${{ matrix.build_type.maturin_args }} --features ${{ matrix.platform.allocator || '' }}
           sccache: 'false'
       - name: Upload wheels
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: wheels-windows-${{ matrix.platform.target }}-${{ matrix.build_type.name }}
           path: dist
@@ -260,7 +260,7 @@ jobs:
           args: --release --out dist ${{ matrix.build_type.maturin_args }} --features ${{ matrix.platform.allocator || '' }}
           sccache: 'false'
       - name: Upload wheels
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: wheels-macos-${{ matrix.platform.target }}-${{ matrix.build_type.name }}
           path: dist
@@ -338,7 +338,7 @@ jobs:
           esac
         done
     - name: Upload wheels
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         name: wheels-android-${{ matrix.target }}
         path: dist
@@ -353,7 +353,7 @@ jobs:
           command: sdist
           args: --out dist
       - name: Upload sdist
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: wheels-sdist
           path: dist
