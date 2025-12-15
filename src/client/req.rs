@@ -6,10 +6,7 @@ use std::{
 use futures_util::TryFutureExt;
 use http::header::COOKIE;
 use pyo3::{PyResult, prelude::*, pybacked::PyBackedStr};
-use wreq::{
-    Client,
-    header::{HeaderMap, HeaderValue, OrigHeaderMap},
-};
+use wreq::{Client, header::HeaderValue};
 use wreq_util::EmulationOption;
 
 use crate::{
@@ -21,6 +18,7 @@ use crate::{
     cookie::Jar,
     error::Error,
     extractor::Extractor,
+    header::{HeaderMap, OrigHeaderMap},
     http::{Method, Version},
     proxy::Proxy,
     redirect,
@@ -55,10 +53,10 @@ pub struct Request {
     version: Option<Version>,
 
     /// The headers to use for the request.
-    headers: Option<Extractor<HeaderMap>>,
+    headers: Option<HeaderMap>,
 
     /// The original headers to use for the request.
-    orig_headers: Option<Extractor<OrigHeaderMap>>,
+    orig_headers: Option<OrigHeaderMap>,
 
     /// The option enables default headers.
     default_headers: Option<bool>,
@@ -129,10 +127,10 @@ pub struct WebSocketRequest {
     interface: Option<String>,
 
     /// The headers to use for the request.
-    headers: Option<Extractor<HeaderMap>>,
+    headers: Option<HeaderMap>,
 
     /// The original headers to use for the request.
-    orig_headers: Option<Extractor<OrigHeaderMap>>,
+    orig_headers: Option<OrigHeaderMap>,
 
     /// The option enables default headers.
     default_headers: Option<bool>,

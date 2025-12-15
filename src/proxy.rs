@@ -3,9 +3,9 @@ use std::fmt::Debug;
 
 use bytes::Bytes;
 use pyo3::{prelude::*, pybacked::PyBackedStr};
-use wreq::header::{HeaderMap, HeaderValue};
+use wreq::header::HeaderValue;
 
-use crate::{error::Error, extractor::Extractor};
+use crate::{error::Error, header::HeaderMap};
 
 /// A builder for `Proxy`.
 #[derive(Default)]
@@ -20,7 +20,7 @@ struct Builder {
     custom_http_auth: Option<PyBackedStr>,
 
     /// Optional custom HTTP headers for the proxy.
-    custom_http_headers: Option<Extractor<HeaderMap>>,
+    custom_http_headers: Option<HeaderMap>,
 
     // Optional exclusion list for the proxy.
     exclusion: Option<PyBackedStr>,

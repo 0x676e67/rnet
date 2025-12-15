@@ -14,11 +14,7 @@ use std::{
 
 use pyo3::{IntoPyObjectExt, prelude::*, pybacked::PyBackedStr};
 use req::{Request, WebSocketRequest};
-use wreq::{
-    Proxy,
-    header::{HeaderMap, OrigHeaderMap},
-    tls::CertStore,
-};
+use wreq::{Proxy, tls::CertStore};
 use wreq_util::EmulationOption;
 
 use self::{
@@ -30,6 +26,7 @@ use crate::{
     dns::{HickoryDnsResolver, LookupIpStrategy, ResolverOptions},
     error::Error,
     extractor::Extractor,
+    header::{HeaderMap, OrigHeaderMap},
     http::Method,
     http1::Http1Options,
     http2::Http2Options,
@@ -69,9 +66,9 @@ struct Builder {
     /// The user agent to use for the client.
     user_agent: Option<PyBackedStr>,
     /// The headers to use for the client.
-    headers: Option<Extractor<HeaderMap>>,
+    headers: Option<HeaderMap>,
     /// The original headers to use for the client.
-    orig_headers: Option<Extractor<OrigHeaderMap>>,
+    orig_headers: Option<OrigHeaderMap>,
     /// Whether to use referer.
     referer: Option<bool>,
     /// Whether to redirect policy.
