@@ -29,8 +29,8 @@ define_enum!(
 );
 
 /// HTTP status code.
-#[derive(Clone, Copy, PartialEq, Eq, Hash)]
-#[pyclass(eq, str, frozen)]
+#[derive(Clone, Copy)]
+#[pyclass(subclass, frozen, str)]
 pub struct StatusCode(pub wreq::StatusCode);
 
 #[pymethods]

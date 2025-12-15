@@ -109,45 +109,6 @@ pub struct Request {
     multipart: Option<Extractor<wreq::multipart::Form>>,
 }
 
-impl FromPyObject<'_, '_> for Request {
-    type Error = PyErr;
-
-    fn extract(ob: Borrowed<PyAny>) -> PyResult<Request> {
-        let mut request = Self::default();
-        extract_option!(ob, request, emulation);
-        extract_option!(ob, request, proxy);
-        extract_option!(ob, request, local_address);
-        extract_option!(ob, request, local_addresses);
-        extract_option!(ob, request, interface);
-
-        extract_option!(ob, request, timeout);
-        extract_option!(ob, request, read_timeout);
-
-        extract_option!(ob, request, version);
-        extract_option!(ob, request, headers);
-        extract_option!(ob, request, orig_headers);
-        extract_option!(ob, request, default_headers);
-        extract_option!(ob, request, cookies);
-        extract_option!(ob, request, redirect);
-        extract_option!(ob, request, cookie_provider);
-        extract_option!(ob, request, auth);
-        extract_option!(ob, request, bearer_auth);
-        extract_option!(ob, request, basic_auth);
-        extract_option!(ob, request, query);
-        extract_option!(ob, request, form);
-        extract_option!(ob, request, json);
-        extract_option!(ob, request, body);
-        extract_option!(ob, request, multipart);
-
-        extract_option!(ob, request, gzip);
-        extract_option!(ob, request, brotli);
-        extract_option!(ob, request, deflate);
-        extract_option!(ob, request, zstd);
-
-        Ok(request)
-    }
-}
-
 /// The parameters for a WebSocket request.
 #[derive(Default)]
 #[non_exhaustive]
@@ -250,6 +211,49 @@ pub struct WebSocketRequest {
     accept_unmasked_frames: Option<bool>,
 }
 
+// ===== impl Request =====
+
+impl FromPyObject<'_, '_> for Request {
+    type Error = PyErr;
+
+    fn extract(ob: Borrowed<PyAny>) -> PyResult<Request> {
+        let mut request = Self::default();
+        extract_option!(ob, request, emulation);
+        extract_option!(ob, request, proxy);
+        extract_option!(ob, request, local_address);
+        extract_option!(ob, request, local_addresses);
+        extract_option!(ob, request, interface);
+
+        extract_option!(ob, request, timeout);
+        extract_option!(ob, request, read_timeout);
+
+        extract_option!(ob, request, version);
+        extract_option!(ob, request, headers);
+        extract_option!(ob, request, orig_headers);
+        extract_option!(ob, request, default_headers);
+        extract_option!(ob, request, cookies);
+        extract_option!(ob, request, redirect);
+        extract_option!(ob, request, cookie_provider);
+        extract_option!(ob, request, auth);
+        extract_option!(ob, request, bearer_auth);
+        extract_option!(ob, request, basic_auth);
+        extract_option!(ob, request, query);
+        extract_option!(ob, request, form);
+        extract_option!(ob, request, json);
+        extract_option!(ob, request, body);
+        extract_option!(ob, request, multipart);
+
+        extract_option!(ob, request, gzip);
+        extract_option!(ob, request, brotli);
+        extract_option!(ob, request, deflate);
+        extract_option!(ob, request, zstd);
+
+        Ok(request)
+    }
+}
+
+// ===== impl WebSocketRequest =====
+
 impl FromPyObject<'_, '_> for WebSocketRequest {
     type Error = PyErr;
 
@@ -286,118 +290,119 @@ pub async fn execute_request<U>(
     client: Client,
     method: Method,
     url: U,
-    mut request: Option<Request>,
+    request: Option<Request>,
 ) -> PyResult<Response>
 where
     U: AsRef<str>,
 {
-    let request = request.get_or_insert_default();
+    // Create the request builder.
     let mut builder = client.request(method.into_ffi(), url.as_ref());
+    if let Some(mut request) = request {
+        // Emulation options.
+        apply_option!(set_if_some_inner, builder, request.emulation, emulation);
 
-    // Emulation options.
-    apply_option!(set_if_some_inner, builder, request.emulation, emulation);
+        // Version options.
+        apply_option!(
+            set_if_some_map,
+            builder,
+            request.version,
+            version,
+            Version::into_ffi
+        );
 
-    // Version options.
-    apply_option!(
-        set_if_some_map,
-        builder,
-        request.version,
-        version,
-        Version::into_ffi
-    );
+        // Timeout options.
+        apply_option!(set_if_some, builder, request.timeout, timeout);
+        apply_option!(set_if_some, builder, request.read_timeout, read_timeout);
 
-    // Timeout options.
-    apply_option!(set_if_some, builder, request.timeout, timeout);
-    apply_option!(set_if_some, builder, request.read_timeout, read_timeout);
+        // Network options.
+        apply_option!(set_if_some_inner, builder, request.proxy, proxy);
+        apply_option!(set_if_some, builder, request.local_address, local_address);
+        apply_option!(
+            set_if_some_tuple_inner,
+            builder,
+            request.local_addresses,
+            local_addresses
+        );
 
-    // Network options.
-    apply_option!(set_if_some_inner, builder, request.proxy, proxy);
-    apply_option!(set_if_some, builder, request.local_address, local_address);
-    apply_option!(
-        set_if_some_tuple_inner,
-        builder,
-        request.local_addresses,
-        local_addresses
-    );
+        #[cfg(any(
+            target_os = "android",
+            target_os = "fuchsia",
+            target_os = "illumos",
+            target_os = "ios",
+            target_os = "linux",
+            target_os = "macos",
+            target_os = "solaris",
+            target_os = "tvos",
+            target_os = "visionos",
+            target_os = "watchos",
+        ))]
+        apply_option!(set_if_some, builder, request.interface, interface);
 
-    #[cfg(any(
-        target_os = "android",
-        target_os = "fuchsia",
-        target_os = "illumos",
-        target_os = "ios",
-        target_os = "linux",
-        target_os = "macos",
-        target_os = "solaris",
-        target_os = "tvos",
-        target_os = "visionos",
-        target_os = "watchos",
-    ))]
-    apply_option!(set_if_some, builder, request.interface, interface);
+        // Headers options.
+        apply_option!(set_if_some_inner, builder, request.headers, headers);
+        apply_option!(
+            set_if_some_inner,
+            builder,
+            request.orig_headers,
+            orig_headers
+        );
+        apply_option!(
+            set_if_some,
+            builder,
+            request.default_headers,
+            default_headers
+        );
 
-    // Headers options.
-    apply_option!(set_if_some_inner, builder, request.headers, headers);
-    apply_option!(
-        set_if_some_inner,
-        builder,
-        request.orig_headers,
-        orig_headers
-    );
-    apply_option!(
-        set_if_some,
-        builder,
-        request.default_headers,
-        default_headers
-    );
+        // Cookies options.
+        apply_option!(
+            set_if_some_iter_inner_with_key,
+            builder,
+            request.cookies,
+            header,
+            COOKIE
+        );
+        apply_option!(
+            set_if_some_inner,
+            builder,
+            request.cookie_provider,
+            cookie_provider
+        );
 
-    // Cookies options.
-    apply_option!(
-        set_if_some_iter_inner_with_key,
-        builder,
-        request.cookies,
-        header,
-        COOKIE
-    );
-    apply_option!(
-        set_if_some_inner,
-        builder,
-        request.cookie_provider,
-        cookie_provider
-    );
+        // Authentication options.
+        apply_option!(
+            set_if_some_map_ref,
+            builder,
+            request.auth,
+            auth,
+            AsRef::<str>::as_ref
+        );
+        apply_option!(set_if_some, builder, request.bearer_auth, bearer_auth);
+        apply_option!(set_if_some_tuple, builder, request.basic_auth, basic_auth);
 
-    // Authentication options.
-    apply_option!(
-        set_if_some_map_ref,
-        builder,
-        request.auth,
-        auth,
-        AsRef::<str>::as_ref
-    );
-    apply_option!(set_if_some, builder, request.bearer_auth, bearer_auth);
-    apply_option!(set_if_some_tuple, builder, request.basic_auth, basic_auth);
+        // Allow redirects options.
+        apply_option!(set_if_some_inner, builder, request.redirect, redirect);
 
-    // Allow redirects options.
-    apply_option!(set_if_some_inner, builder, request.redirect, redirect);
+        // Compression options.
+        apply_option!(set_if_some, builder, request.gzip, gzip);
+        apply_option!(set_if_some, builder, request.brotli, brotli);
+        apply_option!(set_if_some, builder, request.deflate, deflate);
+        apply_option!(set_if_some, builder, request.zstd, zstd);
 
-    // Compression options.
-    apply_option!(set_if_some, builder, request.gzip, gzip);
-    apply_option!(set_if_some, builder, request.brotli, brotli);
-    apply_option!(set_if_some, builder, request.deflate, deflate);
-    apply_option!(set_if_some, builder, request.zstd, zstd);
+        // Query options.
+        apply_option!(set_if_some_ref, builder, request.query, query);
 
-    // Query options.
-    apply_option!(set_if_some_ref, builder, request.query, query);
-
-    // Body options.
-    apply_option!(set_if_some_ref, builder, request.form, form);
-    apply_option!(set_if_some_ref, builder, request.json, json);
-    apply_option!(set_if_some_inner, builder, request.multipart, multipart);
-    apply_option!(
-        set_if_some_map_try,
-        builder,
-        request.body,
-        body,
-        wreq::Body::try_from
-    );
+        // Body options.
+        apply_option!(set_if_some_ref, builder, request.form, form);
+        apply_option!(set_if_some_ref, builder, request.json, json);
+        apply_option!(set_if_some_inner, builder, request.multipart, multipart);
+        apply_option!(
+            set_if_some_map_try,
+            builder,
+            request.body,
+            body,
+            wreq::Body::try_from
+        );
+    }
 
     // Send request.
     builder
@@ -411,117 +416,118 @@ where
 pub async fn execute_websocket_request<U>(
     client: Client,
     url: U,
-    mut request: Option<WebSocketRequest>,
+    request: Option<WebSocketRequest>,
 ) -> PyResult<WebSocket>
 where
     U: AsRef<str>,
 {
-    let request = request.get_or_insert_default();
+    // Create the WebSocket builder.
     let mut builder = client.websocket(url.as_ref());
+    if let Some(mut request) = request {
+        // The protocols to use for the request.
+        apply_option!(set_if_some, builder, request.protocols, protocols);
 
-    // The protocols to use for the request.
-    apply_option!(set_if_some, builder, request.protocols, protocols);
+        // The WebSocket config
+        apply_option!(
+            set_if_some,
+            builder,
+            request.read_buffer_size,
+            read_buffer_size
+        );
+        apply_option!(
+            set_if_some,
+            builder,
+            request.write_buffer_size,
+            write_buffer_size
+        );
+        apply_option!(
+            set_if_some,
+            builder,
+            request.max_write_buffer_size,
+            max_write_buffer_size
+        );
+        apply_option!(set_if_some, builder, request.max_frame_size, max_frame_size);
+        apply_option!(
+            set_if_some,
+            builder,
+            request.max_message_size,
+            max_message_size
+        );
+        apply_option!(
+            set_if_some,
+            builder,
+            request.accept_unmasked_frames,
+            accept_unmasked_frames
+        );
 
-    // The WebSocket config
-    apply_option!(
-        set_if_some,
-        builder,
-        request.read_buffer_size,
-        read_buffer_size
-    );
-    apply_option!(
-        set_if_some,
-        builder,
-        request.write_buffer_size,
-        write_buffer_size
-    );
-    apply_option!(
-        set_if_some,
-        builder,
-        request.max_write_buffer_size,
-        max_write_buffer_size
-    );
-    apply_option!(set_if_some, builder, request.max_frame_size, max_frame_size);
-    apply_option!(
-        set_if_some,
-        builder,
-        request.max_message_size,
-        max_message_size
-    );
-    apply_option!(
-        set_if_some,
-        builder,
-        request.accept_unmasked_frames,
-        accept_unmasked_frames
-    );
+        // Use http2 options.
+        apply_option!(
+            set_if_true,
+            builder,
+            request.force_http2,
+            force_http2,
+            false
+        );
 
-    // Use http2 options.
-    apply_option!(
-        set_if_true,
-        builder,
-        request.force_http2,
-        force_http2,
-        false
-    );
+        // Network options.
+        apply_option!(set_if_some_inner, builder, request.proxy, proxy);
+        apply_option!(set_if_some, builder, request.local_address, local_address);
+        apply_option!(
+            set_if_some_tuple_inner,
+            builder,
+            request.local_addresses,
+            local_addresses
+        );
+        #[cfg(any(
+            target_os = "android",
+            target_os = "fuchsia",
+            target_os = "illumos",
+            target_os = "ios",
+            target_os = "linux",
+            target_os = "macos",
+            target_os = "solaris",
+            target_os = "tvos",
+            target_os = "visionos",
+            target_os = "watchos",
+        ))]
+        apply_option!(set_if_some, builder, request.interface, interface);
 
-    // Network options.
-    apply_option!(set_if_some_inner, builder, request.proxy, proxy);
-    apply_option!(set_if_some, builder, request.local_address, local_address);
-    apply_option!(
-        set_if_some_tuple_inner,
-        builder,
-        request.local_addresses,
-        local_addresses
-    );
-    #[cfg(any(
-        target_os = "android",
-        target_os = "fuchsia",
-        target_os = "illumos",
-        target_os = "ios",
-        target_os = "linux",
-        target_os = "macos",
-        target_os = "solaris",
-        target_os = "tvos",
-        target_os = "visionos",
-        target_os = "watchos",
-    ))]
-    apply_option!(set_if_some, builder, request.interface, interface);
+        // Headers options.
+        apply_option!(set_if_some_inner, builder, request.headers, headers);
+        apply_option!(
+            set_if_some_inner,
+            builder,
+            request.orig_headers,
+            orig_headers
+        );
+        apply_option!(
+            set_if_some,
+            builder,
+            request.default_headers,
+            default_headers
+        );
+        apply_option!(
+            set_if_some_iter_inner_with_key,
+            builder,
+            request.cookies,
+            header,
+            COOKIE
+        );
 
-    // Headers options.
-    apply_option!(set_if_some_inner, builder, request.headers, headers);
-    apply_option!(
-        set_if_some_inner,
-        builder,
-        request.orig_headers,
-        orig_headers
-    );
-    apply_option!(
-        set_if_some,
-        builder,
-        request.default_headers,
-        default_headers
-    );
-    apply_option!(
-        set_if_some_iter_inner_with_key,
-        builder,
-        request.cookies,
-        header,
-        COOKIE
-    );
+        // Authentication options.
+        apply_option!(
+            set_if_some_map_ref,
+            builder,
+            request.auth,
+            auth,
+            AsRef::<str>::as_ref
+        );
+        apply_option!(set_if_some, builder, request.bearer_auth, bearer_auth);
+        apply_option!(set_if_some_tuple, builder, request.basic_auth, basic_auth);
 
-    // Authentication options.
-    apply_option!(
-        set_if_some_map_ref,
-        builder,
-        request.auth,
-        auth,
-        AsRef::<str>::as_ref
-    );
-    apply_option!(set_if_some, builder, request.bearer_auth, bearer_auth);
-    apply_option!(set_if_some_tuple, builder, request.basic_auth, basic_auth);
-
-    // Query options.
-    apply_option!(set_if_some_ref, builder, request.query, query);
+        // Query options.
+        apply_option!(set_if_some_ref, builder, request.query, query);
+    }
 
     // Send the WebSocket request.
     builder

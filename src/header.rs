@@ -11,13 +11,13 @@ use wreq::header::{self, HeaderName, HeaderValue};
 use crate::buffer::PyBuffer;
 
 /// A HTTP header map.
-#[pyclass(subclass, str)]
 #[derive(Clone)]
+#[pyclass(subclass, str)]
 pub struct HeaderMap(pub header::HeaderMap);
 
 /// A HTTP original header map.
-#[pyclass(subclass, str)]
 #[derive(Clone)]
+#[pyclass(subclass, str)]
 pub struct OrigHeaderMap(pub header::OrigHeaderMap);
 
 // ===== impl HeaderMap =====

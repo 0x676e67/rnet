@@ -60,7 +60,6 @@ class StatusCode:
     HTTP status code.
     """
 
-    def __str__(self) -> str: ...
     def as_int(self) -> int:
         r"""
         Return the status code as an integer.
@@ -96,6 +95,8 @@ class StatusCode:
         Check if status is within 500-599.
         """
         ...
+
+    def __str__(self) -> str: ...
 
 @final
 class SocketAddr:
