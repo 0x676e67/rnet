@@ -34,7 +34,7 @@ strip = true
 python-source = "python"
 
 [project.urls]
-Documentation = "https://github.com/0x676e67/rnet/blob/main/rnet.pyi"
+Documentation = "https://github.com/0x676e67/rnet/blob/main/python/rnet"
 Homepage = "https://github.com/0x676e67/rnet"
 Repository = "https://github.com/0x676e67/rnet"
 
