@@ -1,6 +1,6 @@
 [package]
 name = "rnet"
-version = "3.0.0-rc14"
+version = "3.0.0-rc15"
 description = "An ergonomic Python HTTP client with TLS fingerprint"
 license = "Apache-2.0"
 readme = "README.md"
@@ -16,6 +16,8 @@ doctest = false
 
 [features]
 default = ["abi3-py311"]
+
+# Memory allocator options
 jemalloc = ["dep:tikv-jemallocator"]
 mimalloc = ["dep:mimalloc"]
 
