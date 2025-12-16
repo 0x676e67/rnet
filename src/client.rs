@@ -243,195 +243,197 @@ impl Client {
     /// Creates a new Client instance.
     #[new]
     #[pyo3(signature = (**kwds))]
-    fn new(py: Python, mut kwds: Option<Builder>) -> PyResult<Client> {
+    fn new(py: Python, kwds: Option<Builder>) -> PyResult<Client> {
         py.detach(|| {
-            let params = kwds.get_or_insert_default();
+            // Create the client builder.
             let mut builder = wreq::Client::builder();
+            if let Some(mut config) = kwds {
+                // Emulation options.
+                apply_option!(set_if_some_inner, builder, config.emulation, emulation);
 
-            // Emulation options.
-            apply_option!(set_if_some_inner, builder, params.emulation, emulation);
+                // User agent options.
+                apply_option!(
+                    set_if_some_map_ref,
+                    builder,
+                    config.user_agent,
+                    user_agent,
+                    AsRef::<str>::as_ref
+                );
 
-            // User agent options.
-            apply_option!(
-                set_if_some_map_ref,
-                builder,
-                params.user_agent,
-                user_agent,
-                AsRef::<str>::as_ref
-            );
+                // Default headers options.
+                apply_option!(set_if_some_inner, builder, config.headers, default_headers);
+                apply_option!(
+                    set_if_some_inner,
+                    builder,
+                    config.orig_headers,
+                    orig_headers
+                );
 
-            // Default headers options.
-            apply_option!(set_if_some_inner, builder, params.headers, default_headers);
-            apply_option!(
-                set_if_some_inner,
-                builder,
-                params.orig_headers,
-                orig_headers
-            );
+                // Allow redirects options.
+                apply_option!(set_if_some, builder, config.referer, referer);
+                apply_option!(set_if_some_inner, builder, config.redirect, redirect);
 
-            // Allow redirects options.
-            apply_option!(set_if_some, builder, params.referer, referer);
-            apply_option!(set_if_some_inner, builder, params.redirect, redirect);
+                // Cookie options.
+                apply_option!(
+                    set_if_some_inner,
+                    builder,
+                    config.cookie_provider,
+                    cookie_provider
+                );
+                apply_option!(set_if_some, builder, config.cookie_store, cookie_store);
 
-            // Cookie options.
-            apply_option!(
-                set_if_some_inner,
-                builder,
-                params.cookie_provider,
-                cookie_provider
-            );
-            apply_option!(set_if_some, builder, params.cookie_store, cookie_store);
+                // TCP options.
+                apply_option!(set_if_some, builder, config.tcp_keepalive, tcp_keepalive);
+                apply_option!(
+                    set_if_some,
+                    builder,
+                    config.tcp_keepalive_interval,
+                    tcp_keepalive_interval
+                );
+                apply_option!(
+                    set_if_some,
+                    builder,
+                    config.tcp_keepalive_retries,
+                    tcp_keepalive_retries
+                );
+                #[cfg(any(target_os = "android", target_os = "fuchsia", target_os = "linux"))]
+                apply_option!(
+                    set_if_some,
+                    builder,
+                    config.tcp_user_timeout,
+                    tcp_user_timeout
+                );
+                apply_option!(set_if_some, builder, config.tcp_nodelay, tcp_nodelay);
+                apply_option!(
+                    set_if_some,
+                    builder,
+                    config.tcp_reuse_address,
+                    tcp_reuse_address
+                );
 
-            // TCP options.
-            apply_option!(set_if_some, builder, params.tcp_keepalive, tcp_keepalive);
-            apply_option!(
-                set_if_some,
-                builder,
-                params.tcp_keepalive_interval,
-                tcp_keepalive_interval
-            );
-            apply_option!(
-                set_if_some,
-                builder,
-                params.tcp_keepalive_retries,
-                tcp_keepalive_retries
-            );
-            #[cfg(any(target_os = "android", target_os = "fuchsia", target_os = "linux"))]
-            apply_option!(
-                set_if_some,
-                builder,
-                params.tcp_user_timeout,
-                tcp_user_timeout
-            );
-            apply_option!(set_if_some, builder, params.tcp_nodelay, tcp_nodelay);
-            apply_option!(
-                set_if_some,
-                builder,
-                params.tcp_reuse_address,
-                tcp_reuse_address
-            );
+                // Timeout options.
+                apply_option!(set_if_some, builder, config.timeout, timeout);
+                apply_option!(
+                    set_if_some,
+                    builder,
+                    config.connect_timeout,
+                    connect_timeout
+                );
+                apply_option!(set_if_some, builder, config.read_timeout, read_timeout);
 
-            // Timeout options.
-            apply_option!(set_if_some, builder, params.timeout, timeout);
-            apply_option!(
-                set_if_some,
-                builder,
-                params.connect_timeout,
-                connect_timeout
-            );
-            apply_option!(set_if_some, builder, params.read_timeout, read_timeout);
+                // Pool options.
+                apply_option!(
+                    set_if_some,
+                    builder,
+                    config.pool_idle_timeout,
+                    pool_idle_timeout
+                );
+                apply_option!(
+                    set_if_some,
+                    builder,
+                    config.pool_max_idle_per_host,
+                    pool_max_idle_per_host
+                );
+                apply_option!(set_if_some, builder, config.pool_max_size, pool_max_size);
 
-            // Pool options.
-            apply_option!(
-                set_if_some,
-                builder,
-                params.pool_idle_timeout,
-                pool_idle_timeout
-            );
-            apply_option!(
-                set_if_some,
-                builder,
-                params.pool_max_idle_per_host,
-                pool_max_idle_per_host
-            );
-            apply_option!(set_if_some, builder, params.pool_max_size, pool_max_size);
+                // Protocol options.
+                apply_option!(set_if_true, builder, config.http1_only, http1_only, false);
+                apply_option!(set_if_true, builder, config.http2_only, http2_only, false);
+                apply_option!(set_if_some, builder, config.https_only, https_only);
+                apply_option!(
+                    set_if_some_inner,
+                    builder,
+                    config.http1_options,
+                    http1_options
+                );
+                apply_option!(
+                    set_if_some_inner,
+                    builder,
+                    config.http2_options,
+                    http2_options
+                );
 
-            // Protocol options.
-            apply_option!(set_if_true, builder, params.http1_only, http1_only, false);
-            apply_option!(set_if_true, builder, params.http2_only, http2_only, false);
-            apply_option!(set_if_some, builder, params.https_only, https_only);
-            apply_option!(
-                set_if_some_inner,
-                builder,
-                params.http1_options,
-                http1_options
-            );
-            apply_option!(
-                set_if_some_inner,
-                builder,
-                params.http2_options,
-                http2_options
-            );
+                // TLS options.
+                apply_option!(
+                    set_if_some_map,
+                    builder,
+                    config.min_tls_version,
+                    min_tls_version,
+                    TlsVersion::into_ffi
+                );
+                apply_option!(
+                    set_if_some_map,
+                    builder,
+                    config.max_tls_version,
+                    max_tls_version,
+                    TlsVersion::into_ffi
+                );
+                apply_option!(set_if_some, builder, config.tls_info, tls_info);
 
-            // TLS options.
-            apply_option!(
-                set_if_some_map,
-                builder,
-                params.min_tls_version,
-                min_tls_version,
-                TlsVersion::into_ffi
-            );
-            apply_option!(
-                set_if_some_map,
-                builder,
-                params.max_tls_version,
-                max_tls_version,
-                TlsVersion::into_ffi
-            );
-            apply_option!(set_if_some, builder, params.tls_info, tls_info);
-
-            // TLS Verification options.
-            if let Some(verify) = params.verify.take() {
-                builder = match verify {
-                    TlsVerify::Verification(verify) => builder.cert_verification(verify),
-                    TlsVerify::CertificatePath(path_buf) => {
-                        let pem_data = std::fs::read(path_buf)?;
-                        let store = CertStore::from_pem_stack(pem_data).map_err(Error::Library)?;
-                        builder.cert_store(store)
+                // TLS Verification options.
+                apply_option!(
+                    set_if_some,
+                    builder,
+                    config.verify_hostname,
+                    verify_hostname
+                );
+                apply_option!(set_if_some_inner, builder, config.identity, identity);
+                apply_option!(set_if_some_inner, builder, config.keylog, keylog);
+                apply_option!(set_if_some_inner, builder, config.tls_options, tls_options);
+                if let Some(verify) = config.verify.take() {
+                    builder = match verify {
+                        TlsVerify::Verification(verify) => builder.cert_verification(verify),
+                        TlsVerify::CertificatePath(path_buf) => {
+                            let pem_data = std::fs::read(path_buf)?;
+                            let store =
+                                CertStore::from_pem_stack(pem_data).map_err(Error::Library)?;
+                            builder.cert_store(store)
+                        }
+                        TlsVerify::CertificateStore(cert_store) => builder.cert_store(cert_store.0),
                     }
-                    TlsVerify::CertificateStore(cert_store) => builder.cert_store(cert_store.0),
                 }
-            }
-            apply_option!(
-                set_if_some,
-                builder,
-                params.verify_hostname,
-                verify_hostname
-            );
-            apply_option!(set_if_some_inner, builder, params.identity, identity);
-            apply_option!(set_if_some_inner, builder, params.keylog, keylog);
-            apply_option!(set_if_some_inner, builder, params.tls_options, tls_options);
 
-            // Network options.
-            apply_option!(set_if_some_iter_inner, builder, params.proxies, proxy);
-            apply_option!(set_if_true, builder, params.no_proxy, no_proxy, false);
-            apply_option!(set_if_some, builder, params.local_address, local_address);
-            apply_option!(
-                set_if_some_tuple_inner,
-                builder,
-                params.local_addresses,
-                local_addresses
-            );
-            #[cfg(any(
-                target_os = "android",
-                target_os = "fuchsia",
-                target_os = "linux",
-                target_os = "ios",
-                target_os = "visionos",
-                target_os = "macos",
-                target_os = "tvos",
-                target_os = "watchos"
-            ))]
-            apply_option!(set_if_some, builder, params.interface, interface);
+                // Network options.
+                apply_option!(set_if_some_iter_inner, builder, config.proxies, proxy);
+                apply_option!(set_if_true, builder, config.no_proxy, no_proxy, false);
+                apply_option!(set_if_some, builder, config.local_address, local_address);
+                apply_option!(
+                    set_if_some_tuple_inner,
+                    builder,
+                    config.local_addresses,
+                    local_addresses
+                );
+                #[cfg(any(
+                    target_os = "android",
+                    target_os = "fuchsia",
+                    target_os = "linux",
+                    target_os = "ios",
+                    target_os = "visionos",
+                    target_os = "macos",
+                    target_os = "tvos",
+                    target_os = "watchos"
+                ))]
+                apply_option!(set_if_some, builder, config.interface, interface);
 
-            // DNS options.
-            builder = {
-                let dns_resolver = if let Some(options) = params.dns_options.take() {
-                    for (domain, addrs) in options.resolve_to_addrs {
-                        builder = builder.resolve_to_addrs(domain.as_ref().to_string(), addrs);
-                    }
-                    HickoryDnsResolver::new(options.lookup_ip_strategy)
-                } else {
-                    HickoryDnsResolver::new(LookupIpStrategy::default())
+                // DNS options.
+                builder = {
+                    let dns_resolver = if let Some(options) = config.dns_options.take() {
+                        for (domain, addrs) in options.resolve_to_addrs {
+                            builder = builder.resolve_to_addrs(domain.as_ref().to_string(), addrs);
+                        }
+                        HickoryDnsResolver::new(options.lookup_ip_strategy)
+                    } else {
+                        HickoryDnsResolver::new(LookupIpStrategy::default())
+                    };
+                    builder.dns_resolver(Arc::new(dns_resolver))
                 };
-                builder.dns_resolver(Arc::new(dns_resolver))
-            };
 
-            // Compression options.
-            apply_option!(set_if_some, builder, params.gzip, gzip);
-            apply_option!(set_if_some, builder, params.brotli, brotli);
-            apply_option!(set_if_some, builder, params.deflate, deflate);
-            apply_option!(set_if_some, builder, params.zstd, zstd);
+                // Compression options.
+                apply_option!(set_if_some, builder, config.gzip, gzip);
+                apply_option!(set_if_some, builder, config.brotli, brotli);
+                apply_option!(set_if_some, builder, config.deflate, deflate);
+                apply_option!(set_if_some, builder, config.zstd, zstd);
+            }
 
             builder
                 .build()
