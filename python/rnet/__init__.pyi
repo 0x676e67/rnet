@@ -3,7 +3,6 @@ from ipaddress import IPv4Address, IPv6Address
 from typing import (
     AsyncGenerator,
     Generator,
-    Optional,
     Tuple,
     Any,
     Dict,
@@ -16,7 +15,6 @@ from typing import (
 from pathlib import Path
 from enum import Enum, auto
 from . import redirect
-
 from .dns import ResolverOptions
 from .http1 import Http1Options
 from .http2 import Http2Options
@@ -166,32 +164,32 @@ class Message:
     A WebSocket message.
     """
 
-    data: Optional[bytes]
+    data: bytes | None
     r"""
     Returns the data of the message as bytes.
     """
 
-    text: Optional[str]
+    text: str | None
     r"""
     Returns the text content of the message if it is a text message.
     """
 
-    binary: Optional[bytes]
+    binary: bytes | None
     r"""
     Returns the binary data of the message if it is a binary message.
     """
 
-    ping: Optional[bytes]
+    ping: bytes | None
     r"""
     Returns the ping data of the message if it is a ping message.
     """
 
-    pong: Optional[bytes]
+    pong: bytes | None
     r"""
     Returns the pong data of the message if it is a pong message.
     """
 
-    close: Optional[Tuple[int, Optional[str]]]
+    close: Tuple[int, str | None] | None
     r"""
     Returns the close code and reason of the message if it is a close message.
     """
@@ -308,7 +306,7 @@ class Streamer:
     """
 
     async def __aiter__(self) -> "Streamer": ...
-    async def __anext__(self) -> Optional[bytes]: ...
+    async def __anext__(self) -> bytes | None: ...
     async def __aenter__(self) -> Any: ...
     async def __aexit__(
         self, _exc_type: Any, _exc_value: Any, _traceback: Any
@@ -371,17 +369,17 @@ class Response:
     Get the cookies of the response.
     """
 
-    content_length: Optional[int]
+    content_length: int | None
     r"""
     Get the content length of the response.
     """
 
-    remote_addr: Optional[SocketAddr]
+    remote_addr: SocketAddr | None
     r"""
     Get the remote address of the response.
     """
 
-    local_addr: Optional[SocketAddr]
+    local_addr: SocketAddr | None
     r"""
     Get the local address of the response.
     """
@@ -391,7 +389,7 @@ class Response:
     Get the redirect history of the Response.
     """
 
-    peer_certificate: Optional[bytes]
+    peer_certificate: bytes | None
     r"""
     Get the DER encoded leaf certificate of the response.
     """
@@ -462,19 +460,17 @@ class WebSocket:
     Get the cookies of the response.
     """
 
-    remote_addr: Optional[SocketAddr]
+    remote_addr: SocketAddr | None
     r"""
     Get the remote address of the response.
     """
 
-    protocol: Optional[str]
+    protocol: str | None
     r"""
     Get the WebSocket protocol.
     """
 
-    async def recv(
-        self, timeout: datetime.timedelta | None = None
-    ) -> Optional[Message]:
+    async def recv(self, timeout: datetime.timedelta | None = None) -> Message | None:
         r"""
         Receive a message from the WebSocket.
         """
@@ -693,7 +689,7 @@ class ClientConfig(TypedDict):
     Local bind address.
     """
 
-    local_addresses: NotRequired[Tuple[Optional[IPv4Address], Optional[IPv6Address]]]
+    local_addresses: NotRequired[Tuple[IPv4Address | None, IPv6Address | None]]
     """
     Bind to dual-stack local IP Addresses.
     """
@@ -745,7 +741,7 @@ class Request(TypedDict):
     Bind to a local IP Address.
     """
 
-    local_addresses: NotRequired[Tuple[Optional[IPv4Address], Optional[IPv6Address]]]
+    local_addresses: NotRequired[Tuple[IPv4Address | None, IPv6Address | None]]
     """
     Bind to dual-stack local IP Addresses.
     """
@@ -830,7 +826,7 @@ class Request(TypedDict):
     The bearer authentication to use for the request.
     """
 
-    basic_auth: NotRequired[Tuple[str, Optional[str]]]
+    basic_auth: NotRequired[Tuple[str, str | None]]
     """
     The basic authentication to use for the request.
     """
@@ -891,7 +887,7 @@ class WebSocketRequest(TypedDict):
     Bind to a local IP Address.
     """
 
-    local_addresses: NotRequired[Tuple[Optional[IPv4Address], Optional[IPv6Address]]]
+    local_addresses: NotRequired[Tuple[IPv4Address | None, IPv6Address | None]]
     """
     Bind to dual-stack local IP Addresses.
     """
@@ -941,7 +937,7 @@ class WebSocketRequest(TypedDict):
     The bearer authentication to use for the request.
     """
 
-    basic_auth: NotRequired[Tuple[str, Optional[str]]]
+    basic_auth: NotRequired[Tuple[str, str | None]]
     """
     The basic authentication to use for the request.
     """

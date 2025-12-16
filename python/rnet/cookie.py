@@ -8,7 +8,7 @@ and provides a cookie jar for automatic cookie handling during HTTP requests.
 
 import datetime
 from enum import Enum, auto
-from typing import Optional, Sequence, final
+from typing import Sequence, final
 
 __all__ = ["SameSite", "Cookie", "Jar"]
 
@@ -53,19 +53,19 @@ class Cookie:
     r"""
     Returns true if  'SameSite' directive is 'Strict'.
     """
-    path: Optional[str]
+    path: str | None
     r"""
     Returns the path directive of the cookie, if set.
     """
-    domain: Optional[str]
+    domain: str | None
     r"""
     Returns the domain directive of the cookie, if set.
     """
-    max_age: Optional[datetime.timedelta]
+    max_age: datetime.timedelta | None
     r"""
     Get the Max-Age information.
     """
-    expires: Optional[datetime.datetime]
+    expires: datetime.datetime | None
     r"""
     The cookie expiration time.
     """
@@ -123,7 +123,7 @@ class Jar:
         """
         ...
 
-    def get(self, name: str, url: str) -> Optional[Cookie]:
+    def get(self, name: str, url: str) -> Cookie | None:
         r"""
         Get a cookie by name and URL.
         """
