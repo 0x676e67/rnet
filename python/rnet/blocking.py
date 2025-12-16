@@ -1,23 +1,23 @@
 import datetime
-from rnet import (
+from . import (
     Message,
     Streamer,
     Version,
     Method,
     SocketAddr,
     StatusCode,
+    ClientConfig,
+    Request,
+    WebSocketRequest,
 )
 from typing import (
-    Optional,
     Any,
     Sequence,
     Unpack,
 )
-
-from . import ClientConfig, Request, WebSocketRequest
-from rnet.redirect import History
-from rnet.header import HeaderMap
-from rnet.cookie import Cookie
+from .redirect import History
+from .header import HeaderMap
+from .cookie import Cookie
 
 
 class Response:
@@ -50,17 +50,17 @@ class Response:
     Get the cookies of the response.
     """
 
-    content_length: Optional[int]
+    content_length: int | None
     r"""
     Get the content length of the response.
     """
 
-    remote_addr: Optional[SocketAddr]
+    remote_addr: SocketAddr | None
     r"""
     Get the remote address of the response.
     """
 
-    local_addr: Optional[SocketAddr]
+    local_addr: SocketAddr | None
     r"""
     Get the local address of the response.
     """
@@ -70,7 +70,7 @@ class Response:
     Get the redirect history of the Response.
     """
 
-    peer_certificate: Optional[bytes]
+    peer_certificate: bytes | None
     r"""
     Get the DER encoded leaf certificate of the response.
     """
@@ -144,17 +144,17 @@ class WebSocket:
     Get the cookies of the response.
     """
 
-    remote_addr: Optional[SocketAddr]
+    remote_addr: SocketAddr | None
     r"""
     Get the remote address of the response.
     """
 
-    protocol: Optional[str]
+    protocol: str | None
     r"""
     Get the WebSocket protocol.
     """
 
-    def recv(self, timeout: datetime.timedelta | None = None) -> Optional[Message]:
+    def recv(self, timeout: datetime.timedelta | None = None) -> Message | None:
         r"""
         Receive a message from the WebSocket.
         """

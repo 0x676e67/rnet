@@ -11,7 +11,7 @@ including proper support for headers that can have multiple values (like
 Set-Cookie, Accept-Encoding, etc.).
 """
 
-from typing import Dict, Iterator, Optional, Sequence, Tuple
+from typing import Dict, Iterator, Sequence, Tuple
 
 __all__ = ["HeaderMap", "OrigHeaderMap"]
 
@@ -29,7 +29,7 @@ class HeaderMap:
     HTTP header manipulation.
     """
 
-    def __getitem__(self, key: str) -> Optional[bytes]:
+    def __getitem__(self, key: str) -> bytes | None:
         """Get the first value for a header name (case-insensitive)."""
         ...
 
@@ -140,7 +140,7 @@ class HeaderMap:
         """
         ...
 
-    def get(self, key: str, default: Optional[bytes] = None) -> Optional[bytes]:
+    def get(self, key: str, default: bytes | None = None) -> bytes | None:
         r"""
         Get the first value for a header name with optional default.
 
@@ -265,8 +265,8 @@ class OrigHeaderMap:
 
     def __init__(
         self,
-        init: Optional[Sequence[str]] = None,
-        capacity: Optional[int] = None,
+        init: Sequence[str] | None = None,
+        capacity: int | None = None,
     ) -> None:
         """
         Creates a new OrigHeaderMap from an optional list of header names.
