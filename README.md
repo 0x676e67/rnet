@@ -1,7 +1,7 @@
 # rnet
 
 [![CI](https://github.com/0x676e67/rnet/actions/workflows/ci.yml/badge.svg)](https://github.com/0x676e67/rnet/actions/workflows/ci.yml)
-[![PyPI - License](https://img.shields.io/pypi/l/rnet)](https://github.com/0x676e67/rnet/blob/main/LICENSE)
+![GitHub License](https://img.shields.io/github/license/0x676e67/rnet?color=blue)
 ![Python Version from PEP 621 TOML](https://img.shields.io/python/required-version-toml?tomlFilePath=https%3A%2F%2Fraw.githubusercontent.com%2F0x676e67%2Frnet%2Fmain%2Fpyproject.toml&logo=python)
 [![PyPI](https://img.shields.io/pypi/v/rnet?logo=python)](https://pypi.org/project/rnet/)
 [![PyPI Downloads](https://static.pepy.tech/badge/rnet)](https://pepy.tech/projects/rnet)
@@ -143,6 +143,20 @@ Licensed under either of Apache License, Version 2.0 ([LICENSE](./LICENSE) or ht
 Unless you explicitly state otherwise, any contribution intentionally submitted for inclusion in the work by you, as defined in the [Apache-2.0](./LICENSE) license, shall be licensed as above, without any additional terms or conditions.
 
 ## Sponsors
+
+<a href="https://www.ez-captcha.com" target="_blank">
+  <img src="https://www.ez-captcha.com/siteLogo.png" height="50" width="50">
+</a>
+
+Captcha solving can be slow and unreliable, but **[EzCaptcha](https://www.ez-captcha.com/?refererFlag=github-rnet)** delivers fast, reliable solving through a simple API — supporting a wide range of captcha types with no complex integration required.  
+
+**ReCaptcha** • **FunCaptcha** • **CloudFlare** • **Akamai** • **AkamaiSbsd** • **HCaptcha**  
+
+Designed for developers, it offers high accuracy, low price, low latency, and easy integration, helping you automate verification while keeping traffic secure and user flows smooth.
+
+🚀 **[Get API Key](https://dashboard.ez-captcha.com/login)** | 📖 **[Docs](https://ezcaptcha.atlassian.net/wiki/spaces/IS/pages/7045121/EzCaptcha+API+Docs+English)** | 💬 **[Telegram](https://t.me/+NrVmPhlb9ZFkZGY5)**
+
+---
 
 <a href="https://salamoonder.com/" target="_blank">
   <img src="https://salamoonder.com/auth/assets/images/3d_logo.png" height="50" width="50">
