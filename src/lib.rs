@@ -338,6 +338,10 @@ fn exceptions_module(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
         py.get_type::<ConnectionError>(),
     )?;
     m.add(
+        intern!(py, "ProxyConnectionError"),
+        py.get_type::<ProxyConnectionError>(),
+    )?;
+    m.add(
         intern!(py, "ConnectionResetError"),
         py.get_type::<ConnectionResetError>(),
     )?;
