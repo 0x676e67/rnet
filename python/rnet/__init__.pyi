@@ -529,12 +529,12 @@ class ClientConfig(TypedDict):
 
     cookie_store: NotRequired[bool]
     """
-    Enable cookie store.
+    Enable internal cookie store provider.
     """
 
     cookie_provider: NotRequired[Jar]
     """
-    Custom cookie provider.
+    Custom cookie store provider.
     """
 
     # ========= Timeout options ========
