@@ -274,13 +274,13 @@ impl Client {
                 apply_option!(set_if_some_inner, builder, config.redirect, redirect);
 
                 // Cookie options.
+                apply_option!(set_if_some, builder, config.cookie_store, cookie_store);
                 apply_option!(
                     set_if_some_inner,
                     builder,
                     config.cookie_provider,
                     cookie_provider
                 );
-                apply_option!(set_if_some, builder, config.cookie_store, cookie_store);
 
                 // TCP options.
                 apply_option!(set_if_some, builder, config.tcp_keepalive, tcp_keepalive);
