@@ -23,6 +23,7 @@ create_exception!(exceptions, RustPanic, PyException);
 
 // Network connection errors
 create_exception!(exceptions, ConnectionError, PyException);
+create_exception!(exceptions, ProxyConnectionError, PyException);
 create_exception!(exceptions, ConnectionResetError, PyException);
 create_exception!(exceptions, TlsError, PyException);
 
@@ -102,6 +103,7 @@ impl From<Error> for PyErr {
                 is_tls => TlsError,
                 is_websocket => WebSocketError,
                 is_connect => ConnectionError,
+                is_proxy_connect => ProxyConnectionError,
                 is_connection_reset => ConnectionResetError,
                 is_decode => DecodingError,
                 is_redirect => RedirectError,

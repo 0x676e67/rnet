@@ -57,6 +57,20 @@ class ConnectionError(Exception):
     """
 
 
+class ProxyConnectionError(Exception):
+    r"""
+    An error occurred while connecting through a proxy server.
+
+    This exception is raised when the client cannot establish a
+    connection to the target server via the specified proxy. Common
+    causes include:
+    - Invalid proxy address or port
+    - Proxy server is unreachable
+    - Authentication failures with the proxy
+    - Network connectivity issues between client and proxy
+    """
+
+
 class ConnectionResetError(Exception):
     r"""
     The connection was reset by the remote peer.
