@@ -105,6 +105,13 @@ impl Response {
         wreq::Response::from(response)
     }
 
+    /// Creates an empty response with the same metadata but no body content.
+    ///
+    /// Useful for operations that only need response headers/metadata without consuming the body.
+    fn empty_response(self) -> wreq::Response {
+        self.build_response(wreq::Body::from(Bytes::new()))
+    }
+
     /// Consumes the response body and caches it in memory for reuse.
     ///
     /// If the body is streamable, it will be fully read into memory and cached.
@@ -146,13 +153,6 @@ impl Response {
             }
         }
         Err(Error::Memory)
-    }
-
-    /// Creates an empty response with the same metadata but no body content.
-    ///
-    /// Useful for operations that only need response headers/metadata without consuming the body.
-    fn empty_response(self) -> wreq::Response {
-        self.build_response(wreq::Body::from(Bytes::new()))
     }
 }
 
@@ -208,7 +208,6 @@ impl Response {
     pub fn stream(&self) -> PyResult<Streamer> {
         self.clone()
             .stream_response()
-            .map(wreq::Response::bytes_stream)
             .map(Streamer::new)
             .map_err(Into::into)
     }
