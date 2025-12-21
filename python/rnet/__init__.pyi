@@ -280,24 +280,30 @@ class Message:
 
 class Streamer:
     r"""
-    A byte stream response.
-    An asynchronous iterator yielding data chunks from the response stream.
-    Used to stream response content.
+    A stream response.
+    An asynchronous iterator yielding data chunks (bytes) or HTTP trailers (HeaderMap) from the response stream.
+    Used to stream response content and receive HTTP trailers if present.
     Implemented in the `stream` method of the `Response` class.
     Can be used in an asynchronous for loop in Python.
+
+    When streaming a response, each iteration yields either a bytes object (for body data) or a HeaderMap (for HTTP trailers, if the server sends them).
+    This allows you to access HTTP/1.1 or HTTP/2 trailers in addition to the main body.
 
     # Examples
 
     ```python
     import asyncio
     import rnet
-    from rnet import Method, Emulation
+    from rnet import Method, Emulation, HeaderMap
 
     async def main():
-        resp = await rnet.get("https://httpbin.io/stream/20")
+        resp = await rnet.get("https://example.com/stream-with-trailers")
         async with resp.stream() as streamer:
             async for chunk in streamer:
-                print("Chunk: ", chunk)
+                if isinstance(chunk, bytes):
+                    print("Chunk: ", chunk)
+                elif isinstance(chunk, HeaderMap):
+                    print("Trailers: ", chunk)
                 await asyncio.sleep(0.1)
 
     if __name__ == "__main__":
@@ -305,16 +311,16 @@ class Streamer:
     ```
     """
 
+    def __iter__(self) -> "Streamer": ...
+    def __next__(self) -> bytes | HeaderMap: ...
+    def __enter__(self) -> "Streamer": ...
+    def __exit__(self, _exc_type: Any, _exc_value: Any, _traceback: Any) -> None: ...
     async def __aiter__(self) -> "Streamer": ...
-    async def __anext__(self) -> bytes | None: ...
+    async def __anext__(self) -> bytes | HeaderMap: ...
     async def __aenter__(self) -> Any: ...
     async def __aexit__(
         self, _exc_type: Any, _exc_value: Any, _traceback: Any
-    ) -> Any: ...
-    def __iter__(self) -> "Streamer": ...
-    def __next__(self) -> bytes: ...
-    def __enter__(self) -> "Streamer": ...
-    def __exit__(self, _exc_type: Any, _exc_value: Any, _traceback: Any) -> None: ...
+    ) -> None: ...
 
 class Response:
     r"""

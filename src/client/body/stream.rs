@@ -6,7 +6,8 @@ use std::{
 };
 
 use bytes::Bytes;
-use futures_util::{FutureExt, Stream, StreamExt, TryStreamExt, stream::BoxStream};
+use futures_util::{FutureExt, Stream, StreamExt, stream::BoxStream};
+use http_body_util::BodyExt;
 use pyo3::{
     IntoPyObjectExt, intern,
     prelude::*,
@@ -14,7 +15,7 @@ use pyo3::{
 };
 use tokio::{sync::Mutex, task::JoinHandle};
 
-use crate::{buffer::PyBuffer, error::Error};
+use crate::{buffer::PyBuffer, error::Error, header::HeaderMap};
 
 type Pending = Option<JoinHandle<Option<PyResult<PyBytesLike>>>>;
 
@@ -31,6 +32,12 @@ pub enum PyBytesLike {
     String(PyBackedStr),
 }
 
+#[derive(IntoPyObject)]
+pub enum Frame {
+    Bytes(PyBuffer),
+    Trailers(HeaderMap),
+}
+
 /// A Python stream wrapper.
 pub struct PyStream {
     inner: PyStreamSource,
@@ -40,7 +47,7 @@ pub struct PyStream {
 /// A bytes stream response.
 #[derive(Clone)]
 #[pyclass(subclass)]
-pub struct Streamer(Arc<Mutex<Option<BoxStream<'static, wreq::Result<Bytes>>>>>);
+pub struct Streamer(Arc<Mutex<Option<wreq::Response>>>);
 
 // ===== impl PyStream =====
 
@@ -59,24 +66,35 @@ impl From<PyStreamSource> for PyStream {
 impl Streamer {
     /// Create a new [`Streamer`] instance.
     #[inline]
-    pub fn new(stream: impl Stream<Item = wreq::Result<Bytes>> + Send + 'static) -> Streamer {
-        Streamer(Arc::new(Mutex::new(Some(stream.boxed()))))
+    pub fn new(resp: wreq::Response) -> Streamer {
+        Streamer(Arc::new(Mutex::new(Some(resp))))
     }
 
-    async fn next(self, error: fn() -> Error) -> PyResult<PyBuffer> {
-        let val = self
+    async fn next(self, error: fn() -> Error) -> PyResult<Frame> {
+        let frame = self
             .0
             .lock()
             .await
             .as_mut()
             .ok_or_else(error)?
-            .try_next()
-            .await;
+            .frame()
+            .await
+            .ok_or_else(error)?
+            .map_err(Error::Library)?
+            .into_data()
+            .map_err(|frame| frame.into_trailers());
 
-        val.map_err(Error::Library)?
-            .map(PyBuffer::from)
-            .ok_or_else(error)
-            .map_err(Into::into)
+        match frame {
+            Ok(bytes) => Ok(Frame::Bytes(PyBuffer::from(bytes))),
+            Err(Ok(trailers)) => Ok(Frame::Trailers(HeaderMap(trailers))),
+            Err(Err(frame)) => {
+                // This branch should be unreachable, as `http_body::Frame` can only be `Data` or
+                // `Trailers`. The `debug_assert!` will help catch any future
+                // changes that violate this assumption.
+                debug_assert!(false, "Unexpected frame type: {:?}", frame);
+                Err(error().into())
+            }
+        }
     }
 }
 
@@ -93,7 +111,7 @@ impl Streamer {
     }
 
     #[inline]
-    fn __next__(&mut self, py: Python) -> PyResult<PyBuffer> {
+    fn __next__(&mut self, py: Python) -> PyResult<Frame> {
         py.detach(|| {
             pyo3_async_runtimes::tokio::get_runtime()
                 .block_on(self.clone().next(|| Error::StopIteration))
@@ -224,7 +242,7 @@ impl Stream for PyStream {
             Poll::Ready(Ok(res)) => Poll::Ready(res),
             Poll::Ready(Err(_)) => Poll::Ready(None),
             Poll::Pending => {
-                this.pending = Some(pending);
+                this.pending.replace(pending);
                 Poll::Pending
             }
         }

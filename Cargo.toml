@@ -8,6 +8,7 @@ repository = "https://github.com/0x676e67/rnet"
 authors = ["0x676e67 <gngppz@gmail.com>"]
 edition = "2024"
 rust-version = "1.85.0"
+include = ["src/**/*", "LICENSE", "README.md"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [lib]
