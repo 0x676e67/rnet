@@ -9,6 +9,7 @@ severity, making it easier to handle specific types of errors appropriately.
 __all__ = [
     "TlsError",
     "ConnectionError",
+    "ProxyConnectionError",
     "ConnectionResetError",
     "BodyError",
     "BuilderError",
