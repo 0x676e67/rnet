@@ -32,6 +32,7 @@ pub enum PyBytesLike {
     String(PyBackedStr),
 }
 
+/// A bytes-like object that can be into Python.
 #[derive(IntoPyObject)]
 pub enum Frame {
     Bytes(PyBuffer),
