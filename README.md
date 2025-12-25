@@ -14,6 +14,7 @@ An ergonomic and modular Python HTTP client for advanced and low-level emulation
 
 - Async and Blocking `Client`s
 - Plain bodies, JSON, urlencoded, multipart
+- HTTP Trailer
 - Cookie Store
 - Redirect Policy
 - Original Headers
