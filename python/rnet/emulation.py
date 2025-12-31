@@ -55,6 +55,7 @@ class Emulation(Enum):
     Chrome140 = auto()
     Chrome141 = auto()
     Chrome142 = auto()
+    Chrome143 = auto()
 
     # Microsoft Edge versions
     Edge101 = auto()
@@ -62,6 +63,14 @@ class Emulation(Enum):
     Edge127 = auto()
     Edge131 = auto()
     Edge134 = auto()
+    Edge135 = auto()
+    Edge136 = auto()
+    Edge137 = auto()
+    Edge138 = auto()
+    Edge139 = auto()
+    Edge140 = auto()
+    Edge141 = auto()
+    Edge142 = auto()
 
     # Firefox versions
     Firefox109 = auto()
@@ -76,6 +85,9 @@ class Emulation(Enum):
     Firefox139 = auto()
     Firefox142 = auto()
     Firefox143 = auto()
+    Firefox144 = auto()
+    Firefox145 = auto()
+    Firefox146 = auto()
 
     # Safari versions
     SafariIos17_2 = auto()
@@ -98,8 +110,12 @@ class Emulation(Enum):
     SafariIos18_1_1 = auto()
     Safari18_5 = auto()
     Safari26 = auto()
+    Safari26_1 = auto()
+    Safari26_2 = auto()
     SafariIos26 = auto()
+    SafariIos26_2 = auto()
     SafariIPad26 = auto()
+    SafariIpad26_2 = auto()
 
     # OkHttp versions
     OkHttp3_9 = auto()

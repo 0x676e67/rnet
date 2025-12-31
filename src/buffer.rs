@@ -19,7 +19,7 @@ use std::os::raw::c_int;
 
 use bytes::Bytes;
 use pyo3::{ffi, prelude::*};
-use wreq::header::{HeaderName, HeaderValue};
+use wreq::header::{HeaderName, HeaderValue, OrigHeaderName};
 
 /// [`PyBuffer`] enables zero-copy conversion of Rust [`Bytes`] to Python bytes.
 pub struct PyBuffer(BufferView);
@@ -68,6 +68,12 @@ impl From<Bytes> for PyBuffer {
 impl From<HeaderName> for PyBuffer {
     #[inline]
     fn from(value: HeaderName) -> Self {
+        Self::from(Bytes::from_owner(value))
+    }
+}
+
+impl From<OrigHeaderName> for PyBuffer {
+    fn from(value: OrigHeaderName) -> Self {
         Self::from(Bytes::from_owner(value))
     }
 }
