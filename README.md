@@ -93,7 +93,7 @@ Most browser device models share identical TLS and HTTP/2 configurations, differ
   | **Safari**  | `SafariIos17_2`, `SafariIos17_4_1`, `SafariIos16_5`, `Safari15_3`, `Safari15_5`, `Safari15_6_1`, `Safari16`, `Safari16_5`, `Safari17_0`, `Safari17_2_1`, `Safari17_4_1`, `Safari17_5`, `Safari18`, `SafariIPad18`, `Safari18_2`, `SafariIos18_1_1`, `Safari18_3`, `Safari18_3_1`, `Safari18_5`,  `Safari26`, `Safari26_1`, `Safari26_2`, `SafariIos26`, `SafariIos26_2`, `SafariIPad26`, `SafariIPad26_2`  |
   | **Firefox** | `Firefox109`, `Firefox117`, `Firefox128`, `Firefox133`, `Firefox135`, `FirefoxPrivate135`, `FirefoxAndroid135`, `Firefox136`, `FirefoxPrivate136`, `Firefox139`, `Firefox142`, `Firefox143`, `Firefox144`, `Firefox145`, `Firefox146` |
   | **OkHttp**  | `OkHttp3_9`, `OkHttp3_11`, `OkHttp3_13`, `OkHttp3_14`, `OkHttp4_9`, `OkHttp4_10`, `OkHttp4_12`, `OkHttp5`                                                                                                                                                                                                                                                                               |
-  | **Edge**    | `Edge101`, `Edge122`, `Edge127`, `Edge131`, `Edge134`, `Edge135`, `Edge135`, `Edge136`, `Edge137`, `Edge138`, `Edge139`, `Edge140`, `Edge141`, `Edge142`|
+  | **Edge**    | `Edge101`, `Edge122`, `Edge127`, `Edge131`, `Edge134`, `Edge135`, `Edge136`, `Edge137`, `Edge138`, `Edge139`, `Edge140`, `Edge141`, `Edge142`|
   | **Opera**   | `Opera116`, `Opera117`, `Opera118`, `Opera119`                                                                                                                                                                 |
 
   </details>
