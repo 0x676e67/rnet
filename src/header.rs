@@ -337,10 +337,7 @@ impl OrigHeaderMap {
                 .iter()
                 .map(|(name, orig_name)| {
                     let name = PyBuffer::from(name.clone());
-                    let orig_name = match orig_name.clone() {
-                        header::OrigHeaderName::Cased(bytes) => PyBuffer::from(bytes),
-                        header::OrigHeaderName::Standard(name) => PyBuffer::from(name),
-                    };
+                    let orig_name = PyBuffer::from(orig_name.clone());
                     (name, orig_name)
                 })
                 .collect()
