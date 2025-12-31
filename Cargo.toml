@@ -48,7 +48,9 @@ bytes = "1.11.0"
 arc-swap = "1.7.0"
 http = "1"
 http-body-util = "0.1.3"
-wreq = { version = "6.0.0-rc.23", features = [
+wreq = { version = "6.0.0-rc.26", features = [
+    "query",
+    "form",
     "json",
     "socks",
     "stream",
@@ -79,6 +81,3 @@ lto = "fat"
 opt-level = 3
 panic = "abort"
 strip = true
-
-[patch.crates-io]
-wreq = { git = "https://github.com/0x676e67/wreq" }
