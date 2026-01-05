@@ -1,23 +1,24 @@
 import datetime
-from . import (
-    Message,
-    Streamer,
-    Version,
-    Method,
-    SocketAddr,
-    StatusCode,
-    ClientConfig,
-    Request,
-    WebSocketRequest,
-)
 from typing import (
     Any,
     Sequence,
     Unpack,
 )
-from .redirect import History
-from .header import HeaderMap
+
+from . import (
+    ClientConfig,
+    Message,
+    Method,
+    Request,
+    SocketAddr,
+    StatusCode,
+    Streamer,
+    Version,
+    WebSocketRequest,
+)
 from .cookie import Cookie
+from .header import HeaderMap
+from .redirect import History
 
 
 class Response:
@@ -221,6 +222,16 @@ class Client:
         response = client.get('https://httpbin.io/get')
         print(response.text())
         ```
+        """
+        ...
+
+    @property
+    def cookie_jar(self):
+        r"""
+        Get the cookie jar used by this client (if enabled/configured).
+
+        Raises:
+            AttributeError: If the client has no cookie jar configured.
         """
         ...
 
