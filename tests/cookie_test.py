@@ -146,3 +146,13 @@ async def test_client_cookie_jar_accessor():
     resp2 = await client2.get(url)
     assert resp2.status.is_success()
     assert "test_cookie" in await resp2.text()
+
+    # 3) If both cookie_provider and cookie_store=True are set, the provider must win.
+    jar3 = rnet.Jar()
+    client3 = rnet.Client(cookie_provider=jar3, cookie_store=True)
+    client3.cookie_jar.add_cookie_str(
+        "test_cookie=zzz; Path=/cookies; Domain=localhost", url
+    )
+    resp3 = await client3.get(url)
+    assert resp3.status.is_success()
+    assert "test_cookie" in await resp3.text()

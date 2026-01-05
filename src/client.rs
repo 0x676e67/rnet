@@ -287,20 +287,16 @@ impl Client {
                 apply_option!(set_if_some_inner, builder, config.redirect, redirect);
 
                 // Cookie options.
-                // If a cookie provider was given, store it and pass it to the underlying builder.
+                // Prefer an explicit user-provided cookie provider.
                 if let Some(jar) = config.cookie_provider.take() {
                     builder = builder.cookie_provider(jar.clone().0);
                     cookie_provider = Some(jar);
-                }
-                // If cookie store is enabled and no provider was given, create a default jar so it
-                // can be accessed later through the client interface.
-                if config.cookie_store.unwrap_or(false) {
-                    builder = builder.cookie_store(true);
-                    if cookie_provider.is_none() {
-                        let jar = Jar::new(None);
-                        builder = builder.cookie_provider(jar.clone().0);
-                        cookie_provider = Some(jar);
-                    }
+                } else if config.cookie_store.unwrap_or(false) {
+                    // `cookie_store` is true and no provider was given, so create a default jar to
+                    // be accessed later through the client interface.
+                    let jar = Jar::new(None);
+                    builder = builder.cookie_provider(jar.clone().0);
+                    cookie_provider = Some(jar);
                 }
 
                 // TCP options.
