@@ -16,7 +16,7 @@ from . import (
     Version,
     WebSocketRequest,
 )
-from .cookie import Cookie
+from .cookie import Cookie, Jar
 from .header import HeaderMap
 from .redirect import History
 
@@ -226,7 +226,7 @@ class Client:
         ...
 
     @property
-    def cookie_jar(self):
+    def cookie_jar(self) -> Jar:
         r"""
         Get the cookie jar used by this client (if enabled/configured).
 
