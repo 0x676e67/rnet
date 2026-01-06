@@ -228,20 +228,11 @@ impl FromPyObject<'_, '_> for Builder {
 }
 
 /// A client for making HTTP requests.
-#[derive(Clone)]
+#[derive(Default, Clone)]
 #[pyclass(subclass, frozen)]
 pub struct Client {
     inner: wreq::Client,
     cookie_store: Option<Jar>,
-}
-
-impl Default for Client {
-    fn default() -> Self {
-        Self {
-            inner: wreq::Client::default(),
-            cookie_store: None,
-        }
-    }
 }
 
 /// A blocking client for making HTTP requests.
