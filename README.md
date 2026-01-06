@@ -17,7 +17,7 @@ An ergonomic and modular Python HTTP client for advanced and low-level emulation
 - HTTP Trailer
 - Cookie Store
 - Redirect Policy
-- Original Headers
+- Original Header
 - Rotating Proxies
 - Connection Pooling
 - Streaming Transfers
