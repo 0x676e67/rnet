@@ -232,7 +232,10 @@ impl FromPyObject<'_, '_> for Builder {
 #[pyclass(subclass, frozen)]
 pub struct Client {
     inner: wreq::Client,
-    cookie_store: Option<Jar>,
+
+    /// Get the cookie jar of the client.
+    #[pyo3(get)]
+    cookie_jar: Option<Jar>,
 }
 
 /// A blocking client for making HTTP requests.
@@ -250,7 +253,7 @@ impl Client {
         py.detach(|| {
             // Create the client builder.
             let mut builder = wreq::Client::builder();
-            let mut cookie_store: Option<Jar> = None;
+            let mut cookie_jar: Option<Jar> = None;
             if let Some(mut config) = kwds {
                 // Emulation options.
                 apply_option!(set_if_some_inner, builder, config.emulation, emulation);
@@ -280,13 +283,13 @@ impl Client {
                 // Cookie options.
                 if let Some(jar) = config.cookie_provider.take() {
                     builder = builder.cookie_provider(jar.clone().0);
-                    cookie_store = Some(jar);
+                    cookie_jar = Some(jar);
                 } else if config.cookie_store.unwrap_or_default() {
                     // `cookie_store` is true and no provider was given, so create a default jar to
                     // be accessed later through the client interface.
                     let jar = Jar::new(None);
                     builder = builder.cookie_provider(jar.clone().0);
-                    cookie_store = Some(jar);
+                    cookie_jar = Some(jar);
                 }
 
                 // TCP options.
@@ -444,20 +447,10 @@ impl Client {
 
             builder
                 .build()
-                .map(|inner| Client {
-                    inner,
-                    cookie_store,
-                })
+                .map(|inner| Client { inner, cookie_jar })
                 .map_err(Error::Library)
                 .map_err(Into::into)
         })
-    }
-
-    /// Get the cookie jar used by this client (if enabled/configured).
-    #[inline]
-    #[getter]
-    pub fn cookie_jar(&self) -> Option<Jar> {
-        self.cookie_store.clone()
     }
 
     /// Make a GET request to the given URL.
@@ -592,9 +585,17 @@ impl Client {
 impl BlockingClient {
     /// Creates a new blocking Client instance.
     #[new]
+    #[inline]
     #[pyo3(signature = (**kwds))]
     fn new(py: Python, kwds: Option<Builder>) -> PyResult<BlockingClient> {
         Client::new(py, kwds).map(BlockingClient)
+    }
+
+    /// Get the cookie jar of the client.
+    #[inline]
+    #[getter]
+    pub fn cookie_jar(&self) -> Option<Jar> {
+        self.0.cookie_jar.clone()
     }
 
     /// Make a GET request to the specified URL.
@@ -722,12 +723,5 @@ impl BlockingClient {
                 .block_on(execute_websocket_request(self.0.inner.clone(), url, kwds))
                 .map(Into::into)
         })
-    }
-
-    /// Get the cookie jar used by this client (if enabled/configured).
-    #[inline]
-    #[getter]
-    pub fn cookie_jar(&self) -> Option<Jar> {
-        self.0.cookie_jar()
     }
 }
