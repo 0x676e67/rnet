@@ -123,14 +123,10 @@ async def test_clear_cookies():
 async def test_client_cookie_jar_accessor():
     url = "http://localhost:8080/cookies"
 
-    # 0) Unconfigured client should raise when accessing cookie_jar.
-    client0 = rnet.Client()
-    with pytest.raises(AttributeError):
-        _ = client0.cookie_jar
-
     # 1) If a cookie_provider is passed, client.cookie_jar should return it (shared storage).
     jar = rnet.Jar()
     client = rnet.Client(cookie_provider=jar)
+    assert client.cookie_jar is not None
     client.cookie_jar.add_cookie_str(
         "test_cookie=12345; Path=/cookies; Domain=localhost", url
     )
@@ -140,6 +136,7 @@ async def test_client_cookie_jar_accessor():
 
     # 2) If cookie_store=True is used without explicit provider, client.cookie_jar should exist.
     client2 = rnet.Client(cookie_store=True)
+    assert client2.cookie_jar is not None
     client2.cookie_jar.add_cookie_str(
         "test_cookie=abc; Path=/cookies; Domain=localhost", url
     )
@@ -150,6 +147,7 @@ async def test_client_cookie_jar_accessor():
     # 3) If both cookie_provider and cookie_store=True are set, the provider must win.
     jar3 = rnet.Jar()
     client3 = rnet.Client(cookie_provider=jar3, cookie_store=True)
+    assert client3.cookie_jar is not None
     client3.cookie_jar.add_cookie_str(
         "test_cookie=zzz; Path=/cookies; Domain=localhost", url
     )

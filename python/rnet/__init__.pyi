@@ -1023,6 +1023,15 @@ class Client:
     A client for making HTTP requests.
     """
 
+    cookie_jar: Jar | None
+    r"""
+    Get the cookie jar used by this client (if enabled/configured).
+
+    Returns:
+        - The provided `Jar` if the client was constructed with `cookie_provider=...`
+        - The auto-created `Jar` if the client was constructed with `cookie_store=True`
+    """
+
     def __init__(
         self,
         **kwargs: Unpack[ClientConfig],
@@ -1046,20 +1055,6 @@ class Client:
 
         asyncio.run(main())
         ```
-        """
-        ...
-
-    @property
-    def cookie_jar(self) -> Jar:
-        r"""
-        Get the cookie jar used by this client (if enabled/configured).
-
-        Returns:
-            - The provided `Jar` if the client was constructed with `cookie_provider=...`
-            - The auto-created `Jar` if the client was constructed with `cookie_store=True`
-
-        Raises:
-            AttributeError: If the client has no cookie jar configured.
         """
         ...
 

@@ -12,7 +12,7 @@ use std::{
     time::Duration,
 };
 
-use pyo3::{IntoPyObjectExt, prelude::*, pybacked::PyBackedStr, exceptions::PyAttributeError};
+use pyo3::{IntoPyObjectExt, prelude::*, pybacked::PyBackedStr};
 use req::{Request, WebSocketRequest};
 use wreq::{Proxy, tls::CertStore};
 use wreq_util::EmulationOption;
@@ -232,14 +232,14 @@ impl FromPyObject<'_, '_> for Builder {
 #[pyclass(subclass, frozen)]
 pub struct Client {
     inner: wreq::Client,
-    cookie_provider: Option<Jar>,
+    cookie_store: Option<Jar>,
 }
 
 impl Default for Client {
     fn default() -> Self {
         Self {
             inner: wreq::Client::default(),
-            cookie_provider: None,
+            cookie_store: None,
         }
     }
 }
@@ -259,7 +259,7 @@ impl Client {
         py.detach(|| {
             // Create the client builder.
             let mut builder = wreq::Client::builder();
-            let mut cookie_provider: Option<Jar> = None;
+            let mut cookie_store: Option<Jar> = None;
             if let Some(mut config) = kwds {
                 // Emulation options.
                 apply_option!(set_if_some_inner, builder, config.emulation, emulation);
@@ -287,16 +287,15 @@ impl Client {
                 apply_option!(set_if_some_inner, builder, config.redirect, redirect);
 
                 // Cookie options.
-                // Prefer an explicit user-provided cookie provider.
                 if let Some(jar) = config.cookie_provider.take() {
                     builder = builder.cookie_provider(jar.clone().0);
-                    cookie_provider = Some(jar);
-                } else if config.cookie_store.unwrap_or(false) {
+                    cookie_store = Some(jar);
+                } else if config.cookie_store.unwrap_or_default() {
                     // `cookie_store` is true and no provider was given, so create a default jar to
                     // be accessed later through the client interface.
                     let jar = Jar::new(None);
                     builder = builder.cookie_provider(jar.clone().0);
-                    cookie_provider = Some(jar);
+                    cookie_store = Some(jar);
                 }
 
                 // TCP options.
@@ -456,7 +455,7 @@ impl Client {
                 .build()
                 .map(|inner| Client {
                     inner,
-                    cookie_provider,
+                    cookie_store,
                 })
                 .map_err(Error::Library)
                 .map_err(Into::into)
@@ -464,19 +463,10 @@ impl Client {
     }
 
     /// Get the cookie jar used by this client (if enabled/configured).
-    ///
-    /// - If you constructed the client with `cookie_provider=Jar(...)`, this returns that jar.
-    /// - If you constructed the client with `cookie_store=True` (and no explicit provider), this
-    ///   returns the auto-created jar.
-    ///
-    /// Returns `None` if the client has no cookie jar configured.
+    #[inline]
     #[getter]
-    pub fn cookie_jar(&self) -> PyResult<Jar> {
-        self.cookie_provider.clone().ok_or_else(|| {
-            PyAttributeError::new_err(
-                "cookie jar is not configured; pass cookie_provider=Jar(...) or set cookie_store=True",
-            )
-        })
+    pub fn cookie_jar(&self) -> Option<Jar> {
+        self.cookie_store.clone()
     }
 
     /// Make a GET request to the given URL.
@@ -744,12 +734,9 @@ impl BlockingClient {
     }
 
     /// Get the cookie jar used by this client (if enabled/configured).
+    #[inline]
     #[getter]
-    pub fn cookie_jar(&self) -> PyResult<Jar> {
-        self.0.cookie_provider.clone().ok_or_else(|| {
-            PyAttributeError::new_err(
-                "cookie jar is not configured; pass cookie_provider=Jar(...) or set cookie_store=True",
-            )
-        })
+    pub fn cookie_jar(&self) -> Option<Jar> {
+        self.0.cookie_jar()
     }
 }
