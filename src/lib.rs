@@ -3,11 +3,6 @@
 #![cfg_attr(test, deny(warnings))]
 #![cfg_attr(not(test), warn(unused_crate_dependencies))]
 
-#[cfg(feature = "mimalloc")]
-use mimalloc as _;
-#[cfg(feature = "jemalloc")]
-use tikv_jemallocator as _;
-
 #[macro_use]
 mod macros;
 mod buffer;
@@ -25,37 +20,41 @@ mod proxy;
 mod redirect;
 mod tls;
 
+use client::{
+    BlockingClient, Client, SocketAddr,
+    body::{
+        Streamer,
+        multipart::{Multipart, Part},
+    },
+    req::{Request, WebSocketRequest},
+    resp::{BlockingResponse, BlockingWebSocket, Message, Response, WebSocket},
+};
+use cookie::{Cookie, Jar, SameSite};
+use dns::{LookupIpStrategy, ResolverOptions};
+use emulation::{Emulation, EmulationOS, EmulationOption};
+use error::*;
+use header::{HeaderMap, OrigHeaderMap};
+use http::{Method, StatusCode, Version};
+use http1::Http1Options;
+use http2::{
+    Http2Options, Priorities, Priority, PseudoId, PseudoOrder, SettingId, SettingsOrder,
+    StreamDependency, StreamId,
+};
+#[cfg(feature = "mimalloc")]
+use mimalloc as _;
+use proxy::Proxy;
 use pyo3::{intern, prelude::*, pybacked::PyBackedStr, types::PyDict, wrap_pymodule};
-
-use self::{
-    client::{
-        BlockingClient, Client, SocketAddr,
-        body::{
-            Streamer,
-            multipart::{Multipart, Part},
-        },
-        req::{Request, WebSocketRequest},
-        resp::{BlockingResponse, BlockingWebSocket, Message, Response, WebSocket},
-    },
-    cookie::{Cookie, Jar, SameSite},
-    dns::{LookupIpStrategy, ResolverOptions},
-    emulation::{Emulation, EmulationOS, EmulationOption},
-    error::*,
-    header::{HeaderMap, OrigHeaderMap},
-    http::{Method, StatusCode, Version},
-    http1::Http1Options,
-    http2::{
-        Http2Options, Priorities, Priority, PseudoId, PseudoOrder, SettingId, SettingsOrder,
-        StreamDependency, StreamId,
-    },
-    proxy::Proxy,
-    tls::{
-        AlpnProtocol, AlpsProtocol, CertStore, CertificateCompressionAlgorithm, ExtensionType,
-        Identity, KeyLog, TlsOptions, TlsVersion,
-    },
+#[cfg(feature = "jemalloc")]
+use tikv_jemallocator as _;
+use tls::{
+    AlpnProtocol, AlpsProtocol, CertStore, CertificateCompressionAlgorithm, ExtensionType,
+    Identity, KeyLog, TlsOptions, TlsVersion,
 };
 
-#[cfg(all(feature = "jemalloc", not(feature = "mimalloc"),))]
+#[cfg(all(feature = "jemalloc", feature = "mimalloc"))]
+compile_error!("features 'jemalloc' and 'mimalloc' are mutually exclusive");
+
+#[cfg(all(feature = "jemalloc", not(feature = "mimalloc")))]
 #[global_allocator]
 static GLOBAL: tikv_jemallocator::Jemalloc = tikv_jemallocator::Jemalloc;
 
