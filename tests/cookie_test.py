@@ -2,7 +2,6 @@ import pytest
 import rnet
 from rnet.cookie import Cookie
 
-
 client = rnet.Client()
 
 
@@ -118,3 +117,40 @@ async def test_clear_cookies():
     body = await response.text()
     assert "test_cookie1" not in body
     assert "test_cookie2" not in body
+
+
+@pytest.mark.asyncio
+async def test_client_cookie_jar_accessor():
+    url = "http://localhost:8080/cookies"
+
+    # 1) If a cookie_provider is passed, client.cookie_jar should return it (shared storage).
+    jar = rnet.Jar()
+    client = rnet.Client(cookie_provider=jar)
+    assert client.cookie_jar is not None
+    client.cookie_jar.add_cookie_str(
+        "test_cookie=12345; Path=/cookies; Domain=localhost", url
+    )
+    resp = await client.get(url)
+    assert resp.status.is_success()
+    assert "test_cookie" in await resp.text()
+
+    # 2) If cookie_store=True is used without explicit provider, client.cookie_jar should exist.
+    client2 = rnet.Client(cookie_store=True)
+    assert client2.cookie_jar is not None
+    client2.cookie_jar.add_cookie_str(
+        "test_cookie=abc; Path=/cookies; Domain=localhost", url
+    )
+    resp2 = await client2.get(url)
+    assert resp2.status.is_success()
+    assert "test_cookie" in await resp2.text()
+
+    # 3) If both cookie_provider and cookie_store=True are set, the provider must win.
+    jar3 = rnet.Jar()
+    client3 = rnet.Client(cookie_provider=jar3, cookie_store=True)
+    assert client3.cookie_jar is not None
+    client3.cookie_jar.add_cookie_str(
+        "test_cookie=zzz; Path=/cookies; Domain=localhost", url
+    )
+    resp3 = await client3.get(url)
+    assert resp3.status.is_success()
+    assert "test_cookie" in await resp3.text()

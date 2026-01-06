@@ -228,9 +228,15 @@ impl FromPyObject<'_, '_> for Builder {
 }
 
 /// A client for making HTTP requests.
-#[derive(Clone, Default)]
+#[derive(Default, Clone)]
 #[pyclass(subclass, frozen)]
-pub struct Client(wreq::Client);
+pub struct Client {
+    inner: wreq::Client,
+
+    /// Get the cookie jar of the client.
+    #[pyo3(get)]
+    cookie_jar: Option<Jar>,
+}
 
 /// A blocking client for making HTTP requests.
 #[pyclass(name = "Client", subclass, frozen)]
@@ -247,6 +253,7 @@ impl Client {
         py.detach(|| {
             // Create the client builder.
             let mut builder = wreq::Client::builder();
+            let mut cookie_jar: Option<Jar> = None;
             if let Some(mut config) = kwds {
                 // Emulation options.
                 apply_option!(set_if_some_inner, builder, config.emulation, emulation);
@@ -274,13 +281,16 @@ impl Client {
                 apply_option!(set_if_some_inner, builder, config.redirect, redirect);
 
                 // Cookie options.
-                apply_option!(set_if_some, builder, config.cookie_store, cookie_store);
-                apply_option!(
-                    set_if_some_inner,
-                    builder,
-                    config.cookie_provider,
-                    cookie_provider
-                );
+                if let Some(jar) = config.cookie_provider.take() {
+                    builder = builder.cookie_provider(jar.clone().0);
+                    cookie_jar = Some(jar);
+                } else if config.cookie_store.unwrap_or_default() {
+                    // `cookie_store` is true and no provider was given, so create a default jar to
+                    // be accessed later through the client interface.
+                    let jar = Jar::new(None);
+                    builder = builder.cookie_provider(jar.clone().0);
+                    cookie_jar = Some(jar);
+                }
 
                 // TCP options.
                 apply_option!(set_if_some, builder, config.tcp_keepalive, tcp_keepalive);
@@ -437,7 +447,7 @@ impl Client {
 
             builder
                 .build()
-                .map(Client)
+                .map(|inner| Client { inner, cookie_jar })
                 .map_err(Error::Library)
                 .map_err(Into::into)
         })
@@ -551,7 +561,7 @@ impl Client {
     ) -> PyResult<Bound<'py, PyAny>> {
         pyo3_async_runtimes::tokio::future_into_py(
             py,
-            execute_request(self.clone().0, method, url, kwds),
+            execute_request(self.inner.clone(), method, url, kwds),
         )
     }
 
@@ -566,7 +576,7 @@ impl Client {
     ) -> PyResult<Bound<'py, PyAny>> {
         pyo3_async_runtimes::tokio::future_into_py(
             py,
-            execute_websocket_request(self.clone().0, url, kwds),
+            execute_websocket_request(self.inner.clone(), url, kwds),
         )
     }
 }
@@ -575,9 +585,17 @@ impl Client {
 impl BlockingClient {
     /// Creates a new blocking Client instance.
     #[new]
+    #[inline]
     #[pyo3(signature = (**kwds))]
     fn new(py: Python, kwds: Option<Builder>) -> PyResult<BlockingClient> {
         Client::new(py, kwds).map(BlockingClient)
+    }
+
+    /// Get the cookie jar of the client.
+    #[inline]
+    #[getter]
+    pub fn cookie_jar(&self) -> Option<Jar> {
+        self.0.cookie_jar.clone()
     }
 
     /// Make a GET request to the specified URL.
@@ -687,7 +705,7 @@ impl BlockingClient {
     ) -> PyResult<BlockingResponse> {
         py.detach(|| {
             pyo3_async_runtimes::tokio::get_runtime()
-                .block_on(execute_request(self.0.clone().0, method, url, kwds))
+                .block_on(execute_request(self.0.inner.clone(), method, url, kwds))
                 .map(Into::into)
         })
     }
@@ -702,7 +720,7 @@ impl BlockingClient {
     ) -> PyResult<BlockingWebSocket> {
         py.detach(|| {
             pyo3_async_runtimes::tokio::get_runtime()
-                .block_on(execute_websocket_request(self.0.clone().0, url, kwds))
+                .block_on(execute_websocket_request(self.0.inner.clone(), url, kwds))
                 .map(Into::into)
         })
     }

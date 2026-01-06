@@ -1,23 +1,24 @@
 import datetime
-from . import (
-    Message,
-    Streamer,
-    Version,
-    Method,
-    SocketAddr,
-    StatusCode,
-    ClientConfig,
-    Request,
-    WebSocketRequest,
-)
 from typing import (
     Any,
     Sequence,
     Unpack,
 )
-from .redirect import History
+
+from . import (
+    ClientConfig,
+    Message,
+    Method,
+    Request,
+    SocketAddr,
+    StatusCode,
+    Streamer,
+    Version,
+    WebSocketRequest,
+)
+from .cookie import Cookie, Jar
 from .header import HeaderMap
-from .cookie import Cookie
+from .redirect import History
 
 
 class Response:
@@ -199,6 +200,15 @@ class WebSocket:
 class Client:
     r"""
     A blocking client for making HTTP requests.
+    """
+
+    cookie_jar: Jar | None
+    r"""
+    Get the cookie jar used by this client (if enabled/configured).
+
+    Returns:
+        - The provided `Jar` if the client was constructed with `cookie_provider=...`
+        - The auto-created `Jar` if the client was constructed with `cookie_store=True`
     """
 
     def __init__(

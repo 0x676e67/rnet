@@ -1,28 +1,29 @@
 import datetime
+from enum import Enum, auto
 from ipaddress import IPv4Address, IPv6Address
+from pathlib import Path
 from typing import (
-    AsyncGenerator,
-    Generator,
-    Tuple,
     Any,
+    AsyncGenerator,
     Dict,
+    Generator,
+    NotRequired,
     Sequence,
+    Tuple,
     TypedDict,
     Unpack,
-    NotRequired,
     final,
 )
-from pathlib import Path
-from enum import Enum, auto
+
 from . import redirect
+from .cookie import *
 from .dns import ResolverOptions
+from .emulation import *
+from .header import *
 from .http1 import Http1Options
 from .http2 import Http2Options
-from .redirect import History
 from .proxy import *
-from .cookie import *
-from .header import *
-from .emulation import *
+from .redirect import History
 from .tls import *
 
 @final
@@ -1020,6 +1021,15 @@ class WebSocketRequest(TypedDict):
 class Client:
     r"""
     A client for making HTTP requests.
+    """
+
+    cookie_jar: Jar | None
+    r"""
+    Get the cookie jar used by this client (if enabled/configured).
+
+    Returns:
+        - The provided `Jar` if the client was constructed with `cookie_provider=...`
+        - The auto-created `Jar` if the client was constructed with `cookie_store=True`
     """
 
     def __init__(
