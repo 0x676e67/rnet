@@ -2,8 +2,6 @@
 TLS Utilities and Types
 
 This module provides types and utilities for configuring TLS (Transport Layer Security) in HTTP clients.
-
-These types are typically used to configure client-side TLS authentication and certificate verification in HTTP requests.
 """
 
 from enum import Enum, auto
@@ -385,6 +383,11 @@ class Params(TypedDict):
     Overrides AES hardware acceleration.
     """
 
+    random_aes_hw_override: NotRequired[bool]
+    """
+    Overrides the random AES hardware acceleration.
+    """
+
     preserve_tls13_cipher_list: NotRequired[bool]
     """
     Sets whether to preserve the TLS 1.3 cipher list as configured by cipher_list.
@@ -399,12 +402,6 @@ class Params(TypedDict):
     priorities for TLS 1.3. Note that if cipher_list does not include any TLS 1.3
     cipher suites, BoringSSL will still fall back to its default TLS 1.3 cipher suites and order.
     """
-
-    random_aes_hw_override: NotRequired[bool]
-    """
-    Overrides the random AES hardware acceleration.
-    """
-
 
 @final
 class TlsOptions:
