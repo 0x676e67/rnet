@@ -5,6 +5,7 @@ mod store;
 use pyo3::prelude::*;
 
 pub use self::{identity::Identity, keylog::KeyLog, store::CertStore};
+use crate::buffer::PyBuffer;
 
 define_enum!(
     /// The TLS version.
@@ -383,5 +384,21 @@ impl TlsOptions {
 
             Self(builder.build())
         })
+    }
+}
+
+/// Information about the TLS connection.
+#[pyclass(frozen)]
+pub struct TlsInfo(pub wreq::tls::TlsInfo);
+
+#[pymethods]
+impl TlsInfo {
+    /// Get the DER encoded leaf certificate of the peer.
+    #[inline]
+    pub fn peer_certificate(&self) -> Option<PyBuffer> {
+        self.0
+            .peer_certificate()
+            .map(ToOwned::to_owned)
+            .map(PyBuffer::from)
     }
 }

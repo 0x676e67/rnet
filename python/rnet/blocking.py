@@ -19,6 +19,7 @@ from . import (
 from .cookie import Cookie, Jar
 from .header import HeaderMap
 from .redirect import History
+from .tls import TlsInfo
 
 
 class Response:
@@ -71,9 +72,9 @@ class Response:
     Get the redirect history of the Response.
     """
 
-    peer_certificate: bytes | None
+    tls_info: TlsInfo | None
     r"""
-    Get the DER encoded leaf certificate of the response.
+    Get the TLS information of the response.
     """
 
     def raise_for_status(self) -> None:

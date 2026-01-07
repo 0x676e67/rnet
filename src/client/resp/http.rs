@@ -6,7 +6,7 @@ use futures_util::TryFutureExt;
 use http::{Extensions, response::Response as HttpResponse};
 use http_body_util::BodyExt;
 use pyo3::{IntoPyObjectExt, prelude::*, pybacked::PyBackedStr};
-use wreq::{self, Uri, tls::TlsInfo};
+use wreq::{self, Uri};
 
 use crate::{
     buffer::PyBuffer,
@@ -20,6 +20,7 @@ use crate::{
     header::HeaderMap,
     http::{StatusCode, Version},
     redirect::History,
+    tls::TlsInfo,
 };
 
 /// A response from a request.
@@ -182,15 +183,14 @@ impl Response {
         })
     }
 
-    /// Get the DER encoded leaf certificate of the response.
+    /// Get the TLS information of the response.
     #[getter]
-    pub fn peer_certificate(&self, py: Python) -> Option<PyBuffer> {
+    pub fn tls_info(&self, py: Python) -> Option<TlsInfo> {
         py.detach(|| {
             self.extensions
-                .get::<TlsInfo>()?
-                .peer_certificate()
-                .map(ToOwned::to_owned)
-                .map(PyBuffer::from)
+                .get::<wreq::tls::TlsInfo>()
+                .cloned()
+                .map(TlsInfo)
         })
     }
 
@@ -355,10 +355,10 @@ impl BlockingResponse {
         self.0.history(py)
     }
 
-    /// Get the DER encoded leaf certificate of the response.
+    /// Get the TLS information of the response.
     #[getter]
-    pub fn peer_certificate(&self, py: Python) -> Option<PyBuffer> {
-        self.0.peer_certificate(py)
+    pub fn tls_info(&self, py: Python) -> Option<TlsInfo> {
+        self.0.tls_info(py)
     }
 
     /// Turn a response into an error if the server returned an error.

@@ -127,9 +127,7 @@ async def test_client_cookie_jar_accessor():
     jar = rnet.Jar()
     client = rnet.Client(cookie_provider=jar)
     assert client.cookie_jar is not None
-    client.cookie_jar.add(
-        "test_cookie=12345; Path=/cookies; Domain=localhost", url
-    )
+    client.cookie_jar.add("test_cookie=12345; Path=/cookies; Domain=localhost", url)
     resp = await client.get(url)
     assert resp.status.is_success()
     assert "test_cookie" in await resp.text()
@@ -137,9 +135,7 @@ async def test_client_cookie_jar_accessor():
     # 2) If cookie_store=True is used without explicit provider, client.cookie_jar should exist.
     client2 = rnet.Client(cookie_store=True)
     assert client2.cookie_jar is not None
-    client2.cookie_jar.add(
-        "test_cookie=abc; Path=/cookies; Domain=localhost", url
-    )
+    client2.cookie_jar.add("test_cookie=abc; Path=/cookies; Domain=localhost", url)
     resp2 = await client2.get(url)
     assert resp2.status.is_success()
     assert "test_cookie" in await resp2.text()
@@ -148,9 +144,7 @@ async def test_client_cookie_jar_accessor():
     jar3 = rnet.Jar()
     client3 = rnet.Client(cookie_provider=jar3, cookie_store=True)
     assert client3.cookie_jar is not None
-    client3.cookie_jar.add(
-        "test_cookie=zzz; Path=/cookies; Domain=localhost", url
-    )
+    client3.cookie_jar.add("test_cookie=zzz; Path=/cookies; Domain=localhost", url)
     resp3 = await client3.get(url)
     assert resp3.status.is_success()
     assert "test_cookie" in await resp3.text()

@@ -18,6 +18,7 @@ __all__ = [
     "CertificateCompressionAlgorithm",
     "ExtensionType",
     "TlsOptions",
+    "TlsInfo",
     "Params",
 ]
 
@@ -403,6 +404,7 @@ class Params(TypedDict):
     cipher suites, BoringSSL will still fall back to its default TLS 1.3 cipher suites and order.
     """
 
+
 @final
 class TlsOptions:
     """
@@ -421,5 +423,18 @@ class TlsOptions:
     def __init__(self, **kwargs: Unpack[Params]) -> None:
         """
         Creates a new TlsOptions.
+        """
+        ...
+
+
+@final
+class TlsInfo:
+    """
+    Information about the established TLS connection.
+    """
+
+    def peer_certificate(self) -> bytes | None:
+        """
+        Get the DER encoded leaf certificate of the peer.
         """
         ...

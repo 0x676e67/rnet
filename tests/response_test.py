@@ -116,4 +116,5 @@ async def test_get_stream():
 async def test_peer_certificate():
     resp = await client.get("https://www.google.com/anything")
     async with resp:
-        assert resp.peer_certificate is not None
+        assert resp.tls_info is not None
+        assert resp.tls_info.peer_certificate() is not None
