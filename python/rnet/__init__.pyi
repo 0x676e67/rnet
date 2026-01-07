@@ -740,7 +740,7 @@ class ClientConfig(TypedDict):
     
     On Android, Linux, and Fuchsia, this uses the
     [`SO_BINDTODEVICE`][man-7-socket] socket option. On macOS and macOS-like
-     systems, Solaris, and illumos, this instead uses the [`IP_BOUND_IF` and
+    systems, Solaris, and illumos, this instead uses the [`IP_BOUND_IF` and
      `IPV6_BOUND_IF`][man-7p-ip] socket options (as appropriate).
     
     Note that connections will fail if the provided interface name is not a
