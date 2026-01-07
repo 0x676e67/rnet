@@ -83,7 +83,7 @@ class Policy:
                 else:
                     return attempt.follow()
 
-            policy = redirect.Policy.stom(policy)
+            policy = redirect.Policy.custom(policy)
             client = Client(redirect=policy)
             ```
         """
