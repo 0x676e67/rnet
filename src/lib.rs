@@ -51,6 +51,8 @@ use tls::{
     Identity, KeyLog, TlsOptions, TlsVersion,
 };
 
+use crate::tls::TlsInfo;
+
 #[cfg(all(feature = "jemalloc", feature = "mimalloc"))]
 compile_error!("features 'jemalloc' and 'mimalloc' are mutually exclusive");
 
@@ -284,6 +286,7 @@ fn tls_module(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<CertificateCompressionAlgorithm>()?;
     m.add_class::<ExtensionType>()?;
     m.add_class::<TlsOptions>()?;
+    m.add_class::<TlsInfo>()?;
     Ok(())
 }
 

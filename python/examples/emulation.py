@@ -20,7 +20,6 @@ async def print_response_info(resp: Response):
         print(f"Headers: {resp.headers}")
         print(f"Content-Length: {resp.content_length}")
         print(f"Remote Address: {resp.remote_addr}")
-        print(f"Peer Certificate: {resp.peer_certificate}")
         print(f"Content: {await resp.text()}")
         print("========================\n")
 
@@ -33,7 +32,6 @@ async def request_firefox():
     print("\n[Testing Firefox Emulation]")
     client = Client(
         emulation=Emulation.Firefox135,
-        tls_info=True,
     )
     resp = await client.get("https://tls.peet.ws/api/all")
     await print_response_info(resp)
@@ -148,7 +146,6 @@ async def request_advanced_configuration():
         http2_options=http2_options,
         headers=headers,
         orig_headers=orig_headers,
-        tls_info=True,
     )
 
     # Make request to TLS fingerprinting service

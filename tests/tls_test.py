@@ -21,8 +21,12 @@ async def test_badssl_invalid_cert():
     resp = await client.get(url)
     async with resp:
         assert resp.status.is_success()
-        peer_der_cert = resp.peer_certificate
+        tls_info = resp.tls_info
+        assert tls_info is not None
+        
+        peer_der_cert = tls_info.peer_certificate()
         assert peer_der_cert is not None
+        
         assert isinstance(peer_der_cert, bytes)
         assert len(peer_der_cert) > 0
 

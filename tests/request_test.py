@@ -112,7 +112,7 @@ async def test_send_headers():
 async def test_disable_default_headers():
     url = "http://localhost:8080/headers"
     headers = {"foo": "bar"}
-    client = rnet.Client(tls_info=True, headers=headers)
+    client = rnet.Client(headers=headers)
     resp = await client.get(url)
     async with resp:
         json = await resp.json()

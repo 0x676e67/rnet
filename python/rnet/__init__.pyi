@@ -396,9 +396,9 @@ class Response:
     Get the redirect history of the Response.
     """
 
-    peer_certificate: bytes | None
+    tls_info: TlsInfo | None
     r"""
-    Get the DER encoded leaf certificate of the response.
+    Get the TLS information of the response.
     """
 
     def raise_for_status(self) -> None:
@@ -661,7 +661,7 @@ class ClientConfig(TypedDict):
 
     tls_info: NotRequired[bool]
     """
-    Return TLS info.
+    Add TLS information as `TlsInfo` extension to responses.
     """
 
     min_tls_version: NotRequired[TlsVersion]
