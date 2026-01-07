@@ -9,6 +9,7 @@ and provides a cookie jar for automatic cookie handling during HTTP requests.
 import datetime
 from enum import Enum, auto
 from typing import Sequence, final
+from warnings import deprecated
 
 __all__ = ["SameSite", "Cookie", "Jar"]
 
@@ -135,15 +136,23 @@ class Jar:
         """
         ...
 
+    @deprecated("Use add() instead")
     def add_cookie(self, cookie: Cookie, url: str) -> None:
         r"""
         Add a cookie to this jar.
         """
         ...
 
+    @deprecated("Use add() instead")
     def add_cookie_str(self, cookie: str, url: str) -> None:
         r"""
         Add a cookie str to this jar.
+        """
+        ...
+
+    def add(self, cookie: Cookie | str, url: str) -> None:
+        r"""
+        Add a cookie or cookie string to this jar.
         """
         ...
 
