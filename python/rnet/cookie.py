@@ -102,13 +102,9 @@ class Jar:
     Use `uncompressed()` to create a variant without compression if needed.
     """
 
-    def __init__(self, compression: int | None = None) -> None:
+    def __init__(self, compression: bool | None = None) -> None:
         r"""
         Create a new cookie jar with compression enabled by default.
-
-        Args:
-            compression: Optional compression level. If not specified, compression
-                        is enabled automatically for better storage efficiency.
         """
         ...
 
