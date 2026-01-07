@@ -36,7 +36,7 @@ class Policy:
             ```python
             import rnet
             from rnet import Client, redirect
-            policy = redirect.Policy(5)
+            policy = redirect.Policy.limited(5)
             client = Client(redirect=policy)
             ```
         """
@@ -68,7 +68,7 @@ class Policy:
         Args:
             callback: A callable that takes an Attempt and returns an Action
 
-        Returns:
+        Returns
             Policy: A custom redirect policy
 
         Example:

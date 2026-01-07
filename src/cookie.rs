@@ -14,6 +14,13 @@ define_enum!(
     (Empty, None),
 );
 
+/// A helper enum to allow parsing either a `Cookie` or a cookie string.
+#[derive(FromPyObject)]
+pub enum PyCookie {
+    Cookie(Cookie),
+    String(PyBackedStr),
+}
+
 /// A single HTTP cookie.
 
 #[derive(Clone)]
@@ -223,6 +230,16 @@ impl Jar {
     /// Get all cookies.
     pub fn get_all(&self, py: Python) -> Vec<Cookie> {
         py.detach(|| self.0.get_all().map(RawCookie::from).map(Cookie).collect())
+    }
+
+    /// Add a cookie to this jar.
+    #[pyo3(signature = (cookie, url))]
+    pub fn add(&self, py: Python, cookie: PyCookie, url: PyBackedStr) {
+        let url = AsRef::<str>::as_ref(&url);
+        py.detach(|| match cookie {
+            PyCookie::Cookie(cookie) => self.0.add_cookie(cookie.0, url),
+            PyCookie::String(cookie_str) => self.0.add_cookie_str(&cookie_str, url),
+        })
     }
 
     /// Add a cookie to this jar.
