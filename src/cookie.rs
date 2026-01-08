@@ -22,7 +22,6 @@ pub enum PyCookie {
 }
 
 /// A single HTTP cookie.
-
 #[derive(Clone)]
 #[pyclass(subclass, str, frozen)]
 pub struct Cookie(RawCookie<'static>);
@@ -94,70 +93,60 @@ impl Cookie {
 
     /// The name of the cookie.
     #[getter]
-    #[inline]
     pub fn name(&self) -> &str {
         self.0.name()
     }
 
     /// The value of the cookie.
     #[getter]
-    #[inline]
     pub fn value(&self) -> &str {
         self.0.value()
     }
 
     /// Returns true if the 'HttpOnly' directive is enabled.
     #[getter]
-    #[inline]
     pub fn http_only(&self) -> bool {
         self.0.http_only().unwrap_or(false)
     }
 
     /// Returns true if the 'Secure' directive is enabled.
     #[getter]
-    #[inline]
     pub fn secure(&self) -> bool {
         self.0.secure().unwrap_or(false)
     }
 
     /// Returns true if  'SameSite' directive is 'Lax'.
     #[getter]
-    #[inline]
     pub fn same_site_lax(&self) -> bool {
         self.0.same_site() == Some(cookie::SameSite::Lax)
     }
 
     /// Returns true if  'SameSite' directive is 'Strict'.
     #[getter]
-    #[inline]
     pub fn same_site_strict(&self) -> bool {
         self.0.same_site() == Some(cookie::SameSite::Strict)
     }
 
     /// Returns the path directive of the cookie, if set.
     #[getter]
-    #[inline]
     pub fn path(&self) -> Option<&str> {
         self.0.path()
     }
 
     /// Returns the domain directive of the cookie, if set.
     #[getter]
-    #[inline]
     pub fn domain(&self) -> Option<&str> {
         self.0.domain()
     }
 
     /// Get the Max-Age information.
     #[getter]
-    #[inline]
     pub fn max_age(&self) -> Option<std::time::Duration> {
         self.0.max_age().and_then(|d| d.try_into().ok())
     }
 
     /// The cookie expiration time.
     #[getter]
-    #[inline]
     pub fn expires(&self) -> Option<SystemTime> {
         match self.0.expires() {
             Some(Expiration::DateTime(offset)) => Some(SystemTime::from(offset)),
@@ -267,8 +256,6 @@ impl Jar {
 
     /// Clear all cookies in this jar.
     pub fn clear(&self, py: Python) {
-        py.detach(|| {
-            self.0.clear();
-        });
+        py.detach(|| self.0.clear())
     }
 }
