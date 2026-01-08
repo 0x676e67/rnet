@@ -1,4 +1,8 @@
-use pyo3::{PyResult, pyclass, pymethods};
+use pyo3::{
+    PyResult,
+    pybacked::{PyBackedBytes, PyBackedStr},
+    pyclass, pymethods,
+};
 
 use crate::error::Error;
 
@@ -23,8 +27,8 @@ impl Identity {
     /// ```
     #[staticmethod]
     #[pyo3(signature = (buf, pass))]
-    pub fn from_pkcs12_der(buf: &[u8], pass: &str) -> PyResult<Identity> {
-        wreq::tls::Identity::from_pkcs12_der(buf, pass)
+    pub fn from_pkcs12_der(buf: PyBackedBytes, pass: PyBackedStr) -> PyResult<Identity> {
+        wreq::tls::Identity::from_pkcs12_der(buf.as_ref(), pass.as_ref())
             .map(Identity)
             .map_err(Error::Library)
             .map_err(Into::into)
@@ -39,8 +43,8 @@ impl Identity {
     /// A certificate chain here means a series of PEM encoded certificates concatenated together.
     #[staticmethod]
     #[pyo3(signature = (buf, key))]
-    pub fn from_pkcs8_pem(buf: &[u8], key: &[u8]) -> PyResult<Identity> {
-        wreq::tls::Identity::from_pkcs8_pem(buf, key)
+    pub fn from_pkcs8_pem(buf: PyBackedBytes, key: PyBackedBytes) -> PyResult<Identity> {
+        wreq::tls::Identity::from_pkcs8_pem(buf.as_ref(), key.as_ref())
             .map(Identity)
             .map_err(Error::Library)
             .map_err(Into::into)
