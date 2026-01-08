@@ -511,81 +511,104 @@ class ClientConfig(TypedDict):
 
     user_agent: NotRequired[str]
     """
-    Default User-Agent string.
+    Sets the `User-Agent` header to be used by this client.
     """
 
     headers: NotRequired[Dict[str, str] | HeaderMap]
     """
-    Default request headers.
+    Sets the default headers for every request.
     """
 
     orig_headers: NotRequired[Sequence[str] | OrigHeaderMap]
     """
-    Original request headers (case-sensitive and order).
+    Sets the original headers for every request.
     """
 
     referer: NotRequired[bool]
     """
-    Automatically set Referer.
+    Enable or disable automatic setting of the `Referer` header.
     """
 
     redirect: NotRequired[redirect.Policy]
     """
-    Redirect policy.
+    Set a `redirect.Policy` for this client.
     """
 
     cookie_store: NotRequired[bool]
     """
-    Enable internal cookie store provider.
+    Enable a persistent cookie store for the client.
     """
 
     cookie_provider: NotRequired[Jar]
     """
-    Custom cookie store provider.
+    Set the persistent cookie store for the client.
+    
+    Cookies received in responses will be passed to this store, and
+    additional requests will query this store for cookies.
+    
+    By default, no cookie store is used.
     """
 
     # ========= Timeout options ========
 
     timeout: NotRequired[datetime.timedelta]
     """
-    Total timeout.
+    Enables a request timeout.
+    
+    The timeout is applied from when the request starts connecting until the
+    response body has finished.
+    
+    Default is no timeout.
     """
 
     connect_timeout: NotRequired[datetime.timedelta]
     """
-    Connection timeout.
+    Set a timeout for only the connect phase of a `Client`.
     """
 
     read_timeout: NotRequired[datetime.timedelta]
     """
-    Read timeout.
+    Set a timeout for only the read phase of a `Client`.
     """
 
     # ======== TCP options ========
 
     tcp_keepalive: NotRequired[datetime.timedelta]
     """
-    TCP keepalive time.
+    Set that all sockets have `SO_KEEPALIVE` set with the supplied duration.
+    
+    Default is 15 seconds.
     """
 
     tcp_keepalive_interval: NotRequired[datetime.timedelta]
     """
-    TCP keepalive interval.
+    Set that all sockets have `SO_KEEPALIVE` set with the supplied interval.
+
+    Default is 15 seconds.
     """
 
     tcp_keepalive_retries: NotRequired[int]
     """
-    TCP keepalive retry count.
+    Set that all sockets have `SO_KEEPALIVE` set with the supplied retry count.
+    
+    Default is 3 retries.
     """
 
     tcp_user_timeout: NotRequired[datetime.timedelta]
     """
-    TCP user timeout.
+    Set that all sockets have `TCP_USER_TIMEOUT` set with the supplied duration.
+    
+    This option controls how long transmitted data may remain unacknowledged before
+    the connection is force-closed.
+    
+    Default is 30 seconds.
     """
 
     tcp_nodelay: NotRequired[bool]
     """
-    Enable TCP_NODELAY.
+    Set whether sockets have `TCP_NODELAY` enabled.
+    
+    Default is `True`.
     """
 
     tcp_reuse_address: NotRequired[bool]
@@ -597,51 +620,51 @@ class ClientConfig(TypedDict):
 
     pool_idle_timeout: NotRequired[datetime.timedelta]
     """
-    Connection pool idle timeout.
+    Set an optional timeout for idle sockets being kept-alive.
     """
 
     pool_max_idle_per_host: NotRequired[int]
     """
-    Max idle connections per host.
+    Sets the maximum idle connection per host allowed in the pool.
     """
 
     pool_max_size: NotRequired[int]
     """
-    Max total connections in pool.
+    Sets the maximum number of connections in the pool.
     """
 
     # ======== HTTP options ========
 
     http1_only: NotRequired[bool]
     """
-    Enable HTTP/1.1 only.
+    Only use HTTP/1.
     """
 
     http2_only: NotRequired[bool]
     """
-    Enable HTTP/2 only.
+    Only use HTTP/2.
     """
 
     https_only: NotRequired[bool]
     """
-    Enable HTTPS only.
+    Restrict the Client to be used with HTTPS only requests.
     """
 
     http1_options: NotRequired[Http1Options]
     """
-    Sets the HTTP/1 options.
+    Sets the HTTP/1 options for the client.
     """
 
     http2_options: NotRequired[Http2Options]
     """
-    Sets the HTTP/2 options.
+    Sets the HTTP/2 options for the client.
     """
 
     # ======== TLS options ========
 
     verify: NotRequired[bool | Path | CertStore]
     """
-    Verify SSL or specify CA path.
+    Sets whether to verify TLS certificates.
     """
 
     verify_hostname: NotRequired[bool]
@@ -683,17 +706,19 @@ class ClientConfig(TypedDict):
 
     no_proxy: NotRequired[bool]
     """
-    Disable proxy.
+    Clear all `proxies`, so `Client` will use no proxy anymore.
+
+    This also disables the automatic usage of the "system" proxy.
     """
 
     proxies: NotRequired[Sequence[Proxy]]
     """
-    Proxy server list.
+    Add a `Proxy` list to the client.
     """
 
     local_address: NotRequired[IPv4Address | IPv6Address]
     """
-    Local bind address.
+    Bind to a local IP Address.
     """
 
     local_addresses: NotRequired[Tuple[IPv4Address | None, IPv6Address | None]]
@@ -703,7 +728,23 @@ class ClientConfig(TypedDict):
 
     interface: NotRequired[str]
     """
-    Local network interface.
+    Bind connections only on the specified network interface.
+    
+    This option is only available on the following operating systems:
+    
+    - Android
+    - Fuchsia
+    - Linux
+    - macOS and macOS-like systems (iOS, tvOS, watchOS and visionOS)
+    - Solaris and illumos
+    
+    On Android, Linux, and Fuchsia, this uses the
+    [`SO_BINDTODEVICE`][man-7-socket] socket option. On macOS and macOS-like
+    systems, Solaris, and illumos, this instead uses the [`IP_BOUND_IF` and
+     `IPV6_BOUND_IF`][man-7p-ip] socket options (as appropriate).
+    
+    Note that connections will fail if the provided interface name is not a
+    network interface that currently exists when a connection is established.
     """
 
     # ========= DNS options =========
@@ -714,22 +755,21 @@ class ClientConfig(TypedDict):
 
     gzip: NotRequired[bool]
     """
-    Enable gzip decompression.
+    Enable auto gzip decompression by checking the `Content-Encoding` response header.
     """
 
     brotli: NotRequired[bool]
     """
-    Enable brotli decompression.
+    Enable auto brotli decompression by checking the `Content-Encoding` response header.
     """
 
     deflate: NotRequired[bool]
     """
-    Enable deflate decompression.
+    Enable auto deflate decompression by checking the `Content-Encoding` response header.
     """
-
     zstd: NotRequired[bool]
     """
-    Enable zstd decompression.
+    Enable auto zstd decompression by checking the `Content-Encoding` response header.
     """
 
 class Request(TypedDict):
