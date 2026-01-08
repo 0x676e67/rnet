@@ -26,6 +26,7 @@ An ergonomic and modular Python HTTP client for advanced and low-level emulation
 - HTTPS via BoringSSL
 - Free-Threaded Safety
 - Automatic Decompression
+- Certificate Store (CAs & mTLS)
 
 ## Example
 
