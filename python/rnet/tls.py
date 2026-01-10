@@ -211,12 +211,6 @@ class KeyLog:
             Use the SSLKEYLOGFILE environment variable for key logging.
         file(path: Path) -> KeyLog
             Log keys to the specified file path.
-
-    Methods:
-        is_environment() -> bool
-            Returns True if this policy uses the environment variable.
-        is_file() -> bool
-            Returns True if this policy logs to a specific file.
     """
 
     @staticmethod
