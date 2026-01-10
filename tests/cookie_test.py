@@ -148,3 +148,102 @@ async def test_client_cookie_jar_accessor():
     resp3 = await client3.get(url)
     assert resp3.status.is_success()
     assert "test_cookie" in await resp3.text()
+
+
+@pytest.mark.asyncio
+@pytest.mark.flaky(reruns=3, reruns_delay=2)
+async def test_cookie_storage_from_server():
+    """Test that cookies set by the server are actually stored in the jar."""
+    jar = rnet.Jar()
+    client = rnet.Client(cookie_provider=jar)
+
+    # Request httpbin to set a cookie (returns 302 redirect, which is expected)
+    set_url = "http://localhost:8080/cookies/set?session_id=test123&user=alice"
+    response = await client.get(set_url)
+
+    async with response:
+        # Verify cookies are stored in the jar
+        url = "http://localhost:8080"
+        session_cookie = jar.get("session_id", url)
+        user_cookie = jar.get("user", url)
+
+        assert session_cookie is not None, "session_id cookie should be stored in jar"
+        assert session_cookie.name == "session_id"
+        assert session_cookie.value == "test123"
+
+        assert user_cookie is not None, "user cookie should be stored in jar"
+        assert user_cookie.name == "user"
+        assert user_cookie.value == "alice"
+
+    # Verify that cookies are sent back in subsequent requests
+    response = await client.get("http://localhost:8080/cookies")
+    assert response.status.is_success()
+    body = await response.text()
+    assert "session_id" in body
+    assert "test123" in body
+    assert "user" in body
+    assert "alice" in body
+
+    # Verify all cookies in the jar
+    all_cookies = jar.get_all()
+    assert len(all_cookies) >= 2
+    cookie_names = [cookie.name for cookie in all_cookies]
+    assert "session_id" in cookie_names
+    assert "user" in cookie_names
+
+
+@pytest.mark.asyncio
+@pytest.mark.flaky(reruns=3, reruns_delay=2)
+async def test_cookie_value_update_from_server():
+    """Test that cookie values can be updated by server responses."""
+    jar = rnet.Jar()
+    client = rnet.Client(cookie_provider=jar)
+    url = "http://localhost:8080"
+
+    # First request: set initial cookie value
+    set_url1 = "http://localhost:8080/cookies/set?user_id=initial_value"
+    response1 = await client.get(set_url1)
+
+    async with response1:
+        # Verify initial cookie is stored
+        user_id_cookie = jar.get("user_id", url)
+        assert user_id_cookie is not None, "user_id cookie should be stored in jar"
+        assert (
+            user_id_cookie.value == "initial_value"
+        ), "Initial cookie value should be 'initial_value'"
+
+    # Verify cookie is sent in subsequent request
+    cookies_url = "http://localhost:8080/cookies"
+    response2 = await client.get(cookies_url)
+    body1 = await response2.text()
+    assert "user_id" in body1
+    assert "initial_value" in body1
+
+    # Second request: update cookie value
+    set_url2 = "http://localhost:8080/cookies/set?user_id=updated_value"
+    response3 = await client.get(set_url2)
+
+    async with response3:
+        # Verify cookie value is updated
+        user_id_cookie_updated = jar.get("user_id", url)
+        assert (
+            user_id_cookie_updated is not None
+        ), "user_id cookie should still be in jar"
+        assert (
+            user_id_cookie_updated.value == "updated_value"
+        ), "Cookie value should be updated to 'updated_value'"
+
+    # Verify updated cookie is sent in subsequent request
+    response4 = await client.get(cookies_url)
+    body2 = await response4.text()
+    assert "user_id" in body2
+    assert "updated_value" in body2, "Updated cookie value should be sent to server"
+    assert "initial_value" not in body2, "Old cookie value should not be present"
+
+    # Verify only one user_id cookie exists in jar
+    all_cookies = jar.get_all()
+    user_id_cookies = [c for c in all_cookies if c.name == "user_id"]
+    assert (
+        len(user_id_cookies) == 1
+    ), "Should have exactly one user_id cookie after update"
+    assert user_id_cookies[0].value == "updated_value"
