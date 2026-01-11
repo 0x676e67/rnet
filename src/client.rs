@@ -254,6 +254,7 @@ impl Client {
             // Create the client builder.
             let mut builder = wreq::Client::builder();
             let mut cookie_jar: Option<Jar> = None;
+
             if let Some(mut config) = kwds {
                 // Emulation options.
                 apply_option!(set_if_some_inner, builder, config.emulation, emulation);
@@ -379,8 +380,6 @@ impl Client {
                     TlsVersion::into_ffi
                 );
                 apply_option!(set_if_some, builder, config.tls_info, tls_info);
-
-                // TLS Verification options.
                 apply_option!(
                     set_if_some,
                     builder,
