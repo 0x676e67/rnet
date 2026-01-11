@@ -295,6 +295,7 @@ where
 {
     // Create the request builder.
     let mut builder = client.request(method.into_ffi(), url.as_ref());
+
     if let Some(mut request) = request {
         // Emulation options.
         apply_option!(set_if_some_inner, builder, request.emulation, emulation);

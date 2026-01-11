@@ -109,33 +109,33 @@ fn create_proxy<'py>(
     kwds: Option<Builder>,
 ) -> PyResult<Proxy> {
     py.detach(|| {
-        let kwds = kwds.unwrap_or_default();
-
         // Create base proxy using the provided constructor (http, https, all)
         let mut proxy = proxy_fn(url).map_err(Error::Library)?;
 
-        // Convert the username and password to a basic auth header value.
-        if let (Some(username), Some(password)) = (kwds.username, kwds.password) {
-            proxy = proxy.basic_auth(username.as_ref(), password.as_ref());
-        }
+        if let Some(params) = kwds {
+            // Convert the username and password to a basic auth header value.
+            if let (Some(username), Some(password)) = (params.username, params.password) {
+                proxy = proxy.basic_auth(username.as_ref(), password.as_ref());
+            }
 
-        // Convert the custom HTTP auth string to a header value.
-        if let Some(Ok(custom_http_auth)) = kwds
-            .custom_http_auth
-            .map(Bytes::from_owner)
-            .map(HeaderValue::from_maybe_shared)
-        {
-            proxy = proxy.custom_http_auth(custom_http_auth);
-        }
+            // Convert the custom HTTP auth string to a header value.
+            if let Some(Ok(custom_http_auth)) = params
+                .custom_http_auth
+                .map(Bytes::from_owner)
+                .map(HeaderValue::from_maybe_shared)
+            {
+                proxy = proxy.custom_http_auth(custom_http_auth);
+            }
 
-        // Convert the custom HTTP headers to a HeaderMap instance.
-        if let Some(custom_http_headers) = kwds.custom_http_headers {
-            proxy = proxy.custom_http_headers(custom_http_headers.0);
-        }
+            // Convert the custom HTTP headers to a HeaderMap instance.
+            if let Some(custom_http_headers) = params.custom_http_headers {
+                proxy = proxy.custom_http_headers(custom_http_headers.0);
+            }
 
-        // Convert the exclusion list string to a NoProxy instance.
-        if let Some(exclusion) = kwds.exclusion {
-            proxy = proxy.no_proxy(wreq::NoProxy::from_string(exclusion.as_ref()));
+            // Convert the exclusion list string to a NoProxy instance.
+            if let Some(exclusion) = params.exclusion {
+                proxy = proxy.no_proxy(wreq::NoProxy::from_string(exclusion.as_ref()));
+            }
         }
 
         Ok(Proxy(proxy))
