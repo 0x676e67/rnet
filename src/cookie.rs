@@ -1,8 +1,11 @@
 use std::{fmt, sync::Arc, time::SystemTime};
 
+use bytes::Bytes;
 use cookie::{Cookie as RawCookie, Expiration, ParseError, time::Duration};
-use pyo3::{prelude::*, pybacked::PyBackedStr};
+use pyo3::{prelude::*, pybacked::PyBackedStr, types::PyDict};
 use wreq::header::{self, HeaderMap, HeaderValue};
+
+use crate::error::Error;
 
 define_enum!(
     /// The Cookie SameSite attribute.
@@ -25,6 +28,9 @@ pub enum PyCookie {
 #[derive(Clone)]
 #[pyclass(subclass, str, frozen)]
 pub struct Cookie(RawCookie<'static>);
+
+/// A helper enum to allow parsing either a single cookie string or multiple cookies from a dict.
+pub struct Cookies(pub Vec<HeaderValue>);
 
 /// A good default `CookieStore` implementation.
 ///
@@ -178,6 +184,37 @@ impl Cookie {
 impl fmt::Display for Cookie {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         self.0.fmt(f)
+    }
+}
+
+// ===== impl Cookies =====
+
+impl FromPyObject<'_, '_> for Cookies {
+    type Error = PyErr;
+
+    fn extract(ob: Borrowed<PyAny>) -> PyResult<Self> {
+        if let Ok(cookie) = ob.extract::<PyBackedStr>() {
+            return HeaderValue::from_maybe_shared(Bytes::from_owner(cookie))
+                .map(|cookie| Cookies(vec![cookie]))
+                .map_err(Error::from)
+                .map_err(Into::into);
+        }
+
+        let dict = ob.cast::<PyDict>()?;
+        dict.iter()
+            .try_fold(Vec::with_capacity(dict.len()), |mut cookies, (k, v)| {
+                let cookie = {
+                    let mut cookie = String::with_capacity(10);
+                    cookie.push_str(k.extract::<PyBackedStr>()?.as_ref());
+                    cookie.push('=');
+                    cookie.push_str(v.extract::<PyBackedStr>()?.as_ref());
+                    HeaderValue::from_maybe_shared(Bytes::from(cookie)).map_err(Error::from)?
+                };
+
+                cookies.push(cookie);
+                Ok(cookies)
+            })
+            .map(Cookies)
     }
 }
 
