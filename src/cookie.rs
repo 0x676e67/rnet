@@ -204,10 +204,12 @@ impl FromPyObject<'_, '_> for Cookies {
         dict.iter()
             .try_fold(Vec::with_capacity(dict.len()), |mut cookies, (k, v)| {
                 let cookie = {
-                    let mut cookie = String::with_capacity(10);
-                    cookie.push_str(k.extract::<PyBackedStr>()?.as_ref());
+                    let key = k.extract::<PyBackedStr>()?;
+                    let value = v.extract::<PyBackedStr>()?;
+                    let mut cookie = String::with_capacity(key.len() + 1 + value.len());
+                    cookie.push_str(key.as_ref());
                     cookie.push('=');
-                    cookie.push_str(v.extract::<PyBackedStr>()?.as_ref());
+                    cookie.push_str(value.as_ref());
                     HeaderValue::from_maybe_shared(Bytes::from(cookie)).map_err(Error::from)?
                 };
 
