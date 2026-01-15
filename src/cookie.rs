@@ -29,7 +29,7 @@ pub enum PyCookie {
 #[pyclass(subclass, str, frozen)]
 pub struct Cookie(RawCookie<'static>);
 
-/// A helper enum to allow parsing either a single cookie string or multiple cookies from a dict.
+/// A helper struct to allow parsing either a single cookie string or multiple cookies from a dict.
 pub struct Cookies(pub Vec<HeaderValue>);
 
 /// A good default `CookieStore` implementation.
