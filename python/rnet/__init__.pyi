@@ -828,7 +828,7 @@ class Request(TypedDict):
     The option enables default headers.
     """
 
-    cookies: NotRequired[Dict[str, str]]
+    cookies: NotRequired[str | Dict[str, str]]
     """
     The cookies to use for the request.
     """
@@ -959,7 +959,7 @@ class WebSocketRequest(TypedDict):
     The option enables default headers.
     """
 
-    cookies: NotRequired[Dict[str, str]]
+    cookies: NotRequired[str | Dict[str, str]]
     """
     The cookies to use for the request.
     """
