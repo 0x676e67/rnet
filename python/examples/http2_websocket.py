@@ -52,7 +52,7 @@ async def main():
         print("Headers: ", ws.headers)
         print("Remote Address: ", ws.remote_addr)
 
-        if ws.status.as_int() == 200:
+        if ws.status == 200:
             print("WebSocket connection established successfully.")
             send_task = asyncio.create_task(send_message(ws))
             receive_task = asyncio.create_task(recv_message(ws))

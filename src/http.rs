@@ -1,6 +1,6 @@
 use std::fmt;
 
-use pyo3::prelude::*;
+use pyo3::{class::basic::CompareOp, prelude::*};
 
 define_enum!(
     /// An HTTP version.
@@ -69,6 +69,22 @@ impl StatusCode {
     #[inline]
     pub fn is_server_error(&self) -> bool {
         self.0.is_server_error()
+    }
+
+    /// Rich comparison with integers.
+    fn __richcmp__(&self, other: &Bound<PyAny>, op: CompareOp) -> PyResult<bool> {
+        // Try to extract an integer from other
+        let other_int: u16 = other.extract()?;
+        let self_int = self.as_int();
+
+        Ok(match op {
+            CompareOp::Lt => self_int < other_int,
+            CompareOp::Le => self_int <= other_int,
+            CompareOp::Eq => self_int == other_int,
+            CompareOp::Ne => self_int != other_int,
+            CompareOp::Gt => self_int > other_int,
+            CompareOp::Ge => self_int >= other_int,
+        })
     }
 }
 
