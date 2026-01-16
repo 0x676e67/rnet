@@ -254,17 +254,14 @@ impl Response {
     }
 
     /// Get the bytes content of the response.
-    pub async fn bytes(&self) -> PyResult<PyBuffer> {
+    pub fn bytes<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
         let fut = self
             .clone()
             .cache_response()
             .and_then(ResponseExt::bytes)
             .map_ok(PyBuffer::from)
             .map_err(Into::into);
-        pyo3_async_runtimes::tokio::get_runtime()
-            .spawn(fut)
-            .await
-            .unwrap()
+        pyo3_async_runtimes::tokio::future_into_py(py, fut)
     }
 
     /// Close the response connection.
