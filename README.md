@@ -166,7 +166,8 @@ Designed for developers, it offers high accuracy, low price, low latency, and ea
 
 Anti-bots evolve quickly, but **[Salamoonder](https://salamoonder.com/)** moves faster, delivering reliable anti-bot tokens with just two API requests — no browser automation or unnecessary complexity required.  
 
-**Kasada** • **Incapsula** • **And many more**  
+**Kasada** • **Incapsula** • **Datadome** • **Akamai** • **And many more**  
+
 
 Automatic updates keep your integration simple and low-maintenance, and it’s nearly **50%** cheaper than the competition, giving you faster results at a lower cost.
 
