@@ -8,6 +8,10 @@ repo_url: https://github.com/0x676e67/rnet
 
 docs_dir: source
 
+extra:
+  version:
+    provider: mike
+
 theme:
   name: material
   palette:
@@ -93,7 +97,3 @@ nav:
     - Authentication: examples/auth.md
     - WebSocket: examples/websocket.md
   - Sponsors: sponsors.md
-
-extra:
-  version:
-    provider: mike

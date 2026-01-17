@@ -3,6 +3,8 @@ name: Documentation
 on:
   push:
     branches: [main]
+    tags:
+      - 'v*'
   pull_request:
     branches: [main]
   workflow_dispatch:
@@ -32,14 +34,22 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r python/docs/requirements.txt
+          pip install mike
           pip install -e .
       
-      - name: Build documentation with MkDocs
+      - name: Configure Git
         run: |
-          cd python/docs
-          mkdocs build
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git fetch origin gh-pages --depth=1 || true
       
-      - name: Upload artifact
+      - name: Determine version
+        id: version
+        run: |
+          if [[ $GITHUB_REF == refs/tags/* ]]; then
+            VERSION=${GITHUB_REF#refs/tags/}
+            echo "version=$VERSION" >> $GITHUB_OUTPUT
+
         uses: actions/upload-pages-artifact@v3
         with:
           path: 'site'
