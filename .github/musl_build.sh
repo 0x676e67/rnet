@@ -8,11 +8,9 @@ fi
 TARGET=$1
 ARGS=$2
 
-# Use environment variable if set, otherwise use default
-MATURIN_VERSION="${MATURIN_VERSION:-1.10.2}"
 IMAGE="ghcr.io/0x676e67/rust-musl-cross"
 VOLUME_MAPPING="-v $(pwd):/home/rust/src"
-MATURIN_CMD="pip install maturin==$MATURIN_VERSION && maturin build --release --out dist $ARGS"
+MATURIN_CMD="maturin build --release --out dist $ARGS"
 
 case $TARGET in
   x86_64-unknown-linux-musl | \
