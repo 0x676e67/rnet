@@ -82,5 +82,4 @@ keylog.txt
 *.json
 *.jpg
 *.csv
-*.py
 *.png
