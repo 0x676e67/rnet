@@ -5,7 +5,7 @@ use bytes::Bytes;
 use futures_util::TryFutureExt;
 use http::response::{Parts, Response as HttpResponse};
 use http_body_util::BodyExt;
-use pyo3::{IntoPyObjectExt, prelude::*, pybacked::PyBackedStr};
+use pyo3::{IntoPyObjectExt, coroutine::CancelHandle, prelude::*, pybacked::PyBackedStr};
 use wreq::{self, Uri};
 
 use crate::{
@@ -13,6 +13,7 @@ use crate::{
     client::{
         SocketAddr,
         body::{Json, Streamer},
+        future::AllowThreads,
         resp::ext::ResponseExt,
     },
     cookie::Cookie,
@@ -219,49 +220,49 @@ impl Response {
     }
 
     /// Get the text content of the response.
-    pub fn text<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
+    pub async fn text(&self, #[pyo3(cancel_handle)] cancel: CancelHandle) -> PyResult<String> {
         let fut = self
             .clone()
             .cache_response()
             .and_then(ResponseExt::text)
             .map_err(Into::into);
-        pyo3_async_runtimes::tokio::future_into_py(py, fut)
+        AllowThreads::new(fut, cancel).await
     }
 
     /// Get the full response text given a specific encoding.
     #[pyo3(signature = (encoding))]
-    pub fn text_with_charset<'py>(
+    pub async fn text_with_charset(
         &self,
-        py: Python<'py>,
+        #[pyo3(cancel_handle)] cancel: CancelHandle,
         encoding: PyBackedStr,
-    ) -> PyResult<Bound<'py, PyAny>> {
+    ) -> PyResult<String> {
         let fut = self
             .clone()
             .cache_response()
             .and_then(|resp| ResponseExt::text_with_charset(resp, encoding))
             .map_err(Into::into);
-        pyo3_async_runtimes::tokio::future_into_py(py, fut)
+        AllowThreads::new(fut, cancel).await
     }
 
     /// Get the JSON content of the response.
-    pub fn json<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
+    pub async fn json(&self, #[pyo3(cancel_handle)] cancel: CancelHandle) -> PyResult<Json> {
         let fut = self
             .clone()
             .cache_response()
             .and_then(ResponseExt::json::<Json>)
             .map_err(Into::into);
-        pyo3_async_runtimes::tokio::future_into_py(py, fut)
+        AllowThreads::new(fut, cancel).await
     }
 
     /// Get the bytes content of the response.
-    pub fn bytes<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
+    pub async fn bytes(&self, #[pyo3(cancel_handle)] cancel: CancelHandle) -> PyResult<PyBuffer> {
         let fut = self
             .clone()
             .cache_response()
             .and_then(ResponseExt::bytes)
             .map_ok(PyBuffer::from)
             .map_err(Into::into);
-        pyo3_async_runtimes::tokio::future_into_py(py, fut)
+        AllowThreads::new(fut, cancel).await
     }
 
     /// Close the response connection.
