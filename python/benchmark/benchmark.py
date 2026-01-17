@@ -85,8 +85,8 @@ def record_test_result(
     threads: int | None = None,
 ) -> Dict[str, Any]:
     """Record benchmark test results"""
-    dur = round(time.perf_counter() - start_time, 2)
-    cpu_dur = round(time.process_time() - cpu_start, 2)
+    dur = round((time.perf_counter() - start_time) * 1000, 2)  # Convert to milliseconds
+    cpu_dur = round((time.process_time() - cpu_start) * 1000, 2)  # Convert to milliseconds
 
     result = {
         "name": name,
@@ -628,11 +628,11 @@ def main():
     sync_packages = [
         ("tls_client", tls_client.Session),
         ("httpx", httpx.Client),
-        ("ry", ry.BlockingClient),
         ("requests", requests.Session),
         ("niquests", niquests.Session),
         ("curl_cffi", curl_cffi.requests.Session),
         ("pycurl", PycurlSession),
+        ("ry", ry.BlockingClient),
         ("rnet", rnet.blocking.Client),
     ]
 
@@ -640,10 +640,10 @@ def main():
     async_packages = [
         ("httpx", httpx.AsyncClient),
         ("niquests", niquests.AsyncSession),
-        ("aiohttp", aiohttp.ClientSession),
-        ("rnet", rnet.Client),
         ("curl_cffi", curl_cffi.requests.AsyncSession),
+        ("aiohttp", aiohttp.ClientSession),
         ("ry", ry.HttpClient),
+        ("rnet", rnet.Client),
     ]
 
     # Add version information

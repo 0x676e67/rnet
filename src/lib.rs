@@ -43,15 +43,16 @@ use http2::{
 #[cfg(feature = "mimalloc")]
 use mimalloc as _;
 use proxy::Proxy;
-use pyo3::{intern, prelude::*, pybacked::PyBackedStr, types::PyDict, wrap_pymodule};
+use pyo3::{
+    coroutine::CancelHandle, intern, prelude::*, pybacked::PyBackedStr, types::PyDict,
+    wrap_pymodule,
+};
 #[cfg(feature = "jemalloc")]
 use tikv_jemallocator as _;
 use tls::{
     AlpnProtocol, AlpsProtocol, CertStore, CertificateCompressionAlgorithm, ExtensionType,
-    Identity, KeyLog, TlsOptions, TlsVersion,
+    Identity, KeyLog, TlsInfo, TlsOptions, TlsVersion,
 };
-
-use crate::tls::TlsInfo;
 
 #[cfg(all(feature = "jemalloc", feature = "mimalloc"))]
 compile_error!("features 'jemalloc' and 'mimalloc' are mutually exclusive");
@@ -68,105 +69,121 @@ static GLOBAL: mimalloc::MiMalloc = mimalloc::MiMalloc;
 #[inline]
 #[pyfunction]
 #[pyo3(signature = (url, **kwds))]
-pub fn get(py: Python<'_>, url: PyBackedStr, kwds: Option<Request>) -> PyResult<Bound<'_, PyAny>> {
-    request(py, Method::GET, url, kwds)
+pub async fn get(
+    #[pyo3(cancel_handle)] cancel: CancelHandle,
+    url: PyBackedStr,
+    kwds: Option<Request>,
+) -> PyResult<Response> {
+    request(cancel, Method::GET, url, kwds).await
 }
 
 /// Make a POST request with the given parameters.
 #[inline]
 #[pyfunction]
 #[pyo3(signature = (url, **kwds))]
-pub fn post(py: Python<'_>, url: PyBackedStr, kwds: Option<Request>) -> PyResult<Bound<'_, PyAny>> {
-    request(py, Method::POST, url, kwds)
+pub async fn post(
+    #[pyo3(cancel_handle)] cancel: CancelHandle,
+    url: PyBackedStr,
+    kwds: Option<Request>,
+) -> PyResult<Response> {
+    request(cancel, Method::POST, url, kwds).await
 }
 
 /// Make a PUT request with the given parameters.
 #[inline]
 #[pyfunction]
 #[pyo3(signature = (url, **kwds))]
-pub fn put(py: Python<'_>, url: PyBackedStr, kwds: Option<Request>) -> PyResult<Bound<'_, PyAny>> {
-    request(py, Method::PUT, url, kwds)
+pub async fn put(
+    #[pyo3(cancel_handle)] cancel: CancelHandle,
+    url: PyBackedStr,
+    kwds: Option<Request>,
+) -> PyResult<Response> {
+    request(cancel, Method::PUT, url, kwds).await
 }
 
 /// Make a PATCH request with the given parameters.
 #[inline]
 #[pyfunction]
 #[pyo3(signature = (url, **kwds))]
-pub fn patch(
-    py: Python<'_>,
+pub async fn patch(
+    #[pyo3(cancel_handle)] cancel: CancelHandle,
     url: PyBackedStr,
     kwds: Option<Request>,
-) -> PyResult<Bound<'_, PyAny>> {
-    request(py, Method::PATCH, url, kwds)
+) -> PyResult<Response> {
+    request(cancel, Method::PATCH, url, kwds).await
 }
 
 /// Make a DELETE request with the given parameters.
 #[inline]
 #[pyfunction]
 #[pyo3(signature = (url, **kwds))]
-pub fn delete(
-    py: Python<'_>,
+pub async fn delete(
+    #[pyo3(cancel_handle)] cancel: CancelHandle,
     url: PyBackedStr,
     kwds: Option<Request>,
-) -> PyResult<Bound<'_, PyAny>> {
-    request(py, Method::DELETE, url, kwds)
+) -> PyResult<Response> {
+    request(cancel, Method::DELETE, url, kwds).await
 }
 
 /// Make a HEAD request with the given parameters.
 #[inline]
 #[pyfunction]
 #[pyo3(signature = (url, **kwds))]
-pub fn head(py: Python<'_>, url: PyBackedStr, kwds: Option<Request>) -> PyResult<Bound<'_, PyAny>> {
-    request(py, Method::HEAD, url, kwds)
+pub async fn head(
+    #[pyo3(cancel_handle)] cancel: CancelHandle,
+    url: PyBackedStr,
+    kwds: Option<Request>,
+) -> PyResult<Response> {
+    request(cancel, Method::HEAD, url, kwds).await
 }
 
 /// Make a OPTIONS request with the given parameters.
 #[inline]
 #[pyfunction]
 #[pyo3(signature = (url, **kwds))]
-pub fn options(
-    py: Python<'_>,
+pub async fn options(
+    #[pyo3(cancel_handle)] cancel: CancelHandle,
     url: PyBackedStr,
     kwds: Option<Request>,
-) -> PyResult<Bound<'_, PyAny>> {
-    request(py, Method::OPTIONS, url, kwds)
+) -> PyResult<Response> {
+    request(cancel, Method::OPTIONS, url, kwds).await
 }
 
 /// Make a TRACE request with the given parameters.
 #[inline]
 #[pyfunction]
 #[pyo3(signature = (url, **kwds))]
-pub fn trace(
-    py: Python<'_>,
+pub async fn trace(
+    #[pyo3(cancel_handle)] cancel: CancelHandle,
     url: PyBackedStr,
     kwds: Option<Request>,
-) -> PyResult<Bound<'_, PyAny>> {
-    request(py, Method::TRACE, url, kwds)
+) -> PyResult<Response> {
+    request(cancel, Method::TRACE, url, kwds).await
 }
 
 /// Make a request with the given parameters.
 #[inline]
 #[pyfunction]
 #[pyo3(signature = (method, url, **kwds))]
-pub fn request(
-    py: Python<'_>,
+pub async fn request(
+    #[pyo3(cancel_handle)] cancel: CancelHandle,
     method: Method,
     url: PyBackedStr,
     kwds: Option<Request>,
-) -> PyResult<Bound<'_, PyAny>> {
-    Client::default().request(py, method, url, kwds)
+) -> PyResult<Response> {
+    Client::default().request(cancel, method, url, kwds).await
 }
 
 /// Make a WebSocket connection with the given parameters.
 #[inline]
 #[pyfunction]
 #[pyo3(signature = (url, **kwds))]
-pub fn websocket(
-    py: Python<'_>,
+pub async fn websocket(
+    #[pyo3(cancel_handle)] cancel: CancelHandle,
     url: PyBackedStr,
     kwds: Option<WebSocketRequest>,
-) -> PyResult<Bound<'_, PyAny>> {
-    Client::default().websocket(py, url, kwds)
+) -> PyResult<WebSocket> {
+    Client::default().websocket(cancel, url, kwds).await
 }
 
 #[pymodule(gil_used = false)]

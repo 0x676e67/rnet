@@ -34,11 +34,13 @@ pyo3 = { version = "0.27.0", features = [
     "multiple-pymethods",
     "extension-module",
     "generate-import-lib",
+    "experimental-async",
 ] }
 pyo3-async-runtimes = { version = "0.27.0", features = [
     "tokio-runtime",
     "unstable-streams",
 ] }
+pin-project-lite = "0.2.16"
 futures-util = { version = "0.3.31", default-features = false }
 serde = { version = "1.0.228", features = ["derive"] }
 serde_json = "1"
