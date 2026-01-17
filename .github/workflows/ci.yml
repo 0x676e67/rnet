@@ -23,6 +23,9 @@ on:
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref_name }}-${{ github.event.pull_request.number || github.sha }}
   cancel-in-progress: true
+
+env:
+  MATURIN_VERSION: '1.10.2'
   
 permissions:
   contents: write
@@ -68,7 +71,7 @@ jobs:
           source .venv/bin/activate
       - name: Install dependencies
         run: |
-          uv pip install maturin pytest pytest-asyncio pytest-rerunfailures
+          uv pip install maturin==${{ env.MATURIN_VERSION }} pytest pytest-asyncio pytest-rerunfailures
       - name: Build wheels
         run: |
           source .venv/bin/activate
@@ -133,6 +136,7 @@ jobs:
       - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:
+          maturin-version: ${{ env.MATURIN_VERSION }}
           rust-toolchain: stable
           target: ${{ matrix.platform.target }}
           args: ${{ matrix.platform.target == 'x86_64' && '--release --out dist --zig' || '--release --out dist' }} ${{ matrix.build_type.maturin_args }} --features ${{ matrix.platform.allocator }}
@@ -174,6 +178,8 @@ jobs:
       - name: Build wheels
         run: 
           bash .github/musl_build.sh ${{ matrix.platform.target }} "${{ matrix.build_type.maturin_args }}" --features "${{ matrix.platform.allocator }}"
+        env:
+          MATURIN_VERSION: ${{ env.MATURIN_VERSION }}
       - name: Upload wheels
         uses: actions/upload-artifact@v6
         with:
@@ -215,6 +221,7 @@ jobs:
       - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:
+          maturin-version: ${{ env.MATURIN_VERSION }}
           target: ${{ matrix.platform.target }}
           args: --release --out dist ${{ matrix.build_type.maturin_args }} --features ${{ matrix.platform.allocator || '' }}
           sccache: 'false'
@@ -253,6 +260,7 @@ jobs:
       - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:
+          maturin-version: ${{ env.MATURIN_VERSION }}
           target: ${{ matrix.platform.target }}
           args: --release --out dist ${{ matrix.build_type.maturin_args }} --features ${{ matrix.platform.allocator || '' }}
           sccache: 'false'
@@ -312,6 +320,7 @@ jobs:
     - name: Build wheels
       uses: PyO3/maturin-action@v1
       with:
+        maturin-version: ${{ env.MATURIN_VERSION }}
         rust-toolchain: stable
         target: ${{ matrix.target }}
         args: --release --out dist --no-default-features --features ${{ matrix.features }} --skip-auditwheel
@@ -347,6 +356,7 @@ jobs:
       - name: Build sdist
         uses: PyO3/maturin-action@v1
         with:
+          maturin-version: ${{ env.MATURIN_VERSION }}
           command: sdist
           args: --out dist
       - name: Upload sdist
@@ -379,6 +389,7 @@ jobs:
         env:
           MATURIN_PYPI_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
         with:
+          maturin-version: ${{ env.MATURIN_VERSION }}
           command: upload
           args: --non-interactive --skip-existing wheels-*/*
       - name: Upload binaries to GitHub Release
