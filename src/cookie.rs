@@ -272,18 +272,6 @@ impl Jar {
         })
     }
 
-    /// Add a cookie to this jar.
-    #[pyo3(signature = (cookie, url))]
-    pub fn add_cookie(&self, py: Python, cookie: Cookie, url: PyBackedStr) {
-        py.detach(|| self.0.add(cookie.0, AsRef::<str>::as_ref(&url)))
-    }
-
-    /// Add a cookie str to this jar.
-    #[pyo3(signature = (cookie, url))]
-    pub fn add_cookie_str(&self, py: Python, cookie: PyBackedStr, url: PyBackedStr) {
-        py.detach(|| self.0.add(cookie.as_ref(), AsRef::<str>::as_ref(&url)))
-    }
-
     /// Remove a cookie from this jar by name and URL.
     #[pyo3(signature = (name, url))]
     pub fn remove(&self, py: Python, name: PyBackedStr, url: PyBackedStr) {
