@@ -3,7 +3,7 @@ use std::{fmt::Display, future, sync::Arc};
 use arc_swap::ArcSwapOption;
 use bytes::Bytes;
 use futures_util::TryFutureExt;
-use http::{Extensions, response::Response as HttpResponse};
+use http::response::{Parts, Response as HttpResponse};
 use http_body_util::BodyExt;
 use pyo3::{IntoPyObjectExt, prelude::*, pybacked::PyBackedStr};
 use wreq::{self, Uri};
@@ -27,33 +27,9 @@ use crate::{
 #[derive(Clone)]
 #[pyclass(subclass, frozen, str)]
 pub struct Response {
-    /// Get the status code of the response.
-    #[pyo3(get)]
-    version: Version,
-
-    /// Get the HTTP version of the response.
-    #[pyo3(get)]
-    status: StatusCode,
-
-    /// Get the content length of the response.
-    #[pyo3(get)]
-    content_length: Option<u64>,
-
-    /// Get the headers of the response.
-    #[pyo3(get)]
-    headers: HeaderMap,
-
-    /// Get the local address of the response.
-    #[pyo3(get)]
-    local_addr: Option<SocketAddr>,
-
-    /// Get the content length of the response.
-    #[pyo3(get)]
-    remote_addr: Option<SocketAddr>,
-
     uri: Uri,
+    parts: Parts,
     body: Arc<ArcSwapOption<Body>>,
-    extensions: Extensions,
 }
 
 /// Represents the state of the HTTP response body.
@@ -74,21 +50,11 @@ impl Response {
     /// Create a new [`Response`] instance.
     pub fn new(response: wreq::Response) -> Self {
         let uri = response.uri().clone();
-        let content_length = response.content_length();
-        let local_addr = response.local_addr().map(SocketAddr);
-        let remote_addr = response.remote_addr().map(SocketAddr);
         let response = HttpResponse::from(response);
         let (parts, body) = response.into_parts();
-
         Response {
             uri,
-            local_addr,
-            remote_addr,
-            content_length,
-            extensions: parts.extensions,
-            version: Version::from_ffi(parts.version),
-            status: StatusCode::from(parts.status),
-            headers: HeaderMap(parts.headers),
+            parts,
             body: Arc::new(ArcSwapOption::from_pointee(Body::Streamable(body))),
         }
     }
@@ -99,10 +65,10 @@ impl Response {
     /// as the current response, but with the provided body.
     fn build_response(self, body: wreq::Body) -> wreq::Response {
         let mut response = HttpResponse::new(body);
-        *response.version_mut() = self.version.into_ffi();
-        *response.status_mut() = self.status.0;
-        *response.headers_mut() = self.headers.0;
-        *response.extensions_mut() = self.extensions;
+        *response.version_mut() = self.parts.version;
+        *response.status_mut() = self.parts.status;
+        *response.headers_mut() = self.parts.headers;
+        *response.extensions_mut() = self.parts.extensions;
         wreq::Response::from(response)
     }
 
@@ -165,17 +131,55 @@ impl Response {
         self.uri.to_string()
     }
 
+    /// Get the status code of the response.
+    #[getter]
+    pub fn status(&self) -> StatusCode {
+        StatusCode(self.parts.status)
+    }
+
+    /// Get the HTTP version of the response.
+    #[getter]
+    pub fn version(&self) -> Version {
+        Version::from_ffi(self.parts.version)
+    }
+
+    /// Get the headers of the response.
+    #[getter]
+    pub fn headers(&self) -> HeaderMap {
+        HeaderMap(self.parts.headers.clone())
+    }
+
     /// Get the cookies of the response.
     #[getter]
     pub fn cookies(&self) -> Vec<Cookie> {
-        Cookie::extract_headers_cookies(&self.headers.0)
+        Cookie::extract_headers_cookies(&self.parts.headers)
+    }
+
+    /// Get the content length of the response.
+    #[getter]
+    pub fn content_length(&self, py: Python) -> Option<u64> {
+        py.detach(|| self.clone().empty_response().content_length())
+    }
+
+    /// Get the remote address of the response.
+    #[getter]
+    pub fn remote_addr(&self, py: Python) -> Option<SocketAddr> {
+        py.detach(|| self.clone().empty_response().remote_addr().map(SocketAddr))
+    }
+
+    /// Get the local address of the response.
+    #[getter]
+    pub fn local_addr(&self, py: Python) -> Option<SocketAddr> {
+        py.detach(|| self.clone().empty_response().local_addr().map(SocketAddr))
     }
 
     /// Get the redirect history of the Response.
     #[getter]
     pub fn history(&self, py: Python) -> Vec<History> {
         py.detach(|| {
-            self.extensions
+            self.clone()
+                .empty_response()
+                .extensions()
                 .get::<wreq::redirect::History>()
                 .map_or_else(Vec::new, |history| {
                     history.into_iter().cloned().map(History::from).collect()
@@ -187,7 +191,9 @@ impl Response {
     #[getter]
     pub fn tls_info(&self, py: Python) -> Option<TlsInfo> {
         py.detach(|| {
-            self.extensions
+            self.clone()
+                .empty_response()
+                .extensions()
                 .get::<wreq::tls::TlsInfo>()
                 .cloned()
                 .map(TlsInfo)
@@ -292,7 +298,7 @@ impl Display for Response {
             "<{}({}) [{}] >",
             stringify!(Response),
             self.uri,
-            self.status.0,
+            self.parts.status,
         )
     }
 }
@@ -310,19 +316,19 @@ impl BlockingResponse {
     /// Get the status code of the response.
     #[getter]
     pub fn status(&self) -> StatusCode {
-        self.0.status
+        self.0.status()
     }
 
     /// Get the HTTP version of the response.
     #[getter]
     pub fn version(&self) -> Version {
-        self.0.version
+        self.0.version()
     }
 
     /// Get the headers of the response.
     #[getter]
     pub fn headers(&self) -> HeaderMap {
-        self.0.headers.clone()
+        self.0.headers()
     }
 
     /// Get the cookies of the response.
@@ -333,20 +339,20 @@ impl BlockingResponse {
 
     /// Get the content length of the response.
     #[getter]
-    pub fn content_length(&self) -> Option<u64> {
-        self.0.content_length
+    pub fn content_length(&self, py: Python) -> Option<u64> {
+        self.0.content_length(py)
     }
 
     /// Get the remote address of the response.
     #[getter]
-    pub fn remote_addr(&self) -> Option<SocketAddr> {
-        self.0.remote_addr
+    pub fn remote_addr(&self, py: Python) -> Option<SocketAddr> {
+        self.0.remote_addr(py)
     }
 
     /// Get the local address of the response.
     #[getter]
-    pub fn local_addr(&self) -> Option<SocketAddr> {
-        self.0.local_addr
+    pub fn local_addr(&self, py: Python) -> Option<SocketAddr> {
+        self.0.local_addr(py)
     }
 
     /// Get the redirect history of the Response.
@@ -461,13 +467,8 @@ impl From<Response> for BlockingResponse {
 }
 
 impl Display for BlockingResponse {
+    #[inline]
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "<{}({}) [{}] >",
-            stringify!(Response),
-            self.0.uri,
-            self.0.status.0,
-        )
+        self.0.fmt(f)
     }
 }

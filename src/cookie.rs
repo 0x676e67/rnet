@@ -266,8 +266,8 @@ impl Jar {
         py.detach(|| {
             let url = AsRef::<str>::as_ref(&url);
             match cookie {
-                PyCookie::Cookie(cookie) => self.0.add_cookie(cookie.0, url),
-                PyCookie::String(cookie_str) => self.0.add_cookie_str(&cookie_str, url),
+                PyCookie::Cookie(cookie) => self.0.add(cookie.0, url),
+                PyCookie::String(cookie_str) => self.0.add(cookie_str.as_ref(), url),
             }
         })
     }

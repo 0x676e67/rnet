@@ -6,7 +6,7 @@ from rnet import Message, WebSocket
 from rnet import exceptions
 
 
-async def send_message(ws):
+async def send_message(ws: WebSocket):
     print("Starting to send messages...")
     for i in range(20):
         print(f"Sending: Message {i + 1}")
@@ -14,7 +14,7 @@ async def send_message(ws):
         await asyncio.sleep(0.1)
 
 
-async def recv_message(ws):
+async def recv_message(ws: WebSocket):
     print("Starting to receive messages...")
     while True:
         try:
@@ -31,28 +31,16 @@ async def recv_message(ws):
             continue
 
 
-"""
-Run websocket server
-
-To test this example:
-
-    git clone https://github.com/tokio-rs/axum && cd axum
-    cargo run -p example-websockets-http2
-
-Then run this Python script to connect to the websocket server.
-"""
-
-
 async def main():
-    client = rnet.Client(verify=False)
-    ws: WebSocket = await client.websocket("wss://127.0.0.1:3000/ws")
+    client = rnet.Client()
+    ws: WebSocket = await client.websocket("wss://echo.websocket.org")
     async with ws:
         print("Status Code: ", ws.status)
         print("Version: ", ws.version)
         print("Headers: ", ws.headers)
         print("Remote Address: ", ws.remote_addr)
 
-        if ws.status.as_int() == 101:
+        if ws.status == 101:
             print("WebSocket connection established successfully.")
             send_task = asyncio.create_task(send_message(ws))
             receive_task = asyncio.create_task(recv_message(ws))
