@@ -64,12 +64,15 @@ asyncio.run(main())
 
 ```python
 import asyncio
-from rnet import Client, Emulation
+from rnet import Client, Emulation, EmulationOption, EmulationOS
 
 async def main():
     # Emulate Chrome on Android
-    client = Client(emulation=Emulation.Chrome120)
-    # Note: Use appropriate user-agent for mobile
+    client = Client(emulation=EmulationOption(
+        emulation=Emulation.Chrome120,
+        emulation_os=EmulationOS.Android
+    ))
+    # The user-agent will now correctly reflect an Android device
     resp = await client.get("https://httpbin.org/user-agent")
     print(await resp.text())
 
