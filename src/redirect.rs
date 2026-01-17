@@ -171,10 +171,10 @@ impl Attempt {
 impl From<&wreq::redirect::Attempt<'static, false>> for Attempt {
     fn from(attempt: &wreq::redirect::Attempt<'static, false>) -> Self {
         Attempt {
-            status: StatusCode(attempt.status()),
-            headers: HeaderMap(attempt.headers().clone()),
-            next: attempt.uri().to_string(),
-            previous: attempt.previous().iter().map(ToString::to_string).collect(),
+            status: StatusCode(attempt.status),
+            headers: HeaderMap(attempt.headers.clone().into_owned()),
+            next: attempt.uri.to_string(),
+            previous: attempt.previous.iter().map(ToString::to_string).collect(),
         }
     }
 }

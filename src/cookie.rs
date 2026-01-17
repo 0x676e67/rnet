@@ -266,8 +266,8 @@ impl Jar {
         py.detach(|| {
             let url = AsRef::<str>::as_ref(&url);
             match cookie {
-                PyCookie::Cookie(cookie) => self.0.add_cookie(cookie.0, url),
-                PyCookie::String(cookie_str) => self.0.add_cookie_str(&cookie_str, url),
+                PyCookie::Cookie(cookie) => self.0.add(cookie.0, url),
+                PyCookie::String(cookie_str) => self.0.add(cookie_str.as_ref(), url),
             }
         })
     }
@@ -275,13 +275,13 @@ impl Jar {
     /// Add a cookie to this jar.
     #[pyo3(signature = (cookie, url))]
     pub fn add_cookie(&self, py: Python, cookie: Cookie, url: PyBackedStr) {
-        py.detach(|| self.0.add_cookie(cookie.0, AsRef::<str>::as_ref(&url)))
+        py.detach(|| self.0.add(cookie.0, AsRef::<str>::as_ref(&url)))
     }
 
     /// Add a cookie str to this jar.
     #[pyo3(signature = (cookie, url))]
     pub fn add_cookie_str(&self, py: Python, cookie: PyBackedStr, url: PyBackedStr) {
-        py.detach(|| self.0.add_cookie_str(&cookie, AsRef::<str>::as_ref(&url)))
+        py.detach(|| self.0.add(cookie.as_ref(), AsRef::<str>::as_ref(&url)))
     }
 
     /// Remove a cookie from this jar by name and URL.
