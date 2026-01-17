@@ -1,0 +1,99 @@
+site_name: rnet
+site_description: Ergonomic Python HTTP Client with TLS Fingerprinting
+site_author: "0x676e67"
+site_url: https://0x676e67.github.io/rnet
+
+repo_name: "0x676e67/rnet"
+repo_url: https://github.com/0x676e67/rnet
+
+docs_dir: source
+
+extra:
+  version:
+    provider: mike
+
+theme:
+  name: material
+  palette:
+    # Light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    # Dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - navigation.tracking
+    - navigation.indexes
+    - toc.integrate
+    - search.highlight
+    - search.share
+    - content.code.copy
+    - content.code.annotate
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            docstring_style: google
+            show_source: true
+            show_root_heading: true
+            show_symbol_type_heading: true
+            show_symbol_type_toc: true
+            members_order: source
+            show_bases: true
+            show_signature: true
+            separate_signature: true
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - admonition
+  - pymdownx.details
+  - attr_list
+  - md_in_html
+
+nav:
+  - Home: index.md
+  - Getting Started:
+    - Installation: getting-started/installation.md
+    - Quick Start: getting-started/quickstart.md
+  - API Reference:
+    - Core Module: api/core.md
+    - Modules:
+      - rnet.blocking: api/blocking.md
+      - rnet.header: api/header.md
+      - rnet.cookie: api/cookie.md
+      - rnet.exceptions: api/exceptions.md
+      - rnet.emulation: api/emulation.md
+      - rnet.http1: api/http1.md
+      - rnet.http2: api/http2.md
+      - rnet.tls: api/tls.md
+      - rnet.dns: api/dns.md
+      - rnet.proxy: api/proxy.md
+      - rnet.redirect: api/redirect.md
+  - Examples:
+    - Basic Usage: examples/basic.md
+    - Browser Emulation: examples/emulation.md
+    - Authentication: examples/auth.md
+    - WebSocket: examples/websocket.md
+  - Sponsors: sponsors.md
