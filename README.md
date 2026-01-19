@@ -160,8 +160,6 @@ Designed for developers, it offers high accuracy, low price, low latency, and ea
 
 ---
 
-## Thordata
-
 <a href="https://www.thordata.com/products/residential-proxies?ls=github&lk=rnet" target="_blank">
 <img src="https://raw.githubusercontent.com/0x676e67/rnet/main/.github/assets/thordata.svg">
 </a>
