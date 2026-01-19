@@ -57,6 +57,10 @@
          <lastmod>2026-01-19</lastmod>
     </url>
     <url>
+         <loc>https://0x676e67.github.io/rnet/latest/examples/advanced/</loc>
+         <lastmod>2026-01-19</lastmod>
+    </url>
+    <url>
          <loc>https://0x676e67.github.io/rnet/latest/examples/auth/</loc>
          <lastmod>2026-01-19</lastmod>
     </url>
@@ -65,7 +69,19 @@
          <lastmod>2026-01-19</lastmod>
     </url>
     <url>
+         <loc>https://0x676e67.github.io/rnet/latest/examples/blocking/</loc>
+         <lastmod>2026-01-19</lastmod>
+    </url>
+    <url>
          <loc>https://0x676e67.github.io/rnet/latest/examples/emulation/</loc>
+         <lastmod>2026-01-19</lastmod>
+    </url>
+    <url>
+         <loc>https://0x676e67.github.io/rnet/latest/examples/proxy/</loc>
+         <lastmod>2026-01-19</lastmod>
+    </url>
+    <url>
+         <loc>https://0x676e67.github.io/rnet/latest/examples/redirect-errors/</loc>
          <lastmod>2026-01-19</lastmod>
     </url>
     <url>
