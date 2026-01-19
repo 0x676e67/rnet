@@ -1,75 +1,125 @@
 # WebSocket Examples
 
-## Basic WebSocket Connection
+## HTTP/1.1 WebSocket Connection
 
 ```python
 import asyncio
-from rnet import Client
+import datetime
+import rnet
+from rnet import Message, WebSocket
+from rnet import exceptions
+
+
+async def send_message(ws: WebSocket):
+    print("Starting to send messages...")
+    for i in range(20):
+        print(f"Sending: Message {i + 1}")
+        await ws.send(Message.from_text(f"Message {i + 1}"))
+        await asyncio.sleep(0.1)
+
+
+async def recv_message(ws: WebSocket):
+    print("Starting to receive messages...")
+    while True:
+        try:
+            message = await ws.recv(timeout=datetime.timedelta(milliseconds=10))
+            print("Received: ", message)
+            if message is None:
+                print("Connection closed by server.")
+                break
+
+            if message.data == b"Message 20":
+                print("Closing connection...")
+                break
+        except exceptions.TimeoutError:
+            continue
+
 
 async def main():
-    client = Client()
-    
-    # Upgrade to WebSocket
-    ws = await client.websocket("wss://echo.websocket.org")
-    
-    # Send message
-    await ws.send_text("Hello WebSocket!")
-    
-    # Receive message
-    msg = await ws.recv()
-    print(f"Received: {msg}")
-    
-    # Close connection
-    await ws.close()
+    client = rnet.Client()
+    ws: WebSocket = await client.websocket("wss://echo.websocket.org")
+    async with ws:
+        print("Status Code: ", ws.status)
+        print("Version: ", ws.version)
+        print("Headers: ", ws.headers)
+        print("Remote Address: ", ws.remote_addr)
 
-asyncio.run(main())
+        if ws.status == 101:
+            print("WebSocket connection established successfully.")
+            send_task = asyncio.create_task(send_message(ws))
+            receive_task = asyncio.create_task(recv_message(ws))
+            await asyncio.gather(send_task, receive_task)
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
 ```
 
-## WebSocket with Headers
+## HTTP/2 WebSocket Connection
 
 ```python
 import asyncio
-from rnet import Client
-from rnet.header import HeaderMap
+import datetime
+import rnet
+from rnet import Message, WebSocket
+from rnet import exceptions
+
+
+async def send_message(ws):
+    print("Starting to send messages...")
+    for i in range(20):
+        print(f"Sending: Message {i + 1}")
+        await ws.send(Message.from_text(f"Message {i + 1}"))
+        await asyncio.sleep(0.1)
+
+
+async def recv_message(ws):
+    print("Starting to receive messages...")
+    while True:
+        try:
+            message = await ws.recv(timeout=datetime.timedelta(milliseconds=10))
+            print("Received: ", message)
+            if message is None:
+                print("Connection closed by server.")
+                break
+
+            if message.data == b"Message 20":
+                print("Closing connection...")
+                break
+        except exceptions.TimeoutError:
+            continue
+
 
 async def main():
-    client = Client()
-    
-    headers = HeaderMap()
-    headers["Authorization"] = "Bearer token"
-    
-    ws = await client.websocket(
-        "wss://example.com/ws",
-        headers=headers
+    # Connect to HTTP/2 WebSocket server with force_http2=True
+    client = rnet.Client(verify=False)
+    ws: WebSocket = await client.websocket(
+        "wss://127.0.0.1:3000/ws",
+        force_http2=True
     )
-    
-    await ws.send_text("Authenticated message")
-    msg = await ws.recv()
-    print(msg)
-    
-    await ws.close()
+    async with ws:
+        print("Status Code: ", ws.status)
+        print("Version: ", ws.version)
+        print("Headers: ", ws.headers)
+        print("Remote Address: ", ws.remote_addr)
 
-asyncio.run(main())
+        if ws.status == 200:
+            print("WebSocket connection established successfully.")
+            send_task = asyncio.create_task(send_message(ws))
+            receive_task = asyncio.create_task(recv_message(ws))
+            await asyncio.gather(send_task, receive_task)
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
 ```
 
-## WebSocket Message Loop
-
-```python
-import asyncio
-from rnet import Client
-
-async def main():
-    client = Client()
-    ws = await client.websocket("wss://echo.websocket.org")
+!!! note "HTTP/2 WebSocket Testing"
+    To test HTTP/2 WebSocket, you need to run a local server:
     
-    try:
-        # Send multiple messages
-        for i in range(5):
-            await ws.send_text(f"Message {i}")
-            response = await ws.recv()
-            print(f"Echo: {response}")
-    finally:
-        await ws.close()
-
-asyncio.run(main())
-```
+    ```bash
+    git clone https://github.com/tokio-rs/axum && cd axum
+    cargo run -p example-websockets-http2
+    ```
+    
+    Then run the Python script to connect to the websocket server.

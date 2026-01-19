@@ -26,7 +26,7 @@ theme:
     # Dark mode
     - media: "(prefers-color-scheme: dark)"
       scheme: slate
-      primary: indigo
+      primary: black
       accent: indigo
       toggle:
         icon: material/brightness-4
@@ -96,4 +96,8 @@ nav:
     - Browser Emulation: examples/emulation.md
     - Authentication: examples/auth.md
     - WebSocket: examples/websocket.md
+    - Proxy: examples/proxy.md
+    - Redirect & Errors: examples/redirect-errors.md
+    - Advanced Features: examples/advanced.md
+    - Blocking/Sync API: examples/blocking.md
   - Sponsors: sponsors.md
