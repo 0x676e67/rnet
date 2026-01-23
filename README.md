@@ -147,7 +147,7 @@ Unless you explicitly state otherwise, any contribution intentionally submitted 
 ## Sponsors
 
 <a href="https://scrape.do/?utm_source=github&utm_medium=rnet" target="_blank">
-  <img src="https://scrape.do/images/logo.svg">
+  <img src="https://raw.githubusercontent.com/0x676e67/rnet/main/.github/assets/scrapedo.svg">
 </a>
 
 **[Scrape.do](https://scrape.do/?utm_source=github&utm_medium=rnet)** is the ultimate toolkit for collecting public data at scale. Unmatched speed, unbeatable prices, unblocked access.
