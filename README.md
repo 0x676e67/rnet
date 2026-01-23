@@ -146,6 +146,18 @@ Unless you explicitly state otherwise, any contribution intentionally submitted 
 
 ## Sponsors
 
+<a href="https://scrape.do/?utm_source=github&utm_medium=rnet" target="_blank">
+  <img src="https://scrape.do/images/logo.svg">
+</a>
+
+**[Scrape.do](https://scrape.do/?utm_source=github&utm_medium=rnet)** is the ultimate toolkit for collecting public data at scale. Unmatched speed, unbeatable prices, unblocked access.
+
+One line of code. Instant data access
+
+🔁 Automatic Proxy Rotation 🤖 Bypass Anti-bot Solutions  ⛏️ Seamless Web Scraping
+
+---
+
 <a href="https://www.ez-captcha.com" target="_blank">
   <img src="https://www.ez-captcha.com/siteLogo.png" height="50" width="50">
 </a>
