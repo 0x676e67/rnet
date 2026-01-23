@@ -16,7 +16,7 @@ One line of code. Instant data access
 
 🔁 Automatic Proxy Rotation 🤖 Bypass Anti-bot Solutions  ⛏️ Seamless Web Scraping
 
-🚀 **[Register](https://dashboard.scrape.do/login)** |👔 **[Linkedin](https://www.linkedin.com/company/scrape-do/)** | 📖 **[Docs](https://scrape.do/documentation)**
+🚀 **[Register](https://dashboard.scrape.do/login)** | 👔 **[Linkedin](https://www.linkedin.com/company/scrape-do/)** | 📖 **[Docs](https://scrape.do/documentation)**
 
 ---
 
