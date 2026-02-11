@@ -48,6 +48,7 @@ plugins:
   - mkdocstrings:
       handlers:
         python:
+          paths: [../python]
           options:
             docstring_style: google
             show_source: true
@@ -58,6 +59,8 @@ plugins:
             show_bases: true
             show_signature: true
             separate_signature: true
+            allow_inspection: false
+            find_stubs_package: true
 
 markdown_extensions:
   - pymdownx.highlight:
@@ -75,29 +78,29 @@ markdown_extensions:
 nav:
   - Home: index.md
   - Getting Started:
-    - Installation: getting-started/installation.md
-    - Quick Start: getting-started/quickstart.md
+      - Installation: getting-started/installation.md
+      - Quick Start: getting-started/quickstart.md
   - API Reference:
-    - Core Module: api/core.md
-    - Modules:
-      - rnet.blocking: api/blocking.md
-      - rnet.header: api/header.md
-      - rnet.cookie: api/cookie.md
-      - rnet.exceptions: api/exceptions.md
-      - rnet.emulation: api/emulation.md
-      - rnet.http1: api/http1.md
-      - rnet.http2: api/http2.md
-      - rnet.tls: api/tls.md
-      - rnet.dns: api/dns.md
-      - rnet.proxy: api/proxy.md
-      - rnet.redirect: api/redirect.md
+      - Core Module: api/core.md
+      - Modules:
+          - rnet.blocking: api/blocking.md
+          - rnet.header: api/header.md
+          - rnet.cookie: api/cookie.md
+          - rnet.exceptions: api/exceptions.md
+          - rnet.emulation: api/emulation.md
+          - rnet.http1: api/http1.md
+          - rnet.http2: api/http2.md
+          - rnet.tls: api/tls.md
+          - rnet.dns: api/dns.md
+          - rnet.proxy: api/proxy.md
+          - rnet.redirect: api/redirect.md
   - Examples:
-    - Basic Usage: examples/basic.md
-    - Browser Emulation: examples/emulation.md
-    - Authentication: examples/auth.md
-    - WebSocket: examples/websocket.md
-    - Proxy: examples/proxy.md
-    - Redirect & Errors: examples/redirect-errors.md
-    - Advanced Features: examples/advanced.md
-    - Blocking/Sync API: examples/blocking.md
+      - Basic Usage: examples/basic.md
+      - Browser Emulation: examples/emulation.md
+      - Authentication: examples/auth.md
+      - WebSocket: examples/websocket.md
+      - Proxy: examples/proxy.md
+      - Redirect & Errors: examples/redirect-errors.md
+      - Advanced Features: examples/advanced.md
+      - Blocking/Sync API: examples/blocking.md
   - Sponsors: sponsors.md
