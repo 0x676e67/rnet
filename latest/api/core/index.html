@@ -4703,7 +4703,20 @@
 
     <div class="doc doc-contents ">
 
-        <p>Close the response connection.</p>
+        <p>Close the response.</p>
+<p><strong>Current behavior:</strong></p>
+<ul>
+<li>When connection pooling is <strong>disabled</strong>: This method closes the network connection.</li>
+<li>When connection pooling is <strong>enabled</strong>: This method closes the response, prevents further body reads,
+  and returns the connection to the pool for reuse.</li>
+</ul>
+<p><strong>Future changes:</strong></p>
+<p>In future versions, this method will be changed to always close the network connection regardless of
+whether connection pooling is enabled or not.</p>
+<p><strong>Recommendation:</strong></p>
+<p>It is <strong>not recommended</strong> to manually call this method at present. Instead, use context managers
+(async with statement) to properly manage response lifecycle. Wait for the improved implementation
+in future versions.</p>
 
 
     </div>
