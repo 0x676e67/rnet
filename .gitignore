@@ -83,4 +83,4 @@ keylog.txt
 *.jpg
 *.csv
 *.png
-python/docs/site
+docs/site
