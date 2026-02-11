@@ -21,7 +21,7 @@ build:
   jobs:
     pre_install:
       - pip install maturin
-      - maturin build --release --out dist
+      - maturin build --out dist
       - pip install --find-links=dist rnet
 
 # Build documentation with Mkdocs
