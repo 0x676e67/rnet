@@ -265,7 +265,21 @@ impl Response {
         AllowThreads::new(fut, cancel).await
     }
 
-    /// Close the response connection.
+    /// Close the response.
+    ///
+    /// **Current behavior:**
+    /// - When connection pooling is **disabled**: This method closes the network connection.
+    /// - When connection pooling is **enabled**: This method closes the response, prevents further body reads,
+    ///   and returns the connection to the pool for reuse.
+    ///
+    /// **Future changes:**
+    /// In future versions, this method will be changed to always close the network connection regardless of
+    /// whether connection pooling is enabled or not.
+    ///
+    /// **Recommendation:**
+    /// It is **not recommended** to manually call this method at present. Instead, use context managers
+    /// (async with statement) to properly manage response lifecycle. Wait for the improved implementation
+    /// in future versions.
     pub fn close<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
         py.detach(|| self.body.clone().swap(None));
         pyo3_async_runtimes::tokio::future_into_py(py, future::ready(Ok(())))
@@ -434,7 +448,21 @@ impl BlockingResponse {
         })
     }
 
-    /// Close the response connection.
+    /// Close the response.
+    ///
+    /// **Current behavior:**
+    /// - When connection pooling is **disabled**: This method closes the network connection.
+    /// - When connection pooling is **enabled**: This method closes the response, prevents further body reads,
+    ///   and returns the connection to the pool for reuse.
+    ///
+    /// **Future changes:**
+    /// In future versions, this method will be changed to always close the network connection regardless of
+    /// whether connection pooling is enabled or not.
+    ///
+    /// **Recommendation:**
+    /// It is **not recommended** to manually call this method at present. Instead, use context managers
+    /// (with statement) to properly manage response lifecycle. Wait for the improved implementation
+    /// in future versions.
     #[inline]
     pub fn close(&self, py: Python) {
         py.detach(|| self.0.body.swap(None));
