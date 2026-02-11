@@ -10,10 +10,16 @@ build:
   tools:
     python: "3.13"
     rust: "latest"
+  apt_packages:
+    - build-essential
+    - cmake
+    - perl
+    - pkg-config
+    - libclang-dev
+    - musl-tools
+    - git
   jobs:
     post_install:
-      - apt-get update
-      - apt-get install -y build-essential cmake perl pkg-config libclang-dev musl-tools git
       - pip install maturin
       - maturin build --release --out dist
       - pip install --find-links=dist rnet
