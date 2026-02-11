@@ -9,6 +9,12 @@ build:
   os: ubuntu-24.04
   tools:
     python: "3.13"
+    rust: "latest"
+  jobs:
+    post_install:
+      - pip install maturin
+      - maturin build --release --out dist
+      - pip install --find-links=dist rnet
 
 # Build documentation with Mkdocs
 mkdocs:
