@@ -434,7 +434,24 @@ class Response:
 
     async def close(self) -> None:
         r"""
-        Close the response connection.
+        Close the response.
+
+        **Current behavior:**
+        
+        - When connection pooling is **disabled**: This method closes the network connection.
+        - When connection pooling is **enabled**: This method closes the response, prevents further body reads,
+          and returns the connection to the pool for reuse.
+
+        **Future changes:**
+        
+        In future versions, this method will be changed to always close the network connection regardless of
+        whether connection pooling is enabled or not.
+
+        **Recommendation:**
+        
+        It is **not recommended** to manually call this method at present. Instead, use context managers
+        (async with statement) to properly manage response lifecycle. Wait for the improved implementation
+        in future versions.
         """
 
     async def __aenter__(self) -> Any: ...
