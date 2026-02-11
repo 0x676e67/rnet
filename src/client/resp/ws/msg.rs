@@ -20,7 +20,7 @@ use crate::{buffer::PyBuffer, client::body::Json, error::Error};
 
 /// A WebSocket message.
 #[derive(Debug, Clone)]
-#[pyclass(subclass, str, frozen)]
+#[pyclass(subclass, str, frozen, from_py_object)]
 pub struct Message(pub message::Message);
 
 #[pymethods]

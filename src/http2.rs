@@ -50,7 +50,7 @@ define_enum!(
 ///
 /// [Section 5.1.1]: https://tools.ietf.org/html/rfc7540#section-5.1.1
 #[derive(Clone)]
-#[pyclass(frozen)]
+#[pyclass(frozen, from_py_object)]
 pub struct StreamId(wreq::http2::StreamId);
 
 /// Represents a stream dependency in HTTP/2 priority frames.
@@ -66,7 +66,7 @@ pub struct StreamId(wreq::http2::StreamId);
 /// can depend on another stream. This creates a priority hierarchy that helps
 /// determine the relative order in which streams should be processed.
 #[derive(Clone)]
-#[pyclass(frozen)]
+#[pyclass(frozen, from_py_object)]
 pub struct StreamDependency(wreq::http2::StreamDependency);
 
 /// The PRIORITY frame (type=0x2) specifies the sender-advised priority
@@ -74,7 +74,7 @@ pub struct StreamDependency(wreq::http2::StreamDependency);
 /// including idle or closed streams.
 /// [Section 5.3]: <https://tools.ietf.org/html/rfc7540#section-5.3>
 #[derive(Clone)]
-#[pyclass(frozen)]
+#[pyclass(frozen, from_py_object)]
 pub struct Priority(wreq::http2::Priority);
 
 /// A collection of HTTP/2 PRIORITY frames.
@@ -85,7 +85,7 @@ pub struct Priority(wreq::http2::Priority);
 /// sending multiple PRIORITY frames at once during connection setup or
 /// stream reprioritization.
 #[derive(Clone)]
-#[pyclass(frozen)]
+#[pyclass(frozen, from_py_object)]
 pub struct Priorities(wreq::http2::Priorities);
 
 /// Represents the order of HTTP/2 pseudo-header fields in a header block.
@@ -95,7 +95,7 @@ pub struct Priorities(wreq::http2::Priorities);
 /// significant according to the HTTP/2 specification, and this type ensures that the correct order
 /// is preserved and that no duplicates are present.
 #[derive(Clone)]
-#[pyclass(frozen)]
+#[pyclass(frozen, from_py_object)]
 pub struct PseudoOrder(wreq::http2::PseudoOrder);
 
 /// Represents the order of settings in a SETTINGS frame.
@@ -105,7 +105,7 @@ pub struct PseudoOrder(wreq::http2::PseudoOrder);
 /// or interoperability. `SettingsOrder` ensures that the specified order is preserved and that no
 /// duplicate settings are present.
 #[derive(Clone)]
-#[pyclass(frozen)]
+#[pyclass(frozen, from_py_object)]
 pub struct SettingsOrder(wreq::http2::SettingsOrder);
 
 /// A builder for [`Http2Options`].
@@ -183,7 +183,7 @@ struct Builder {
 /// This struct defines various parameters to fine-tune the behavior of an HTTP/2 connection,
 /// including stream management, window sizes, frame limits, and header config.
 #[derive(Clone)]
-#[pyclass(frozen)]
+#[pyclass(frozen, from_py_object)]
 pub struct Http2Options(pub wreq::http2::Http2Options);
 
 // ===== impl StreamId =====

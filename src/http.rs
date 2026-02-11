@@ -30,7 +30,7 @@ define_enum!(
 
 /// HTTP status code.
 #[derive(Clone, Copy)]
-#[pyclass(subclass, frozen, str)]
+#[pyclass(subclass, frozen, str, from_py_object)]
 pub struct StatusCode(pub wreq::StatusCode);
 
 #[pymethods]

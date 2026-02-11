@@ -71,7 +71,7 @@ macro_rules! define_enum {
 
     ($(#[$meta:meta])* $enum_type:ident, $ffi_type:ty, $(($rust_variant:ident, $ffi_variant:ident)),* $(,)?) => {
         $(#[$meta])*
-        #[pyclass(eq, eq_int, frozen)]
+        #[pyclass(eq, eq_int, frozen, from_py_object)]
         #[derive(Clone, Copy, PartialEq, Eq, Hash)]
         #[allow(non_camel_case_types)]
         #[allow(clippy::upper_case_acronyms)]
@@ -98,7 +98,7 @@ macro_rules! define_enum {
 
     ($(#[$meta:meta])* const, $enum_type:ident, $ffi_type:ty, $(($rust_variant:ident, $ffi_variant:ident)),* $(,)?) => {
         $(#[$meta])*
-        #[pyclass(eq, eq_int)]
+        #[pyclass(eq, eq_int, from_py_object)]
         #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
         #[allow(non_camel_case_types)]
         #[allow(clippy::upper_case_acronyms)]

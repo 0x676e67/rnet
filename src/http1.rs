@@ -33,7 +33,7 @@ struct Builder {
 /// These options allow you to customize the behavior of HTTP/1 connections,
 /// such as enabling support for HTTP/0.9 responses, header case preservation, etc.
 #[derive(Clone)]
-#[pyclass(frozen)]
+#[pyclass(frozen, from_py_object)]
 pub struct Http1Options(pub wreq::http1::Http1Options);
 
 // ===== impl Builder =====

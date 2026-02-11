@@ -9,7 +9,7 @@ use crate::{header::HeaderMap, http::StatusCode};
 
 /// Represents the redirect policy for HTTP requests.
 #[derive(Clone)]
-#[pyclass(frozen, str)]
+#[pyclass(frozen, str, from_py_object)]
 pub struct Policy(pub wreq::redirect::Policy);
 
 /// A type that holds information on the next request and previous requests
@@ -31,7 +31,7 @@ pub struct Attempt {
 
 /// An action to perform when a redirect status code is found.
 #[derive(Clone)]
-#[pyclass(frozen, str)]
+#[pyclass(frozen, str, from_py_object)]
 pub struct Action {
     kind: ActionKind,
 }

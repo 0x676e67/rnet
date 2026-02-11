@@ -9,7 +9,7 @@ use pyo3::{pyclass, pymethods};
 /// directly. This is useful for tools like Wireshark that can decrypt TLS traffic if provided
 /// with the correct session keys.
 #[derive(Clone)]
-#[pyclass]
+#[pyclass(from_py_object)]
 pub struct KeyLog(pub wreq::tls::KeyLog);
 
 #[pymethods]
