@@ -26,7 +26,7 @@ pub enum PyCookie {
 
 /// A single HTTP cookie.
 #[derive(Clone)]
-#[pyclass(subclass, str, frozen)]
+#[pyclass(subclass, str, frozen, from_py_object)]
 pub struct Cookie(RawCookie<'static>);
 
 /// A helper struct to allow parsing either a single cookie string or multiple cookies from a dict.
@@ -38,7 +38,7 @@ pub struct Cookies(pub Vec<HeaderValue>);
 /// This type is exposed to allow creating one and filling it with some
 /// existing cookies more easily, before creating a `Client`.
 #[derive(Clone, Default)]
-#[pyclass(subclass, frozen)]
+#[pyclass(subclass, frozen, from_py_object)]
 pub struct Jar(pub Arc<wreq::cookie::Jar>);
 
 // ===== impl Cookie =====

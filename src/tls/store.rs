@@ -7,7 +7,7 @@ use pyo3::{
 use crate::error::Error;
 
 #[derive(Clone)]
-#[pyclass]
+#[pyclass(from_py_object)]
 pub struct CertStore(pub wreq::tls::CertStore);
 
 #[pymethods]

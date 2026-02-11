@@ -26,7 +26,7 @@ use crate::{
 
 /// A response from a request.
 #[derive(Clone)]
-#[pyclass(subclass, frozen, str)]
+#[pyclass(subclass, frozen, str, skip_from_py_object)]
 pub struct Response {
     uri: Uri,
     parts: Parts,

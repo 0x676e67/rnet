@@ -29,7 +29,7 @@ struct Builder {
 /// A proxy server for a request.
 /// Supports HTTP, HTTPS, SOCKS4, SOCKS4a, SOCKS5, and SOCKS5h protocols.
 #[derive(Clone)]
-#[pyclass(subclass, frozen, str)]
+#[pyclass(subclass, frozen, str, from_py_object)]
 pub struct Proxy(pub wreq::Proxy);
 
 // ===== impl Builder =====

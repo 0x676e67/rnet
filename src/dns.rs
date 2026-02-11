@@ -33,7 +33,7 @@ impl Default for LookupIpStrategy {
 
 /// DNS resolver options for customizing DNS resolution behavior.
 #[derive(Clone)]
-#[pyclass]
+#[pyclass(from_py_object)]
 pub struct ResolverOptions {
     pub lookup_ip_strategy: LookupIpStrategy,
     pub resolve_to_addrs: Vec<(Arc<PyBackedStr>, Vec<SocketAddr>)>,

@@ -8,7 +8,7 @@ use crate::error::Error;
 
 /// Represents a private key and X509 cert as a client certificate.
 #[derive(Clone)]
-#[pyclass]
+#[pyclass(from_py_object)]
 pub struct Identity(pub wreq::tls::Identity);
 
 #[pymethods]

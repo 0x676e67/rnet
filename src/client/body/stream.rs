@@ -47,7 +47,7 @@ pub struct PyStream {
 
 /// A bytes stream response.
 #[derive(Clone)]
-#[pyclass(subclass)]
+#[pyclass(subclass, skip_from_py_object)]
 pub struct Streamer(Arc<Mutex<Option<wreq::Response>>>);
 
 // ===== impl PyStream =====

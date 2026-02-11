@@ -38,7 +38,7 @@ use crate::{
 
 /// A IP socket address.
 #[derive(Clone, Copy, PartialEq, Eq)]
-#[pyclass(eq, str, frozen)]
+#[pyclass(eq, str, frozen, from_py_object)]
 pub struct SocketAddr(pub std::net::SocketAddr);
 
 #[pymethods]
@@ -231,7 +231,7 @@ impl FromPyObject<'_, '_> for Builder {
 
 /// A client for making HTTP requests.
 #[derive(Default, Clone)]
-#[pyclass(subclass, frozen)]
+#[pyclass(subclass, frozen, from_py_object)]
 pub struct Client {
     inner: wreq::Client,
 

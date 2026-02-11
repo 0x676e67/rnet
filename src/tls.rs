@@ -241,7 +241,7 @@ impl FromPyObject<'_, '_> for Builder {
 ///
 /// All fields are optional or have defaults. See each field for details.
 #[derive(Clone)]
-#[pyclass(frozen)]
+#[pyclass(frozen, from_py_object)]
 pub struct TlsOptions(pub wreq::tls::TlsOptions);
 
 #[pymethods]
