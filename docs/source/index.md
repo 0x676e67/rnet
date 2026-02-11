@@ -124,7 +124,7 @@ maturin build --release
 
 ## Benchmark
 
-Outperforms `requests`, `httpx`, `aiohttp`, and `curl_cffi`, and you can see the [benchmark](https://github.com/0x676e67/rnet/tree/main/python/benchmark) for details — benchmark data is for reference only and actual performance may vary based on your environment and use case.
+Outperforms `requests`, `httpx`, `aiohttp`, and `curl_cffi`, and you can see the [benchmark](https://github.com/0x676e67/rnet/tree/main/bench) for details — benchmark data is for reference only and actual performance may vary based on your environment and use case.
 
 ## Services
 
