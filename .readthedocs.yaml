@@ -19,7 +19,7 @@ build:
     - musl-tools
     - git
   jobs:
-    post_install:
+    pre_install:
       - pip install maturin
       - maturin build --release --out dist
       - pip install --find-links=dist rnet
