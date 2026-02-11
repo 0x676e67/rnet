@@ -213,6 +213,10 @@ impl Stream for PyStream {
             Some(pending) => pending,
             None => {
                 let runtime = pyo3_async_runtimes::tokio::get_runtime();
+
+                // Move GIL acquisition to blocking threads to prevent blocking async runtime.
+                // This is crucial because holding the GIL in async tasks can block the entire
+                // async executor and cause deadlocks or performance degradation.
                 match this.inner {
                     PyStreamSource::Sync(ref ob) => {
                         let ob = ob.clone();
