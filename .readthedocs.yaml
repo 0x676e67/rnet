@@ -11,6 +11,9 @@ build:
     python: "3.13"
     rust: "latest"
   jobs:
+    pre_build:
+      - apt-get update
+      - apt-get install -y build-essential cmake perl pkg-config libclang-dev musl-tools git
     post_install:
       - pip install maturin
       - maturin build --release --out dist
@@ -25,3 +28,4 @@ mkdocs:
 python:
   install:
     - requirements: docs/requirements.txt
+
