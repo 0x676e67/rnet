@@ -47,7 +47,7 @@ pub struct PyStream {
 
 /// A bytes stream response.
 #[derive(Clone)]
-#[pyclass(subclass, skip_from_py_object)]
+#[pyclass(subclass, frozen, skip_from_py_object)]
 pub struct Streamer(Arc<Mutex<Option<wreq::Response>>>);
 
 // ===== impl PyStream =====
@@ -107,12 +107,7 @@ impl Streamer {
     }
 
     #[inline]
-    fn __aiter__(slf: PyRef<Self>) -> PyRef<Self> {
-        slf
-    }
-
-    #[inline]
-    fn __next__(&mut self, py: Python) -> PyResult<Frame> {
+    fn __next__(&self, py: Python) -> PyResult<Frame> {
         py.detach(|| {
             pyo3_async_runtimes::tokio::get_runtime()
                 .block_on(self.clone().next(|| Error::StopIteration))
@@ -120,21 +115,8 @@ impl Streamer {
     }
 
     #[inline]
-    fn __anext__<'py>(&mut self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
-        pyo3_async_runtimes::tokio::future_into_py(
-            py,
-            self.clone().next(|| Error::StopAsyncIteration),
-        )
-    }
-
-    #[inline]
     fn __enter__(slf: PyRef<Self>) -> PyRef<Self> {
         slf
-    }
-
-    #[inline]
-    async fn __aenter__(slf: Py<Self>) -> PyResult<Py<Self>> {
-        Ok(slf)
     }
 
     #[inline]
@@ -147,6 +129,27 @@ impl Streamer {
     ) {
         py.detach(|| self.0.blocking_lock().take());
     }
+}
+
+#[pymethods]
+impl Streamer {
+    #[inline]
+    fn __aiter__(slf: PyRef<Self>) -> PyRef<Self> {
+        slf
+    }
+
+    #[inline]
+    fn __anext__<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
+        pyo3_async_runtimes::tokio::future_into_py(
+            py,
+            self.clone().next(|| Error::StopAsyncIteration),
+        )
+    }
+
+    #[inline]
+    async fn __aenter__(slf: Py<Self>) -> PyResult<Py<Self>> {
+        Ok(slf)
+    }
 
     #[inline]
     async fn __aexit__(
@@ -158,8 +161,8 @@ impl Streamer {
         let this = self.0.clone();
         NoGIL::new(
             async move {
-                if let Some(a) = this.lock().await.take() {
-                    drop(a)
+                if let Some(resp) = this.lock().await.take() {
+                    drop(resp)
                 }
                 Ok(())
             },
