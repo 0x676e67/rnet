@@ -1,0 +1,804 @@
+
+Unreleased
+- 2026-02-12 docs: fix api docs (#509)
+- 2026-02-11 chore: update docs theme
+- 2026-02-11 Update mkdocs.yaml
+- 2026-02-11 Update .readthedocs.yaml
+- 2026-02-11 Update .readthedocs.yaml to include apt packages
+- 2026-02-11 Update .readthedocs.yaml
+- 2026-02-11 Fix benchmark link in documentation
+- 2026-02-11 Delete docs/README.md
+- 2026-02-11 Update .readthedocs.yaml
+- 2026-02-11 Update .readthedocs.yaml
+- 2026-02-11 chore: update docs module (#508)
+- 2026-02-11 docs(stream): Improve comments on GIL acquisition
+- 2026-02-11 docs(response): clarify close() method behavior and recommend context managers (#507)
+- 2026-02-11 chore(deps): update pyo3 to 0.28 (#506)
+- 2026-02-11 build(deps): Update arc-swap dependency to version 1.8.0
+- 2026-02-10 Modify rectangle corner radius in scrapedo.svg
+- 2026-01-31 build(deps): update indexmap dependency to version 2.13.0 (#503)
+- 2026-01-23 Update link
+- 2026-01-23 Update links
+- 2026-01-23 Update link
+- 2026-01-23 Update new Sponsors
+- 2026-01-19 build(deps): bump actions/setup-python from 5 to 6 (#500)
+- 2026-01-19 build(deps): bump actions/checkout from 4 to 6 (#499)
+- 2026-01-19 chore: fix docs format
+- 2026-01-19 docs: update documentation site
+- 2026-01-19 Update Sponsors
+- 2026-01-17 docs: add documentation site (#498)
+
+3.0.0-rc20
+- 2026-01-17 v3.0.0-rc20
+- 2026-01-17 Remove Python files from .gitignore
+- 2026-01-17 build: fix compiled wheels being unusable (#497)
+- 2026-01-17 feat(runtime): add async task cancellation support (#495)
+- 2026-01-17 feat(cookie): remove deprecated cookie add APIs (#492)
+- 2026-01-17 build(deps): bump wreq version to 6.0.0-rc.27 (#496)
+- 2026-01-16 feat(http): implement rich comparison for `StatusCode` with integers (#490)
+- 2026-01-16 perf(response): reduce response initialization overhead (#494)
+- 2026-01-16 Update README.md
+- 2026-01-15 feat(request): allow setting compressed and uncompressed cookies (#491)
+- 2026-01-12 chore: Add .csv and .py files to .gitignore
+- 2026-01-12 test(cookie): improve cookie update tests (#487)
+- 2026-01-11 perf(config): Avoid unnecessary configurations (#488)
+- 2026-01-10 docs(python): clean up `KeyLog` class documentation
+- 2026-01-08 chore(cookie): simplify getter methods by removing inline attributes (#484)
+- 2026-01-08 perf(identity): optimize mTLS identity creation performance (#485)
+- 2026-01-08 Add Certificate Store feature to README
+- 2026-01-08 docs(client): update client configuration parameters (#482)
+- 2026-01-07 refactor(response): refactor `TlsInfo` extension wrapper (#481)
+- 2026-01-07 deps: Update tokio dependency version to 1.49.0
+- 2026-01-07 docs(tls): Fix duplicate field in TlsOptions class
+- 2026-01-07 docs(cookie): fix compression parameter type in cookie constructor (#480)
+- 2026-01-07 feat(cookie): consolidate cookie methods into a unified `add()` (#479)
+- 2026-01-06 feat(client): expose client cookie jar access (#477)
+- 2026-01-06 build: mutually exclusive `jemalloc`/`mimalloc` allocator features (#478)
+- 2026-01-06 Fix typo in README for Original Header
+- 2026-01-06 Update links in README.md
+
+3.0.0-rc17
+- 2025-12-31 v3.0.0-rc17
+- 2025-12-31 feat(emulation): update emulation device enums (#475)
+- 2025-12-31 build(deps): bump `wreq` version to 6.0.0-rc.26 (#474)
+- 2025-12-25 Add HTTP Trailer feature to README
+
+3.0.0-rc16
+- 2025-12-22 v3.0.0-rc16
+- 2025-12-22 docs(stream): Introduce Frame enum with PyBuffer variant
+- 2025-12-21 feat(response): introduce trailers support (#467)
+- 2025-12-21 docs(python): Add `ProxyConnectionError` to exceptions list
+- 2025-12-20 feat(error): add `ProxyConnectionError` for proxy connection errors (#464)
+- 2025-12-20 feat(client): enforce proper usage of custom cookie provider (#463)
+- 2025-12-20 Remove cmake dependency pinning from CI
+- 2025-12-19 Update README.md
+
+3.0.0-rc15
+- 2025-12-16 v3.0.0-rc15
+- 2025-12-16 docs(python): use `T | None` instead of `Optional[T]` for type hints (#460)
+- 2025-12-16 perf(client): improve client create performance (#459)
+- 2025-12-15 build(deps): bump actions/upload-artifact from 5 to 6 (#457)
+- 2025-12-15 build(deps): bump actions/download-artifact from 6 to 7 (#458)
+- 2025-12-15 Update documentation URL in pyproject.toml
+- 2025-12-15 chore(header): simplify header extraction (#456)
+- 2025-12-15 perf(client): improve request send performance (#455)
+- 2025-12-14 refactor(client): replace numeric duration values with `datetime.timedelta` (#454)
+- 2025-12-14 docs(python): update document prompt (#453)
+- 2025-12-14 chore(stream): fmt code
+- 2025-12-14 Remove name field from Cargo.toml
+- 2025-12-14 feat(proxy): implement __str__ for `Proxy` class (#452)
+- 2025-12-14 chore: simplify type extraction (#451)
+- 2025-12-13 fix build
+- 2025-12-13 feat(request): allow per-request cookie provider (#450)
+- 2025-12-13 feat(proxy): move to proxy module and support unix sockets (#449)
+- 2025-12-13 feat(cookie): add optional cookie jar compression strategy (#448)
+- 2025-12-13 chore: update examples
+- 2025-12-13 feat(exception): remove unused `URLParseError` exception types (#447)
+- 2025-12-11 feat(redirect): refactor redirect policy with callback support (#440)
+- 2025-12-09 Clarify Body enum documentation
+- 2025-12-08 chore(body): fmt code
+- 2025-12-08 chore(stream): fmt code
+- 2025-12-08 perf(stream): prevent GIL blocking tokio workers (#444)
+- 2025-12-04 chore: fmt code
+- 2025-12-04 feat(resp): implement `__str__` for response class (#439)
+- 2025-12-04 refactor(dns): remove unused exception types (#437)
+- 2025-12-04 chore: fmt code
+- 2025-12-04 feat(client/request): add dual-stack local IP address binding (#436)
+- 2025-12-03 chore(parser): refactor legacy parameter extraction (#435)
+- 2025-12-03 feat(request): auto-convert multiple types in query/form parameters (#434)
+- 2025-12-03 Improve wording in benchmark section of README
+- 2025-12-03 chore(bench): improve benchmark tests (#433)
+- 2025-12-03 chore(request): streamline request responsibility modules (#430)
+- 2025-12-03 Remove unnecessary comment in README
+- 2025-12-03 refactor(rt): migrate async runtime to `pyo3-async-runtimes` (#428)
+- 2025-12-02 chore(bench): update benchmark
+- 2025-12-02 Update rnet installation command in README
+
+3.0.0-rc14
+- 2025-12-02 v3.0.0-rc14
+- 2025-12-02 chore(response): change methods to consume self instead of borrowing
+- 2025-12-02 perf(response): fix async API blocking the runtime (#427)
+- 2025-11-28 fix(client): handle multi-value default headers without overriding requests (#425)
+- 2025-11-26 chore(examples): fmt code
+- 2025-11-23 build(deps): bump actions/checkout from 5 to 6 (#423)
+
+3.0.0-rc13
+- 2025-11-21 v3.0.0-rc13
+- 2025-11-21 chore: fmt code
+- 2025-11-21 chore(cookie): remove redundant signature bindings (#422)
+- 2025-11-20 chore(python): fix example
+- 2025-11-20 chore: fmt code (#420)
+- 2025-11-18 Update README
+- 2025-11-18 Update links and add emojis in README
+- 2025-11-18 Update sponsor
+- 2025-11-18 Update README to remove obsolete information
+- 2025-11-17 Update README to remove outdated Dockerfile link
+- 2025-11-17 Delete src/status.rs
+- 2025-11-08 docs(python): replace `List` with `Sequence` for immutable returns (#417)
+- 2025-11-08 chore(future): refactor poll method to use provided context directly (#416)
+
+3.0.0-rc12
+- 2025-11-07 v3.0.0-rc12
+- 2025-11-07 docs(python): replace `Union` with `|` operator in type hints (#413)
+- 2025-11-07 fix(response): fix body reuse (#412)
+- 2025-11-07 feat(uri): percent-encode spaces when building request URLs (#411)
+- 2025-11-07 Remove inline attribute from async and sync next methods
+- 2025-11-07 perf(ws): optimize recv function with inline attribute
+- 2025-11-07 feat: add Chrome 142 emulation support (#409)
+- 2025-11-05 fuck httpbin (#407)
+- 2025-11-05 feat(client): adapt overriding domain name resolution address (#386)
+- 2025-11-05 Revert "Update PyPI Downloads badge for personalized display"
+- 2025-11-05 chore(module): use flat module structure (#406)
+- 2025-10-29 Update PyPI Downloads badge for personalized display
+- 2025-10-27 build(deps): bump actions/upload-artifact from 4 to 5 (#403)
+- 2025-10-27 build(deps): bump actions/download-artifact from 5 to 6 (#402)
+- 2025-10-27 Reorder Services section in README.md
+- 2025-10-26 chore(body): fmt code (#401)
+- 2025-10-24 feat(request): support `form`/`json` type in `body` data (#400)
+- 2025-10-24 feat(request): support dict type in query data (#399)
+- 2025-10-24 update
+- 2025-10-22 Revert "ci: Add wheels for release"
+
+3.0.0-rc10
+- 2025-10-21 v3.0.0-rc10
+- 2025-10-21 feat(emulation): Add chrome141 emulation (#396)
+- 2025-10-20 ci: Add wheels for release
+- 2025-10-20 Update maturin version in CI workflow
+- 2025-10-20 Update README.md
+- 2025-10-20 chore
+- 2025-10-20 chore
+- 2025-10-19 chore(deps): update pyo3 to 0.27 (#394)
+- 2025-10-19 chore: update examples
+- 2025-10-19 chore(module): use flat module structure
+- 2025-10-19 Update Musllinux section in README
+- 2025-10-19 refactor(core): reduce dependency on `futures` (#393)
+- 2025-10-17 perf(json): zero-copy string deserialization (#392)
+- 2025-10-17 feat(request): support dict type in form data (#391)
+- 2025-10-17 Update README to remove Manylinux compilation details
+- 2025-10-17 perf(rt): optimize async runtime scheduling
+- 2025-10-16 perf(rt): optimize async runtime scheduling (#387)
+- 2025-10-13 docs(python): improve type hints (#383)
+- 2025-10-13 build(deps): bump astral-sh/setup-uv from 6 to 7 (#381)
+- 2025-10-13 build(deps): bump actions/checkout from 4 to 5 (#380)
+- 2025-10-13 Revise README description for HTTP client
+- 2025-10-11 build: Add abi3-py313 dependency to Cargo.toml (#378)
+
+3.0.0-rc9
+- 2025-10-09 v3.0.0-rc9
+- 2025-10-09 ci: prebuild Android wheels (#376)
+- 2025-10-09 ci: fix windows aarch64 build (#375)
+- 2025-10-07 ci: add build for free-threaded Python wheel (#372)
+- 2025-10-04 build(deps): bump actions/checkout from 3 to 5 (#367)
+- 2025-10-04 build(deps): bump actions/download-artifact from 4 to 5 (#368)
+- 2025-10-04 build(deps): bump actions/attest-build-provenance from 1 to 3 (#369)
+- 2025-10-04 build(deps): bump astral-sh/setup-uv from 5 to 6 (#370)
+- 2025-10-04 build(deps): bump actions/setup-python from 5 to 6 (#371)
+- 2025-10-04 Update Dependabot configuration for package ecosystems
+
+3.0.0-rc8
+- 2025-10-03 v3.0.0-rc8
+- 2025-09-29 perf: cache hot PyString calls using `pyo3::intern!` macro (#365)
+- 2025-09-28 refactor: replace PyO3 `downcast` with `cast` (#362)
+- 2025-09-27 Revert "Remove Sponsors"
+
+3.0.0-rc7
+- 2025-09-26 v3.0.0-rc7
+- 2025-09-26 Add rustfmt and clippy components to CI workflow
+- 2025-09-21 Add readme and repository fields to Cargo.toml
+- 2025-09-21 Remove Sponsors
+- 2025-09-21 Update FUNDING.yml to include custom sponsorship link
+- 2025-09-21 feat(emulation): Add safari ios/ipad 26 emulation (#361)
+- 2025-09-21 docs(python): fix some LSP hints (#360)
+- 2025-09-20 Add commercial support section to README
+- 2025-09-19 feat(emulation): add Chrome(138–140), Firefox(140,142), Safari26 (#358)
+- 2025-09-19 chore(http2): re-export `StreamId` as public Class
+- 2025-09-18 docs(python): rename `SettingOrder` to `SettingsOrder` (#356)
+- 2025-09-18 docs(http2): align Python enum member names with PascalCase convention (#354)
+- 2025-09-18 docs(python): improve documentation for HTTP/2 configuration enums (#353)
+- 2025-09-17 docs(python): fix `SettingId` dcos
+- 2025-09-17 feat(client): Add `verify_hostname` option binding (#351)
+- 2025-09-17 feat(client): Add HTTP/TLS binding API (#350)
+- 2025-09-16 Update README.md
+- 2025-09-16 Add keylog.txt and JSON files to .gitignore
+- 2025-09-15 Add Sponsors
+
+3.0.0-rc6
+- 2025-09-13 v3.0.0-rc6
+- 2025-09-13 docs(python): update exceptions docs
+- 2025-09-12 feat(resp): add raise_for_status() for error handling (#347)
+- 2025-09-12 fix(rt): prevent GIL from stalling background Rust future tasks (#346)
+- 2025-09-09 feat(resp): allow reuse in free-threaded mode (#343)
+
+3.0.0-rc5
+- 2025-09-05 v3.0.0-rc5
+- 2025-09-05 build(deps): bump wreq version to 6.0.0-rc.14 (#340)
+- 2025-09-05 style(benchmark): fmt code
+- 2025-09-05 docs(python): fix  response `content_length` API docs (#339)
+- 2025-09-05 Refactor README for building and development sections
+- 2025-09-05 perf(msg): eliminate borrow checker overhead
+- 2025-09-05 Update license
+- 2025-09-05 Update README with OS and browser emulation details
+- 2025-09-05 Update copyright year and owner in LICENSE file
+- 2025-09-04 docs(python): fmt code
+- 2025-09-04 chore(deps): update rust crate pyo3 to 0.26 ( (#338)
+- 2025-09-04 docs(python): fix multiple Python LSP API warnings (#337)
+- 2025-09-04 revert(client): remove `http2_max_retry_count` option (#336)
+- 2025-09-04 perf(ws): eliminate borrow checker overhead (#335)
+- 2025-09-04 docs(python): improve documentation for response parameters
+- 2025-09-04 docs(python): improve documentation for client and request parameters (#334)
+- 2025-09-03 Refine descriptions in README.md
+- 2025-09-03 docs(python): fix cookie initialization API docs (#333)
+- 2025-09-03 Remove Documentation section from README
+- 2025-09-03 Revise BoringSSL build instructions in README
+- 2025-09-03 style(ws): fmt code
+- 2025-09-03 feat(ws): allow message batching to reduce buffer flushes (#331)
+- 2025-09-03 feat(multipart): allow setting headers and stream upload length (#329)
+- 2025-09-03 chore(python): update examples
+
+3.0.0-rc3
+- 2025-09-03 v3.0.0-rc3
+- 2025-09-03 refactor(response): `peer_certificate` as read-only property (#327)
+- 2025-09-03 docs(python): fix response history API docs (#326)
+- 2025-09-02 refactor(response): remove encoding readonly property (#324)
+- 2025-09-02 perf(pyclass): eliminate borrow checker overhead (#323)
+- 2025-09-02 feat(response): allow accessing redirect history in response (#322)
+- 2025-09-02 style(body): fmt code
+- 2025-09-02 Update examples section in README.md
+- 2025-09-02 style(client): fmt code
+- 2025-09-02 refactor(header): streamline `HeaderMap` iterators (#321)
+- 2025-09-02 perf(stream): channel-based iteration, drop locks (#320)
+- 2025-09-02 style(buffer): fmt code
+- 2025-09-02 refactor(buffer): restructure buffer protocol (#319)
+- 2025-09-02 style: fmt code
+- 2025-09-01 feat(response): reuse buffered response body (#318)
+- 2025-08-31 refactor(ws): drop iterator impl (#317)
+- 2025-08-31 chore(ws): fmt code
+- 2025-08-31 feat(ws): WebSocket support for `recv()` timeout (#316)
+- 2025-08-31 build(deps): bump `wreq` version to 6.0.0-rc.11
+- 2025-08-31 docs(python): remove unused import (#315)
+- 2025-08-30 Update prerelease condition in CI workflow
+
+3.0.0-rc2
+- 2025-08-28 v3.0.0-rc2
+- 2025-08-28 chore(deps):  remove unused dependencies
+- 2025-08-28 revert: `perf(async): release Python GIL during async operations`
+- 2025-08-28 feat(response): return local address used for the request (#313)
+- 2025-08-28 chore(client): remove unimplemented no_keepalive option (#312)
+- 2025-08-28 docs(python): simplify documentation parameter types (#311)
+- 2025-08-28 refactor(request): remove string proxy support (#310)
+
+3.0.0-rc1
+- 2025-08-23 v3.0.0-rc1
+- 2025-08-23 Update examples
+- 2025-08-23 feat(header): preserve HTTP/1 case and header order (#303)
+- 2025-08-22 Update benchmark
+- 2025-08-22 perf(header): zero-copy creation of header values (#302)
+- 2025-08-17 docs(python): fix cookie store API docs
+- 2025-08-16 chore(tls): remove duplicate TLS version bindings (#298)
+- 2025-08-15 feat(tls): add TLS keylog support via `KeyLogPolicy` (#296)
+- 2025-08-15 docs(python): update tls module documention
+- 2025-08-15 docs(python): rename .pyi stubs to .py for wider type checker support (#295)
+- 2025-08-14 feat(tls): expose flexible cert store binding (#294)
+- 2025-08-14 feat(tls): support private key and X509 cert as client certificate (#293)
+- 2025-08-14 test(request): add test for disabling default headers
+- 2025-08-14 perf(async): release Python GIL during async operations (#291)
+- 2025-08-14 perf(client): inline hot-path request methods for reduced call overhead (#290)
+- 2025-08-14 docs(python): update tcp socket documentation (#289)
+- 2025-08-14 refactor(blocking): move blocking API to `python.blocking` and unify type names (#288)
+- 2025-08-11 Update README.md
+- 2025-08-11 build(deps): compile optional memory allocator (#285)
+- 2025-08-11 refactor(typing): simplify Python class `__str__` magic method impls (#284)
+- 2025-08-11 docs(python): update cookie documentation
+- 2025-08-10 docs(python): update pyi documentation (#281)
+- 2025-08-10 feat(exception): add TLS and WebSocket exception types and handling (#280)
+- 2025-08-10 refactor(response): simplify status code API (#279)
+- 2025-08-10 feat(client): support TCP socket SO_REUSEADDR option (#278)
+- 2025-08-10 feat(request): optional per-request decompression setting (#277)
+- 2025-08-10 feat(cookie): retrieve all cookies from the cookie jar (#276)
+- 2025-08-10 Prepare for v3 (#275)
+- 2025-08-05 build(deps): wheel drops support for versions prior to 3.11 (#271)
+
+2.4.2
+- 2025-08-02 v2.4.2
+- 2025-08-02 fix(redirect): fix request-level redirect (#268)
+- 2025-08-02 refactor(module): separate typing responsibilities
+
+2.4.1
+- 2025-07-31 v2.4.1
+- 2025-07-30 refactor(module): separate stream responsibilities
+- 2025-07-30 build(deps): bump `tokio` version to 1.47.0
+- 2025-07-30 refactor(module): separate param responsibilities
+- 2025-07-30 Delete src/async_impl/response directory
+- 2025-07-30 feat(client): set default values for TCP keepalive and user_timeout (#265)
+- 2025-07-30 refactor(module): separate client responsibilities
+- 2025-07-30 style: rustfmt
+- 2025-07-26 Create FUNDING.yml
+
+2.4.0
+- 2025-07-24 v2.4.0
+- 2025-07-24 feat(cookie): adopt browser-style uncompressed cookie format (#260)
+- 2025-07-12 feat: Add `safari 18_5` impersonate (#257)
+
+2.3.9
+- 2025-07-04 v2.3.9
+- 2025-07-04 feat(header): allow default fallback in `Response.headers.get()` (#254)
+- 2025-07-04 docs(response): Fix return type of `Response.json()` method (#253)
+
+2.3.8
+- 2025-07-01 v2.3.8
+- 2025-06-29 Update README.md
+- 2025-06-29 benchmark: Fix thread count
+- 2025-06-29 benchmark: Fix latest version of aiohttp benchmark
+- 2025-06-29 perf: release GIL during submodule initialization (#246)
+- 2025-06-29 docs: split Python stub module (#244)
+- 2025-06-28 Update ci.yml
+
+2.3.7
+- 2025-06-28 v2.3.7
+- 2025-06-28 fix(docs): Fix type annotation errors (#243)
+
+2.3.6
+- 2025-06-27 v2.3.6
+- 2025-06-27 fix(header): Fix HeaderMap `append` API behavior (#240)
+- 2025-06-27 feat(header): Provide comprehensive HeaderMap API bindings (#239)
+- 2025-06-27 chore: Add exceptions examples (#238)
+- 2025-06-26 Update README.md
+- 2025-06-26 Update README.md
+- 2025-06-26 bench: Add `niquests` benchmark (#236)
+
+2.3.3
+- 2025-06-23 v2.3.3
+- 2025-06-23 update docs
+- 2025-06-23 docs: fix proxy class typing
+- 2025-06-23 docs: fix proxy class typing (#234)
+- 2025-06-23 docs(proxy): document proxy parameter accepting HeaderMap (#232)
+- 2025-06-23 feat(enums): Add `Chrome137` and `Firefox139` impersonate (#230)
+- 2025-06-22 Update README.md
+- 2025-06-22 bench: Introduce initial benchmark to evaluate HTTP client throughput and latency (#229)
+- 2025-06-21 Update README.md
+
+2.3.1
+- 2025-06-19 v2.3.1
+- 2025-06-19 feat: Add Opera 116/117/118/119 impersonate (#228)
+
+2.3.0
+- 2025-06-18 v2.3.0
+- 2025-06-18 build(jemallocator): exclude dependency on Linux GNU targets (#224)
+- 2025-06-18 docs: update docs
+- 2025-06-15 revert: remove Unpack[TypedDict] from class init method (#217)
+- 2025-06-15 docs: try to resolve Pylance trigger issues (#216)
+- 2025-06-15 docs: remove unused import
+
+2.2.12
+- 2025-06-10 v2.2.12
+- 2025-06-10 feat(impersonate): implement random built-in `ImpersonateOption` (#214)
+- 2025-06-10 docs: Simplify parameter descriptions (#213)
+
+2.2.11
+- 2025-05-30 v2.2.11
+- 2025-05-30 ci: release Python 3.14 wheels (#211)
+- 2025-05-27 feat: Python bindings now support subclass inheritance for classes (#209)
+
+2.2.10
+- 2025-05-24 v2.2.10
+- 2025-05-24 docs(ws): update WebSocket message property type (#207)
+- 2025-05-22 refactor(async_impl): Use async style for `Response.close()` to match async conventions (#206)
+- 2025-05-22 style: fmt lifecycle identifiers (#205)
+- 2025-05-21 build(deps): update pyo3 requirement from 0.24.2 to 0.25.0 (#200)
+- 2025-05-11 chore: fmt macros
+
+2.2.9
+- 2025-05-11 v2.2.9
+- 2025-05-11 fix(enums): Fix missing enum bindings (#199)
+- 2025-05-11 feat(header): `HeaderMap` distinguishes between append and overwrite APIs (#197)
+- 2025-05-11 Update README.md
+- 2025-05-09 update learning deepwiki include
+
+2.2.8
+- 2025-04-29 v2.2.8
+- 2025-04-29 feat(client): http1 headers uppercase conversion by default
+- 2025-04-29 feat(client): http1 headers uppercase conversion by default (#192)
+- 2025-04-29 v2.2.7
+- 2025-04-29 feat(error): fix and export exceptions (#190)
+- 2025-04-29 docs: update `SocketAddr` `__repr__` API docs (#188)
+- 2025-04-29 ci: ignore `*.pyi` check
+- 2025-04-29 chore: update docs
+- 2025-04-29 chore: clean up exported macro templates
+
+2.2.6
+- 2025-04-27 v2.2.6
+- 2025-04-27 chore: update examples
+- 2025-04-27 docs: fix Jetbrains family bucket tooltips (#187)
+- 2025-04-27 docs: manually maintain Python API documentation (#186)
+
+2.2.5
+- 2025-04-27 v2.2.5
+- 2025-04-27 docs: clean up redundant doc comments
+- 2025-04-27 feat(typing): add chrome/110 impersonate (#185)
+- 2025-04-26 docs(ipaddr): update ipaddr docs
+- 2025-04-26 feat(client): partially update and append client headers (#184)
+- 2025-04-26 feat(client): update client headers partially rather than overwriting them (#182)
+- 2025-04-26 build(deps): update pyo3-stub-gen requirement from 0.7.0 to 0.8.0 (#183)
+- 2025-04-26 Update README.md
+- 2025-04-26 chore(examples): update examples
+- 2025-04-17 ci: use ubuntu-latest
+- 2025-04-11 Update README.md
+
+2.2.1
+- 2025-04-03 v2.2.1
+- 2025-04-03 feat(header): adapt multiple value sequences of key mapping (#179)
+- 2025-04-03 feat(proxy): clone and reuse proxy objects (#178)
+
+2.2.0
+- 2025-03-30 v2.2.0
+- 2025-03-30 feat(proxy): enhanced websocket request level proxy definition (#175)
+- 2025-03-29 chore(docs): delete unused docs
+- 2025-03-27 refactor(typing): refactor type extractors (#173)
+
+2.1.5
+- 2025-03-27 v2.1.5
+- 2025-03-27 fix(typing): fix `SameSite` enum binding mapping error (#172)
+- 2025-03-26 perf(proxy): release the GIL when creating proxy (#170)
+- 2025-03-26 docs: format rnet.pyi
+- 2025-03-26 fix(proxy): fix typo (#169)
+
+2.1.1
+- 2025-03-25 v2.1.1
+- 2025-03-25 feat(headers): adapt `HeaderMap` to support repeated headers (#166)
+- 2025-03-24 chore(deps): upgrade dependencies
+- 2025-03-23 style(ws): fmt code
+- 2025-03-23 build: update python dependency-groups (#165)
+- 2025-03-23 style(typing): fmt code
+- 2025-03-23 perf: optimizing type conversions
+- 2025-03-23 perf(ws): zero-copy creation of websocket messages (#164)
+- 2025-03-23 fix(client): updating client can overwrite verify option (#163)
+- 2025-03-22 Update README.md
+- 2025-03-21 docs: generate docs conditionally to minimize binary size (#161)
+- 2025-03-21 docs(status): Improve StatusCode `__repr__` implement (#160)
+- 2025-03-21 docs(json): Improve `Json` type hints (#159)
+- 2025-03-21 Update Sponsors
+
+2.1.0
+- 2025-03-20 v2.1.0
+- 2025-03-20 feat(stream): streaming transfers supports `str` chunks (#155)
+- 2025-03-20 style: fmt code
+- 2025-03-20 chore(error): refactor exception error handling (#154)
+- 2025-03-19 chore(body): remove redundant type conversions
+- 2025-03-19 feat: allow inheritance of `Client` and `BlockingClient` in python (#152)
+- 2025-03-19 build(deps): remove unused `log` dependencies (#153)
+- 2025-03-19 Update LICENSE
+
+2.0.5
+- 2025-03-19 v2.0.5
+- 2025-03-19 perf: zero-copy transfers (#149)
+- 2025-03-19 Update README.md
+- 2025-03-19 feat(typing): add safari/18_3_1 impersonate (#146)
+- 2025-03-19 Update README.md
+- 2025-03-19 style: clippy fix
+- 2025-03-19 chore: recombination module
+- 2025-03-19 chore: update style
+- 2025-03-19 feat(proxy): enhanced request level proxy definition (#145)
+- 2025-03-19 perf(typing): remove obsolete wrapper of request body (#144)
+- 2025-03-19 fix(tests): update `self-signed.badssl.com` certificate test (#143)
+
+2.0.0
+- 2025-03-18 v2.0.0
+- 2025-03-18 build: add free-threaded package support (#142)
+- 2025-03-18 update rnet.pyi
+- 2025-03-18 chore: update examples
+- 2025-03-18 feat: add `chrome 134` impersonate (#140)
+- 2025-03-17 chore: use macros to simplify Python buffer implementation (#139)
+- 2025-03-17 refactor(cookie): refactor cookie API signature (#134)
+- 2025-03-16 style: fmt code
+- 2025-03-16 perf(header): Use buffer protocol in `HeaderMap` to reduce copying (#136)
+- 2025-03-16 fix(ws/client): Adapt to the scenario of duplicate keys in HeaderMap
+- 2025-03-15 fix(header): Adapt to the scenario of duplicate keys in HeaderMap (#135)
+- 2025-03-14 chore: rename header type conversion
+- 2025-03-14 Rename badssl.py to badssl_test.py
+- 2025-03-14 chore: rename some APIs
+- 2025-03-14 feat: Adopt `requests` style API for client SSL certificate verification (#132)
+- 2025-03-14 build(deps): remove unused dependencies (#131)
+- 2025-03-14 build(deps): update pyo3 requirement from 0.23.5 to 0.24.0 (#123)
+- 2025-03-14 build(deps): update pyo3-async-runtimes requirement (#130)
+
+1.7.0
+- 2025-03-12 v1.7.0
+- 2025-03-12 Update ci.yml
+- 2025-03-12 build(deps): update indexmap requirement from 2.7.0 to 2.8.0 (#128)
+- 2025-03-12 Update rnet.pyi
+- 2025-03-12 perf(ws): prevent deep copy of message data (#127)
+- 2025-03-10 style(ws): fmt code
+- 2025-03-10 Update README.md
+- 2025-03-10 feat(ws): Added read_buffer_size optional config (#126)
+- 2025-03-10 feat(ws): HTTP/2 support for WebSocket (#125)
+- 2025-03-10 build(deps): update rquest requirement from 2.2.1 to 3.0.5 (#124)
+- 2025-03-09 Update ci.yml
+- 2025-03-08 build: upgrade dependencies (#122)
+- 2025-03-08 chore: rename some APIs
+- 2025-03-08 Update README.md
+
+1.6.5
+- 2025-03-06 v1.6.5
+- 2025-03-06 perf(body): Optimize data copying in request body sending (#120)
+- 2025-03-06 fix(stream): fix asynchronous stream sending (#119)
+- 2025-03-05 Update ci.yml
+- 2025-03-04 perf(cookie): Attempt to convert a `Bytes` buffer to a `HeaderValue` (#117)
+- 2025-03-04 Update issue templates
+
+1.6.1
+- 2025-03-03 v1.6.1
+- 2025-03-03 build(deps): pin futures-util v0.3.31
+- 2025-03-03 build: `MSRV 1.85` / `edition 2024` (#115)
+- 2025-03-03 perf: Zero-copy extraction of request parameters (#114)
+- 2025-03-02 style(enums): fmt code
+- 2025-03-02 chore: Move macros
+- 2025-03-02 style: fmt code
+- 2025-03-02 perf(cookie): Zero-copy cookies extraction (#113)
+- 2025-03-02 perf(error): allow #[inline(always)] errors (#112)
+- 2025-03-02 perf(async_impl): allow #[inline(always)] cookies (#111)
+
+1.6.0
+- 2025-03-02 v1.6.0
+- 2025-03-02 chore: update docs
+- 2025-03-02 refactor: rename APIs to better match their use casesca
+- 2025-03-02 refactor: rename APIs to better match their use cases (#110)
+- 2025-03-02 style: fmt code
+- 2025-03-02 perf: reduce cookie and header data copying (#109)
+- 2025-03-02 feat: remove unsupported `CONNECT` request method (#108)
+- 2025-03-02 chore: update examples
+- 2025-03-01 update docs
+- 2025-03-01 update rnet.pyi
+- 2025-03-01 style: fmt code
+- 2025-03-01 perf: Use zero-copy param for Python to Rust conversion (#107)
+- 2025-03-01 perf: Use zero-copy strings for Python to Rust conversion (#106)
+- 2025-03-01 perf(client): Improve performance of client cookie setting (#105)
+- 2025-03-01 perf: Use byte buffer for WebSocket message body (#104)
+- 2025-03-01 perf(blocking): allow `#[inline(always)]` cookies (#103)
+
+1.5.6
+- 2025-03-01 v1.5.6
+- 2025-03-01 perf(stream): Fine-grained handling of GIL release for synchronized iterators
+- 2025-03-01 Update rnet.pyi
+- 2025-03-01 style: fmt code
+- 2025-03-01 feat(http/ws): Handling stream read errors (#102)
+- 2025-03-01 perf(stream): Release the GIL while the Stream is waiting for the future (#101)
+- 2025-02-28 feat: avoid returning unnecessary data after connection is closed (#100)
+
+1.5.5
+- 2025-02-28 v1.5.5
+- 2025-02-28 feat(ws): return error when sending/receiving after websocket disconnect (#99)
+- 2025-02-28 chore: Refactor headers order parameter extract
+- 2025-02-28 perf(client): Remove duplicate type conversions (#98)
+- 2025-02-28 refactor: Module types renamed to typing
+- 2025-02-28 perf: Improved streaming body delivery (#97)
+- 2025-02-28 perf(ws): Optimize websocket message processing (#96)
+- 2025-02-28 feat(client): allow setting TLS version range (#95)
+- 2025-02-28 chore: Simplify some type conversions (#94)
+
+1.5.2
+- 2025-02-28 v1.5.2
+- 2025-02-28 tests: update request tests (#93)
+- 2025-02-28 chore(buffer): fmt code
+- 2025-02-28 tests: update tests
+- 2025-02-28 chore: fmt code
+- 2025-02-28 feat: Added request to set cookie dictionary (#92)
+- 2025-02-28 style: fmt code
+- 2025-02-28 update
+- 2025-02-28 feat(types): Wrapped indexmap type document generation
+- 2025-02-28 feat(types): Wrapped indexmap type document generation (#91)
+- 2025-02-28 docs: Fix client cookie documents (#90)
+
+1.5.0
+- 2025-02-27 v1.5.0
+- 2025-02-27 chore: fix typo
+- 2025-02-27 docs: Fix type documentation generation (#88)
+- 2025-02-27 Update README.md
+- 2025-02-27 chore: Integrate enum module (#87)
+- 2025-02-27 feat: Remove unused `json` API (#86)
+
+1.3.1
+- 2025-02-27 v1.3.1
+- 2025-02-27 Update rnet.pyi
+- 2025-02-27 perf: Implementing the Python Buffer Protocol (#85)
+- 2025-02-26 feat: Adapt sync bytes stream body and upload (#84)
+- 2025-02-26 tests: Added send body request tests (#83)
+- 2025-02-26 feat(ws): Add response code attribute to WebSocket response (#82)
+- 2025-02-26 style: fmt code
+- 2025-02-26 feat: adapt bytes stream body and upload (#80)
+- 2025-02-26 build(deps): Remove unused dependencies (#79)
+- 2025-02-26 feat(async_impl): Remove `__anext__` redundant `Option` wrapper (#78)
+
+1.3.0
+- 2025-02-26 v1.3.0
+- 2025-02-26 feat: Implement context management for WebSocket Response (#77)
+- 2025-02-26 feat: Implement context management for HTTP Response (#76)
+- 2025-02-26 fix: change `&'a mut` self to `&self` to avoid runtime errors (#75)
+- 2025-02-26 refactor: Reorganized module exports (#73)
+- 2025-02-26 perf(blocking): Stream iteration abandons the GIL lock (#72)
+
+1.2.0
+- 2025-02-25 v1.2.0
+- 2025-02-25 perf(blocking): Send a request to relinquish the GIL (#71)
+- 2025-02-25 refactor: Reorganized module exports
+- 2025-02-25 style: fmt code
+- 2025-02-25 feat: Blocking API and client support (#70)
+- 2025-02-25 refactor: Reorganized module exports (#68)
+- 2025-02-25 fix(deps): Fix no_proxy on Windows (#67)
+- 2025-02-25 style: fmt code (#66)
+- 2025-02-24 feat(client): Added optional DNS lookup ip strategy (#65)
+
+1.0.1
+- 2025-02-24 v1.0.1
+- 2025-02-24 build: Minimum required Python version is 3.7 (#64)
+- 2025-02-24 feat: prepares the use of Python in a free-threaded context (#63)
+- 2025-02-24 build(deps): update rquest requirement from 2.1.6 to 2.2.0 (#62)
+
+1.0.0
+- 2025-02-23 v1.0.0
+- 2025-02-23 Update README.md
+- 2025-02-23 tests: Improve tests
+- 2025-02-23 tests: Added alps new endpoint test (#61)
+- 2025-02-23 chore(stream): update docs
+- 2025-02-23 build(deps): update rquest requirement from 2.1.5 to 2.1.6 (#60)
+- 2025-02-23 chore: fmt code
+- 2025-02-23 feat(ws): Ensure websocket connection is released when closed (#59)
+- 2025-02-23 Update pyproject.toml
+- 2025-02-23 Integrate client module
+- 2025-02-23 build: fix windows using pyo3/generate-import-lib (#58)
+- 2025-02-23 perf(http): Release locks early during stream iteration (#57)
+- 2025-02-22 perf(http): Optimize the overhead of boundary checks for streaming response types (#56)
+- 2025-02-22 feat: Added max redirects option parameter (#55)
+- 2025-02-22 docs(dns): update docs
+- 2025-02-22 build: Added support for Windows arm64 wheel package (#54)
+- 2025-02-22 build: fix windows aarch64 using `pyo3/generate-import-lib` (#53)
+- 2025-02-22 chore: ignore `uv.lock`
+
+0.6.1
+- 2025-02-22 v0.6.1
+- 2025-02-22 Update README.md
+- 2025-02-22 feat: Added multipart file upload (#51)
+- 2025-02-22 fix(types): Fix FFI enum type binding documentation generation (#50)
+- 2025-02-21 feat: Added websocket optional config (#49)
+- 2025-02-20 Update README.md
+
+0.6.0
+- 2025-02-20 v0.6.0
+- 2025-02-20 update docs
+- 2025-02-20 feat(client): An asynchronous DNS resolver is used by default (#45)
+- 2025-02-20 chore: fmt code
+- 2025-02-20 Update README.md
+- 2025-02-20 build: Lower glibc version requirements (#44)
+- 2025-02-20 docs(client): fix typo (#43)
+
+0.5.1
+- 2025-02-19 v0.5.1
+- 2025-02-19 feat(proxy): Enhanced proxy settings binding (#42)
+- 2025-02-19 fix(proxy): Update proxy creation instructions and fix all methods (#41)
+
+0.5.0
+- 2025-02-18 v0.5.0
+- 2025-02-18 perf(client): Reuse default client to improve quick request efficiency (#40)
+- 2025-02-18 feat: Asynchronous DNS is disabled by default in client (#39)
+- 2025-02-18 feat: Added bridge from Rust to Python logging (#38)
+- 2025-02-18 chore: update `UpdateClientParams` usage documents
+- 2025-02-18 Update README.md
+- 2025-02-18 docs: update rnet.pyi documents
+- 2025-02-18 feat(client): Optionally enable asynchronous DNS resolver (#37)
+- 2025-02-18 feat(client): Added thread-safe update client (#36)
+- 2025-02-18 chore(error): Improving Rust's borrowed memory management errors (#35)
+- 2025-02-18 tests: Add base url test
+- 2025-02-18 feat: Add private mode Firefox135 support  (#34)
+- 2025-02-18 feat: Add `base_url` for client (#33)
+
+0.2.6
+- 2025-02-17 v0.2.6
+- 2025-02-17 refactor: refactor websocket implement
+- 2025-02-17 chore: remove dead code
+- 2025-02-17 feat: Initial support for websocket (#32)
+- 2025-02-17 feat: Add jemallocator to improve memory allocation performance (#31)
+- 2025-02-17 Update README.md
+
+0.2.5
+- 2025-02-17 v0.2.5
+- 2025-02-17 Update README.md
+- 2025-02-17 feat: Add Chrome133/Firefox135/Firefox Android135 (#30)
+
+0.2.4
+- 2025-02-16 v0.2.4
+- 2025-02-16 build: update manylinux build (#29)
+- 2025-02-16 feat(response): Return an integer representing the HTTP status code (#28)
+- 2025-02-16 chore: fmt code
+- 2025-02-16 chore: update docs (#27)
+
+0.2.3
+- 2025-02-15 v0.2.3
+- 2025-02-15 test: Add decompress tests (#26)
+- 2025-02-15 Update ci.yml
+- 2025-02-15 Delete .github/workflows/style.yml
+- 2025-02-15 chore: update workflows
+- 2025-02-15 fix: Fix address/interface bindings (#25)
+- 2025-02-15 test: Add auth request test
+- 2025-02-15 Add tests (#24)
+- 2025-02-15 fix(resp): Fix cookie parser (#23)
+- 2025-02-15 chore: fmt code
+- 2025-02-14 feat(client): Improve impersonate FFI (#22)
+- 2025-02-14 perf(resp): Reduce the range of GIL locks (#21)
+- 2025-02-14 perf: Initialize and optimize Python module without requiring GIL (#20)
+
+0.2.2
+- 2025-02-14 v0.2.2
+- 2025-02-14 Update rnet.pyi
+- 2025-02-14 feat(resp): Expose `Streamer` as public API (#19)
+- 2025-02-14 feat: Shortcut method request support redirect (#18)
+- 2025-02-14 feat(resp): Wrapper easy-to-use `StatusCode` (#17)
+- 2025-02-14 build: Fix manylinux build (#16)
+- 2025-02-14 v0.2.1
+- 2025-02-14 Update README.md
+- 2025-02-14 feat(client): Add redirect option (#15)
+- 2025-02-14 feat(client): Add cookie store option (#14)
+- 2025-02-14 Update README.md
+- 2025-02-13 build: ignore branch push trigger
+
+0.2.0
+- 2025-02-13 v0.2.0
+- 2025-02-13 build: update release action
+- 2025-02-13 build: Add workflow build (#13)
+- 2025-02-13 style: fmt code (#12)
+- 2025-02-13 Update README.md
+- 2025-02-13 build: Add style.yml action
+- 2025-02-13 chore: update docs
+- 2025-02-13 Update README.md
+- 2025-02-13 feat(client): Adapt client basic request bindings (#11)
+- 2025-02-12 feat: Add proxy binding
+- 2025-02-12 chore: Update `HeaderMap`  gen stub pymethods
+- 2025-02-12 feat: Improve the basic body request (#10)
+- 2025-02-12 feat(headers): implement `__str__` for HeaderMap
+- 2025-02-12 Add stub_gen bin
+- 2025-02-12 chore: Update Python SocketAddr type information
+- 2025-02-12 chore: Update Python HeaderMap type information
+- 2025-02-12 chore: Update Python HeaderMap type information
+- 2025-02-12 chore: Update Python type information
+- 2025-02-12 chore: Adding Python type information
+- 2025-02-12 build: Generate import libraries for Python DLL for MinGW-w64 and MSVC (cross-)compile targets
+- 2025-02-12 feat(resp): Allows thread-safe operation of Response (#9)
+- 2025-02-12 Create README.md
+- 2025-02-12 perf(resp): Improve drop response overhead (#8)
+- 2025-02-12 feat: Implement `str` for `Impersonate`
+- 2025-02-12 chore: Remove `#[allow(dead_code)]`
+- 2025-02-12 Improve Shortcut method request
+- 2025-02-12 feat: Complete the basic shortcut request (#7)
+- 2025-02-11 feat(response): Add cookies support (#6)
+- 2025-02-11 Create dependabot.yml
+- 2025-02-11 Update crate information
+- 2025-02-11 Update LICENSE
+- 2025-02-11 feat(response): Add streaming support (#5)
+- 2025-02-11 feat(response): Add `content_length` getter default zero
+- 2025-02-11 feat(response): Add `encoding` getter (#4)
+- 2025-02-11 chore: update `get` docs
+- 2025-02-11 chore: Delete unused dependencies
+- 2025-02-11 feat(method): method implement `__str__`
+- 2025-02-11 feat: Complete basic request response bindings (#3)
+- 2025-02-10 Create LICENSE
+- 2025-02-10 Init commit
+
+
