@@ -80,9 +80,9 @@ impl Proxy {
     }
 
     /// Creates a new UNIX domain socket proxy.
-    #[allow(unused)]
     #[staticmethod]
     #[pyo3(signature = (path, **kwds))]
+    #[cfg_attr(not(unix), allow(unused))]
     fn unix(py: Python, path: &str, kwds: Option<Builder>) -> PyResult<Self> {
         #[cfg(not(unix))]
         {
@@ -106,20 +106,20 @@ fn create_proxy<'py>(
     py: Python<'py>,
     proxy_fn: fn(&'py str) -> wreq::Result<wreq::Proxy>,
     url: &'py str,
-    kwds: Option<Builder>,
+    builder: Option<Builder>,
 ) -> PyResult<Proxy> {
     py.detach(|| {
         // Create base proxy using the provided constructor (http, https, all)
         let mut proxy = proxy_fn(url).map_err(Error::Library)?;
 
-        if let Some(params) = kwds {
+        if let Some(builder) = builder {
             // Convert the username and password to a basic auth header value.
-            if let (Some(username), Some(password)) = (params.username, params.password) {
+            if let Some((username, password)) = builder.username.zip(builder.password) {
                 proxy = proxy.basic_auth(username.as_ref(), password.as_ref());
             }
 
             // Convert the custom HTTP auth string to a header value.
-            if let Some(Ok(custom_http_auth)) = params
+            if let Some(Ok(custom_http_auth)) = builder
                 .custom_http_auth
                 .map(Bytes::from_owner)
                 .map(HeaderValue::from_maybe_shared)
@@ -128,12 +128,12 @@ fn create_proxy<'py>(
             }
 
             // Convert the custom HTTP headers to a HeaderMap instance.
-            if let Some(custom_http_headers) = params.custom_http_headers {
+            if let Some(custom_http_headers) = builder.custom_http_headers {
                 proxy = proxy.custom_http_headers(custom_http_headers.0);
             }
 
             // Convert the exclusion list string to a NoProxy instance.
-            if let Some(exclusion) = params.exclusion {
+            if let Some(exclusion) = builder.exclusion {
                 proxy = proxy.no_proxy(wreq::NoProxy::from_string(exclusion.as_ref()));
             }
         }
