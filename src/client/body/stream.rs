@@ -256,4 +256,3 @@ impl Stream for PyStream {
         }
     }
 }
-
