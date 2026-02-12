@@ -6,13 +6,13 @@ use pyo3::{
     pybacked::{PyBackedBytes, PyBackedStr},
     types::PyTuple,
 };
-use wreq::{Body, multipart, multipart::Form};
+use wreq::{Body, multipart};
 
 use crate::{client::body::PyStream, error::Error, header::HeaderMap};
 
 /// A multipart form for a request.
 #[pyclass(subclass)]
-pub struct Multipart(pub Option<Form>);
+pub struct Multipart(pub Option<multipart::Form>);
 
 #[pymethods]
 impl Multipart {
@@ -20,7 +20,7 @@ impl Multipart {
     #[new]
     #[pyo3(signature = (*parts))]
     pub fn new(parts: &Bound<PyTuple>) -> PyResult<Multipart> {
-        let mut form = Form::new();
+        let mut form = multipart::Form::new();
         for part in parts {
             let part = part.cast::<Part>()?;
             let mut part = part.borrow_mut();
@@ -32,6 +32,22 @@ impl Multipart {
                 .ok_or_else(|| Error::Memory)?;
         }
         Ok(Multipart(Some(form)))
+    }
+}
+
+impl FromPyObject<'_, '_> for Multipart {
+    type Error = PyErr;
+
+    fn extract(ob: Borrowed<PyAny>) -> PyResult<Self> {
+        let multipart = ob.cast::<Multipart>()?;
+        multipart
+            .borrow_mut()
+            .0
+            .take()
+            .map(Some)
+            .map(Self)
+            .ok_or_else(|| Error::Memory)
+            .map_err(Into::into)
     }
 }
 

@@ -166,7 +166,7 @@ impl WebSocket {
 
 impl Display for WebSocket {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "<{} [{}] >", stringify!(WebSocket), self.status.0,)
+        write!(f, "<{} [{}] >", stringify!(WebSocket), self.status.0)
     }
 }
 
@@ -281,18 +281,15 @@ impl BlockingWebSocket {
 }
 
 impl From<WebSocket> for BlockingWebSocket {
+    #[inline]
     fn from(inner: WebSocket) -> Self {
         Self(inner)
     }
 }
 
 impl Display for BlockingWebSocket {
+    #[inline]
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "<{} [{}] >",
-            stringify!(BlockingWebSocket),
-            self.0.status,
-        )
+        self.0.fmt(f)
     }
 }
