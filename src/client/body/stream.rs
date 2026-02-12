@@ -1,5 +1,4 @@
 use std::{
-    future,
     pin::Pin,
     sync::Arc,
     task::{Context, Poll},
@@ -9,13 +8,14 @@ use bytes::Bytes;
 use futures_util::{FutureExt, Stream, StreamExt, stream::BoxStream};
 use http_body_util::BodyExt;
 use pyo3::{
-    IntoPyObjectExt, intern,
+    coroutine::CancelHandle,
+    intern,
     prelude::*,
     pybacked::{PyBackedBytes, PyBackedStr},
 };
 use tokio::{sync::Mutex, task::JoinHandle};
 
-use crate::{buffer::PyBuffer, error::Error, header::HeaderMap};
+use crate::{buffer::PyBuffer, client::nogil::NoGIL, error::Error, header::HeaderMap};
 
 type Pending = Option<JoinHandle<Option<PyResult<PyBytesLike>>>>;
 
@@ -133,14 +133,13 @@ impl Streamer {
     }
 
     #[inline]
-    fn __aenter__<'py>(slf: PyRef<'py, Self>, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
-        let slf = slf.into_py_any(py)?;
-        pyo3_async_runtimes::tokio::future_into_py(py, future::ready(Ok(slf)))
+    async fn __aenter__(slf: Py<Self>) -> PyResult<Py<Self>> {
+        Ok(slf)
     }
 
     #[inline]
     fn __exit__<'py>(
-        &mut self,
+        &self,
         py: Python,
         _exc_type: &Bound<'py, PyAny>,
         _exc_value: &Bound<'py, PyAny>,
@@ -150,22 +149,23 @@ impl Streamer {
     }
 
     #[inline]
-    fn __aexit__<'py>(
-        &mut self,
-        py: Python<'py>,
-        _exc_type: &Bound<'py, PyAny>,
-        _exc_value: &Bound<'py, PyAny>,
-        _traceback: &Bound<'py, PyAny>,
-    ) -> PyResult<Bound<'py, PyAny>> {
+    async fn __aexit__(
+        &self,
+        _exc_type: Py<PyAny>,
+        _exc_val: Py<PyAny>,
+        _traceback: Py<PyAny>,
+    ) -> PyResult<()> {
         let this = self.0.clone();
-        pyo3_async_runtimes::tokio::future_into_py(py, async move {
-            this.lock()
-                .await
-                .take()
-                .map(drop)
-                .map(PyResult::Ok)
-                .transpose()
-        })
+        NoGIL::new(
+            async move {
+                if let Some(a) = this.lock().await.take() {
+                    drop(a)
+                }
+                Ok(())
+            },
+            CancelHandle::new(),
+        )
+        .await
     }
 }
 

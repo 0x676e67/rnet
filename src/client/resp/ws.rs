@@ -1,10 +1,10 @@
 mod cmd;
 pub mod msg;
 
-use std::{fmt::Display, future, time::Duration};
+use std::{fmt::Display, time::Duration};
 
 use msg::Message;
-use pyo3::{IntoPyObjectExt, coroutine::CancelHandle, prelude::*, pybacked::PyBackedStr};
+use pyo3::{coroutine::CancelHandle, prelude::*, pybacked::PyBackedStr};
 use tokio::sync::mpsc;
 use wreq::{
     header::HeaderValue,
@@ -12,7 +12,7 @@ use wreq::{
 };
 
 use crate::{
-    client::{SocketAddr, future::AllowThreads},
+    client::{SocketAddr, nogil::NoGIL},
     cookie::Cookie,
     error::Error,
     header::HeaderMap,
@@ -105,7 +105,7 @@ impl WebSocket {
         timeout: Option<Duration>,
     ) -> PyResult<Option<Message>> {
         let tx = self.cmd.clone();
-        AllowThreads::new(cmd::recv(tx, timeout), cancel).await
+        NoGIL::new(cmd::recv(tx, timeout), cancel).await
     }
 
     /// Send a message to the WebSocket.
@@ -116,7 +116,7 @@ impl WebSocket {
         message: Message,
     ) -> PyResult<()> {
         let tx = self.cmd.clone();
-        AllowThreads::new(cmd::send(tx, message), cancel).await
+        NoGIL::new(cmd::send(tx, message), cancel).await
     }
 
     /// Send multiple messages to the WebSocket.
@@ -127,7 +127,7 @@ impl WebSocket {
         messages: Vec<Message>,
     ) -> PyResult<()> {
         let tx = self.cmd.clone();
-        AllowThreads::new(cmd::send_all(tx, messages), cancel).await
+        NoGIL::new(cmd::send_all(tx, messages), cancel).await
     }
 
     /// Close the WebSocket connection.
@@ -139,28 +139,26 @@ impl WebSocket {
         reason: Option<PyBackedStr>,
     ) -> PyResult<()> {
         let tx = self.cmd.clone();
-        AllowThreads::new(cmd::close(tx, code, reason), cancel).await
+        NoGIL::new(cmd::close(tx, code, reason), cancel).await
     }
 }
 
 #[pymethods]
 impl WebSocket {
     #[inline]
-    fn __aenter__<'py>(slf: PyRef<'py, Self>, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
-        let slf = slf.into_py_any(py)?;
-        pyo3_async_runtimes::tokio::future_into_py(py, future::ready(Ok(slf)))
+    async fn __aenter__(slf: Py<Self>) -> PyResult<Py<Self>> {
+        Ok(slf)
     }
 
     #[inline]
-    fn __aexit__<'py>(
+    async fn __aexit__(
         &self,
-        py: Python<'py>,
-        _exc_type: &Bound<'py, PyAny>,
-        _exc_value: &Bound<'py, PyAny>,
-        _traceback: &Bound<'py, PyAny>,
-    ) -> PyResult<Bound<'py, PyAny>> {
+        _exc_type: Py<PyAny>,
+        _exc_val: Py<PyAny>,
+        _traceback: Py<PyAny>,
+    ) -> PyResult<()> {
         let tx = self.cmd.clone();
-        pyo3_async_runtimes::tokio::future_into_py(py, cmd::close(tx, None, None))
+        NoGIL::new(cmd::close(tx, None, None), CancelHandle::new()).await
     }
 }
 
