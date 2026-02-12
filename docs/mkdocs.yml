@@ -15,22 +15,24 @@ extra:
 theme:
   name: material
   palette:
-    # Light mode (default) - listed first to be the default
     - media: "(prefers-color-scheme)"
-      scheme: default
-      primary: blue
-      accent: light green
       toggle:
-        icon: material/brightness-7
+        icon: material/link
+        name: Switch to light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/toggle-switch
         name: Switch to dark mode
-    # Dark mode
     - media: "(prefers-color-scheme: dark)"
       scheme: slate
-      primary: indigo
-      accent: blue
+      primary: black
+      accent: indigo
       toggle:
-        icon: material/brightness-4
-        name: Switch to light mode
+        icon: material/toggle-switch-off
+        name: Switch to system preference
   features:
     - navigation.tabs
     - navigation.sections
