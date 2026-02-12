@@ -116,18 +116,18 @@ class Response:
         Close the response.
 
         **Current behavior:**
-        
+
         - When connection pooling is **disabled**: This method closes the network connection.
         - When connection pooling is **enabled**: This method closes the response, prevents further body reads,
           and returns the connection to the pool for reuse.
 
         **Future changes:**
-        
+
         In future versions, this method will be changed to always close the network connection regardless of
         whether connection pooling is enabled or not.
 
         **Recommendation:**
-        
+
         It is **not recommended** to manually call this method at present. Instead, use context managers
         (with statement) to properly manage response lifecycle. Wait for the improved implementation
         in future versions.
@@ -265,6 +265,7 @@ class Client:
 
         ```python
         import rnet
+        import rnet.blocking
         from rnet import Method
 
         client = rnet.blocking.Client()
@@ -281,6 +282,7 @@ class Client:
 
         ```python
         import rnet
+        import rnet.blocking
 
         client = rnet.blocking.Client()
         ws = client.websocket("wss://echo.websocket.org")
@@ -304,6 +306,7 @@ class Client:
 
         ```python
         import rnet
+        import rnet.blocking
         from rnet import Method
 
         client = rnet.blocking.Client()
@@ -325,6 +328,7 @@ class Client:
 
         ```python
         import rnet
+        import rnet.blocking
         from rnet import Method
 
         client = rnet.blocking.Client()
@@ -346,9 +350,9 @@ class Client:
 
         ```python
         import rnet
+        import rnet.blocking
         from rnet import Method
 
-        def main():
         client = rnet.blocking.Client()
         response = client.head("https://httpbin.io/anything")
         print(response.text())
@@ -368,6 +372,7 @@ class Client:
 
         ```python
         import rnet
+        import rnet.blocking
         from rnet import Method
 
         client = rnet.blocking.Client()
@@ -389,6 +394,7 @@ class Client:
 
         ```python
         import rnet
+        import rnet.blocking
         from rnet import Method
 
         client = rnet.blocking.Client()
@@ -410,6 +416,7 @@ class Client:
 
         ```python
         import rnet
+        import rnet.blocking
         from rnet import Method
 
         client = rnet.blocking.Client()
@@ -431,6 +438,7 @@ class Client:
 
         ```python
         import rnet
+        import rnet.blocking
         from rnet import Method
 
         client = rnet.blocking.Client()
@@ -452,6 +460,7 @@ class Client:
 
         ```python
         import rnet
+        import rnet.blocking
         from rnet import Method
 
         client = rnet.blocking.Client()
@@ -460,3 +469,214 @@ class Client:
         ```
         """
         ...
+
+
+def delete(
+    url: str,
+    **kwargs: Unpack[Request],
+) -> "Response":
+    r"""
+    Shortcut method to quickly make a request.
+
+    # Examples
+
+    ```python
+    import rnet
+    import rnet.blocking
+
+    response = rnet.blocking.delete("https://httpbin.io/anything")
+    print(response.text())
+    ```
+    """
+    ...
+
+
+def get(
+    url: str,
+    **kwargs: Unpack[Request],
+) -> "Response":
+    r"""
+    Shortcut method to quickly make a request.
+
+    # Examples
+
+    ```python
+    import rnet
+    import rnet.blocking
+
+    response = rnet.blocking.get("https://httpbin.io/anything")
+    print(response.text())
+    ```
+    """
+    ...
+
+
+def head(
+    url: str,
+    **kwargs: Unpack[Request],
+) -> "Response":
+    r"""
+    Shortcut method to quickly make a request.
+
+    # Examples
+
+    ```python
+    import rnet
+    import rnet.blocking
+
+    response = rnet.blocking.head("https://httpbin.io/anything")
+    print(response.status)
+    ```
+    """
+    ...
+
+
+def options(
+    url: str,
+    **kwargs: Unpack[Request],
+) -> "Response":
+    r"""
+    Shortcut method to quickly make a request.
+
+    # Examples
+
+    ```python
+    import rnet
+    import rnet.blocking
+
+    response = rnet.blocking.options("https://httpbin.io/anything")
+    print(response.status)
+    ```
+    """
+    ...
+
+
+def patch(
+    url: str,
+    **kwargs: Unpack[Request],
+) -> "Response":
+    r"""
+    Shortcut method to quickly make a request.
+
+    # Examples
+
+    ```python
+    import rnet
+    import rnet.blocking
+
+    response = rnet.blocking.patch("https://httpbin.io/anything", json={"key": "value"})
+    print(response.text())
+    ```
+    """
+    ...
+
+
+def post(
+    url: str,
+    **kwargs: Unpack[Request],
+) -> "Response":
+    r"""
+    Shortcut method to quickly make a request.
+
+    # Examples
+
+    ```python
+    import rnet
+    import rnet.blocking
+
+    response = rnet.blocking.post("https://httpbin.io/anything", json={"key": "value"})
+    print(response.text())
+    ```
+    """
+    ...
+
+
+def put(
+    url: str,
+    **kwargs: Unpack[Request],
+) -> "Response":
+    r"""
+    Shortcut method to quickly make a request.
+
+    # Examples
+
+    ```python
+    import rnet
+    import rnet.blocking
+
+    response = rnet.blocking.put("https://httpbin.io/anything", json={"key": "value"})
+    print(response.text())
+    ```
+    """
+    ...
+
+
+def request(
+    method: Method,
+    url: str,
+    **kwargs: Unpack[Request],
+) -> "Response":
+    r"""
+    Make a request with the given parameters.
+
+    # Arguments
+
+    * `method` - The method to use for the request.
+    * `url` - The URL to send the request to.
+    * `**kwargs` - Additional request parameters.
+
+    # Examples
+
+    ```python
+    import rnet
+    import rnet.blocking
+    from rnet import Method
+
+    response = rnet.blocking.request(Method.GET, "https://www.rust-lang.org")
+    print(response.text())
+    ```
+    """
+    ...
+
+
+def trace(
+    url: str,
+    **kwargs: Unpack[Request],
+) -> "Response":
+    r"""
+    Shortcut method to quickly make a request.
+
+    # Examples
+
+    ```python
+    import rnet
+    import rnet.blocking
+
+    response = rnet.blocking.trace("https://httpbin.io/anything")
+    print(response.status)
+    ```
+    """
+    ...
+
+
+def websocket(
+    url: str,
+    **kwargs: Unpack[WebSocketRequest],
+) -> "WebSocket":
+    r"""
+    Make a WebSocket connection with the given parameters.
+
+    # Examples
+
+    ```python
+    import rnet
+    import rnet.blocking
+
+    ws = rnet.blocking.websocket("wss://echo.websocket.org")
+    ws.send(rnet.Message.from_text("Hello, World!"))
+    message = ws.recv()
+    print("Received:", message.data)
+    ws.close()
+    ```
+    """
+    ...

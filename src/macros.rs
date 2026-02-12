@@ -85,14 +85,6 @@ macro_rules! define_enum {
                     $(<$enum_type>::$rust_variant => <$ffi_type>::$ffi_variant,)*
                 }
             }
-
-            pub fn from_ffi(ffi: $ffi_type) -> Self {
-                #[allow(unreachable_patterns)]
-                match ffi {
-                    $(<$ffi_type>::$ffi_variant => <$enum_type>::$rust_variant,)*
-                    _ => unreachable!(),
-                }
-            }
         }
     };
 

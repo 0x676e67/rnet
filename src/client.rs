@@ -241,6 +241,7 @@ pub struct Client {
 }
 
 /// A blocking client for making HTTP requests.
+#[derive(Default)]
 #[pyclass(name = "Client", subclass, frozen, skip_from_py_object)]
 pub struct BlockingClient(Client);
 
