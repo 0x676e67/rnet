@@ -86,7 +86,9 @@ def record_test_result(
 ) -> Dict[str, Any]:
     """Record benchmark test results"""
     dur = round((time.perf_counter() - start_time) * 1000, 2)  # Convert to milliseconds
-    cpu_dur = round((time.process_time() - cpu_start) * 1000, 2)  # Convert to milliseconds
+    cpu_dur = round(
+        (time.process_time() - cpu_start) * 1000, 2
+    )  # Convert to milliseconds
 
     result = {
         "name": name,

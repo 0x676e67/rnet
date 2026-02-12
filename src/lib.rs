@@ -26,7 +26,7 @@ use client::{
         Streamer,
         multipart::{Multipart, Part},
     },
-    req::{Request, WebSocketRequest},
+    req::WebSocketRequest,
     resp::{BlockingResponse, BlockingWebSocket, Message, Response, WebSocket},
 };
 use cookie::{Cookie, Jar, SameSite};
@@ -65,113 +65,252 @@ static GLOBAL: tikv_jemallocator::Jemalloc = tikv_jemallocator::Jemalloc;
 #[global_allocator]
 static GLOBAL: mimalloc::MiMalloc = mimalloc::MiMalloc;
 
-/// Make a GET request with the given parameters.
-#[inline]
-#[pyfunction]
-#[pyo3(signature = (url, **kwds))]
-pub async fn get(
-    #[pyo3(cancel_handle)] cancel: CancelHandle,
-    url: PyBackedStr,
-    kwds: Option<Request>,
-) -> PyResult<Response> {
-    request(cancel, Method::GET, url, kwds).await
+mod r#async {
+    use crate::client::{
+        Client,
+        req::Request,
+        req::WebSocketRequest,
+        resp::{Response, WebSocket},
+    };
+    use crate::http::Method;
+    use pyo3::{coroutine::CancelHandle, prelude::*, pybacked::PyBackedStr};
+
+    /// Make a GET request with the given parameters.
+    #[inline]
+    #[pyfunction]
+    #[pyo3(signature = (url, **kwds))]
+    pub async fn get(
+        #[pyo3(cancel_handle)] cancel: CancelHandle,
+        url: PyBackedStr,
+        kwds: Option<Request>,
+    ) -> PyResult<Response> {
+        request(cancel, Method::GET, url, kwds).await
+    }
+
+    /// Make a POST request with the given parameters.
+    #[inline]
+    #[pyfunction]
+    #[pyo3(signature = (url, **kwds))]
+    pub async fn post(
+        #[pyo3(cancel_handle)] cancel: CancelHandle,
+        url: PyBackedStr,
+        kwds: Option<Request>,
+    ) -> PyResult<Response> {
+        request(cancel, Method::POST, url, kwds).await
+    }
+
+    /// Make a PUT request with the given parameters.
+    #[inline]
+    #[pyfunction]
+    #[pyo3(signature = (url, **kwds))]
+    pub async fn put(
+        #[pyo3(cancel_handle)] cancel: CancelHandle,
+        url: PyBackedStr,
+        kwds: Option<Request>,
+    ) -> PyResult<Response> {
+        request(cancel, Method::PUT, url, kwds).await
+    }
+
+    /// Make a PATCH request with the given parameters.
+    #[inline]
+    #[pyfunction]
+    #[pyo3(signature = (url, **kwds))]
+    pub async fn patch(
+        #[pyo3(cancel_handle)] cancel: CancelHandle,
+        url: PyBackedStr,
+        kwds: Option<Request>,
+    ) -> PyResult<Response> {
+        request(cancel, Method::PATCH, url, kwds).await
+    }
+
+    /// Make a DELETE request with the given parameters.
+    #[inline]
+    #[pyfunction]
+    #[pyo3(signature = (url, **kwds))]
+    pub async fn delete(
+        #[pyo3(cancel_handle)] cancel: CancelHandle,
+        url: PyBackedStr,
+        kwds: Option<Request>,
+    ) -> PyResult<Response> {
+        request(cancel, Method::DELETE, url, kwds).await
+    }
+
+    /// Make a HEAD request with the given parameters.
+    #[inline]
+    #[pyfunction]
+    #[pyo3(signature = (url, **kwds))]
+    pub async fn head(
+        #[pyo3(cancel_handle)] cancel: CancelHandle,
+        url: PyBackedStr,
+        kwds: Option<Request>,
+    ) -> PyResult<Response> {
+        request(cancel, Method::HEAD, url, kwds).await
+    }
+
+    /// Make a OPTIONS request with the given parameters.
+    #[inline]
+    #[pyfunction]
+    #[pyo3(signature = (url, **kwds))]
+    pub async fn options(
+        #[pyo3(cancel_handle)] cancel: CancelHandle,
+        url: PyBackedStr,
+        kwds: Option<Request>,
+    ) -> PyResult<Response> {
+        request(cancel, Method::OPTIONS, url, kwds).await
+    }
+
+    /// Make a TRACE request with the given parameters.
+    #[inline]
+    #[pyfunction]
+    #[pyo3(signature = (url, **kwds))]
+    pub async fn trace(
+        #[pyo3(cancel_handle)] cancel: CancelHandle,
+        url: PyBackedStr,
+        kwds: Option<Request>,
+    ) -> PyResult<Response> {
+        request(cancel, Method::TRACE, url, kwds).await
+    }
+
+    /// Make a request with the given parameters.
+    #[inline]
+    #[pyfunction]
+    #[pyo3(signature = (method, url, **kwds))]
+    pub async fn request(
+        #[pyo3(cancel_handle)] cancel: CancelHandle,
+        method: Method,
+        url: PyBackedStr,
+        kwds: Option<Request>,
+    ) -> PyResult<Response> {
+        Client::default().request(cancel, method, url, kwds).await
+    }
+
+    /// Make a WebSocket connection with the given parameters.
+    #[inline]
+    #[pyfunction]
+    #[pyo3(signature = (url, **kwds))]
+    pub async fn websocket(
+        #[pyo3(cancel_handle)] cancel: CancelHandle,
+        url: PyBackedStr,
+        kwds: Option<WebSocketRequest>,
+    ) -> PyResult<WebSocket> {
+        Client::default().websocket(cancel, url, kwds).await
+    }
 }
 
-/// Make a POST request with the given parameters.
-#[inline]
-#[pyfunction]
-#[pyo3(signature = (url, **kwds))]
-pub async fn post(
-    #[pyo3(cancel_handle)] cancel: CancelHandle,
-    url: PyBackedStr,
-    kwds: Option<Request>,
-) -> PyResult<Response> {
-    request(cancel, Method::POST, url, kwds).await
-}
+mod blocking {
+    use crate::client::{
+        BlockingClient,
+        req::Request,
+        req::WebSocketRequest,
+        resp::{BlockingResponse, BlockingWebSocket},
+    };
+    use crate::http::Method;
+    use pyo3::{prelude::*, pybacked::PyBackedStr};
 
-/// Make a PUT request with the given parameters.
-#[inline]
-#[pyfunction]
-#[pyo3(signature = (url, **kwds))]
-pub async fn put(
-    #[pyo3(cancel_handle)] cancel: CancelHandle,
-    url: PyBackedStr,
-    kwds: Option<Request>,
-) -> PyResult<Response> {
-    request(cancel, Method::PUT, url, kwds).await
-}
+    /// Make a GET request with the given parameters (blocking).
+    #[inline]
+    #[pyfunction]
+    #[pyo3(signature = (url, **kwds))]
+    pub fn get(py: Python, url: PyBackedStr, kwds: Option<Request>) -> PyResult<BlockingResponse> {
+        request(py, Method::GET, url, kwds)
+    }
 
-/// Make a PATCH request with the given parameters.
-#[inline]
-#[pyfunction]
-#[pyo3(signature = (url, **kwds))]
-pub async fn patch(
-    #[pyo3(cancel_handle)] cancel: CancelHandle,
-    url: PyBackedStr,
-    kwds: Option<Request>,
-) -> PyResult<Response> {
-    request(cancel, Method::PATCH, url, kwds).await
-}
+    /// Make a POST request with the given parameters (blocking).
+    #[inline]
+    #[pyfunction]
+    #[pyo3(signature = (url, **kwds))]
+    pub fn post(py: Python, url: PyBackedStr, kwds: Option<Request>) -> PyResult<BlockingResponse> {
+        request(py, Method::POST, url, kwds)
+    }
 
-/// Make a DELETE request with the given parameters.
-#[inline]
-#[pyfunction]
-#[pyo3(signature = (url, **kwds))]
-pub async fn delete(
-    #[pyo3(cancel_handle)] cancel: CancelHandle,
-    url: PyBackedStr,
-    kwds: Option<Request>,
-) -> PyResult<Response> {
-    request(cancel, Method::DELETE, url, kwds).await
-}
+    /// Make a PUT request with the given parameters (blocking).
+    #[inline]
+    #[pyfunction]
+    #[pyo3(signature = (url, **kwds))]
+    pub fn put(py: Python, url: PyBackedStr, kwds: Option<Request>) -> PyResult<BlockingResponse> {
+        request(py, Method::PUT, url, kwds)
+    }
 
-/// Make a HEAD request with the given parameters.
-#[inline]
-#[pyfunction]
-#[pyo3(signature = (url, **kwds))]
-pub async fn head(
-    #[pyo3(cancel_handle)] cancel: CancelHandle,
-    url: PyBackedStr,
-    kwds: Option<Request>,
-) -> PyResult<Response> {
-    request(cancel, Method::HEAD, url, kwds).await
-}
+    /// Make a PATCH request with the given parameters (blocking).
+    #[inline]
+    #[pyfunction]
+    #[pyo3(signature = (url, **kwds))]
+    pub fn patch(
+        py: Python,
+        url: PyBackedStr,
+        kwds: Option<Request>,
+    ) -> PyResult<BlockingResponse> {
+        request(py, Method::PATCH, url, kwds)
+    }
 
-/// Make a OPTIONS request with the given parameters.
-#[inline]
-#[pyfunction]
-#[pyo3(signature = (url, **kwds))]
-pub async fn options(
-    #[pyo3(cancel_handle)] cancel: CancelHandle,
-    url: PyBackedStr,
-    kwds: Option<Request>,
-) -> PyResult<Response> {
-    request(cancel, Method::OPTIONS, url, kwds).await
-}
+    /// Make a DELETE request with the given parameters (blocking).
+    #[inline]
+    #[pyfunction]
+    #[pyo3(signature = (url, **kwds))]
+    pub fn delete(
+        py: Python,
+        url: PyBackedStr,
+        kwds: Option<Request>,
+    ) -> PyResult<BlockingResponse> {
+        request(py, Method::DELETE, url, kwds)
+    }
 
-/// Make a TRACE request with the given parameters.
-#[inline]
-#[pyfunction]
-#[pyo3(signature = (url, **kwds))]
-pub async fn trace(
-    #[pyo3(cancel_handle)] cancel: CancelHandle,
-    url: PyBackedStr,
-    kwds: Option<Request>,
-) -> PyResult<Response> {
-    request(cancel, Method::TRACE, url, kwds).await
-}
+    /// Make a HEAD request with the given parameters (blocking).
+    #[inline]
+    #[pyfunction]
+    #[pyo3(signature = (url, **kwds))]
+    pub fn head(py: Python, url: PyBackedStr, kwds: Option<Request>) -> PyResult<BlockingResponse> {
+        request(py, Method::HEAD, url, kwds)
+    }
 
-/// Make a request with the given parameters.
-#[inline]
-#[pyfunction]
-#[pyo3(signature = (method, url, **kwds))]
-pub async fn request(
-    #[pyo3(cancel_handle)] cancel: CancelHandle,
-    method: Method,
-    url: PyBackedStr,
-    kwds: Option<Request>,
-) -> PyResult<Response> {
-    Client::default().request(cancel, method, url, kwds).await
+    /// Make a OPTIONS request with the given parameters (blocking).
+    #[inline]
+    #[pyfunction]
+    #[pyo3(signature = (url, **kwds))]
+    pub fn options(
+        py: Python,
+        url: PyBackedStr,
+        kwds: Option<Request>,
+    ) -> PyResult<BlockingResponse> {
+        request(py, Method::OPTIONS, url, kwds)
+    }
+
+    /// Make a TRACE request with the given parameters (blocking).
+    #[inline]
+    #[pyfunction]
+    #[pyo3(signature = (url, **kwds))]
+    pub fn trace(
+        py: Python,
+        url: PyBackedStr,
+        kwds: Option<Request>,
+    ) -> PyResult<BlockingResponse> {
+        request(py, Method::TRACE, url, kwds)
+    }
+
+    /// Make a request with the given parameters (blocking).
+    #[inline]
+    #[pyfunction]
+    #[pyo3(signature = (method, url, **kwds))]
+    pub fn request(
+        py: Python,
+        method: Method,
+        url: PyBackedStr,
+        kwds: Option<Request>,
+    ) -> PyResult<BlockingResponse> {
+        BlockingClient::default().request(py, method, url, kwds)
+    }
+
+    /// Make a WebSocket connection with the given parameters (blocking).
+    #[inline]
+    #[pyfunction]
+    #[pyo3(signature = (url, **kwds))]
+    pub fn websocket(
+        py: Python,
+        url: PyBackedStr,
+        kwds: Option<WebSocketRequest>,
+    ) -> PyResult<BlockingWebSocket> {
+        BlockingClient::default().websocket(py, url, kwds)
+    }
 }
 
 /// Make a WebSocket connection with the given parameters.
@@ -188,6 +327,8 @@ pub async fn websocket(
 
 #[pymodule(gil_used = false)]
 fn rnet(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
+    use r#async::{delete, get, head, options, patch, post, put, request, trace, websocket};
+
     Python::initialize();
 
     m.add_class::<SocketAddr>()?;
@@ -341,6 +482,19 @@ fn redirect_module(m: &Bound<'_, PyModule>) -> PyResult<()> {
 
 #[pymodule(gil_used = false, name = "blocking")]
 fn blocking_module(m: &Bound<'_, PyModule>) -> PyResult<()> {
+    use blocking::{delete, get, head, options, patch, post, put, request, trace, websocket};
+
+    m.add_function(wrap_pyfunction!(get, m)?)?;
+    m.add_function(wrap_pyfunction!(post, m)?)?;
+    m.add_function(wrap_pyfunction!(put, m)?)?;
+    m.add_function(wrap_pyfunction!(patch, m)?)?;
+    m.add_function(wrap_pyfunction!(delete, m)?)?;
+    m.add_function(wrap_pyfunction!(head, m)?)?;
+    m.add_function(wrap_pyfunction!(options, m)?)?;
+    m.add_function(wrap_pyfunction!(trace, m)?)?;
+    m.add_function(wrap_pyfunction!(request, m)?)?;
+    m.add_function(wrap_pyfunction!(websocket, m)?)?;
+
     m.add_class::<BlockingClient>()?;
     m.add_class::<BlockingResponse>()?;
     m.add_class::<BlockingWebSocket>()?;
