@@ -3,9 +3,7 @@ use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
 use pyo3::{FromPyObject, prelude::*, types::PyList};
 
 use crate::{
-    client::body::multipart::Multipart,
     emulation::{Emulation, EmulationOption},
-    error::Error,
     proxy::Proxy,
 };
 
@@ -43,20 +41,6 @@ impl FromPyObject<'_, '_> for Extractor<Vec<wreq::Proxy>> {
                 Ok::<_, PyErr>(list)
             })
             .map(Self)
-    }
-}
-
-impl FromPyObject<'_, '_> for Extractor<wreq::multipart::Form> {
-    type Error = PyErr;
-
-    fn extract(ob: Borrowed<PyAny>) -> PyResult<Self> {
-        let form = ob.cast::<Multipart>()?;
-        form.borrow_mut()
-            .0
-            .take()
-            .map(Self)
-            .ok_or_else(|| Error::Memory)
-            .map_err(Into::into)
     }
 }
 

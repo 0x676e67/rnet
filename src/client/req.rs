@@ -11,7 +11,7 @@ use wreq_util::EmulationOption;
 
 use crate::{
     client::{
-        body::{Body, Form, Json},
+        body::{Body, Form, Json, multipart::Multipart},
         query::Query,
         resp::{Response, WebSocket},
     },
@@ -100,11 +100,11 @@ pub struct Request {
     /// The JSON body to use for the request.
     json: Option<Json>,
 
+    /// The multipart form to use for the request.
+    multipart: Option<Multipart>,
+
     /// The body to use for the request.
     body: Option<Body>,
-
-    /// The multipart form to use for the request.
-    multipart: Option<Extractor<wreq::multipart::Form>>,
 }
 
 /// The parameters for a WebSocket request.
@@ -393,7 +393,12 @@ where
         // Body options.
         apply_option!(set_if_some_ref, builder, request.form, form);
         apply_option!(set_if_some_ref, builder, request.json, json);
-        apply_option!(set_if_some_inner, builder, request.multipart, multipart);
+        apply_option!(
+            set_if_some,
+            builder,
+            request.multipart.and_then(|form| form.0),
+            multipart
+        );
         apply_option!(
             set_if_some_map_try,
             builder,
