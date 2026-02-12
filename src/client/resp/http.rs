@@ -1,11 +1,11 @@
-use std::{fmt::Display, future, sync::Arc};
+use std::{fmt::Display, sync::Arc};
 
 use arc_swap::ArcSwapOption;
 use bytes::Bytes;
 use futures_util::TryFutureExt;
 use http::response::{Parts, Response as HttpResponse};
 use http_body_util::BodyExt;
-use pyo3::{IntoPyObjectExt, coroutine::CancelHandle, prelude::*, pybacked::PyBackedStr};
+use pyo3::{coroutine::CancelHandle, prelude::*, pybacked::PyBackedStr};
 use wreq::{self, Uri};
 
 use crate::{
@@ -13,7 +13,7 @@ use crate::{
     client::{
         SocketAddr,
         body::{Json, Streamer},
-        future::AllowThreads,
+        nogil::NoGIL,
         resp::ext::ResponseExt,
     },
     cookie::Cookie,
@@ -226,7 +226,7 @@ impl Response {
             .cache_response()
             .and_then(ResponseExt::text)
             .map_err(Into::into);
-        AllowThreads::new(fut, cancel).await
+        NoGIL::new(fut, cancel).await
     }
 
     /// Get the full response text given a specific encoding.
@@ -241,7 +241,7 @@ impl Response {
             .cache_response()
             .and_then(|resp| ResponseExt::text_with_charset(resp, encoding))
             .map_err(Into::into);
-        AllowThreads::new(fut, cancel).await
+        NoGIL::new(fut, cancel).await
     }
 
     /// Get the JSON content of the response.
@@ -251,7 +251,7 @@ impl Response {
             .cache_response()
             .and_then(ResponseExt::json::<Json>)
             .map_err(Into::into);
-        AllowThreads::new(fut, cancel).await
+        NoGIL::new(fut, cancel).await
     }
 
     /// Get the bytes content of the response.
@@ -262,7 +262,7 @@ impl Response {
             .and_then(ResponseExt::bytes)
             .map_ok(PyBuffer::from)
             .map_err(Into::into);
-        AllowThreads::new(fut, cancel).await
+        NoGIL::new(fut, cancel).await
     }
 
     /// Close the response.
@@ -280,29 +280,27 @@ impl Response {
     /// It is **not recommended** to manually call this method at present. Instead, use context managers
     /// (async with statement) to properly manage response lifecycle. Wait for the improved implementation
     /// in future versions.
-    pub fn close<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
-        py.detach(|| self.body.clone().swap(None));
-        pyo3_async_runtimes::tokio::future_into_py(py, future::ready(Ok(())))
+    pub async fn close(&self) -> PyResult<()> {
+        self.body.swap(None);
+        Ok(())
     }
 }
 
 #[pymethods]
 impl Response {
     #[inline]
-    fn __aenter__<'py>(slf: PyRef<'py, Self>, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
-        let slf = slf.into_py_any(py)?;
-        pyo3_async_runtimes::tokio::future_into_py(py, future::ready(Ok(slf)))
+    async fn __aenter__(slf: Py<Self>) -> PyResult<Py<Self>> {
+        Ok(slf)
     }
 
     #[inline]
-    fn __aexit__<'py>(
+    async fn __aexit__(
         &self,
-        py: Python<'py>,
-        _exc_type: &Bound<'py, PyAny>,
-        _exc_value: &Bound<'py, PyAny>,
-        _traceback: &Bound<'py, PyAny>,
-    ) -> PyResult<Bound<'py, PyAny>> {
-        self.close(py)
+        _exc_type: Py<PyAny>,
+        _exc_val: Py<PyAny>,
+        _traceback: Py<PyAny>,
+    ) -> PyResult<()> {
+        self.close().await
     }
 }
 

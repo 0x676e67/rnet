@@ -15,17 +15,17 @@ use tokio::task::JoinHandle;
 pin_project! {
     /// A future that allows Python threads to run while it is being polled or executed.
     /// It also handles cancellation and spawns the task in tokio runtime.
-    pub struct AllowThreads<T> {
+    pub struct NoGIL<T> {
         #[pin]
         handle: JoinHandle<PyResult<T>>,
     }
 }
 
-impl<T> AllowThreads<T>
+impl<T> NoGIL<T>
 where
     T: Send + 'static,
 {
-    /// Create [`AllowThreads`] from a future
+    /// Create [`NoGIL`] from a future
     #[inline]
     pub fn new<Fut>(fut: Fut, mut cancel: CancelHandle) -> Self
     where
@@ -40,7 +40,7 @@ where
     }
 }
 
-impl<T> Future for AllowThreads<T>
+impl<T> Future for NoGIL<T>
 where
     T: Send + 'static,
 {

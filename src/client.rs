@@ -1,5 +1,5 @@
 pub mod body;
-pub mod future;
+pub mod nogil;
 pub mod req;
 pub mod resp;
 
@@ -19,7 +19,7 @@ use wreq::{Proxy, tls::CertStore};
 use wreq_util::EmulationOption;
 
 use self::{
-    future::AllowThreads,
+    nogil::NoGIL,
     req::{execute_request, execute_websocket_request},
     resp::{BlockingResponse, BlockingWebSocket, Response, WebSocket},
 };
@@ -560,7 +560,7 @@ impl Client {
         url: PyBackedStr,
         kwds: Option<Request>,
     ) -> PyResult<Response> {
-        AllowThreads::new(
+        NoGIL::new(
             execute_request(self.inner.clone(), method, url, kwds),
             cancel,
         )
@@ -576,7 +576,7 @@ impl Client {
         url: PyBackedStr,
         kwds: Option<WebSocketRequest>,
     ) -> PyResult<WebSocket> {
-        AllowThreads::new(
+        NoGIL::new(
             execute_websocket_request(self.inner.clone(), url, kwds),
             cancel,
         )
