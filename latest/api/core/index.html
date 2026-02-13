@@ -2205,47 +2205,30 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#rnet.Message.text_from_json" class="md-nav__link">
+  <a href="#rnet.Message.json" class="md-nav__link">
     <span class="md-ellipsis">
       
-        <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;text_from_json
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label=" text_from_json">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#rnet.Message.text_from_json--arguments" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Arguments
+        <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;json
       
     </span>
   </a>
   
 </li>
         
-      </ul>
-    </nav>
-  
-</li>
-        
           <li class="md-nav__item">
-  <a href="#rnet.Message.binary_from_json" class="md-nav__link">
+  <a href="#rnet.Message.from_binary" class="md-nav__link">
     <span class="md-ellipsis">
       
-        <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;binary_from_json
+        <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;from_binary
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label=" binary_from_json">
+    <nav class="md-nav" aria-label=" from_binary">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#rnet.Message.binary_from_json--arguments" class="md-nav__link">
+  <a href="#rnet.Message.from_binary--arguments" class="md-nav__link">
     <span class="md-ellipsis">
       
         Arguments
@@ -2274,34 +2257,6 @@
         
           <li class="md-nav__item">
   <a href="#rnet.Message.from_text--arguments" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Arguments
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#rnet.Message.from_binary" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;from_binary
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label=" from_binary">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#rnet.Message.from_binary--arguments" class="md-nav__link">
     <span class="md-ellipsis">
       
         Arguments
@@ -2397,17 +2352,6 @@
         
       </ul>
     </nav>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#rnet.Message.json" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;json
-      
-    </span>
-  </a>
   
 </li>
         
@@ -6906,92 +6850,32 @@ ignoring the RFC. By default this option is set to False, i.e. according to RFC6
 
 </div>
 
+<div class="doc doc-object doc-attribute">
 
 
 
-<div class="doc doc-object doc-function">
-
-
-<h3 id="rnet.Message.text_from_json" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">text_from_json</span>
+<h3 id="rnet.Message.json" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <span class="doc doc-object-name doc-attribute-name">json</span>
 
 
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-staticmethod"><code>staticmethod</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
   </span>
 
 </h3>
-<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">text_from_json</span><span class="p">(</span><span class="n">json</span><span class="p">)</span>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">json</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
 
-        <p>Creates a new text message from the JSON representation.</p>
-<h4 id="rnet.Message.text_from_json--arguments">Arguments</h4>
-<ul>
-<li><code>json</code> - The JSON representation of the message.</li>
-</ul>
-
+        <p>Returns the JSON representation of the message if it is a text message with JSON content.</p>
 
     </div>
 
 </div>
 
-<div class="doc doc-object doc-function">
 
 
-<h3 id="rnet.Message.binary_from_json" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">binary_from_json</span>
-
-
-  <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-staticmethod"><code>staticmethod</code></small>
-  </span>
-
-</h3>
-<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">binary_from_json</span><span class="p">(</span><span class="n">json</span><span class="p">)</span>
-</code></pre></div>
-
-    <div class="doc doc-contents ">
-
-        <p>Creates a new binary message from the JSON representation.</p>
-<h4 id="rnet.Message.binary_from_json--arguments">Arguments</h4>
-<ul>
-<li><code>json</code> - The JSON representation of the message.</li>
-</ul>
-
-
-    </div>
-
-</div>
-
-<div class="doc doc-object doc-function">
-
-
-<h3 id="rnet.Message.from_text" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">from_text</span>
-
-
-  <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-staticmethod"><code>staticmethod</code></small>
-  </span>
-
-</h3>
-<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">from_text</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
-</code></pre></div>
-
-    <div class="doc doc-contents ">
-
-        <p>Creates a new text message.</p>
-<h4 id="rnet.Message.from_text--arguments">Arguments</h4>
-<ul>
-<li><code>text</code> - The text content of the message.</li>
-</ul>
-
-
-    </div>
-
-</div>
 
 <div class="doc doc-object doc-function">
 
@@ -7013,7 +6897,35 @@ ignoring the RFC. By default this option is set to False, i.e. according to RFC6
         <p>Creates a new binary message.</p>
 <h4 id="rnet.Message.from_binary--arguments">Arguments</h4>
 <ul>
-<li><code>data</code> - The binary data of the message.</li>
+<li><code>data</code> - The binary data or any JSON-serializable data of the message.</li>
+</ul>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="rnet.Message.from_text" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">from_text</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-staticmethod"><code>staticmethod</code></small>
+  </span>
+
+</h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">from_text</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Creates a new text message.</p>
+<h4 id="rnet.Message.from_text--arguments">Arguments</h4>
+<ul>
+<li><code>data</code> - The text content or any JSON-serializable data of the message.</li>
 </ul>
 
 
@@ -7100,26 +7012,6 @@ ignoring the RFC. By default this option is set to False, i.e. according to RFC6
 <li><code>code</code> - The close code.</li>
 <li><code>reason</code> - An optional reason for closing.</li>
 </ul>
-
-
-    </div>
-
-</div>
-
-<div class="doc doc-object doc-function">
-
-
-<h3 id="rnet.Message.json" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">json</span>
-
-
-</h3>
-<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">json</span><span class="p">()</span>
-</code></pre></div>
-
-    <div class="doc doc-contents ">
-
-        <p>Returns the JSON representation of the message.</p>
 
 
     </div>
