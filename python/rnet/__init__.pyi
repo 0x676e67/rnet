@@ -196,45 +196,30 @@ class Message:
     Returns the close code and reason of the message if it is a close message.
     """
 
-    @staticmethod
-    def text_from_json(json: Dict[str, Any]) -> "Message":
-        r"""
-        Creates a new text message from the JSON representation.
-
-        # Arguments
-        * `json` - The JSON representation of the message.
-        """
-        ...
+    json: Any
+    r"""
+    Returns the JSON representation of the message if it is a text message with JSON content.
+    """
 
     @staticmethod
-    def binary_from_json(json: Dict[str, Any]) -> "Message":
-        r"""
-        Creates a new binary message from the JSON representation.
-
-        # Arguments
-        * `json` - The JSON representation of the message.
-        """
-        ...
-
-    @staticmethod
-    def from_text(text: str) -> "Message":
-        r"""
-        Creates a new text message.
-
-        # Arguments
-
-        * `text` - The text content of the message.
-        """
-        ...
-
-    @staticmethod
-    def from_binary(data: bytes) -> "Message":
+    def from_binary(data: bytes | Any) -> "Message":
         r"""
         Creates a new binary message.
 
         # Arguments
 
-        * `data` - The binary data of the message.
+        * `data` - The text content or any JSON-serializable data of the message.
+        """
+        ...
+
+    @staticmethod
+    def from_text(data: str | Any) -> "Message":
+        r"""
+        Creates a new text message.
+
+        # Arguments
+
+        * `data` - The text content or any JSON-serializable data of the message.
         """
         ...
 
@@ -269,12 +254,6 @@ class Message:
 
         * `code` - The close code.
         * `reason` - An optional reason for closing.
-        """
-        ...
-
-    def json(self) -> Any:
-        r"""
-        Returns the JSON representation of the message.
         """
         ...
 
