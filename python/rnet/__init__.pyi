@@ -208,7 +208,7 @@ class Message:
 
         # Arguments
 
-        * `data` - The text content or any JSON-serializable data of the message.
+        * `data` - The binary data or any JSON-serializable data of the message.
         """
         ...
 
