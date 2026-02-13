@@ -7,7 +7,7 @@
 //!
 //! The `Message` type is used for sending and receiving WebSocket messages in a unified way.
 
-use std::fmt;
+use std::fmt::{self, Debug};
 
 use bytes::Bytes;
 use pyo3::{
@@ -18,6 +18,20 @@ use wreq::ws::message::{self, CloseCode, CloseFrame, Utf8Bytes};
 
 use crate::{buffer::PyBuffer, client::body::Json, error::Error};
 
+/// An enum representing either a bytes message or a JSON message.
+#[derive(FromPyObject)]
+pub enum BytesLike {
+    Bytes(PyBackedBytes),
+    Json(Json),
+}
+
+/// An enum representing either a text message or a JSON message.
+#[derive(FromPyObject)]
+pub enum TextLike {
+    Text(PyBackedStr),
+    Json(Json),
+}
+
 /// A WebSocket message.
 #[derive(Debug, Clone)]
 #[pyclass(subclass, str, frozen, from_py_object)]
@@ -25,16 +39,6 @@ pub struct Message(pub message::Message);
 
 #[pymethods]
 impl Message {
-    /// Returns the JSON representation of the message.
-    pub fn json(&self, py: Python) -> PyResult<Json> {
-        py.detach(|| {
-            self.0
-                .json::<Json>()
-                .map_err(Error::Library)
-                .map_err(Into::into)
-        })
-    }
-
     /// Returns the data of the message as bytes.
     #[getter]
     pub fn data(&self) -> Option<PyBuffer> {
@@ -88,6 +92,12 @@ impl Message {
         }
     }
 
+    /// Returns the JSON representation of the message.
+    #[getter]
+    pub fn json(&self, py: Python) -> Option<Json> {
+        py.detach(|| self.0.json::<Json>().ok())
+    }
+
     /// Returns the close code and reason of the message if it is a close message.
     #[getter]
     pub fn close(&self) -> Option<(u16, Option<&str>)> {
@@ -103,44 +113,34 @@ impl Message {
 impl Message {
     /// Creates a new text message from the JSON representation.
     #[staticmethod]
-    #[pyo3(signature = (json))]
-    pub fn text_from_json(py: Python, json: Json) -> PyResult<Self> {
-        py.detach(|| {
-            message::Message::text_from_json(&json)
-                .map(Message)
+    #[pyo3(signature = (like))]
+    pub fn from_text(py: Python, like: TextLike) -> PyResult<Self> {
+        py.detach(|| match like {
+            TextLike::Text(text) => {
+                // If the string is not valid UTF-8, this will panic.
+                let msg = message::Message::text(
+                    Utf8Bytes::try_from(Bytes::from_owner(text)).expect("valid UTF-8"),
+                );
+                Ok(Self(msg))
+            }
+            TextLike::Json(json) => message::Message::text_from_json(&json)
+                .map(Self)
                 .map_err(Error::Library)
-                .map_err(Into::into)
+                .map_err(Into::into),
         })
     }
 
     /// Creates a new binary message from the JSON representation.
     #[staticmethod]
-    #[pyo3(signature = (json))]
-    pub fn binary_from_json(py: Python, json: Json) -> PyResult<Self> {
-        py.detach(|| {
-            message::Message::binary_from_json(&json)
+    #[pyo3(signature = (like))]
+    pub fn from_binary(py: Python, like: BytesLike) -> PyResult<Self> {
+        py.detach(|| match like {
+            BytesLike::Bytes(bytes) => Ok(Self(message::Message::binary(Bytes::from_owner(bytes)))),
+            BytesLike::Json(json) => message::Message::binary_from_json(&json)
                 .map(Message)
                 .map_err(Error::Library)
-                .map_err(Into::into)
+                .map_err(Into::into),
         })
-    }
-
-    /// Creates a new text message.
-    #[staticmethod]
-    #[pyo3(signature = (text))]
-    pub fn from_text(text: PyBackedStr) -> Self {
-        // If the string is not valid UTF-8, this will panic.
-        let msg = message::Message::text(
-            Utf8Bytes::try_from(Bytes::from_owner(text)).expect("valid UTF-8"),
-        );
-        Self(msg)
-    }
-
-    /// Creates a new binary message.
-    #[staticmethod]
-    #[pyo3(signature = (data))]
-    pub fn from_binary(data: PyBackedBytes) -> Self {
-        Self(message::Message::binary(Bytes::from_owner(data)))
     }
 
     /// Creates a new ping message.
@@ -174,7 +174,8 @@ impl Message {
 }
 
 impl fmt::Display for Message {
+    #[inline]
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{:?}", self.0)
+        self.0.fmt(f)
     }
 }
