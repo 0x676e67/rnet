@@ -65,7 +65,7 @@ wreq = { version = "6.0.0-rc.27", features = [
     "zstd",
     "ws",
 ] }
-wreq-util = { version = "3.0.0-rc.10", features = ["emulation-rand"] }
+wreq-util = { version = "3.0.0-rc.10", features = ["emulation-rand", "emulation-compression"] }
 hickory-resolver = "0.25.2"
 cookie = "0.18"
 mimalloc = { version = "0.1.43", default-features = false, features = [
@@ -83,6 +83,3 @@ lto = "fat"
 opt-level = 3
 panic = "abort"
 strip = true
-
-[patch.crates-io]
-pyo3 = { git = "https://github.com/pyo3/pyo3.git" }
