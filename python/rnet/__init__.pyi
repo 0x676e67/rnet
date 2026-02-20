@@ -391,14 +391,9 @@ class Response:
         Get the response into a `Streamer` of `bytes` from the body.
         """
 
-    async def text(self) -> str:
+    async def text(self, encoding: str | None = None) -> str:
         r"""
-        Get the text content of the response.
-        """
-
-    async def text_with_charset(self, encoding: str) -> str:
-        r"""
-        Get the full response text given a specific encoding.
+        Get the text content with the response encoding, defaulting to utf-8 when unspecified.
         """
 
     async def json(self) -> Any:
