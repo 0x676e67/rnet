@@ -219,28 +219,28 @@ impl Response {
             .map_err(Into::into)
     }
 
-    /// Get the text content of the response.
-    pub async fn text(&self, #[pyo3(cancel_handle)] cancel: CancelHandle) -> PyResult<String> {
-        let fut = self
-            .clone()
-            .cache_response()
-            .and_then(ResponseExt::text)
-            .map_err(Into::into);
-        NoGIL::new(fut, cancel).await
-    }
-
-    /// Get the full response text given a specific encoding.
-    #[pyo3(signature = (encoding))]
-    pub async fn text_with_charset(
+    /// Get the text content with the response encoding, defaulting to utf-8 when unspecified.
+    #[pyo3(signature = (encoding = None))]
+    pub async fn text(
         &self,
         #[pyo3(cancel_handle)] cancel: CancelHandle,
-        encoding: PyBackedStr,
+        encoding: Option<PyBackedStr>,
     ) -> PyResult<String> {
-        let fut = self
-            .clone()
-            .cache_response()
-            .and_then(|resp| ResponseExt::text_with_charset(resp, encoding))
-            .map_err(Into::into);
+        let this = self.clone();
+        let fut = async move {
+            match encoding {
+                Some(encoding) => this
+                    .cache_response()
+                    .and_then(|resp| ResponseExt::text_with_charset(resp, encoding))
+                    .await
+                    .map_err(Into::into),
+                None => this
+                    .cache_response()
+                    .and_then(ResponseExt::text)
+                    .await
+                    .map_err(Into::into),
+            }
+        };
         NoGIL::new(fut, cancel).await
     }
 
@@ -392,30 +392,28 @@ impl BlockingResponse {
         self.0.stream()
     }
 
-    /// Get the text content of the response.
-    pub fn text(&self, py: Python) -> PyResult<String> {
-        py.detach(|| {
-            let fut = self
-                .0
-                .clone()
-                .cache_response()
-                .and_then(ResponseExt::text)
-                .map_err(Into::into);
-            pyo3_async_runtimes::tokio::get_runtime().block_on(fut)
-        })
-    }
-
-    /// Get the full response text given a specific encoding.
-    #[pyo3(signature = (encoding))]
-    pub fn text_with_charset(&self, py: Python, encoding: PyBackedStr) -> PyResult<String> {
-        py.detach(|| {
-            let fut = self
-                .0
-                .clone()
-                .cache_response()
-                .and_then(|resp| ResponseExt::text_with_charset(resp, encoding))
-                .map_err(Into::into);
-            pyo3_async_runtimes::tokio::get_runtime().block_on(fut)
+    /// Get the text content with the response encoding, defaulting to utf-8 when unspecified.
+    #[pyo3(signature = (encoding = None))]
+    pub fn text(&self, py: Python, encoding: Option<PyBackedStr>) -> PyResult<String> {
+        py.detach(|| match encoding {
+            Some(encoding) => {
+                let fut = self
+                    .0
+                    .clone()
+                    .cache_response()
+                    .and_then(|resp| ResponseExt::text_with_charset(resp, encoding))
+                    .map_err(Into::into);
+                pyo3_async_runtimes::tokio::get_runtime().block_on(fut)
+            }
+            None => {
+                let fut = self
+                    .0
+                    .clone()
+                    .cache_response()
+                    .and_then(ResponseExt::text)
+                    .map_err(Into::into);
+                pyo3_async_runtimes::tokio::get_runtime().block_on(fut)
+            }
         })
     }
 
