@@ -1,4 +1,5 @@
 use bytes::Bytes;
+use pyo3::pybacked::PyBackedStr;
 
 use crate::error::Error;
 
@@ -8,11 +9,8 @@ use crate::error::Error;
 /// This trait wraps the underlying [`wreq::Response`] methods and converts their errors to our
 /// custom `Error` type.
 pub trait ResponseExt {
-    /// Returns an error if the body cannot be decoded as valid UTF-8.
-    async fn text(self) -> Result<String, Error>;
-
     /// Returns an error if the encoding is unsupported or decoding fails.
-    async fn text_with_charset(self, encoding: impl AsRef<str>) -> Result<String, Error>;
+    async fn text(self, encoding: Option<PyBackedStr>) -> Result<String, Error>;
 
     /// Returns an error if the body is not valid JSON or cannot be deserialized into `T`.
     async fn json<T: serde::de::DeserializeOwned>(self) -> Result<T, Error>;
@@ -23,15 +21,12 @@ pub trait ResponseExt {
 
 impl ResponseExt for wreq::Response {
     #[inline]
-    async fn text(self) -> Result<String, Error> {
-        self.text().await.map_err(Error::Library)
-    }
-
-    #[inline]
-    async fn text_with_charset(self, encoding: impl AsRef<str>) -> Result<String, Error> {
-        self.text_with_charset(encoding)
-            .await
-            .map_err(Error::Library)
+    async fn text(self, encoding: Option<PyBackedStr>) -> Result<String, Error> {
+        match encoding {
+            Some(encoding) => self.text_with_charset(encoding).await,
+            None => self.text().await,
+        }
+        .map_err(Error::Library)
     }
 
     #[inline]

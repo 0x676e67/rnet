@@ -226,21 +226,11 @@ impl Response {
         #[pyo3(cancel_handle)] cancel: CancelHandle,
         encoding: Option<PyBackedStr>,
     ) -> PyResult<String> {
-        let this = self.clone();
-        let fut = async move {
-            match encoding {
-                Some(encoding) => this
-                    .cache_response()
-                    .and_then(|resp| ResponseExt::text_with_charset(resp, encoding))
-                    .await
-                    .map_err(Into::into),
-                None => this
-                    .cache_response()
-                    .and_then(ResponseExt::text)
-                    .await
-                    .map_err(Into::into),
-            }
-        };
+        let fut = self
+            .clone()
+            .cache_response()
+            .and_then(|resp| ResponseExt::text(resp, encoding))
+            .map_err(Into::into);
         NoGIL::new(fut, cancel).await
     }
 
@@ -395,25 +385,14 @@ impl BlockingResponse {
     /// Get the text content with the response encoding, defaulting to utf-8 when unspecified.
     #[pyo3(signature = (encoding = None))]
     pub fn text(&self, py: Python, encoding: Option<PyBackedStr>) -> PyResult<String> {
-        py.detach(|| match encoding {
-            Some(encoding) => {
-                let fut = self
-                    .0
-                    .clone()
-                    .cache_response()
-                    .and_then(|resp| ResponseExt::text_with_charset(resp, encoding))
-                    .map_err(Into::into);
-                pyo3_async_runtimes::tokio::get_runtime().block_on(fut)
-            }
-            None => {
-                let fut = self
-                    .0
-                    .clone()
-                    .cache_response()
-                    .and_then(ResponseExt::text)
-                    .map_err(Into::into);
-                pyo3_async_runtimes::tokio::get_runtime().block_on(fut)
-            }
+        py.detach(|| {
+            let fut = self
+                .0
+                .clone()
+                .cache_response()
+                .and_then(|resp| ResponseExt::text(resp, encoding))
+                .map_err(Into::into);
+            pyo3_async_runtimes::tokio::get_runtime().block_on(fut)
         })
     }
 
