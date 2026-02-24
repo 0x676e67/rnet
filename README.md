@@ -60,7 +60,7 @@ if __name__ == "__main__":
 Additional learning resources include:
 
 - [DeepWiki](https://deepwiki.com/0x676e67/rnet)
-- [Examples](https://github.com/0x676e67/rnet/tree/main/python/examples)
+- [Examples](https://github.com/0x676e67/rnet/tree/main/examples)
 - [Documentation](https://rnet.readthedocs.io/)
 
 ## Behavior
