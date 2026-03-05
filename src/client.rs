@@ -110,7 +110,7 @@ struct Builder {
     /// Sets the maximum idle connection per host allowed in the pool.
     pool_max_idle_per_host: Option<usize>,
     /// Sets the maximum number of connections in the pool.
-    pool_max_size: Option<usize>,
+    pool_max_size: Option<u32>,
 
     // ========= Protocol options =========
     /// Whether to use the HTTP/1 protocol only.
