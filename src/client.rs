@@ -586,6 +586,21 @@ impl Client {
 }
 
 #[pymethods]
+impl Client {
+    #[inline]
+    async fn __aenter__(slf: Py<Self>) -> PyResult<Py<Self>> {
+        Ok(slf)
+    }
+
+    #[inline]
+    async fn __aexit__(&self, _exc_type: Py<PyAny>, _exc_val: Py<PyAny>, _traceback: Py<PyAny>) {
+        // TODO: Implement connection closing logic if necessary.
+    }
+}
+
+// ===== impl BlockingClient =====
+
+#[pymethods]
 impl BlockingClient {
     /// Creates a new blocking Client instance.
     #[new]
@@ -727,5 +742,24 @@ impl BlockingClient {
                 .block_on(execute_websocket_request(self.0.inner.clone(), url, kwds))
                 .map(Into::into)
         })
+    }
+}
+
+#[pymethods]
+impl BlockingClient {
+    #[inline]
+    fn __enter__(slf: PyRef<Self>) -> PyRef<Self> {
+        slf
+    }
+
+    #[inline]
+    fn __exit__<'py>(
+        &self,
+        _py: Python<'py>,
+        _exc_type: &Bound<'py, PyAny>,
+        _exc_value: &Bound<'py, PyAny>,
+        _traceback: &Bound<'py, PyAny>,
+    ) {
+        // TODO: Implement connection closing logic if necessary.
     }
 }

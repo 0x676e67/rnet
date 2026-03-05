@@ -1354,6 +1354,11 @@ class Client:
         asyncio.run(main())
         ```
         """
+        
+    async def __aenter__(self) -> Any: ...
+    async def __aexit__(
+        self, _exc_type: Any, _exc_value: Any, _traceback: Any
+    ) -> Any: ...
 
 async def delete(
     url: str,
