@@ -271,6 +271,7 @@ impl Response {
     /// (async with statement) to properly manage response lifecycle. Wait for the improved implementation
     /// in future versions.
     pub async fn close(&self) -> PyResult<()> {
+        self.clone().empty_response().close();
         self.body.swap(None);
         Ok(())
     }
@@ -440,7 +441,10 @@ impl BlockingResponse {
     /// in future versions.
     #[inline]
     pub fn close(&self, py: Python) {
-        py.detach(|| self.0.body.swap(None));
+        py.detach(|| {
+            self.0.clone().empty_response().close();
+            self.0.body.swap(None);
+        });
     }
 }
 

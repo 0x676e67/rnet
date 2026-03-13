@@ -83,8 +83,8 @@ define_enum!(
     KEY_SHARE,
     RENEGOTIATE,
     DELEGATED_CREDENTIAL,
+    APPLICATION_SETTINGS_OLD,
     APPLICATION_SETTINGS,
-    APPLICATION_SETTINGS_NEW,
     ENCRYPTED_CLIENT_HELLO,
     CERTIFICATE_TIMESTAMP,
     NEXT_PROTO_NEG,
@@ -325,12 +325,6 @@ impl TlsOptions {
                     builder,
                     params.psk_skip_session_ticket,
                     psk_skip_session_ticket
-                );
-                apply_option!(
-                    set_if_some,
-                    builder,
-                    params.key_shares_limit,
-                    key_shares_limit
                 );
                 apply_option!(set_if_some, builder, params.psk_dhe_ke, psk_dhe_ke);
                 apply_option!(set_if_some, builder, params.renegotiation, renegotiation);
