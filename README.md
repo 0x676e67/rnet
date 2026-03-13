@@ -71,7 +71,7 @@ Due to the complexity of TLS encryption and the widespread adoption of HTTP/2, b
 
 2. **Device Emulation**
 
-TLS and HTTP/2 fingerprints are often identical across various browser models because these underlying protocols evolve slower than browser release cycles. In most cases, the `User-Agent` version is the only variable. Detailed mapping is available in the [documentation](https://rnet.readthedocs.io/).
+**TLS** and **HTTP/2** fingerprints are often identical across various browser models because these underlying protocols evolve slower than browser release cycles. **100+ browser device emulation profiles** are maintained in **rnet**.
 
 ## Building
 
