@@ -15,7 +15,7 @@ use std::{
 
 use pyo3::{IntoPyObjectExt, coroutine::CancelHandle, prelude::*, pybacked::PyBackedStr};
 use req::{Request, WebSocketRequest};
-use wreq::{Proxy, tls::CertStore};
+use wreq::{EmulationFactory, Proxy, tls::CertStore};
 use wreq_util::EmulationOption;
 
 use self::{
@@ -260,7 +260,13 @@ impl Client {
 
             if let Some(mut config) = kwds {
                 // Emulation options.
-                apply_option!(set_if_some_inner, builder, config.emulation, emulation);
+                if let Some(emulation) = config.emulation {
+                    let mut emulation = emulation.0.emulation();
+                    if let Some(tls_options) = emulation.tls_options_mut() {
+                        tls_options.pre_shared_key = false;
+                    }
+                    builder = builder.emulation(emulation);
+                }
 
                 // User agent options.
                 apply_option!(

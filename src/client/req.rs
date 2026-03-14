@@ -6,7 +6,7 @@ use std::{
 use futures_util::TryFutureExt;
 use http::header::COOKIE;
 use pyo3::{PyResult, prelude::*, pybacked::PyBackedStr};
-use wreq::Client;
+use wreq::{Client, EmulationFactory};
 use wreq_util::EmulationOption;
 
 use crate::{
@@ -298,7 +298,13 @@ where
 
     if let Some(mut request) = request {
         // Emulation options.
-        apply_option!(set_if_some_inner, builder, request.emulation, emulation);
+        if let Some(emulation) = request.emulation {
+            let mut emulation = emulation.0.emulation();
+            if let Some(tls_options) = emulation.tls_options_mut() {
+                tls_options.pre_shared_key = false;
+            }
+            builder = builder.emulation(emulation);
+        }
 
         // Version options.
         apply_option!(
