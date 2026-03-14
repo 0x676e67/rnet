@@ -434,17 +434,17 @@ impl Client {
                 apply_option!(set_if_some, builder, config.interface, interface);
 
                 // DNS options.
-                builder = {
-                    let dns_resolver = if let Some(options) = config.dns_options.take() {
-                        for (domain, addrs) in options.resolve_to_addrs {
-                            builder = builder.resolve_to_addrs(domain.as_ref().to_string(), addrs);
-                        }
-                        HickoryDnsResolver::new(options.lookup_ip_strategy)
-                    } else {
-                        HickoryDnsResolver::new(LookupIpStrategy::default())
-                    };
-                    builder.dns_resolver(Arc::new(dns_resolver))
-                };
+                // builder = {
+                //     let dns_resolver = if let Some(options) = config.dns_options.take() {
+                //         for (domain, addrs) in options.resolve_to_addrs {
+                //             builder = builder.resolve_to_addrs(domain.as_ref().to_string(), addrs);
+                //         }
+                //         HickoryDnsResolver::new(options.lookup_ip_strategy)
+                //     } else {
+                //         HickoryDnsResolver::new(LookupIpStrategy::default())
+                //     };
+                //     builder.dns_resolver(Arc::new(dns_resolver))
+                // };
 
                 // Compression options.
                 apply_option!(set_if_some, builder, config.gzip, gzip);

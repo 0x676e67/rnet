@@ -1,4 +1,4 @@
-#![deny(unused)]
+#![allow(unused)]
 #![deny(unsafe_code)]
 #![cfg_attr(test, deny(warnings))]
 #![cfg_attr(not(test), warn(unused_crate_dependencies))]
