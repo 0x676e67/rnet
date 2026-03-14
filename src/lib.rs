@@ -66,14 +66,16 @@ static GLOBAL: tikv_jemallocator::Jemalloc = tikv_jemallocator::Jemalloc;
 static GLOBAL: mimalloc::MiMalloc = mimalloc::MiMalloc;
 
 mod r#async {
-    use crate::client::{
-        Client,
-        req::Request,
-        req::WebSocketRequest,
-        resp::{Response, WebSocket},
-    };
-    use crate::http::Method;
     use pyo3::{coroutine::CancelHandle, prelude::*, pybacked::PyBackedStr};
+
+    use crate::{
+        client::{
+            Client,
+            req::{Request, WebSocketRequest},
+            resp::{Response, WebSocket},
+        },
+        http::Method,
+    };
 
     /// Make a GET request with the given parameters.
     #[inline]
@@ -198,14 +200,16 @@ mod r#async {
 }
 
 mod blocking {
-    use crate::client::{
-        BlockingClient,
-        req::Request,
-        req::WebSocketRequest,
-        resp::{BlockingResponse, BlockingWebSocket},
-    };
-    use crate::http::Method;
     use pyo3::{prelude::*, pybacked::PyBackedStr};
+
+    use crate::{
+        client::{
+            BlockingClient,
+            req::{Request, WebSocketRequest},
+            resp::{BlockingResponse, BlockingWebSocket},
+        },
+        http::Method,
+    };
 
     /// Make a GET request with the given parameters (blocking).
     #[inline]
