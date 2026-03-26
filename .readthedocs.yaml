@@ -22,7 +22,7 @@ build:
     pre_install:
       - pip install maturin
       - maturin build --out dist
-      - pip install --find-links=dist rnet
+      - pip install --find-links=dist wreq
 
 # Build documentation with Mkdocs
 mkdocs:

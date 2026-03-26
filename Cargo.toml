@@ -1,17 +1,17 @@
 [package]
-name = "rnet"
-version = "3.0.0-rc22"
+name = "wreq-python"
+version = "0.10.0"
 description = "An ergonomic Python HTTP client with TLS fingerprint"
 license = "Apache-2.0"
 readme = "README.md"
-repository = "https://github.com/0x676e67/rnet"
+repository = "https://github.com/0x676e67/wreq-python"
 authors = ["0x676e67 <gngppz@gmail.com>"]
 edition = "2024"
 rust-version = "1.85.0"
-include = ["src/**/*", "LICENSE", "README.md"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [lib]
+name = "wreq"
 crate-type = ["cdylib"]
 doctest = false
 

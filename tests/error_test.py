@@ -1,6 +1,6 @@
 import pytest
-import rnet
-import rnet.exceptions as exceptions
+import wreq
+import wreq.exceptions as exceptions
 
 
 @pytest.mark.asyncio
@@ -18,4 +18,4 @@ async def test_proxy_connection_error():
     for proxy in invalid_proxies:
         for url in target_urls:
             with pytest.raises(exceptions.ProxyConnectionError):
-                await rnet.get(url, proxy=rnet.Proxy.all(proxy))
+                await wreq.get(url, proxy=wreq.Proxy.all(proxy))

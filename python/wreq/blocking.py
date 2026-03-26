@@ -234,9 +234,9 @@ class Client:
 
         ```python
         import asyncio
-        import rnet
+        import wreq
 
-        client = rnet.blocking.Client(
+        client = wreq.blocking.Client(
             user_agent="Mozilla/5.0",
             timeout=10,
         )
@@ -258,11 +258,11 @@ class Client:
         # Examples
 
         ```python
-        import rnet
-        import rnet.blocking
-        from rnet import Method
+        import wreq
+        import wreq.blocking
+        from wreq import Method
 
-        client = rnet.blocking.Client()
+        client = wreq.blocking.Client()
         response = client.request(Method.GET, "https://httpbin.io/anything")
         ```
         """
@@ -275,12 +275,12 @@ class Client:
         # Examples
 
         ```python
-        import rnet
-        import rnet.blocking
+        import wreq
+        import wreq.blocking
 
-        client = rnet.blocking.Client()
+        client = wreq.blocking.Client()
         ws = client.websocket("wss://echo.websocket.org")
-        ws.send(rnet.Message.from_text("Hello, WebSocket!"))
+        ws.send(wreq.Message.from_text("Hello, WebSocket!"))
         message = ws.recv()
         print("Received:", message.data)
         ws.close()
@@ -299,11 +299,11 @@ class Client:
         # Examples
 
         ```python
-        import rnet
-        import rnet.blocking
-        from rnet import Method
+        import wreq
+        import wreq.blocking
+        from wreq import Method
 
-        client = rnet.blocking.Client()
+        client = wreq.blocking.Client()
         response = client.trace("https://httpbin.io/anything")
         print(response.text())
         ```
@@ -321,11 +321,11 @@ class Client:
         # Examples
 
         ```python
-        import rnet
-        import rnet.blocking
-        from rnet import Method
+        import wreq
+        import wreq.blocking
+        from wreq import Method
 
-        client = rnet.blocking.Client()
+        client = wreq.blocking.Client()
         response = client.options("https://httpbin.io/anything")
         print(response.text())
         ```
@@ -343,11 +343,11 @@ class Client:
         # Examples
 
         ```python
-        import rnet
-        import rnet.blocking
-        from rnet import Method
+        import wreq
+        import wreq.blocking
+        from wreq import Method
 
-        client = rnet.blocking.Client()
+        client = wreq.blocking.Client()
         response = client.head("https://httpbin.io/anything")
         print(response.text())
         ```
@@ -365,11 +365,11 @@ class Client:
         # Examples
 
         ```python
-        import rnet
-        import rnet.blocking
-        from rnet import Method
+        import wreq
+        import wreq.blocking
+        from wreq import Method
 
-        client = rnet.blocking.Client()
+        client = wreq.blocking.Client()
         response = client.delete("https://httpbin.io/anything")
         print(response.text())
         ```
@@ -387,11 +387,11 @@ class Client:
         # Examples
 
         ```python
-        import rnet
-        import rnet.blocking
-        from rnet import Method
+        import wreq
+        import wreq.blocking
+        from wreq import Method
 
-        client = rnet.blocking.Client()
+        client = wreq.blocking.Client()
         response = client.patch("https://httpbin.io/anything", json={"key": "value"})
         print(response.text())
         ```
@@ -409,11 +409,11 @@ class Client:
         # Examples
 
         ```python
-        import rnet
-        import rnet.blocking
-        from rnet import Method
+        import wreq
+        import wreq.blocking
+        from wreq import Method
 
-        client = rnet.blocking.Client()
+        client = wreq.blocking.Client()
         response = client.put("https://httpbin.io/anything", json={"key": "value"})
         print(response.text())
         ```
@@ -431,11 +431,11 @@ class Client:
         # Examples
 
         ```python
-        import rnet
-        import rnet.blocking
-        from rnet import Method
+        import wreq
+        import wreq.blocking
+        from wreq import Method
 
-        client = rnet.blocking.Client()
+        client = wreq.blocking.Client()
         response = client.post("https://httpbin.io/anything", json={"key": "value"})
         print(response.text())
         ```
@@ -453,11 +453,11 @@ class Client:
         # Examples
 
         ```python
-        import rnet
-        import rnet.blocking
-        from rnet import Method
+        import wreq
+        import wreq.blocking
+        from wreq import Method
 
-        client = rnet.blocking.Client()
+        client = wreq.blocking.Client()
         response = client.get("https://httpbin.io/anything")
         print(response.text())
         ```
@@ -478,10 +478,10 @@ def delete(
     # Examples
 
     ```python
-    import rnet
-    import rnet.blocking
+    import wreq
+    import wreq.blocking
 
-    response = rnet.blocking.delete("https://httpbin.io/anything")
+    response = wreq.blocking.delete("https://httpbin.io/anything")
     print(response.text())
     ```
     """
@@ -498,10 +498,10 @@ def get(
     # Examples
 
     ```python
-    import rnet
-    import rnet.blocking
+    import wreq
+    import wreq.blocking
 
-    response = rnet.blocking.get("https://httpbin.io/anything")
+    response = wreq.blocking.get("https://httpbin.io/anything")
     print(response.text())
     ```
     """
@@ -518,10 +518,10 @@ def head(
     # Examples
 
     ```python
-    import rnet
-    import rnet.blocking
+    import wreq
+    import wreq.blocking
 
-    response = rnet.blocking.head("https://httpbin.io/anything")
+    response = wreq.blocking.head("https://httpbin.io/anything")
     print(response.status)
     ```
     """
@@ -538,10 +538,10 @@ def options(
     # Examples
 
     ```python
-    import rnet
-    import rnet.blocking
+    import wreq
+    import wreq.blocking
 
-    response = rnet.blocking.options("https://httpbin.io/anything")
+    response = wreq.blocking.options("https://httpbin.io/anything")
     print(response.status)
     ```
     """
@@ -558,10 +558,10 @@ def patch(
     # Examples
 
     ```python
-    import rnet
-    import rnet.blocking
+    import wreq
+    import wreq.blocking
 
-    response = rnet.blocking.patch("https://httpbin.io/anything", json={"key": "value"})
+    response = wreq.blocking.patch("https://httpbin.io/anything", json={"key": "value"})
     print(response.text())
     ```
     """
@@ -578,10 +578,10 @@ def post(
     # Examples
 
     ```python
-    import rnet
-    import rnet.blocking
+    import wreq
+    import wreq.blocking
 
-    response = rnet.blocking.post("https://httpbin.io/anything", json={"key": "value"})
+    response = wreq.blocking.post("https://httpbin.io/anything", json={"key": "value"})
     print(response.text())
     ```
     """
@@ -598,10 +598,10 @@ def put(
     # Examples
 
     ```python
-    import rnet
-    import rnet.blocking
+    import wreq
+    import wreq.blocking
 
-    response = rnet.blocking.put("https://httpbin.io/anything", json={"key": "value"})
+    response = wreq.blocking.put("https://httpbin.io/anything", json={"key": "value"})
     print(response.text())
     ```
     """
@@ -625,11 +625,11 @@ def request(
     # Examples
 
     ```python
-    import rnet
-    import rnet.blocking
-    from rnet import Method
+    import wreq
+    import wreq.blocking
+    from wreq import Method
 
-    response = rnet.blocking.request(Method.GET, "https://www.rust-lang.org")
+    response = wreq.blocking.request(Method.GET, "https://www.rust-lang.org")
     print(response.text())
     ```
     """
@@ -646,10 +646,10 @@ def trace(
     # Examples
 
     ```python
-    import rnet
-    import rnet.blocking
+    import wreq
+    import wreq.blocking
 
-    response = rnet.blocking.trace("https://httpbin.io/anything")
+    response = wreq.blocking.trace("https://httpbin.io/anything")
     print(response.status)
     ```
     """
@@ -666,11 +666,11 @@ def websocket(
     # Examples
 
     ```python
-    import rnet
-    import rnet.blocking
+    import wreq
+    import wreq.blocking
 
-    ws = rnet.blocking.websocket("wss://echo.websocket.org")
-    ws.send(rnet.Message.from_text("Hello, World!"))
+    ws = wreq.blocking.websocket("wss://echo.websocket.org")
+    ws.send(wreq.Message.from_text("Hello, World!"))
     message = ws.recv()
     print("Received:", message.data)
     ws.close()

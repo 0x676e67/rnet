@@ -1,7 +1,7 @@
-# rnet/__init__.py
+# wreq/__init__.py
 
-from .rnet import *
-from .rnet import __all__
+from .wreq import *
+from .wreq import __all__
 
 from .cookie import *
 from .exceptions import *

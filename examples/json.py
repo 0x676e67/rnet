@@ -1,9 +1,9 @@
 import asyncio
-import rnet
+import wreq
 
 
 async def main():
-    resp = await rnet.post(
+    resp = await wreq.post(
         "https://httpbin.io/anything",
         json={"key": "value"},
     )

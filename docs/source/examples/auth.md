@@ -4,11 +4,11 @@
 
 ```python
 import asyncio
-import rnet
+import wreq
 
 
 async def main():
-    resp = await rnet.get(
+    resp = await wreq.get(
         "https://httpbin.io/anything",
         basic_auth=("username", "password"),
     )
@@ -23,11 +23,11 @@ if __name__ == "__main__":
 
 ```python
 import asyncio
-import rnet
+import wreq
 
 
 async def main():
-    resp = await rnet.get(
+    resp = await wreq.get(
         "https://httpbin.io/anything",
         bearer_auth="token",
     )
@@ -42,11 +42,11 @@ if __name__ == "__main__":
 
 ```python
 import asyncio
-import rnet
+import wreq
 
 
 async def main():
-    resp = await rnet.get(
+    resp = await wreq.get(
         "https://httpbin.io/anything",
         auth="token",
     )

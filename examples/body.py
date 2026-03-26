@@ -1,5 +1,5 @@
 import asyncio
-import rnet
+import wreq
 
 
 async def gen():
@@ -15,7 +15,7 @@ async def gen():
 
 
 async def main():
-    resp = await rnet.post(
+    resp = await wreq.post(
         "https://httpbin.io/anything",
         body=gen(),
     )

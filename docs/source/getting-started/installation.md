@@ -7,16 +7,16 @@
 
 ## Install from PyPI
 
-The simplest way to install rnet is from PyPI:
+The simplest way to install wreq is from PyPI:
 
 ```bash
-pip install rnet
+pip install wreq
 ```
 
 Or using uv:
 
 ```bash
-uv pip install rnet
+uv pip install wreq
 ```
 
 ## Install from Source
@@ -24,20 +24,20 @@ uv pip install rnet
 To install the latest development version:
 
 ```bash
-git clone https://github.com/0x676e67/rnet.git
-cd rnet
+git clone https://github.com/0x676e67/wreq.git
+cd wreq
 pip install -e .
 ```
 
 ## Verify Installation
 
-Verify that rnet is installed correctly:
+Verify that wreq is installed correctly:
 
 ```python
-import rnet
-print(rnet.__version__)
+import wreq
+print(wreq.__version__)
 ```
 
 ## Next Steps
 
-Continue to the [Quick Start](quickstart.md) guide to learn how to use rnet.
+Continue to the [Quick Start](quickstart.md) guide to learn how to use wreq.

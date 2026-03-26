@@ -1,7 +1,7 @@
 """
 HTTP Client Exceptions
 
-This module defines all exceptions that can be raised by the rnet HTTP client.
+This module defines all exceptions that can be raised by the wreq HTTP client.
 The exceptions are organized into logical categories based on their cause and
 severity, making it easier to handle specific types of errors appropriately.
 """

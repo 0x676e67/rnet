@@ -1,7 +1,7 @@
-# rnet.proxy
+# wreq.proxy
 
 Proxy settings for HTTP, HTTPS, and SOCKS proxies.
 
-::: rnet.proxy
+::: wreq.proxy
     options:
       show_root_heading: true

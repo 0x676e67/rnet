@@ -1,6 +1,6 @@
 # Python Type Stubs Module
 
-This directory contains Python type hints (Type Stubs) files for the `rnet` package.
+This directory contains Python type hints (Type Stubs) files for the `wreq` package.
 
 ## File Structure
 
@@ -20,7 +20,7 @@ This directory contains Python type hints (Type Stubs) files for the `rnet` pack
 
 - **`py.typed`**: PEP 561 marker file indicating this package supports type checking
 
-- **`rnet.abi3.so`**: Compiled binary extension module (built from Rust code)
+- **`wreq.abi3.so`**: Compiled binary extension module (built from Rust code)
 
 ## Purpose
 
@@ -34,7 +34,7 @@ These type stub files enable:
 ## Example
 
 ```python
-from rnet import Client, Method
+from wreq import Client, Method
 
 # IDE and type checkers can accurately infer types
 client = Client()

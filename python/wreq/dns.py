@@ -40,7 +40,7 @@ class ResolverOptions:
         lookup_ip_strategy: The IP lookup strategy to use. Defaults to IPV4_AND_IPV6.
 
     Example:
-        >>> from rnet import ResolverOptions, LookupIpStrategy
+        >>> from wreq import ResolverOptions, LookupIpStrategy
         >>> from ipaddress import IPv4Address
         >>> options = ResolverOptions(LookupIpStrategy.Ipv4Only)
         >>> options.add_resolve("example.com", [IPv4Address("127.0.0.1")])

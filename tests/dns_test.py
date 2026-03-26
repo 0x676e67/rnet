@@ -1,8 +1,8 @@
 from ipaddress import IPv4Address
 import pytest
-from rnet import Client
-from rnet.exceptions import ConnectionError
-from rnet.dns import ResolverOptions, LookupIpStrategy
+from wreq import Client
+from wreq.exceptions import ConnectionError
+from wreq.dns import ResolverOptions, LookupIpStrategy
 
 
 @pytest.mark.asyncio

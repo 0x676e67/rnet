@@ -1,12 +1,12 @@
-from rnet import Proxy
-from rnet.blocking import Client
-from rnet.emulation import Emulation
+from wreq import Proxy
+from wreq.blocking import Client
+from wreq.emulation import Emulation
 
 
 def main():
     client = Client(
         emulation=Emulation.Firefox133,
-        user_agent="rnet",
+        user_agent="wreq",
         proxies=[
             Proxy.http("socks5h://abc:def@127.0.0.1:1080"),
             Proxy.https(url="socks5h://127.0.0.1:1080", username="abc", password="def"),

@@ -1,6 +1,6 @@
 import asyncio
-import rnet
-from rnet import Client, Proxy
+import wreq
+from wreq import Client, Proxy
 
 
 async def main():
@@ -14,22 +14,22 @@ async def main():
     print(await resp.text())
 
     # Send request via custom proxy
-    resp = await rnet.get(
+    resp = await wreq.get(
         "https://httpbin.io/anything",
         proxy=Proxy.all(
             url="http://127.0.0.1:6152",
             custom_http_headers={
-                "user-agent": "rnet",
+                "user-agent": "wreq",
                 "accept": "*/*",
                 "accept-encoding": "gzip, deflate, br",
-                "x-proxy": "rnet",
+                "x-proxy": "wreq",
             },
         ),
     )
     print(await resp.text())
 
     # Send request via Unix socket proxy
-    resp = await rnet.get(
+    resp = await wreq.get(
         "http://localhost/v1.41/containers/json",
         proxy=Proxy.unix("/var/run/docker.sock"),
     )

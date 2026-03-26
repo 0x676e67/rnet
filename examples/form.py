@@ -1,9 +1,9 @@
 import asyncio
-import rnet
+import wreq
 
 
 async def main():
-    client = rnet.Client()
+    client = wreq.Client()
 
     # use a list of tuples
     resp = await client.post(

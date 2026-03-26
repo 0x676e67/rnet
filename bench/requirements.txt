@@ -2,7 +2,7 @@ niquests
 tls_client
 httpx
 requests
-rnet
+wreq
 curl_cffi
 aiohttp
 pycurl

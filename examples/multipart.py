@@ -1,8 +1,8 @@
 from pathlib import Path
 import asyncio
 import aiofiles
-import rnet
-from rnet import Multipart, Part
+import wreq
+from wreq import Multipart, Part
 
 
 async def file_to_bytes_stream(file_path):
@@ -12,7 +12,7 @@ async def file_to_bytes_stream(file_path):
 
 
 async def main():
-    resp = await rnet.post(
+    resp = await wreq.post(
         "https://httpbin.io/anything",
         multipart=Multipart(
             # Upload text data

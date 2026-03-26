@@ -1,6 +1,6 @@
 import asyncio
-from rnet import Client
-from rnet.tls import KeyLog
+from wreq import Client
+from wreq.tls import KeyLog
 
 
 async def main():

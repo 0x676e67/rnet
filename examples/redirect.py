@@ -5,8 +5,8 @@ Demonstrates how to use custom redirect policies with Python callbacks.
 """
 
 import asyncio
-from rnet import Client, Response, redirect
-from rnet.redirect import Attempt, Action
+from wreq import Client, Response, redirect
+from wreq.redirect import Attempt, Action
 
 
 def custom_policy(attempt: Attempt) -> Action:

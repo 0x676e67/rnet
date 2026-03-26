@@ -1,10 +1,10 @@
 import asyncio
-import rnet
+import wreq
 
 
 async def main():
     # Send list of tuples as query parameters
-    resp = await rnet.get(
+    resp = await wreq.get(
         "https://httpbin.io/anything",
         query=[
             ("key1", "value1"),
@@ -17,7 +17,7 @@ async def main():
     print(await resp.text())
 
     # OR send dictionary as query parameters
-    resp = await rnet.get(
+    resp = await wreq.get(
         "https://httpbin.io/anything",
         query={
             "keyA": "valueA",

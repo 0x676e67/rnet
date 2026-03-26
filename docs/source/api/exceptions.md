@@ -1,7 +1,7 @@
-# rnet.exceptions
+# wreq.exceptions
 
-All exception types that can be raised by rnet.
+All exception types that can be raised by wreq.
 
-::: rnet.exceptions
+::: wreq.exceptions
     options:
       show_root_heading: true

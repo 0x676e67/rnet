@@ -1,9 +1,9 @@
 import asyncio
-from rnet import Client, Response
-from rnet.emulation import Emulation, EmulationOS, EmulationOption
-from rnet.tls import TlsOptions, TlsVersion, AlpnProtocol
-from rnet.http2 import Http2Options, PseudoId, PseudoOrder
-from rnet.header import HeaderMap, OrigHeaderMap
+from wreq import Client, Response
+from wreq.emulation import Emulation, EmulationOS, EmulationOption
+from wreq.tls import TlsOptions, TlsVersion, AlpnProtocol
+from wreq.http2 import Http2Options, PseudoId, PseudoOrder
+from wreq.header import HeaderMap, OrigHeaderMap
 
 
 async def print_response_info(resp: Response):

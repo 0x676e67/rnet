@@ -1,5 +1,5 @@
 import pytest
-from rnet.header import OrigHeaderMap, HeaderMap
+from wreq.header import OrigHeaderMap, HeaderMap
 
 
 @pytest.mark.flaky(reruns=3, reruns_delay=2)

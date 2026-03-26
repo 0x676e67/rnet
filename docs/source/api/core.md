@@ -1,74 +1,74 @@
-# rnet (Main Module)
+# wreq (Main Module)
 
-The main `rnet` module contains core classes and types used throughout the library.
+The main `wreq` module contains core classes and types used throughout the library.
 
 ## Core Classes
 
-::: rnet.Client
+::: wreq.Client
     options:
       show_root_heading: true
 
-::: rnet.Response
+::: wreq.Response
     options:
       show_root_heading: true
 
 ## HTTP Types
 
-::: rnet.Method
+::: wreq.Method
     options:
       show_root_heading: true
 
-::: rnet.Version
+::: wreq.Version
     options:
       show_root_heading: true
 
-::: rnet.StatusCode
+::: wreq.StatusCode
     options:
       show_root_heading: true
       show_if_no_docstring: true
 
 ## Request Types
 
-::: rnet.Request
+::: wreq.Request
     options:
       show_root_heading: true
 
-::: rnet.Multipart
+::: wreq.Multipart
     options:
       show_root_heading: true
 
-::: rnet.Part
+::: wreq.Part
     options:
       show_root_heading: true
 
 ## WebSocket
 
-::: rnet.WebSocket
+::: wreq.WebSocket
     options:
       show_root_heading: true
 
-::: rnet.WebSocketRequest
+::: wreq.WebSocketRequest
     options:
       show_root_heading: true
 
-::: rnet.Message
+::: wreq.Message
     options:
       show_root_heading: true
 
 ## Streaming
 
-::: rnet.Streamer
+::: wreq.Streamer
     options:
       show_root_heading: true
 
 ## Network Types
 
-::: rnet.SocketAddr
+::: wreq.SocketAddr
     options:
       show_root_heading: true
 
 ## Configuration
 
-::: rnet.ClientConfig
+::: wreq.ClientConfig
     options:
       show_root_heading: true

@@ -3,7 +3,7 @@
 
 [remote.github]
 owner = "0x676e67"
-repo = "rnet"
+repo = "wreq-python"
 
 [changelog]
 # A Tera template to be rendered for each release in the changelog.

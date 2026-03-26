@@ -215,8 +215,8 @@ class EmulationOption:
         Example:
             ```python
             # Use different random emulation for each client
-            client1 = rnet.Client(emulation=EmulationOption.random())
-            client2 = rnet.Client(emulation=EmulationOption.random())
+            client1 = wreq.Client(emulation=EmulationOption.random())
+            client2 = wreq.Client(emulation=EmulationOption.random())
             ```
         """
         ...

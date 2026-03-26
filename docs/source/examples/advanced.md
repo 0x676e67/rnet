@@ -6,7 +6,7 @@ Send data using async generators for streaming uploads:
 
 ```python
 import asyncio
-import rnet
+import wreq
 
 
 async def gen():
@@ -22,7 +22,7 @@ async def gen():
 
 
 async def main():
-    resp = await rnet.post(
+    resp = await wreq.post(
         "https://httpbin.io/anything",
         body=gen(),
     )
@@ -41,8 +41,8 @@ Upload multiple files and data parts:
 from pathlib import Path
 import asyncio
 import aiofiles
-import rnet
-from rnet import Multipart, Part
+import wreq
+from wreq import Multipart, Part
 
 
 async def file_to_bytes_stream(file_path):
@@ -52,7 +52,7 @@ async def file_to_bytes_stream(file_path):
 
 
 async def main():
-    resp = await rnet.post(
+    resp = await wreq.post(
         "https://httpbin.io/anything",
         multipart=Multipart(
             # Upload text data
@@ -89,8 +89,8 @@ Capture TLS keys for debugging with tools like Wireshark:
 
 ```python
 import asyncio
-from rnet import Client
-from rnet.tls import KeyLog
+from wreq import Client
+from wreq.tls import KeyLog
 
 
 async def main():
@@ -110,12 +110,12 @@ Preserve header case and order for specific sites:
 
 ```python
 import asyncio
-import rnet
-from rnet.emulation import Emulation
+import wreq
+from wreq.emulation import Emulation
 
 
 async def main():
-    ws = await rnet.websocket(
+    ws = await wreq.websocket(
         "wss://gateway.discord.gg/",
         emulation=Emulation.Chrome137,
         headers={"Origin": "https://discord.com"},

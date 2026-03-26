@@ -34,8 +34,8 @@ class Policy:
 
         Example:
             ```python
-            import rnet
-            from rnet import Client, redirect
+            import wreq
+            from wreq import Client, redirect
             policy = redirect.Policy.limited(5)
             client = Client(redirect=policy)
             ```
@@ -52,7 +52,7 @@ class Policy:
 
         Example:
             ```python
-            from rnet import Client, redirect
+            from wreq import Client, redirect
 
             policy = redirect.Policy.none()
             client = Client(redirect=policy)
@@ -73,7 +73,7 @@ class Policy:
 
         Example:
             ```python
-            from rnet import Client, redirect
+            from wreq import Client, redirect
 
             def policy(attempt: redirect.Attempt) -> redirect.Action:
                 if len(attempt.previous) > 5:

@@ -1,5 +1,5 @@
-from rnet.blocking import Client
-from rnet.proxy import Proxy
+from wreq.blocking import Client
+from wreq.proxy import Proxy
 
 
 def main():

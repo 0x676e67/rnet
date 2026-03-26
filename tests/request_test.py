@@ -1,9 +1,9 @@
 import pytest
-import rnet
-from rnet import Version
-from rnet.header import HeaderMap
+import wreq
+from wreq import Version
+from wreq.header import HeaderMap
 
-client = rnet.Client(tls_info=True)
+client = wreq.Client(tls_info=True)
 
 
 @pytest.mark.asyncio
@@ -112,7 +112,7 @@ async def test_send_headers():
 async def test_disable_default_headers():
     url = "http://localhost:8080/headers"
     headers = {"foo": "bar"}
-    client = rnet.Client(headers=headers)
+    client = wreq.Client(headers=headers)
     resp = await client.get(url)
     async with resp:
         json = await resp.json()

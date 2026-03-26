@@ -1,11 +1,11 @@
 import time
 
-import rnet
-import rnet.blocking
+import wreq
+import wreq.blocking
 
 
 def main():
-    with rnet.blocking.get("https://httpbin.io/stream/20") as resp:
+    with wreq.blocking.get("https://httpbin.io/stream/20") as resp:
         with resp.stream() as streamer:
             for chunk in streamer:
                 print(chunk)

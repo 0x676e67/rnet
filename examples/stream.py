@@ -1,10 +1,10 @@
 import asyncio
-import rnet
-from rnet import Response
+import wreq
+from wreq import Response
 
 
 async def main():
-    resp: Response = await rnet.get("https://httpbin.io/stream/20")
+    resp: Response = await wreq.get("https://httpbin.io/stream/20")
     async with resp:
         async with resp.stream() as streamer:
             async for chunk in streamer:

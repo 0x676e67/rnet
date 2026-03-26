@@ -1,6 +1,6 @@
 import datetime
-from rnet.blocking import Client
-from rnet.emulation import Emulation
+from wreq.blocking import Client
+from wreq.emulation import Emulation
 
 
 def main():

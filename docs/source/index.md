@@ -1,10 +1,10 @@
-# rnet
+# wreq
 
-[![CI](https://github.com/0x676e67/rnet/actions/workflows/ci.yml/badge.svg)](https://github.com/0x676e67/rnet/actions/workflows/ci.yml)
-![GitHub License](https://img.shields.io/github/license/0x676e67/rnet?color=blue)
-![Python Version from PEP 621 TOML](https://img.shields.io/python/required-version-toml?tomlFilePath=https%3A%2F%2Fraw.githubusercontent.com%2F0x676e67%2Frnet%2Fmain%2Fpyproject.toml&logo=python)
-[![PyPI](https://img.shields.io/pypi/v/rnet?logo=python)](https://pypi.org/project/rnet/)
-[![PyPI Downloads](https://static.pepy.tech/badge/rnet)](https://pepy.tech/projects/rnet)
+[![CI](https://github.com/0x676e67/wreq/actions/workflows/ci.yml/badge.svg)](https://github.com/0x676e67/wreq/actions/workflows/ci.yml)
+![GitHub License](https://img.shields.io/github/license/0x676e67/wreq?color=blue)
+![Python Version from PEP 621 TOML](https://img.shields.io/python/required-version-toml?tomlFilePath=https%3A%2F%2Fraw.githubusercontent.com%2F0x676e67%2Fwreq%2Fmain%2Fpyproject.toml&logo=python)
+[![PyPI](https://img.shields.io/pypi/v/wreq?logo=python)](https://pypi.org/project/wreq/)
+[![PyPI Downloads](https://static.pepy.tech/badge/wreq)](https://pepy.tech/projects/wreq)
 
 > 🚀 Help me work seamlessly with open source sharing by [sponsoring me on GitHub](https://github.com/0x676e67/0x676e67/blob/main/SPONSOR.md)
 
@@ -30,17 +30,17 @@ An ergonomic and modular Python HTTP client for advanced and low-level emulation
 
 ## Example
 
-The following example uses the `asyncio` runtime with `rnet` installed via pip:
+The following example uses the `asyncio` runtime with `wreq` installed via pip:
 
 ```bash
-pip install asyncio rnet --pre --upgrade
+pip install asyncio wreq --pre --upgrade
 ```
 
 And then the code:
 
 ```python
 import asyncio
-from rnet import Client, Emulation
+from wreq import Client, Emulation
 
 
 async def main():
@@ -59,14 +59,14 @@ if __name__ == "__main__":
 Additional learning resources include:
 
 - [Documentation](getting-started/quickstart.md)
-- [Synchronous Examples](https://github.com/0x676e67/rnet/tree/main/python/examples/blocking)
-- [Asynchronous Examples](https://github.com/0x676e67/rnet/tree/main/python/examples)
+- [Synchronous Examples](https://github.com/0x676e67/wreq/tree/main/python/examples/blocking)
+- [Asynchronous Examples](https://github.com/0x676e67/wreq/tree/main/python/examples)
 
 ## Behavior
 
 1. **HTTP/2 over TLS**
 
-Due to the complexity of TLS encryption and the widespread adoption of HTTP/2, browser fingerprints such as **JA3**, **JA4**, and **Akamai** cannot be reliably emulated using simple fingerprint strings. Instead of parsing and emulating these string-based fingerprints, `rnet` provides fine-grained control over TLS and HTTP/2 extensions and settings for precise browser behavior emulation.
+Due to the complexity of TLS encryption and the widespread adoption of HTTP/2, browser fingerprints such as **JA3**, **JA4**, and **Akamai** cannot be reliably emulated using simple fingerprint strings. Instead of parsing and emulating these string-based fingerprints, `wreq` provides fine-grained control over TLS and HTTP/2 extensions and settings for precise browser behavior emulation.
 
 2. **Device Emulation**
 
@@ -124,7 +124,7 @@ maturin build --release
 
 ## Benchmark
 
-Outperforms `requests`, `httpx`, `aiohttp`, and `curl_cffi`, and you can see the [benchmark](https://github.com/0x676e67/rnet/tree/main/bench) for details — benchmark data is for reference only and actual performance may vary based on your environment and use case.
+Outperforms `requests`, `httpx`, `aiohttp`, and `curl_cffi`, and you can see the [benchmark](https://github.com/0x676e67/wreq/tree/main/bench) for details — benchmark data is for reference only and actual performance may vary based on your environment and use case.
 
 ## Services
 
@@ -132,8 +132,8 @@ Help sustain the ongoing development of this open-source project by reaching out
 
 ## License
 
-Licensed under either of Apache License, Version 2.0 ([LICENSE](https://github.com/0x676e67/rnet/blob/main/LICENSE) or http://www.apache.org/licenses/LICENSE-2.0).
+Licensed under either of Apache License, Version 2.0 ([LICENSE](https://github.com/0x676e67/wreq/blob/main/LICENSE) or http://www.apache.org/licenses/LICENSE-2.0).
 
 ## Contribution
 
-Unless you explicitly state otherwise, any contribution intentionally submitted for inclusion in the work by you, as defined in the [Apache-2.0](https://github.com/0x676e67/rnet/blob/main/LICENSE) license, shall be licensed as above, without any additional terms or conditions.
+Unless you explicitly state otherwise, any contribution intentionally submitted for inclusion in the work by you, as defined in the [Apache-2.0](https://github.com/0x676e67/wreq/blob/main/LICENSE) license, shall be licensed as above, without any additional terms or conditions.

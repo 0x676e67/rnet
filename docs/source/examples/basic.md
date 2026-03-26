@@ -4,12 +4,12 @@
 
 ```python
 import asyncio
-import rnet
-from rnet import Method
+import wreq
+from wreq import Method
 
 
 async def main():
-    resp: rnet.Response = await rnet.request(Method.GET, url="https://www.google.com/")
+    resp: wreq.Response = await wreq.request(Method.GET, url="https://www.google.com/")
     print("Status Code: ", resp.status)
     print("Version: ", resp.version)
     print("Response URL: ", resp.url)
@@ -27,11 +27,11 @@ if __name__ == "__main__":
 
 ```python
 import asyncio
-import rnet
+import wreq
 
 
 async def main():
-    resp = await rnet.post(
+    resp = await wreq.post(
         "https://httpbin.io/anything",
         json={"key": "value"},
     )
@@ -46,11 +46,11 @@ if __name__ == "__main__":
 
 ```python
 import asyncio
-import rnet
+import wreq
 
 
 async def main():
-    client = rnet.Client()
+    client = wreq.Client()
 
     # use a list of tuples
     resp = await client.post(
@@ -86,7 +86,7 @@ if __name__ == "__main__":
 ## Custom Headers
 
 ```python
-from rnet.header import HeaderMap
+from wreq.header import HeaderMap
 
 
 if __name__ == "__main__":
@@ -107,12 +107,12 @@ if __name__ == "__main__":
 
 ```python
 import asyncio
-import rnet
+import wreq
 
 
 async def main():
     # Send list of tuples as query parameters
-    resp = await rnet.get(
+    resp = await wreq.get(
         "https://httpbin.io/anything",
         query=[
             ("key1", "value1"),
@@ -125,7 +125,7 @@ async def main():
     print(await resp.text())
 
     # OR send dictionary as query parameters
-    resp = await rnet.get(
+    resp = await wreq.get(
         "https://httpbin.io/anything",
         query={
             "keyA": "valueA",
@@ -146,12 +146,12 @@ if __name__ == "__main__":
 
 ```python
 import asyncio
-import rnet
-from rnet import Response
+import wreq
+from wreq import Response
 
 
 async def main():
-    resp: Response = await rnet.get("https://httpbin.io/stream/20")
+    resp: Response = await wreq.get("https://httpbin.io/stream/20")
     async with resp:
         async with resp.stream() as streamer:
             async for chunk in streamer:
@@ -165,7 +165,7 @@ if __name__ == "__main__":
 
 ```python
 import asyncio
-from rnet import Client
+from wreq import Client
 
 async def main():
     client = Client()

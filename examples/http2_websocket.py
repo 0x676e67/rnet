@@ -1,9 +1,9 @@
 import asyncio
 import datetime
 import signal
-import rnet
-from rnet import Message, WebSocket
-from rnet import exceptions
+import wreq
+from wreq import Message, WebSocket
+from wreq import exceptions
 
 
 async def send_message(ws):
@@ -44,7 +44,7 @@ Then run this Python script to connect to the websocket server.
 
 
 async def main():
-    client = rnet.Client(verify=False)
+    client = wreq.Client(verify=False)
     ws: WebSocket = await client.websocket("wss://127.0.0.1:3000/ws", force_http2=True)
     async with ws:
         print("Status Code: ", ws.status)

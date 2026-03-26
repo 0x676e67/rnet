@@ -1,10 +1,10 @@
 import asyncio
-import rnet
-from rnet.emulation import Emulation
+import wreq
+from wreq.emulation import Emulation
 
 
 async def main():
-    ws = await rnet.websocket(
+    ws = await wreq.websocket(
         "wss://gateway.discord.gg/",
         emulation=Emulation.Chrome137,
         headers={"Origin": "https://discord.com"},

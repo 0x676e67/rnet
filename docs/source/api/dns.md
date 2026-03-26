@@ -1,7 +1,7 @@
-# rnet.dns
+# wreq.dns
 
 DNS resolution settings and custom nameservers.
 
-::: rnet.dns
+::: wreq.dns
     options:
       show_root_heading: true

@@ -1,6 +1,6 @@
 # Quick Start
 
-This guide will help you get started with rnet quickly.
+This guide will help you get started with wreq quickly.
 
 ## Basic GET Request
 
@@ -8,7 +8,7 @@ This guide will help you get started with rnet quickly.
 
 ```python
 import asyncio
-from rnet import Client
+from wreq import Client
 
 async def main():
     client = Client()
@@ -22,7 +22,7 @@ asyncio.run(main())
 ### Blocking
 
 ```python
-from rnet.blocking import Client
+from wreq.blocking import Client
 
 client = Client()
 resp = client.get("https://httpbin.org/get")
@@ -34,7 +34,7 @@ print(resp.text())
 
 ```python
 import asyncio
-from rnet import Client
+from wreq import Client
 
 async def main():
     client = Client()
@@ -52,7 +52,7 @@ Emulate different browsers to bypass detection:
 
 ```python
 import asyncio
-from rnet import Client, Emulation
+from wreq import Client, Emulation
 
 async def main():
     # Emulate Chrome 120
@@ -67,8 +67,8 @@ asyncio.run(main())
 
 ```python
 import asyncio
-from rnet import Client
-from rnet.proxy import Proxy
+from wreq import Client
+from wreq.proxy import Proxy
 
 async def main():
     proxy = Proxy.http("http://proxy.example.com:8080")
@@ -83,8 +83,8 @@ asyncio.run(main())
 
 ```python
 import asyncio
-from rnet import Client
-from rnet.header import HeaderMap
+from wreq import Client
+from wreq.header import HeaderMap
 
 async def main():
     client = Client()

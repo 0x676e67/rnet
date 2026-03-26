@@ -4,8 +4,8 @@
 
 ```python
 import asyncio
-from rnet import Client
-from rnet.emulation import Emulation
+from wreq import Client
+from wreq.emulation import Emulation
 
 
 async def main():
@@ -25,8 +25,8 @@ if __name__ == "__main__":
 
 ```python
 import asyncio
-from rnet import Client
-from rnet.emulation import Emulation, EmulationOS, EmulationOption
+from wreq import Client
+from wreq.emulation import Emulation, EmulationOS, EmulationOption
 
 
 async def main():
@@ -52,10 +52,10 @@ if __name__ == "__main__":
 
 ```python
 import asyncio
-from rnet import Client
-from rnet.tls import TlsOptions, TlsVersion, AlpnProtocol
-from rnet.http2 import Http2Options, PseudoId, PseudoOrder
-from rnet.header import HeaderMap, OrigHeaderMap
+from wreq import Client
+from wreq.tls import TlsOptions, TlsVersion, AlpnProtocol
+from wreq.http2 import Http2Options, PseudoId, PseudoOrder
+from wreq.header import HeaderMap, OrigHeaderMap
 
 
 async def main():

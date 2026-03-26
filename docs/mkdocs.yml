@@ -1,10 +1,10 @@
-site_name: rnet
-site_description: Ergonomic Python HTTP Client with TLS Fingerprinting
+site_name: wreq
+site_description: Ergonomic Python HTTP Client with TLS Fingerprint
 site_author: "0x676e67"
-site_url: https://0x676e67.github.io/rnet
+site_url: https://0x676e67.github.io/wreq-python
 
-repo_name: "0x676e67/rnet"
-repo_url: https://github.com/0x676e67/rnet
+repo_name: "0x676e67/wreq-python"
+repo_url: https://github.com/0x676e67/wreq-python
 
 docs_dir: source
 
@@ -85,17 +85,17 @@ nav:
   - API Reference:
       - Core Module: api/core.md
       - Modules:
-          - rnet.blocking: api/blocking.md
-          - rnet.header: api/header.md
-          - rnet.cookie: api/cookie.md
-          - rnet.exceptions: api/exceptions.md
-          - rnet.emulation: api/emulation.md
-          - rnet.http1: api/http1.md
-          - rnet.http2: api/http2.md
-          - rnet.tls: api/tls.md
-          - rnet.dns: api/dns.md
-          - rnet.proxy: api/proxy.md
-          - rnet.redirect: api/redirect.md
+          - wreq.blocking: api/blocking.md
+          - wreq.header: api/header.md
+          - wreq.cookie: api/cookie.md
+          - wreq.exceptions: api/exceptions.md
+          - wreq.emulation: api/emulation.md
+          - wreq.http1: api/http1.md
+          - wreq.http2: api/http2.md
+          - wreq.tls: api/tls.md
+          - wreq.dns: api/dns.md
+          - wreq.proxy: api/proxy.md
+          - wreq.redirect: api/redirect.md
   - Examples:
       - Basic Usage: examples/basic.md
       - Browser Emulation: examples/emulation.md

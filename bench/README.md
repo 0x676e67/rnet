@@ -1,6 +1,6 @@
 # Benchmark
 
-benchmark between rnet and other python http clients
+benchmark between wreq and other python http clients
 
 
 Machine
@@ -42,7 +42,7 @@ Sync clients
 - pycurl
 - [python-tls-client](https://github.com/FlorianREGAZ/Python-Tls-Client.git)
 - httpx
-- rnet
+- wreq
 - ry
 
 Async clients
@@ -52,7 +52,7 @@ Async clients
 - httpx
 - niquests
 - aiohttp
-- rnet
+- wreq
 - ry
 
 Target

@@ -1,10 +1,10 @@
 import asyncio
-import rnet
-from rnet import Method
+import wreq
+from wreq import Method
 
 
 async def main():
-    resp: rnet.Response = await rnet.request(Method.GET, url="https://www.google.com/")
+    resp: wreq.Response = await wreq.request(Method.GET, url="https://www.google.com/")
     print("Status Code: ", resp.status)
     print("Version: ", resp.version)
     print("Response URL: ", resp.url)

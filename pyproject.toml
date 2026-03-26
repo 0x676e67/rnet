@@ -3,7 +3,7 @@ requires = ["maturin>=1.7,<2.0"]
 build-backend = "maturin"
 
 [project]
-name = "rnet"
+name = "wreq"
 requires-python = ">=3.11"
 classifiers = [
   "Programming Language :: Rust",
@@ -21,7 +21,7 @@ classifiers = [
   'Operating System :: Unix',
   'Operating System :: MacOS',
 ]
-description = "An ergonomic Python HTTP client with TLS fingerprint"
+description = "An ergonomic Python HTTP Client with TLS fingerprint"
 readme = "README.md"
 dynamic = ["version"]
 license = { text = "Apache-2.0" }
@@ -34,9 +34,9 @@ strip = true
 python-source = "python"
 
 [project.urls]
-Documentation = "https://github.com/0x676e67/rnet/blob/main/python/rnet"
-Homepage = "https://github.com/0x676e67/rnet"
-Repository = "https://github.com/0x676e67/rnet"
+Documentation = "https://github.com/0x676e67/wreq-python"
+Homepage = "https://github.com/0x676e67/wreq-python"
+Repository = "https://github.com/0x676e67/wreq-python"
 
 [dependency-groups]
 dev = [

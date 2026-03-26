@@ -1,6 +1,6 @@
 from pathlib import Path
-from rnet.blocking import Client
-from rnet import Multipart, Part
+from wreq.blocking import Client
+from wreq import Multipart, Part
 
 
 def file_to_bytes_stream(file_path):

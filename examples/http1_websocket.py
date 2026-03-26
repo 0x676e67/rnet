@@ -1,9 +1,9 @@
 import asyncio
 import datetime
 import signal
-import rnet
-from rnet import Message, WebSocket
-from rnet import exceptions
+import wreq
+from wreq import Message, WebSocket
+from wreq import exceptions
 
 
 async def send_message(ws: WebSocket):
@@ -32,7 +32,7 @@ async def recv_message(ws: WebSocket):
 
 
 async def main():
-    client = rnet.Client()
+    client = wreq.Client()
     ws: WebSocket = await client.websocket("wss://echo.websocket.org")
     async with ws:
         print("Status Code: ", ws.status)

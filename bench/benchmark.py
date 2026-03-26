@@ -24,8 +24,8 @@ import requests
 import tls_client
 import curl_cffi
 import curl_cffi.requests
-import rnet
-import rnet.blocking
+import wreq
+import wreq.blocking
 import uvloop
 import ry
 
@@ -159,9 +159,9 @@ def curl_cffi_session_test(url: str, count: int):
         s.close()
 
 
-def rnet_blocking_session_test(url: str, count: int):
-    """Benchmark rnet.blocking.Client"""
-    s = rnet.blocking.Client()
+def wreq_blocking_session_test(url: str, count: int):
+    """Benchmark wreq.blocking.Client"""
+    s = wreq.blocking.Client()
     for _ in range(count):
         s.get(url).bytes()
 
@@ -238,10 +238,10 @@ def curl_cffi_non_session_test(url: str, count: int):
             s.close()
 
 
-def rnet_blocking_non_session_test(url: str, count: int):
-    """Benchmark rnet.blocking without session"""
+def wreq_blocking_non_session_test(url: str, count: int):
+    """Benchmark wreq.blocking without session"""
     for _ in range(count):
-        s = rnet.blocking.Client()
+        s = wreq.blocking.Client()
         s.get(url).bytes()
 
 
@@ -303,9 +303,9 @@ async def niquests_async_session_test(url: str, count: int):
     await asyncio.gather(*tasks)
 
 
-async def rnet_async_session_test(url: str, count: int):
-    """Benchmark rnet.Client with session"""
-    s = rnet.Client()
+async def wreq_async_session_test(url: str, count: int):
+    """Benchmark wreq.Client with session"""
+    s = wreq.Client()
 
     async def _fetch():
         resp = await s.get(url)
@@ -374,10 +374,10 @@ async def niquests_async_non_session_test(url: str, count: int):
             await s.close()
 
 
-async def rnet_async_non_session_test(url: str, count: int):
-    """Benchmark rnet without session"""
+async def wreq_async_non_session_test(url: str, count: int):
+    """Benchmark wreq without session"""
     for _ in range(count):
-        s = rnet.Client()
+        s = wreq.Client()
         resp = await s.get(url)
         await resp.bytes()
 
@@ -412,7 +412,7 @@ SYNC_SESSION_TESTS = {
     niquests.Session: niquests_session_test,
     tls_client.Session: tls_client_session_test,
     curl_cffi.requests.Session: curl_cffi_session_test,
-    rnet.blocking.Client: rnet_blocking_session_test,
+    wreq.blocking.Client: wreq_blocking_session_test,
     PycurlSession: pycurl_session_test,
     ry.BlockingClient: ry_blocking_session_test,
 }
@@ -423,7 +423,7 @@ SYNC_NON_SESSION_TESTS = {
     niquests.Session: niquests_non_session_test,
     tls_client.Session: tls_client_non_session_test,
     curl_cffi.requests.Session: curl_cffi_non_session_test,
-    rnet.blocking.Client: rnet_blocking_non_session_test,
+    wreq.blocking.Client: wreq_blocking_non_session_test,
     PycurlSession: pycurl_non_session_test,
     ry.BlockingClient: ry_blocking_non_session_test,
 }
@@ -433,7 +433,7 @@ ASYNC_SESSION_TESTS = {
     httpx.AsyncClient: httpx_async_session_test,
     aiohttp.ClientSession: aiohttp_async_session_test,
     niquests.AsyncSession: niquests_async_session_test,
-    rnet.Client: rnet_async_session_test,
+    wreq.Client: wreq_async_session_test,
     curl_cffi.requests.AsyncSession: curl_cffi_async_session_test,
     ry.HttpClient: ry_async_session_test,
 }
@@ -442,7 +442,7 @@ ASYNC_NON_SESSION_TESTS = {
     httpx.AsyncClient: httpx_async_non_session_test,
     aiohttp.ClientSession: aiohttp_async_non_session_test,
     niquests.AsyncSession: niquests_async_non_session_test,
-    rnet.Client: rnet_async_non_session_test,
+    wreq.Client: wreq_async_non_session_test,
     curl_cffi.requests.AsyncSession: curl_cffi_async_non_session_test,
     ry.HttpClient: ry_async_non_session_test,
 }
@@ -635,7 +635,7 @@ def main():
         ("curl_cffi", curl_cffi.requests.Session),
         ("pycurl", PycurlSession),
         ("ry", ry.BlockingClient),
-        ("rnet", rnet.blocking.Client),
+        ("wreq", wreq.blocking.Client),
     ]
 
     # Define async packages
@@ -645,7 +645,7 @@ def main():
         ("curl_cffi", curl_cffi.requests.AsyncSession),
         ("aiohttp", aiohttp.ClientSession),
         ("ry", ry.HttpClient),
-        ("rnet", rnet.Client),
+        ("wreq", wreq.Client),
     ]
 
     # Add version information

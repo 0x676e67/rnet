@@ -1,7 +1,7 @@
-# rnet.redirect
+# wreq.redirect
 
 Configuration for handling HTTP redirects.
 
-::: rnet.redirect
+::: wreq.redirect
     options:
       show_root_heading: true

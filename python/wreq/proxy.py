@@ -1,6 +1,6 @@
 from typing import Dict, NotRequired, TypedDict, Unpack, final
 
-from rnet.header import HeaderMap
+from wreq.header import HeaderMap
 
 __all__ = ["Proxy"]
 
@@ -39,9 +39,9 @@ class Proxy:
         # Examples
 
         ```python
-        import rnet
+        import wreq
 
-        proxy = rnet.Proxy.http("http://proxy.example.com")
+        proxy = wreq.Proxy.http("http://proxy.example.com")
         ```
         """
         ...
@@ -56,9 +56,9 @@ class Proxy:
         # Examples
 
         ```python
-        import rnet
+        import wreq
 
-        proxy = rnet.Proxy.https("https://proxy.example.com")
+        proxy = wreq.Proxy.https("https://proxy.example.com")
         ```
         """
         ...
@@ -73,9 +73,9 @@ class Proxy:
         # Examples
 
         ```python
-        import rnet
+        import wreq
 
-        proxy = rnet.Proxy.all("https://proxy.example.com")
+        proxy = wreq.Proxy.all("https://proxy.example.com")
         ```
         """
         ...
@@ -90,9 +90,9 @@ class Proxy:
         # Examples
 
         ```python
-        import rnet
+        import wreq
 
-        proxy = rnet.Proxy.unix("/var/run/docker.sock")
+        proxy = wreq.Proxy.unix("/var/run/docker.sock")
         ```
         """
         ...

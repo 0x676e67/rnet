@@ -1,9 +1,9 @@
 import asyncio
-import rnet
+import wreq
 
 
 async def main():
-    resp = await rnet.get(
+    resp = await wreq.get(
         "https://httpbin.io/anything",
         basic_auth=("username", "password"),
     )

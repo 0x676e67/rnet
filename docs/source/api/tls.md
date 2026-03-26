@@ -1,7 +1,7 @@
-# rnet.tls
+# wreq.tls
 
 TLS/SSL configuration including certificates, key logging, and fingerprinting.
 
-::: rnet.tls
+::: wreq.tls
     options:
       show_root_heading: true

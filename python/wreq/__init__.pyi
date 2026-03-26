@@ -274,11 +274,11 @@ class Streamer:
 
     ```python
     import asyncio
-    import rnet
-    from rnet import Method, Emulation, HeaderMap
+    import wreq
+    from wreq import Method, Emulation, HeaderMap
 
     async def main():
-        resp = await rnet.get("https://example.com/stream-with-trailers")
+        resp = await wreq.get("https://example.com/stream-with-trailers")
         async with resp.stream() as streamer:
             async for chunk in streamer:
                 if isinstance(chunk, bytes):
@@ -311,10 +311,10 @@ class Response:
 
     ```python
     import asyncio
-    import rnet
+    import wreq
 
     async def main():
-        response = await rnet.get("https://www.rust-lang.org")
+        response = await wreq.get("https://www.rust-lang.org")
         print("Status Code: ", response.status)
         print("Version: ", response.version)
         print("Response URL: ", response.url)
@@ -1097,10 +1097,10 @@ class Client:
 
         ```python
         import asyncio
-        import rnet
+        import wreq
 
         async def main():
-            client = rnet.Client(
+            client = wreq.Client(
                 user_agent="Mozilla/5.0",
                 timeout=10,
             )
@@ -1124,12 +1124,12 @@ class Client:
         # Examples
 
         ```python
-        import rnet
+        import wreq
         import asyncio
-        from rnet import Method
+        from wreq import Method
 
         async def main():
-            client = rnet.Client()
+            client = wreq.Client()
             response = await client.request(Method.GET, "https://httpbin.io/anything")
             print(await response.text())
 
@@ -1148,13 +1148,13 @@ class Client:
         # Examples
 
         ```python
-        import rnet
+        import wreq
         import asyncio
 
         async def main():
-            client = rnet.Client()
+            client = wreq.Client()
             ws = await client.websocket("wss://echo.websocket.org")
-            await ws.send(rnet.Message.from_text("Hello, WebSocket!"))
+            await ws.send(wreq.Message.from_text("Hello, WebSocket!"))
             message = await ws.recv()
             print("Received:", message.data)
             await ws.close()
@@ -1174,12 +1174,12 @@ class Client:
         # Examples
 
         ```python
-        import rnet
+        import wreq
         import asyncio
-        from rnet import Method
+        from wreq import Method
 
         async def main():
-            client = rnet.Client()
+            client = wreq.Client()
             response = await client.trace("https://httpbin.io/anything")
             print(await response.text())
 
@@ -1198,12 +1198,12 @@ class Client:
         # Examples
 
         ```python
-        import rnet
+        import wreq
         import asyncio
-        from rnet import Method
+        from wreq import Method
 
         async def main():
-            client = rnet.Client()
+            client = wreq.Client()
             response = await client.options("https://httpbin.io/anything")
             print(await response.text())
 
@@ -1222,12 +1222,12 @@ class Client:
         # Examples
 
         ```python
-        import rnet
+        import wreq
         import asyncio
-        from rnet import Method
+        from wreq import Method
 
         async def main():
-            client = rnet.Client()
+            client = wreq.Client()
             response = await client.patch("https://httpbin.io/anything", json={"key": "value"})
             print(await response.text())
 
@@ -1246,12 +1246,12 @@ class Client:
         # Examples
 
         ```python
-        import rnet
+        import wreq
         import asyncio
-        from rnet import Method
+        from wreq import Method
 
         async def main():
-            client = rnet.Client()
+            client = wreq.Client()
             response = await client.delete("https://httpbin.io/anything")
             print(await response.text())
 
@@ -1270,12 +1270,12 @@ class Client:
         # Examples
 
         ```python
-        import rnet
+        import wreq
         import asyncio
-        from rnet import Method
+        from wreq import Method
 
         async def main():
-            client = rnet.Client()
+            client = wreq.Client()
             response = await client.put("https://httpbin.io/anything", json={"key": "value"})
             print(await response.text())
 
@@ -1294,12 +1294,12 @@ class Client:
         # Examples
 
         ```python
-        import rnet
+        import wreq
         import asyncio
-        from rnet import Method
+        from wreq import Method
 
         async def main():
-            client = rnet.Client()
+            client = wreq.Client()
             response = await client.post("https://httpbin.io/anything", json={"key": "value"})
             print(await response.text())
 
@@ -1318,12 +1318,12 @@ class Client:
         # Examples
 
         ```python
-        import rnet
+        import wreq
         import asyncio
-        from rnet import Method
+        from wreq import Method
 
         async def main():
-            client = rnet.Client()
+            client = wreq.Client()
             response = await client.head("https://httpbin.io/anything")
             print(response.status)
 
@@ -1342,12 +1342,12 @@ class Client:
         # Examples
 
         ```python
-        import rnet
+        import wreq
         import asyncio
-        from rnet import Method
+        from wreq import Method
 
         async def main():
-            client = rnet.Client()
+            client = wreq.Client()
             response = await client.get("https://httpbin.io/anything")
             print(await response.text())
 
@@ -1370,11 +1370,11 @@ async def delete(
     # Examples
 
     ```python
-    import rnet
+    import wreq
     import asyncio
 
     async def run():
-        response = await rnet.delete("https://httpbin.io/anything")
+        response = await wreq.delete("https://httpbin.io/anything")
         body = await response.text()
         print(body)
 
@@ -1392,11 +1392,11 @@ async def get(
     # Examples
 
     ```python
-    import rnet
+    import wreq
     import asyncio
 
     async def run():
-        response = await rnet.get("https://httpbin.io/anything")
+        response = await wreq.get("https://httpbin.io/anything")
         body = await response.text()
         print(body)
 
@@ -1414,11 +1414,11 @@ async def head(
     # Examples
 
     ```python
-    import rnet
+    import wreq
     import asyncio
 
     async def run():
-        response = await rnet.head("https://httpbin.io/anything")
+        response = await wreq.head("https://httpbin.io/anything")
         print(response.status)
 
     asyncio.run(run())
@@ -1435,11 +1435,11 @@ async def options(
     # Examples
 
     ```python
-    import rnet
+    import wreq
     import asyncio
 
     async def run():
-        response = await rnet.options("https://httpbin.io/anything")
+        response = await wreq.options("https://httpbin.io/anything")
         print(response.status)
 
     asyncio.run(run())
@@ -1456,11 +1456,11 @@ async def patch(
     # Examples
 
     ```python
-    import rnet
+    import wreq
     import asyncio
 
     async def run():
-        response = await rnet.patch("https://httpbin.io/anything")
+        response = await wreq.patch("https://httpbin.io/anything")
         body = await response.text()
         print(body)
 
@@ -1478,11 +1478,11 @@ async def post(
     # Examples
 
     ```python
-    import rnet
+    import wreq
     import asyncio
 
     async def run():
-        response = await rnet.post("https://httpbin.io/anything")
+        response = await wreq.post("https://httpbin.io/anything")
         body = await response.text()
         print(body)
 
@@ -1500,11 +1500,11 @@ async def put(
     # Examples
 
     ```python
-    import rnet
+    import wreq
     import asyncio
 
     async def run():
-        response = await rnet.put("https://httpbin.io/anything")
+        response = await wreq.put("https://httpbin.io/anything")
         body = await response.text()
         print(body)
 
@@ -1529,12 +1529,12 @@ async def request(
     # Examples
 
     ```python
-    import rnet
+    import wreq
     import asyncio
-    from rnet import Method
+    from wreq import Method
 
     async def run():
-        response = await rnet.request(Method.GET, "https://www.rust-lang.org")
+        response = await wreq.request(Method.GET, "https://www.rust-lang.org")
         body = await response.text()
         print(body)
 
@@ -1552,11 +1552,11 @@ async def trace(
     # Examples
 
     ```python
-    import rnet
+    import wreq
     import asyncio
 
     async def run():
-        response = await rnet.trace("https://httpbin.io/anything")
+        response = await wreq.trace("https://httpbin.io/anything")
         print(response.status)
 
     asyncio.run(run())
@@ -1573,12 +1573,12 @@ async def websocket(
     # Examples
 
     ```python
-    import rnet
+    import wreq
     import asyncio
-    from rnet import Message
+    from wreq import Message
 
     async def run():
-        ws = await rnet.websocket("wss://echo.websocket.org")
+        ws = await wreq.websocket("wss://echo.websocket.org")
         await ws.send(Message.from_text("Hello, World!"))
         message = await ws.recv()
         print("Received:", message.data)

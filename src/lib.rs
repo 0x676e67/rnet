@@ -330,7 +330,7 @@ pub async fn websocket(
 }
 
 #[pymodule(gil_used = false)]
-fn rnet(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
+fn wreq(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     use r#async::{delete, get, head, options, patch, post, put, request, trace, websocket};
 
     Python::initialize();
@@ -372,33 +372,33 @@ fn rnet(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
 
     let sys = PyModule::import(py, intern!(py, "sys"))?;
     let sys_modules: Bound<'_, PyDict> = sys.getattr(intern!(py, "modules"))?.cast_into()?;
-    sys_modules.set_item(intern!(py, "rnet.proxy"), m.getattr(intern!(py, "proxy"))?)?;
-    sys_modules.set_item(intern!(py, "rnet.dns"), m.getattr(intern!(py, "dns"))?)?;
-    sys_modules.set_item(intern!(py, "rnet.http1"), m.getattr(intern!(py, "http1"))?)?;
-    sys_modules.set_item(intern!(py, "rnet.http2"), m.getattr(intern!(py, "http2"))?)?;
-    sys_modules.set_item(intern!(py, "rnet.tls"), m.getattr(intern!(py, "tls"))?)?;
+    sys_modules.set_item(intern!(py, "wreq.proxy"), m.getattr(intern!(py, "proxy"))?)?;
+    sys_modules.set_item(intern!(py, "wreq.dns"), m.getattr(intern!(py, "dns"))?)?;
+    sys_modules.set_item(intern!(py, "wreq.http1"), m.getattr(intern!(py, "http1"))?)?;
+    sys_modules.set_item(intern!(py, "wreq.http2"), m.getattr(intern!(py, "http2"))?)?;
+    sys_modules.set_item(intern!(py, "wreq.tls"), m.getattr(intern!(py, "tls"))?)?;
     sys_modules.set_item(
-        intern!(py, "rnet.header"),
+        intern!(py, "wreq.header"),
         m.getattr(intern!(py, "header"))?,
     )?;
     sys_modules.set_item(
-        intern!(py, "rnet.cookie"),
+        intern!(py, "wreq.cookie"),
         m.getattr(intern!(py, "cookie"))?,
     )?;
     sys_modules.set_item(
-        intern!(py, "rnet.emulation"),
+        intern!(py, "wreq.emulation"),
         m.getattr(intern!(py, "emulation"))?,
     )?;
     sys_modules.set_item(
-        intern!(py, "rnet.redirect"),
+        intern!(py, "wreq.redirect"),
         m.getattr(intern!(py, "redirect"))?,
     )?;
     sys_modules.set_item(
-        intern!(py, "rnet.blocking"),
+        intern!(py, "wreq.blocking"),
         m.getattr(intern!(py, "blocking"))?,
     )?;
     sys_modules.set_item(
-        intern!(py, "rnet.exceptions"),
+        intern!(py, "wreq.exceptions"),
         m.getattr(intern!(py, "exceptions"))?,
     )?;
     Ok(())

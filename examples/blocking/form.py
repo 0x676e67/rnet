@@ -1,4 +1,4 @@
-from rnet.blocking import Client
+from wreq.blocking import Client
 
 
 def main():

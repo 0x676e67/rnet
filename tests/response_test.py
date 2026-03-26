@@ -1,9 +1,9 @@
 import pytest
-import rnet
+import wreq
 from pathlib import Path
-from rnet import Version, Multipart, Part
+from wreq import Version, Multipart, Part
 
-client = rnet.Client(tls_info=True)
+client = wreq.Client(tls_info=True)
 
 
 @pytest.mark.asyncio
@@ -38,7 +38,7 @@ async def test_multiple_requests():
         text = await resp.text()
         assert "111" in text
         assert "000" in text
-        assert "rnet" in text
+        assert "wreq" in text
 
 
 @pytest.mark.asyncio
