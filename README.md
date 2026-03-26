@@ -6,7 +6,7 @@
 [![PyPI](https://img.shields.io/pypi/v/wreq?logo=python)](https://pypi.org/project/wreq/)
 [![Discord chat][discord-badge]][discord-url]
 
-[discord-badge]: https://img.shields.io/discord/500028886025895936.svg?logo=discord
+[discord-badge]: https://img.shields.io/discord/1486741856397164788.svg?logo=discord
 [discord-url]: https://discord.gg/rfbvyFkgq3
 
 > 🚀 Help me work seamlessly with open source sharing by [sponsoring me on GitHub](https://github.com/0x676e67/0x676e67/blob/main/SPONSOR.md)
