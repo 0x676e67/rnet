@@ -4,7 +4,10 @@
 ![GitHub License](https://img.shields.io/github/license/0x676e67/wreq-python?color=blue)
 ![Python Version from PEP 621 TOML](https://img.shields.io/python/required-version-toml?tomlFilePath=https%3A%2F%2Fraw.githubusercontent.com%2F0x676e67%2Frnet%2Fmain%2Fpyproject.toml&logo=python)
 [![PyPI](https://img.shields.io/pypi/v/wreq?logo=python)](https://pypi.org/project/wreq/)
-[![PyPI Downloads](https://static.pepy.tech/badge/wreq)](https://pepy.tech/projects/wreq)
+[![Discord chat][discord-badge]][discord-url]
+
+[discord-badge]: https://img.shields.io/discord/500028886025895936.svg?logo=discord
+[discord-url]: https://discord.gg/rfbvyFkgq3
 
 > 🚀 Help me work seamlessly with open source sharing by [sponsoring me on GitHub](https://github.com/0x676e67/0x676e67/blob/main/SPONSOR.md)
 
