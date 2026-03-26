@@ -36,7 +36,7 @@ An ergonomic and modular Python HTTP client for advanced and low-level emulation
 The following example uses the `asyncio` runtime with `wreq` installed via pip:
 
 ```bash
-pip install wreq --upgrade
+pip install wreq
 ```
 
 And then the code:
