@@ -34,7 +34,7 @@ strip = true
 python-source = "python"
 
 [project.urls]
-Documentation = "https://github.com/0x676e67/wreq-python"
+Documentation = "https://python.wreq.org"
 Homepage = "https://github.com/0x676e67/wreq-python"
 Repository = "https://github.com/0x676e67/wreq-python"
 
