@@ -1,10 +1,13 @@
-# wreq
+# wreq-python
 
-[![CI](https://github.com/0x676e67/wreq/actions/workflows/ci.yml/badge.svg)](https://github.com/0x676e67/wreq/actions/workflows/ci.yml)
-![GitHub License](https://img.shields.io/github/license/0x676e67/wreq?color=blue)
-![Python Version from PEP 621 TOML](https://img.shields.io/python/required-version-toml?tomlFilePath=https%3A%2F%2Fraw.githubusercontent.com%2F0x676e67%2Fwreq%2Fmain%2Fpyproject.toml&logo=python)
+[![CI](https://github.com/0x676e67/wreq-python/actions/workflows/ci.yml/badge.svg)](https://github.com/0x676e67/wreq-python/actions/workflows/ci.yml)
+![GitHub License](https://img.shields.io/github/license/0x676e67/wreq-python?color=blue)
+![Python Version from PEP 621 TOML](https://img.shields.io/python/required-version-toml?tomlFilePath=https%3A%2F%2Fraw.githubusercontent.com%2F0x676e67%2Frnet%2Fmain%2Fpyproject.toml&logo=python)
 [![PyPI](https://img.shields.io/pypi/v/wreq?logo=python)](https://pypi.org/project/wreq/)
-[![PyPI Downloads](https://static.pepy.tech/badge/wreq)](https://pepy.tech/projects/wreq)
+[![Discord chat][discord-badge]][discord-url]
+
+[discord-badge]: https://img.shields.io/discord/1486741856397164788.svg?logo=discord
+[discord-url]: https://discord.gg/rfbvyFkgq3
 
 > 🚀 Help me work seamlessly with open source sharing by [sponsoring me on GitHub](https://github.com/0x676e67/0x676e67/blob/main/SPONSOR.md)
 
@@ -33,7 +36,7 @@ An ergonomic and modular Python HTTP client for advanced and low-level emulation
 The following example uses the `asyncio` runtime with `wreq` installed via pip:
 
 ```bash
-pip install asyncio wreq --pre --upgrade
+pip install wreq --upgrade
 ```
 
 And then the code:
@@ -54,13 +57,14 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
+
 ```
 
 Additional learning resources include:
 
-- [Documentation](getting-started/quickstart.md)
-- [Synchronous Examples](https://github.com/0x676e67/wreq/tree/main/python/examples/blocking)
-- [Asynchronous Examples](https://github.com/0x676e67/wreq/tree/main/python/examples)
+- [DeepWiki](https://deepwiki.com/0x676e67/wreq-python)
+- [Examples](https://github.com/0x676e67/wreq-python/tree/main/examples)
+- [Documentation](https://wreq.readthedocs.io/)
 
 ## Behavior
 
@@ -104,7 +108,7 @@ Most browser device models share identical TLS and HTTP/2 configurations, differ
 
 2. Development
 
-Install the BoringSSL build environment by referring to [boring](https://github.com/cloudflare/boring/blob/master/.github/workflows/ci.yml) and [boringssl](https://github.com/google/boringssl/blob/master/BUILDING.md#build-prerequisites).
+Install the BoringSSL build environment by referring to [boringssl](https://github.com/google/boringssl/blob/main/BUILDING.md).
 
 ```bash
 # on ubuntu or debian
