@@ -28,15 +28,10 @@ build:
     # https://docs.readthedocs.io/page/guides/reproducible-builds.html
     install:
       - pip install zensical
+      - pip install -r docs/requirements.txt
     build:
       html:
         - zensical build -f docs/mkdocs.yml
     post_build:
       - mkdir -p $READTHEDOCS_OUTPUT/html/
-      - cp --recursive site/* $READTHEDOCS_OUTPUT/html/
-# Optionally, but recommended,
-# declare the Python requirements required to build your documentation
-# See https://docs.readthedocs.io/en/stable/guides/reproducible-builds.html
-python:
-  install:
-    - requirements: docs/requirements.txt
+      - cp --recursive docs/site/* $READTHEDOCS_OUTPUT/html/
