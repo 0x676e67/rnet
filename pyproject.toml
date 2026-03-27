@@ -29,8 +29,6 @@ authors = [{ name = "0x676e67", email = "gngppz@gmail.com" }]
 keywords = ["http", "client", "websocket", "ja3", "ja4"]
 
 [tool.maturin]
-features = ["pyo3/extension-module", "pyo3/generate-import-lib"]
-strip = true
 python-source = "python"
 
 [project.urls]
@@ -38,12 +36,17 @@ Documentation = "https://python.wreq.org"
 Homepage = "https://github.com/0x676e67/wreq-python"
 Repository = "https://github.com/0x676e67/wreq-python"
 
-[dependency-groups]
-dev = [
-  "pytest>=8.3.5; python_version >= '3.8'",
-  "pytest>=7.4.4; python_version == '3.7'",
-  "pytest-asyncio>=0.25.3; python_version >= '3.9'",
-  "pytest-rerunfailures>=15.0; python_version >= '3.9'",
+[project.optional-dependencies]
+test = [
+  "pytest",
+  "pytest-asyncio",
+  "pytest-rerunfailures",
+]
+docs = [
+  "zensical",
+  "mkdocs-material>=9.5.0",
+  "mkdocstrings[python]>=1.0.3",
+  "mike>=2.0.0",
 ]
 
 [tool.ruff]
