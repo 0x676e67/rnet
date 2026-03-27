@@ -115,17 +115,10 @@ impl Response {
 
     /// Forcefully destroys the response [`Body`], preventing any further reads.
     fn destroy(&self) {
-        if let Some(body) = self.body.swap(None) {
-            if let Ok(body) = Arc::try_unwrap(body) {
-                ::std::mem::drop(body);
-            }
-        }
-    }
-}
-
-impl Drop for Response {
-    fn drop(&mut self) {
-        self.destroy();
+        self.body
+            .swap(None)
+            .and_then(Arc::into_inner)
+            .map(::std::mem::drop);
     }
 }
 
@@ -300,13 +293,13 @@ impl Display for Response {
     }
 }
 
-// ===== impl BlockingResponse =====
-
-impl Drop for BlockingResponse {
+impl Drop for Response {
     fn drop(&mut self) {
-        self.0.destroy();
+        self.destroy();
     }
 }
+
+// ===== impl BlockingResponse =====
 
 #[pymethods]
 impl BlockingResponse {
@@ -471,5 +464,11 @@ impl Display for BlockingResponse {
     #[inline]
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         self.0.fmt(f)
+    }
+}
+
+impl Drop for BlockingResponse {
+    fn drop(&mut self) {
+        self.0.destroy();
     }
 }
