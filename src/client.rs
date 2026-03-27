@@ -608,7 +608,7 @@ impl Client {
 
     #[inline]
     async fn __aexit__(&self, _exc_type: Py<PyAny>, _exc_val: Py<PyAny>, _traceback: Py<PyAny>) {
-        self.cancel.cancel();
+        self.close();
     }
 }
 
@@ -780,6 +780,6 @@ impl BlockingClient {
         _exc_value: &Bound<'py, PyAny>,
         _traceback: &Bound<'py, PyAny>,
     ) {
-        // TODO: Implement connection closing logic if necessary.
+        self.close();
     }
 }
