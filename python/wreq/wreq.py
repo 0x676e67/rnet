@@ -1150,8 +1150,10 @@ class Client:
 
         async def main():
             client = wreq.Client()
+
             response = await client.get('https://httpbin.io/get')
             print(await response.text())
+
             client.close()
 
         asyncio.run(main())

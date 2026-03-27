@@ -268,13 +268,12 @@ class Client:
         import asyncio
         import wreq
 
-        async def main():
-            client = wreq.Client()
-            response = await client.get('https://httpbin.io/get')
-            print(await response.text())
-            client.close()
+        client = wreq.blocking.Client()
 
-        asyncio.run(main())
+        response = client.get('https://httpbin.io/get')
+        print(response.text())
+
+        client.close()
         ```
         """
         ...
