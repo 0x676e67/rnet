@@ -9,7 +9,6 @@ and provides a cookie jar for automatic cookie handling during HTTP requests.
 import datetime
 from enum import Enum, auto
 from typing import Sequence, final
-from warnings import deprecated
 
 __all__ = ["SameSite", "Cookie", "Jar"]
 

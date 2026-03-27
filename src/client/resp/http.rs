@@ -44,7 +44,7 @@ enum Body {
 }
 
 /// A blocking response from a request.
-#[pyclass(name = "Response", subclass, frozen, str)]
+#[pyclass(name = "Response", subclass, frozen, str, skip_from_py_object)]
 pub struct BlockingResponse(Response);
 
 // ===== impl Response =====
@@ -115,6 +115,7 @@ impl Response {
 
     /// Forcefully destroys the response [`Body`], preventing any further reads.
     fn destroy(&self) {
+        #[allow(clippy::option_map_unit_fn)]
         self.body
             .swap(None)
             .and_then(Arc::into_inner)
