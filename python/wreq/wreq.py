@@ -479,6 +479,11 @@ class WebSocket:
     Get the remote address of the response.
     """
 
+    local_addr: SocketAddr | None
+    r"""
+    Get the local address of the response.
+    """
+
     protocol: str | None
     r"""
     Get the WebSocket protocol.
