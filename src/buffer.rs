@@ -24,7 +24,7 @@ use wreq::header::{HeaderName, HeaderValue, OrigHeaderName};
 /// [`PyBuffer`] enables zero-copy conversion of Rust [`Bytes`] to Python bytes.
 pub struct PyBuffer(BufferView);
 
-#[pyclass(frozen)]
+#[pyclass(frozen, skip_from_py_object)]
 struct BufferView(Bytes);
 
 // ===== PyBuffer =====
