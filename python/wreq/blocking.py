@@ -256,6 +256,29 @@ class Client:
         """
         ...
 
+    def close(self) -> None:
+        r"""
+        Closes the client and any associated resources.
+
+        After calling this method, the client should not be used to make further requests.
+
+        Examples:
+
+        ```python
+        import asyncio
+        import wreq
+
+        async def main():
+            client = wreq.Client()
+            response = await client.get('https://httpbin.io/get')
+            print(await response.text())
+            client.close()
+
+        asyncio.run(main())
+        ```
+        """
+        ...
+
     def request(
         self,
         method: Method,

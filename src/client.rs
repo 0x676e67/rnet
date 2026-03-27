@@ -15,6 +15,7 @@ use std::{
 
 use pyo3::{IntoPyObjectExt, coroutine::CancelHandle, prelude::*, pybacked::PyBackedStr};
 use req::{Request, WebSocketRequest};
+use tokio_util::sync::CancellationToken;
 use wreq::{Proxy, tls::CertStore};
 use wreq_util::EmulationOption;
 
@@ -234,6 +235,7 @@ impl FromPyObject<'_, '_> for Builder {
 #[pyclass(subclass, frozen, skip_from_py_object)]
 pub struct Client {
     inner: wreq::Client,
+    cancel: CancellationToken,
 
     /// Get the cookie jar of the client.
     #[pyo3(get)]
@@ -449,10 +451,20 @@ impl Client {
 
             builder
                 .build()
-                .map(|inner| Client { inner, cookie_jar })
+                .map(|inner| Client {
+                    inner,
+                    cancel: CancellationToken::new(),
+                    cookie_jar,
+                })
                 .map_err(Error::Library)
                 .map_err(Into::into)
         })
+    }
+
+    /// Close the client, preventing any new requests.
+    #[inline]
+    pub fn close(&self) {
+        self.cancel.cancel();
     }
 
     /// Make a GET request to the given URL.
@@ -561,9 +573,10 @@ impl Client {
         url: PyBackedStr,
         kwds: Option<Request>,
     ) -> PyResult<Response> {
-        NoGIL::new(
+        NoGIL::new_with_token(
             execute_request(self.inner.clone(), method, url, kwds),
             cancel,
+            self.cancel.clone(),
         )
         .await
     }
@@ -577,9 +590,10 @@ impl Client {
         url: PyBackedStr,
         kwds: Option<WebSocketRequest>,
     ) -> PyResult<WebSocket> {
-        NoGIL::new(
+        NoGIL::new_with_token(
             execute_websocket_request(self.inner.clone(), url, kwds),
             cancel,
+            self.cancel.clone(),
         )
         .await
     }
@@ -594,7 +608,7 @@ impl Client {
 
     #[inline]
     async fn __aexit__(&self, _exc_type: Py<PyAny>, _exc_val: Py<PyAny>, _traceback: Py<PyAny>) {
-        // TODO: Implement connection closing logic if necessary.
+        self.cancel.cancel();
     }
 }
 
@@ -615,6 +629,12 @@ impl BlockingClient {
     #[getter]
     pub fn cookie_jar(&self) -> Option<Jar> {
         self.0.cookie_jar.clone()
+    }
+
+    /// Close the client, preventing any new requests.
+    #[inline]
+    pub fn close(&self) {
+        self.0.close();
     }
 
     /// Make a GET request to the specified URL.
