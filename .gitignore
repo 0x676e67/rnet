@@ -84,3 +84,4 @@ keylog.txt
 *.csv
 *.png
 docs/site
+*.pdb
