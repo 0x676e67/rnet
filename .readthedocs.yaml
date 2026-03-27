@@ -28,7 +28,7 @@ build:
     # https://docs.readthedocs.io/page/guides/reproducible-builds.html
     install:
       - pip install zensical
-      - pip install -r docs/requirements.txt
+      - pip install .[docs]
     build:
       html:
         - zensical build -f docs/mkdocs.yml

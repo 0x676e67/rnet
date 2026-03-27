@@ -8,25 +8,22 @@ name: CI
 on:
   push:
     tags:
-      - '*'
+      - "*"
   pull_request:
     paths-ignore:
-      - 'docs/**'
-      - 'benchmark/**'
-      - '*.pyi'
-      - '*.md'
-      - '.github/**'
-      - 'python/**'
-      - 'README.md'
+      - "docs/**"
+      - "benchmark/**"
+      - "*.pyi"
+      - "*.md"
+      - ".github/**"
+      - "python/**"
+      - "README.md"
   workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref_name }}-${{ github.event.pull_request.number || github.sha }}
   cancel-in-progress: true
 
-env:
-  MATURIN_VERSION: '1.10.2'
-  
 permissions:
   contents: write
   packages: write
@@ -71,7 +68,8 @@ jobs:
           source .venv/bin/activate
       - name: Install dependencies
         run: |
-          uv pip install maturin==${{ env.MATURIN_VERSION }} pytest pytest-asyncio pytest-rerunfailures
+          uv pip install .[test]
+          uv pip install maturin
       - name: Build wheels
         run: |
           source .venv/bin/activate
@@ -95,7 +93,7 @@ jobs:
           - runner: ubuntu-latest
             target: x86_64
             allocator: jemalloc
-            apt_packages: ''
+            apt_packages: ""
             custom_env: {}
           - runner: ubuntu-latest
             target: x86
@@ -140,9 +138,9 @@ jobs:
           rust-toolchain: stable
           target: ${{ matrix.platform.target }}
           args: ${{ matrix.platform.target == 'x86_64' && '--release --out dist --zig' || '--release --out dist' }} ${{ matrix.build_type.maturin_args }} --features ${{ matrix.platform.allocator }}
-          sccache: 'false'
+          sccache: "false"
           manylinux: auto
-          container: 'off'
+          container: "off"
         env: ${{ matrix.platform.custom_env }}
       - name: Upload wheels
         uses: actions/upload-artifact@v7
@@ -176,8 +174,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - name: Build wheels
-        run: 
-          bash .github/musl_build.sh ${{ matrix.platform.target }} "${{ matrix.build_type.maturin_args }}" --features "${{ matrix.platform.allocator }}"
+        run: bash .github/musl_build.sh ${{ matrix.platform.target }} "${{ matrix.build_type.maturin_args }}" --features "${{ matrix.platform.allocator }}"
         env:
           MATURIN_VERSION: ${{ env.MATURIN_VERSION }}
       - name: Upload wheels
@@ -224,7 +221,7 @@ jobs:
           maturin-version: ${{ env.MATURIN_VERSION }}
           target: ${{ matrix.platform.target }}
           args: --release --out dist ${{ matrix.build_type.maturin_args }} --features ${{ matrix.platform.allocator || '' }}
-          sccache: 'false'
+          sccache: "false"
       - name: Upload wheels
         uses: actions/upload-artifact@v7
         with:
@@ -263,7 +260,7 @@ jobs:
           maturin-version: ${{ env.MATURIN_VERSION }}
           target: ${{ matrix.platform.target }}
           args: --release --out dist ${{ matrix.build_type.maturin_args }} --features ${{ matrix.platform.allocator || '' }}
-          sccache: 'false'
+          sccache: "false"
       - name: Upload wheels
         uses: actions/upload-artifact@v7
         with:
@@ -276,78 +273,78 @@ jobs:
     strategy:
       matrix:
         include:
-        - thing: arm64-android
-          target: aarch64-linux-android
-          arch: aarch64
-          python_version: 3.14.0
-          features: abi3-py314
-        - thing: x86_64-android
-          target: x86_64-linux-android
-          arch: x86_64
-          python_version: 3.14.0
-          features: abi3-py314
+          - thing: arm64-android
+            target: aarch64-linux-android
+            arch: aarch64
+            python_version: 3.14.0
+            features: abi3-py314
+          - thing: x86_64-android
+            target: x86_64-linux-android
+            arch: x86_64
+            python_version: 3.14.0
+            features: abi3-py314
 
     steps:
-    - uses: actions/checkout@v6
-    - uses: actions/setup-python@v6
-      with:
-        python-version: 3.x
-    - name: Set Android Linker path
-      if: endsWith(matrix.thing, '-android')
-      run: | 
-        LINKER_PATH="$ANDROID_NDK/toolchains/llvm/prebuilt/linux-x86_64/bin/$(echo ${{ matrix.target }} | sed s/armv7/armv7a/)21-clang++"
-        echo "CARGO_TARGET_$(echo ${{ matrix.target }} | tr \\-a-z _A-Z)_LINKER=$LINKER_PATH" >> "$GITHUB_ENV"
-        echo "$PATH:$ANDROID_NDK/toolchains/llvm/prebuilt/linux-x86_64/bin" >> "$GITHUB_PATH"
-        env
-    - name: Download and setup Android Python
-      run: |
-        wget https://www.python.org/ftp/python/${{ matrix.python_version }}/python-${{ matrix.python_version }}-${{ matrix.arch }}-linux-android.tar.gz
-    
-        mkdir -p /tmp/python-android
-        tar -xzf python-${{ matrix.python_version }}-${{ matrix.arch }}-linux-android.tar.gz -C /tmp/python-android --strip-components=1
-    
-        mv /tmp/python-android/prefix/lib /tmp/python-android/
-        mv /tmp/python-android/prefix/include /tmp/python-android/
-    
-        echo "RUSTFLAGS=-L native=/tmp/python-android/lib" >> "$GITHUB_ENV"
-    
-        echo "=== Root directory after move ==="
-        ls -la /tmp/python-android/
-        echo "=== Lib directory ==="
-        ls -la /tmp/python-android/lib/ | head -10
-        echo "=== Include directory ==="
-        ls -la /tmp/python-android/include/
-    - name: Build wheels
-      uses: PyO3/maturin-action@v1
-      with:
-        maturin-version: ${{ env.MATURIN_VERSION }}
-        rust-toolchain: stable
-        target: ${{ matrix.target }}
-        args: --release --out dist --no-default-features --features ${{ matrix.features }} --skip-auditwheel
-        sccache: 'false'
-        container: 'off'
-    - name: Fix Android wheel platform tags
-      run: |
-        cd dist
-        for wheel in *.whl; do
-          case "$wheel" in
-            *linux_aarch64*)
-              new_wheel=${wheel/linux_aarch64/android_21_arm64_v8a}
-              mv "$wheel" "$new_wheel"
-              echo "Renamed: $wheel -> $new_wheel"
-              ;;
-            *linux_x86_64*)
-              new_wheel=${wheel/linux_x86_64/android_21_x86_64}
-              mv "$wheel" "$new_wheel" 
-              echo "Renamed: $wheel -> $new_wheel"
-              ;;
-          esac
-        done
-    - name: Upload wheels
-      uses: actions/upload-artifact@v7
-      with:
-        name: wheels-android-${{ matrix.target }}
-        path: dist
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: 3.x
+      - name: Set Android Linker path
+        if: endsWith(matrix.thing, '-android')
+        run: |
+          LINKER_PATH="$ANDROID_NDK/toolchains/llvm/prebuilt/linux-x86_64/bin/$(echo ${{ matrix.target }} | sed s/armv7/armv7a/)21-clang++"
+          echo "CARGO_TARGET_$(echo ${{ matrix.target }} | tr \\-a-z _A-Z)_LINKER=$LINKER_PATH" >> "$GITHUB_ENV"
+          echo "$PATH:$ANDROID_NDK/toolchains/llvm/prebuilt/linux-x86_64/bin" >> "$GITHUB_PATH"
+          env
+      - name: Download and setup Android Python
+        run: |
+          wget https://www.python.org/ftp/python/${{ matrix.python_version }}/python-${{ matrix.python_version }}-${{ matrix.arch }}-linux-android.tar.gz
+
+          mkdir -p /tmp/python-android
+          tar -xzf python-${{ matrix.python_version }}-${{ matrix.arch }}-linux-android.tar.gz -C /tmp/python-android --strip-components=1
+
+          mv /tmp/python-android/prefix/lib /tmp/python-android/
+          mv /tmp/python-android/prefix/include /tmp/python-android/
+
+          echo "RUSTFLAGS=-L native=/tmp/python-android/lib" >> "$GITHUB_ENV"
+
+          echo "=== Root directory after move ==="
+          ls -la /tmp/python-android/
+          echo "=== Lib directory ==="
+          ls -la /tmp/python-android/lib/ | head -10
+          echo "=== Include directory ==="
+          ls -la /tmp/python-android/include/
+      - name: Build wheels
+        uses: PyO3/maturin-action@v1
+        with:
+          maturin-version: ${{ env.MATURIN_VERSION }}
+          rust-toolchain: stable
+          target: ${{ matrix.target }}
+          args: --release --out dist --no-default-features --features ${{ matrix.features }} --skip-auditwheel
+          sccache: "false"
+          container: "off"
+      - name: Fix Android wheel platform tags
+        run: |
+          cd dist
+          for wheel in *.whl; do
+            case "$wheel" in
+              *linux_aarch64*)
+                new_wheel=${wheel/linux_aarch64/android_21_arm64_v8a}
+                mv "$wheel" "$new_wheel"
+                echo "Renamed: $wheel -> $new_wheel"
+                ;;
+              *linux_x86_64*)
+                new_wheel=${wheel/linux_x86_64/android_21_x86_64}
+                mv "$wheel" "$new_wheel" 
+                echo "Renamed: $wheel -> $new_wheel"
+                ;;
+            esac
+          done
+      - name: Upload wheels
+        uses: actions/upload-artifact@v7
+        with:
+          name: wheels-android-${{ matrix.target }}
+          path: dist
 
   sdist:
     runs-on: ubuntu-latest
@@ -382,7 +379,7 @@ jobs:
       - name: Generate artifact attestation
         uses: actions/attest-build-provenance@v4
         with:
-          subject-path: 'wheels-*/*'
+          subject-path: "wheels-*/*"
       - name: Publish to PyPI
         if: ${{ startsWith(github.ref, 'refs/tags/') }}
         uses: PyO3/maturin-action@v1
