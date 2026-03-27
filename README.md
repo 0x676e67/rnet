@@ -62,9 +62,9 @@ if __name__ == "__main__":
 
 Additional learning resources include:
 
-- [DeepWiki](https://deepwiki.com/0x676e67/wreq-python)
 - [Examples](https://github.com/0x676e67/wreq-python/tree/main/examples)
-- [Documentation](https://wreq.readthedocs.io/)
+- [DeepWiki](https://deepwiki.com/0x676e67/wreq-python)
+- [Documentation](https://python.wreq.org)
 
 ## Behavior
 
