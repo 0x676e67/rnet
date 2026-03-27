@@ -1,6 +1,10 @@
-# Proxy Examples
+# :globe_with_meridians: Proxy Usage
 
-## HTTP/HTTPS Proxy
+!!! info "On this page"
+    - HTTP/HTTPS proxy
+    - Unix Socket proxy
+
+### HTTP/HTTPS Proxy
 
 Using proxies with authentication:
 
@@ -40,7 +44,7 @@ if __name__ == "__main__":
     asyncio.run(main())
 ```
 
-## Unix Socket Proxy
+### Unix Socket Proxy
 
 Using Unix sockets for local services like Docker:
 

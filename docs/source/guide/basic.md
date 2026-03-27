@@ -1,6 +1,12 @@
-# Basic Usage Examples
+# :rocket: Basic Usage
 
-## Simple GET Request
+!!! info "On this page"
+    - GET/POST requests
+    - Form and JSON
+    - Custom headers
+    - Query parameters & streaming
+
+### Simple GET Request
 
 ```python
 import asyncio
@@ -23,7 +29,7 @@ if __name__ == "__main__":
     asyncio.run(main())
 ```
 
-## POST Request with JSON
+### POST Request with JSON
 
 ```python
 import asyncio
@@ -42,7 +48,7 @@ if __name__ == "__main__":
     asyncio.run(main())
 ```
 
-## Form Data
+### Form Data
 
 ```python
 import asyncio
@@ -83,7 +89,7 @@ if __name__ == "__main__":
     asyncio.run(main())
 ```
 
-## Custom Headers
+### Custom Headers
 
 ```python
 from wreq.header import HeaderMap
@@ -103,7 +109,7 @@ if __name__ == "__main__":
     print("Content-Type:", headers.get("Content-Type"))
 ```
 
-## Query Parameters
+### Query Parameters
 
 ```python
 import asyncio
@@ -142,7 +148,7 @@ if __name__ == "__main__":
     asyncio.run(main())
 ```
 
-## Streaming Response
+### Streaming Response
 
 ```python
 import asyncio

@@ -1,8 +1,6 @@
-# wreq (Main Module)
+# wreq
 
 The main `wreq` module contains core classes and types used throughout the library.
-
-## Core Classes
 
 ::: wreq.Client
     options:

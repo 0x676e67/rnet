@@ -1,6 +1,11 @@
-# Authentication Examples
+# :lock: Authentication Guide
 
-## Basic Authentication
+!!! tip "Supported authentication methods"
+    - Basic Auth
+    - Bearer Token
+    - Simple Token
+
+### Basic Authentication
 
 ```python
 import asyncio
@@ -19,7 +24,7 @@ if __name__ == "__main__":
     asyncio.run(main())
 ```
 
-## Bearer Token Authentication
+### Bearer Token Authentication
 
 ```python
 import asyncio
@@ -38,7 +43,7 @@ if __name__ == "__main__":
     asyncio.run(main())
 ```
 
-## Simple Auth Token
+### Simple Auth Token
 
 ```python
 import asyncio

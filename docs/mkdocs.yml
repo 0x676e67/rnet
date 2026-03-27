@@ -1,4 +1,4 @@
-site_name: wreq
+site_name: wreq-python
 site_description: Ergonomic Python HTTP Client with TLS Fingerprint
 site_author: "0x676e67"
 site_url: https://0x676e67.github.io/wreq-python
@@ -14,6 +14,8 @@ extra:
 
 theme:
   name: material
+  font:
+    code: Roboto Mono
   palette:
     - media: "(prefers-color-scheme)"
       toggle:
@@ -34,16 +36,21 @@ theme:
         icon: material/toggle-switch-off
         name: Switch to system preference
   features:
+    - search.highlight
+    - search.share
+    - content.code.copy
+    - content.code.annotate
+    - header.autohide
+    - toc.follow
+    - toc.integrate
+    - navigation.path
     - navigation.tabs
     - navigation.sections
     - navigation.top
     - navigation.tracking
     - navigation.indexes
-    - toc.integrate
-    - search.highlight
-    - search.share
-    - content.code.copy
-    - content.code.annotate
+    - navigation.instant
+    - navigation.instant.progress
 
 plugins:
   - search
@@ -52,7 +59,10 @@ plugins:
         python:
           paths: [../python]
           options:
-            docstring_style: google
+            extensions:
+              - unpack_typeddict
+              - dataclasses
+            docstring_style: auto
             show_source: true
             show_root_heading: true
             show_symbol_type_heading: true
@@ -76,15 +86,29 @@ markdown_extensions:
   - pymdownx.details
   - attr_list
   - md_in_html
+  - pymdownx.emoji
+  - pymdownx.tasklist
+  - pymdownx.caret
+  - pymdownx.mark
+  - pymdownx.tilde
 
 nav:
-  - Home: index.md
   - Getting Started:
+      - Introduction: getting-started/introduction.md
       - Installation: getting-started/installation.md
       - Quick Start: getting-started/quickstart.md
+  - Guides:
+      - Basic Usage: guide/basic.md
+      - Emulation: guide/emulation.md
+      - Authentication: guide/auth.md
+      - WebSocket: guide/websocket.md
+      - Proxy: guide/proxy.md
+      - Redirect & Errors: guide/redirect-errors.md
+      - Advanced Features: guide/advanced.md
+      - Blocking/Sync API: guide/blocking.md
   - API Reference:
-      - Core Module: api/core.md
       - Modules:
+          - wreq: api/wreq.md
           - wreq.blocking: api/blocking.md
           - wreq.header: api/header.md
           - wreq.cookie: api/cookie.md
@@ -96,13 +120,4 @@ nav:
           - wreq.dns: api/dns.md
           - wreq.proxy: api/proxy.md
           - wreq.redirect: api/redirect.md
-  - Examples:
-      - Basic Usage: examples/basic.md
-      - Browser Emulation: examples/emulation.md
-      - Authentication: examples/auth.md
-      - WebSocket: examples/websocket.md
-      - Proxy: examples/proxy.md
-      - Redirect & Errors: examples/redirect-errors.md
-      - Advanced Features: examples/advanced.md
-      - Blocking/Sync API: examples/blocking.md
   - Sponsors: sponsors.md
