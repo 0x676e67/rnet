@@ -1,6 +1,10 @@
-# Redirect and Error Handling Examples
+# :repeat: Redirects & Error Handling
 
-## Custom Redirect Policy
+!!! info "On this page"
+    - Custom redirect policy
+    - Error handling
+
+### Custom Redirect Policy
 
 Control redirect behavior with custom policies:
 
@@ -43,7 +47,7 @@ if __name__ == "__main__":
     asyncio.run(main())
 ```
 
-## Error Handling
+### Error Handling
 
 Handle various request exceptions:
 

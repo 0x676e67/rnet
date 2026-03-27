@@ -1,8 +1,13 @@
-# Blocking/Synchronous API Examples
+# :hourglass: Blocking/Sync API
+
+!!! info "On this page"
+    - Blocking GET
+    - Configuration
+    - Cookie/Auth/Streaming
 
 The blocking API provides synchronous methods for environments where async/await is not needed.
 
-## Simple GET Request
+### Simple GET Request
 
 ```python
 import datetime
@@ -24,7 +29,7 @@ if __name__ == "__main__":
     main()
 ```
 
-## Client Configuration
+### Client Configuration
 
 ```python
 from wreq import Proxy
@@ -60,7 +65,7 @@ if __name__ == "__main__":
     main()
 ```
 
-## Cookies
+### Cookies
 
 ```python
 from wreq.blocking import Client, Method
@@ -77,7 +82,7 @@ if __name__ == "__main__":
     main()
 ```
 
-## Authentication
+### Authentication
 
 ```python
 from wreq.blocking import Client
@@ -103,7 +108,7 @@ if __name__ == "__main__":
     main()
 ```
 
-## JSON and Form Data
+### JSON and Form Data
 
 ```python
 from wreq.blocking import Client
@@ -135,7 +140,7 @@ if __name__ == "__main__":
     main()
 ```
 
-## Query Parameters
+### Query Parameters
 
 ```python
 from wreq.blocking import Client
@@ -158,7 +163,7 @@ if __name__ == "__main__":
     main()
 ```
 
-## Streaming Response
+### Streaming Response
 
 ```python
 from wreq.blocking import Client

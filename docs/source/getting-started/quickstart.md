@@ -1,34 +1,35 @@
-# Quick Start
+# :zap: Quick Start
 
-This guide will help you get started with wreq quickly.
+This page will help you get up and running with wreq in minutes.
+
+---
 
 ## Basic GET Request
 
-### Async
+=== "Async"
+    ```python
+    import asyncio
+    from wreq import Client
 
-```python
-import asyncio
-from wreq import Client
+    async def main():
+        client = Client()
+        resp = await client.get("https://httpbin.org/get")
+        print(resp.status_code)
+        print(await resp.text())
 
-async def main():
+    asyncio.run(main())
+    ```
+=== "Blocking"
+    ```python
+    from wreq.blocking import Client
+
     client = Client()
-    resp = await client.get("https://httpbin.org/get")
+    resp = client.get("https://httpbin.org/get")
     print(resp.status_code)
-    print(await resp.text())
+    print(resp.text())
+    ```
 
-asyncio.run(main())
-```
-
-### Blocking
-
-```python
-from wreq.blocking import Client
-
-client = Client()
-resp = client.get("https://httpbin.org/get")
-print(resp.status_code)
-print(resp.text())
-```
+---
 
 ## POST with JSON
 
@@ -46,7 +47,9 @@ async def main():
 asyncio.run(main())
 ```
 
-## Browser Emulation
+---
+
+## Emulation
 
 Emulate different browsers to bypass detection:
 
@@ -55,13 +58,14 @@ import asyncio
 from wreq import Client, Emulation
 
 async def main():
-    # Emulate Chrome 120
-    client = Client(emulation=Emulation.Chrome120)
-    resp = await client.get("https://httpbin.org/get")
+    client = Client(emulation=Emulation.Safari26)
+    resp = await client.get("https://tls.peet.ws/api/all")
     print(await resp.text())
 
 asyncio.run(main())
 ```
+
+---
 
 ## Using Proxies
 
@@ -71,13 +75,14 @@ from wreq import Client
 from wreq.proxy import Proxy
 
 async def main():
-    proxy = Proxy.http("http://proxy.example.com:8080")
-    client = Client(proxy=proxy)
+    client = Client(proxy=Proxy.all("http://proxy.example.com:8080"))
     resp = await client.get("https://httpbin.org/ip")
     print(await resp.text())
 
 asyncio.run(main())
 ```
+
+---
 
 ## Custom Headers
 
@@ -91,15 +96,15 @@ async def main():
     headers = HeaderMap()
     headers["User-Agent"] = "MyApp/1.0"
     headers["Custom-Header"] = "value"
-    
     resp = await client.get("https://httpbin.org/headers", headers=headers)
     print(await resp.text())
 
 asyncio.run(main())
 ```
 
+---
+
 ## Next Steps
 
-- Explore the [API Reference](../api/core.md) for detailed documentation
-- Check out [Examples](../examples/basic.md) for more code samples
-- Learn about [Browser Emulation](../examples/emulation.md) for advanced use cases
+- See the [Examples](../guide/basic.md) for more code samples
+- Explore the [API Reference](../api/wreq.md) for detailed documentation

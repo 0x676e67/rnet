@@ -1,6 +1,10 @@
-# WebSocket Examples
+# :satellite: WebSocket
 
-## HTTP/1.1 WebSocket Connection
+!!! info "On this page"
+    - HTTP/1.1 WebSocket
+    - HTTP/2 WebSocket
+
+### HTTP/1.1 WebSocket Connection
 
 ```python
 import asyncio
@@ -55,7 +59,7 @@ if __name__ == "__main__":
     asyncio.run(main())
 ```
 
-## HTTP/2 WebSocket Connection
+### HTTP/2 WebSocket Connection
 
 ```python
 import asyncio

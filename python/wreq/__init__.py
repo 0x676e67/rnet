@@ -1,7 +1,6 @@
 # wreq/__init__.py
 
 from .wreq import *
-from .wreq import __all__
 
 from .cookie import *
 from .exceptions import *

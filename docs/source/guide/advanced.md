@@ -1,6 +1,10 @@
-# Advanced Examples
+# :star2: Advanced Features
 
-## Streaming Request Body
+!!! info "On this page"
+    - Header order
+    - Other advanced usage
+
+### Streaming Request Body
 
 Send data using async generators for streaming uploads:
 
@@ -33,7 +37,7 @@ if __name__ == "__main__":
     asyncio.run(main())
 ```
 
-## Multipart File Upload
+### Multipart File Upload
 
 Upload multiple files and data parts:
 
@@ -83,7 +87,7 @@ if __name__ == "__main__":
     asyncio.run(main())
 ```
 
-## TLS Key Logging
+### TLS Key Logging
 
 Capture TLS keys for debugging with tools like Wireshark:
 
@@ -104,7 +108,7 @@ if __name__ == "__main__":
     asyncio.run(main())
 ```
 
-## Original Header Order Preservation
+### Original Header Order Preservation
 
 Preserve header case and order for specific sites:
 

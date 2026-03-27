@@ -26,6 +26,7 @@ from .proxy import *
 from .redirect import History
 from .tls import *
 
+
 @final
 class Method(Enum):
     r"""
@@ -41,6 +42,7 @@ class Method(Enum):
     TRACE = auto()
     PATCH = auto()
 
+
 @final
 class Version(Enum):
     r"""
@@ -52,6 +54,7 @@ class Version(Enum):
     HTTP_11 = auto()
     HTTP_2 = auto()
     HTTP_3 = auto()
+
 
 @final
 class StatusCode:
@@ -98,6 +101,7 @@ class StatusCode:
     def __str__(self) -> str: ...
     def __richcmp__(self, other: Any, op: int) -> bool: ...
 
+
 @final
 class SocketAddr:
     r"""
@@ -109,11 +113,14 @@ class SocketAddr:
         r"""
         Returns the IP address of the socket address.
         """
+        ...
 
     def port(self) -> int:
         r"""
         Returns the port number of the socket address.
         """
+        ...
+
 
 @final
 class Multipart:
@@ -121,11 +128,12 @@ class Multipart:
     A multipart form for a request.
     """
 
-    def __init__(self, *parts: Part) -> None:
+    def __init__(self, *parts: "Part") -> None:
         r"""
         Creates a new multipart form.
         """
         ...
+
 
 @final
 class Part:
@@ -160,6 +168,7 @@ class Part:
         - `headers` - The custom headers for the part.
         """
         ...
+
 
 class Message:
     r"""
@@ -259,6 +268,7 @@ class Message:
 
     def __str__(self) -> str: ...
 
+
 class Streamer:
     r"""
     A stream response.
@@ -302,6 +312,7 @@ class Streamer:
     async def __aexit__(
         self, _exc_type: Any, _exc_value: Any, _traceback: Any
     ) -> None: ...
+
 
 class Response:
     r"""
@@ -390,11 +401,13 @@ class Response:
         r"""
         Get the response into a `Streamer` of `bytes` from the body.
         """
+        ...
 
     async def text(self, encoding: str | None = None) -> str:
         r"""
         Get the text content with the response encoding, defaulting to utf-8 when unspecified.
         """
+        ...
 
     async def json(self) -> Any:
         r"""
@@ -405,6 +418,7 @@ class Response:
         r"""
         Get the bytes content of the response.
         """
+        ...
 
     async def close(self) -> None:
         r"""
@@ -433,6 +447,7 @@ class Response:
         self, _exc_type: Any, _exc_value: Any, _traceback: Any
     ) -> Any: ...
     def __str__(self) -> str: ...
+
 
 class WebSocket:
     r"""
@@ -496,6 +511,7 @@ class WebSocket:
     def __aenter__(self) -> Any: ...
     def __aexit__(self, _exc_type: Any, _exc_value: Any, _traceback: Any) -> Any: ...
     def __str__(self) -> str: ...
+
 
 class ClientConfig(TypedDict):
     emulation: NotRequired[Emulation | EmulationOption]
@@ -767,6 +783,7 @@ class ClientConfig(TypedDict):
     Enable auto zstd decompression by checking the `Content-Encoding` response header.
     """
 
+
 class Request(TypedDict):
     emulation: NotRequired[Emulation | EmulationOption]
     """
@@ -932,6 +949,7 @@ class Request(TypedDict):
     The multipart form to use for the request.
     """
 
+
 class WebSocketRequest(TypedDict):
     emulation: NotRequired[Emulation | EmulationOption]
     """
@@ -1072,6 +1090,7 @@ class WebSocketRequest(TypedDict):
     ignoring the RFC. By default this option is set to False, i.e. according to RFC6455.
     """
 
+
 class Client:
     r"""
     A client for making HTTP requests.
@@ -1136,6 +1155,7 @@ class Client:
         asyncio.run(main())
         ```
         """
+        ...
 
     async def websocket(
         self,
@@ -1162,6 +1182,7 @@ class Client:
         asyncio.run(main())
         ```
         """
+        ...
 
     async def trace(
         self,
@@ -1186,6 +1207,7 @@ class Client:
         asyncio.run(main())
         ```
         """
+        ...
 
     async def options(
         self,
@@ -1210,6 +1232,7 @@ class Client:
         asyncio.run(main())
         ```
         """
+        ...
 
     async def patch(
         self,
@@ -1234,6 +1257,7 @@ class Client:
         asyncio.run(main())
         ```
         """
+        ...
 
     async def delete(
         self,
@@ -1258,6 +1282,7 @@ class Client:
         asyncio.run(main())
         ```
         """
+        ...
 
     async def put(
         self,
@@ -1282,6 +1307,7 @@ class Client:
         asyncio.run(main())
         ```
         """
+        ...
 
     async def post(
         self,
@@ -1306,6 +1332,7 @@ class Client:
         asyncio.run(main())
         ```
         """
+        ...
 
     async def head(
         self,
@@ -1330,6 +1357,7 @@ class Client:
         asyncio.run(main())
         ```
         """
+        ...
 
     async def get(
         self,
@@ -1354,11 +1382,13 @@ class Client:
         asyncio.run(main())
         ```
         """
-        
+        ...
+
     async def __aenter__(self) -> Any: ...
     async def __aexit__(
         self, _exc_type: Any, _exc_value: Any, _traceback: Any
     ) -> Any: ...
+
 
 async def delete(
     url: str,
@@ -1381,6 +1411,8 @@ async def delete(
     asyncio.run(run())
     ```
     """
+    ...
+
 
 async def get(
     url: str,
@@ -1403,6 +1435,8 @@ async def get(
     asyncio.run(run())
     ```
     """
+    ...
+
 
 async def head(
     url: str,
@@ -1424,6 +1458,8 @@ async def head(
     asyncio.run(run())
     ```
     """
+    ...
+
 
 async def options(
     url: str,
@@ -1445,6 +1481,8 @@ async def options(
     asyncio.run(run())
     ```
     """
+    ...
+
 
 async def patch(
     url: str,
@@ -1467,6 +1505,8 @@ async def patch(
     asyncio.run(run())
     ```
     """
+    ...
+
 
 async def post(
     url: str,
@@ -1489,6 +1529,8 @@ async def post(
     asyncio.run(run())
     ```
     """
+    ...
+
 
 async def put(
     url: str,
@@ -1511,6 +1553,8 @@ async def put(
     asyncio.run(run())
     ```
     """
+    ...
+
 
 async def request(
     method: Method,
@@ -1541,6 +1585,8 @@ async def request(
     asyncio.run(run())
     ```
     """
+    ...
+
 
 async def trace(
     url: str,
@@ -1562,6 +1608,8 @@ async def trace(
     asyncio.run(run())
     ```
     """
+    ...
+
 
 async def websocket(
     url: str,
@@ -1587,3 +1635,4 @@ async def websocket(
     asyncio.run(run())
     ```
     """
+    ...

@@ -1,43 +1,57 @@
-# Installation
+# :package: Installation
 
-## Requirements
+!!! info "Supported Platforms"
+	- **Python 3.11+ is required**
+	- Linux (glibc/musl): `x86_64`, `aarch64`, `armv7`, `i686`
+	- macOS: `x86_64`, `aarch64`
+	- Windows: `x86_64`, `i686`, `aarch64`
+	- Android: `aarch64`, `x86_64`
 
-- Python 3.11 or higher
-- pip or uv package manager
+---
 
 ## Install from PyPI
 
-The simplest way to install wreq is from PyPI:
+The easiest way to install wreq is via PyPI:
 
 ```bash
 pip install wreq
 ```
 
-Or using uv:
+Or with [uv](https://github.com/astral-sh/uv):
 
 ```bash
 uv pip install wreq
 ```
 
-## Install from Source
+---
 
-To install the latest development version:
+## Build from Source
+
+To build from source, first set up the BoringSSL build environment. See the [boringssl build guide](https://github.com/google/boringssl/blob/main/BUILDING.md) for details.
+
+Example (Ubuntu/Debian):
 
 ```bash
-git clone https://github.com/0x676e67/wreq.git
-cd wreq
-pip install -e .
+sudo apt install -y build-essential cmake perl pkg-config libclang-dev musl-tools git
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+pip install uv maturin
+
+uv venv
+source .venv/bin/activate
+
+# Development install
+maturin develop --uv
+
+# Build wheel
+maturin build --release
+
+# Install from local wheel
+pip install target/wheels/wreq-*.whl
 ```
 
-## Verify Installation
-
-Verify that wreq is installed correctly:
-
-```python
-import wreq
-print(wreq.__version__)
-```
+---
 
 ## Next Steps
 
-Continue to the [Quick Start](quickstart.md) guide to learn how to use wreq.
+- See the [Guides](../guide/basic.md) for usage examples
+- Browse the [API Reference](../api/wreq.md) for full documentation

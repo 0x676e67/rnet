@@ -1,6 +1,10 @@
-# Browser Emulation Examples
+# :busts_in_silhouette: Emulation
 
-## Simple Firefox Emulation
+!!! info "Emulation topics"
+    - Firefox/Chrome/Android
+    - Custom TLS/HTTP2
+
+### Simple Firefox Emulation
 
 ```python
 import asyncio
@@ -21,7 +25,7 @@ if __name__ == "__main__":
     asyncio.run(main())
 ```
 
-## Chrome on Android Emulation
+### Chrome on Android Emulation
 
 ```python
 import asyncio
@@ -48,7 +52,7 @@ if __name__ == "__main__":
     asyncio.run(main())
 ```
 
-## Advanced Configuration with Custom TLS and HTTP/2
+### Advanced Configuration with Custom TLS and HTTP/2
 
 ```python
 import asyncio
