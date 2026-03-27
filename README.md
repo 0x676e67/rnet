@@ -1,7 +1,7 @@
 # wreq-python
 
 [![CI](https://github.com/0x676e67/wreq-python/actions/workflows/ci.yml/badge.svg)](https://github.com/0x676e67/wreq-python/actions/workflows/ci.yml)
-![GitHub License](https://img.shields.io/github/license/0x676e67/wreq-python?color=blue)
+![PyPI - License](https://img.shields.io/pypi/l/wreq)
 ![Python Version from PEP 621 TOML](https://img.shields.io/python/required-version-toml?tomlFilePath=https%3A%2F%2Fraw.githubusercontent.com%2F0x676e67%2Fwreq-python%2Fmain%2Fpyproject.toml&logo=python)
 [![PyPI](https://img.shields.io/pypi/v/wreq?logo=python)](https://pypi.org/project/wreq/)
 [![Discord chat][discord-badge]][discord-url]
