@@ -96,7 +96,7 @@ async def recv_message(ws):
 
 async def main():
     # Connect to HTTP/2 WebSocket server with force_http2=True
-    client = wreq.Client(verify=False)
+    client = wreq.Client(tls_verify=False)
     ws: WebSocket = await client.websocket(
         "wss://127.0.0.1:3000/ws",
         force_http2=True
