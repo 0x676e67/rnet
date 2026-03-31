@@ -47,6 +47,24 @@ docs = [
   "mkdocstrings[python]>=1.0.3",
   "mike>=2.0.0",
 ]
+bench = [
+  "niquests",
+  "tls_client",
+  "httpx",
+  "requests",
+  "wreq",
+  "curl_cffi",
+  "aiohttp",
+  "pycurl",
+  "uvicorn",
+  "starlette",
+  "matplotlib",
+  "pandas",
+  "seaborn",
+  "typing_extensions",
+  "uvloop",
+  "ry",
+]
 
 [tool.ruff]
 [tool.ruff.lint]
