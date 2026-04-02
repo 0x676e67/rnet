@@ -32,6 +32,22 @@ Designed for developers, it offers high accuracy, low price, low latency, and ea
 
 ---
 
+<a href="https://www.swiftproxy.net/?ref=wreqpython" target="_blank">
+<img src="https://raw.githubusercontent.com/0x676e67/wreq-python/main/.github/assets/swiftproxy.png" width="149" height="47">
+</a>
+
+**[Swiftproxy](https://www.swiftproxy.net/?ref=wreqpython)**: Power Your Web Scraping with Reliable Residential Proxies
+
+Access a reliable pool of residential IPs for efficient data extraction. [Swiftproxy](https://www.swiftproxy.net/?ref=wreqpython) delivers high success rates, anti-ban protection, and automatic rotation at scale.
+
+**Global Residential IPs** • **Auto Rotation** • **Anti-Ban** • **Scraping at Scale**
+
+**Exclusive Offer**: Get 500MB free trial traffic + an exclusive 10% OFF code: PROXY90
+
+**[Linkedin](https://www.linkedin.com/company/swiftproxy/)** | **[Discord](https://discord.com/invite/VdRMfU5RWm)** | **[Telegram](https://t.me/swiftproxynet1)**
+
+---
+
 <a href="https://www.thordata.com/products/residential-proxies?ls=github&lk=wreq" target="_blank">
 <img src="https://raw.githubusercontent.com/0x676e67/wreq-python/main/.github/assets/thordata.svg" width="149" height="47">
 </a>

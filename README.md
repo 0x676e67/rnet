@@ -152,16 +152,16 @@ Designed for developers, it offers high accuracy, low price, low latency, and ea
 ---
 
 <a href="https://www.swiftproxy.net/?ref=wreqpython" target="_blank">
-<img src="https://raw.githubusercontent.com/0x676e67/wreq-python/main/.github/assets/swiftproxy.png">
+<img src="https://raw.githubusercontent.com/0x676e67/wreq-python/main/.github/assets/swiftproxy.png" width="149" height="47">
 </a>
 
 **[Swiftproxy](https://www.swiftproxy.net/?ref=wreqpython)**: Power Your Web Scraping with Reliable Residential Proxies
 
-Access a robust pool of residential IPs designed for seamless data extraction. Swiftproxy ensures high success rates, anti-ban protection, and smooth proxy rotation for developers at scale.
+Access a reliable pool of residential IPs for efficient data extraction. [Swiftproxy](https://www.swiftproxy.net/?ref=wreqpython) delivers high success rates, anti-ban protection, and automatic rotation at scale.
 
-Exclusive Offer: Get **500MB** free trial traffic + an exclusive **10%** OFF code: **PROXY90**
+**Global Residential IPs** • **Auto Rotation** • **Anti-Ban** • **Scraping at Scale**
 
-**Global Residential IPs** • **Automatic Proxy Rotation** • **Anti-Ban Protection** • **Optimized for Large-Scale Web Scraping**
+**Exclusive Offer**: Get 500MB free trial traffic + an exclusive 10% OFF code: PROXY90
 
 **[Linkedin](https://www.linkedin.com/company/swiftproxy/)** | **[Discord](https://discord.com/invite/VdRMfU5RWm)** | **[Telegram](https://t.me/swiftproxynet1)**
 
