@@ -28,9 +28,9 @@ abi3-py313 = ["pyo3/abi3-py313"]
 abi3-py314 = ["pyo3/abi3-py314"]
 
 [dependencies]
-tokio = { version = "1.50.0", features = ["sync"]}
+tokio = { version = "1.50.0", features = ["sync"] }
 tokio-util = "0.7.18"
-pyo3 = { version = "0.28.2", features = [
+pyo3 = { version = "0.28.3", features = [
     "indexmap",
     "multiple-pymethods",
     "extension-module",
