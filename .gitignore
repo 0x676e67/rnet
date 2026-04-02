@@ -80,8 +80,6 @@ dist
 
 keylog.txt
 *.json
-*.jpg
 *.csv
-*.png
 docs/site
 *.pdb
