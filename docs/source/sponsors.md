@@ -44,7 +44,7 @@ Access a reliable pool of residential IPs for efficient data extraction. [Swiftp
 
 **Exclusive Offer**: Get 500MB free trial traffic + an exclusive 10% OFF code: PROXY90
 
-**[Linkedin](https://www.linkedin.com/company/swiftproxy/)** | **[Discord](https://discord.com/invite/VdRMfU5RWm)** | **[Telegram](https://t.me/swiftproxynet1)**
+**[Linkedin](https://www.linkedin.com/company/swiftproxy/)** | **[Discord](https://discord.com/invite/VdRMfU5RWm)** | **[Telegram](https://t.me/swiftproxy357)**
 
 ---
 
