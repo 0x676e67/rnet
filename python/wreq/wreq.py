@@ -5,10 +5,11 @@ from pathlib import Path
 from typing import (
     Any,
     AsyncGenerator,
-    Dict,
+    Mapping,
     Generator,
     NotRequired,
     Sequence,
+    Mapping,
     Tuple,
     TypedDict,
     Unpack,
@@ -527,7 +528,7 @@ class ClientConfig(TypedDict):
     Sets the `User-Agent` header to be used by this client.
     """
 
-    headers: NotRequired[Dict[str, str] | HeaderMap]
+    headers: NotRequired[Mapping[str, str] | HeaderMap]
     """
     Sets the default headers for every request.
     """
@@ -795,7 +796,7 @@ class Request(TypedDict):
     The Emulation settings for the request.
     """
 
-    headers: NotRequired[Dict[str, str] | HeaderMap]
+    headers: NotRequired[Mapping[str, str] | HeaderMap]
     """
     The headers to use for the request.
     """
@@ -810,7 +811,7 @@ class Request(TypedDict):
     The option enables default headers.
     """
 
-    cookies: NotRequired[str | Dict[str, str]]
+    cookies: NotRequired[str | Mapping[str, str]]
     """
     The cookies to use for the request.
     """
@@ -916,7 +917,7 @@ class Request(TypedDict):
 
     query: NotRequired[
         Sequence[Tuple[str, str | int | float | bool]]
-        | Dict[str, str | int | float | bool]
+        | Mapping[str, str | int | float | bool]
     ]
     """
     The query parameters to use for the request.
@@ -924,7 +925,7 @@ class Request(TypedDict):
 
     form: NotRequired[
         Sequence[Tuple[str, str | int | float | bool]]
-        | Dict[str, str | int | float | bool]
+        | Mapping[str, str | int | float | bool]
     ]
     """
     The form parameters to use for the request.
@@ -940,7 +941,7 @@ class Request(TypedDict):
         | bytes
         | Sequence[Tuple[str, str]]
         | Tuple[str, str | int | float | bool]
-        | Dict[str, str | int | float | bool]
+        | Mapping[str, str | int | float | bool]
         | Any
         | Generator[bytes, str, None]
         | AsyncGenerator[bytes, str]
@@ -981,7 +982,7 @@ class WebSocketRequest(TypedDict):
     Bind to an interface by SO_BINDTODEVICE.
     """
 
-    headers: NotRequired[Dict[str, str] | HeaderMap]
+    headers: NotRequired[Mapping[str, str] | HeaderMap]
     """
     The headers to use for the request.
     """
@@ -996,7 +997,7 @@ class WebSocketRequest(TypedDict):
     The option enables default headers.
     """
 
-    cookies: NotRequired[str | Dict[str, str]]
+    cookies: NotRequired[str | Mapping[str, str]]
     """
     The cookies to use for the request.
     """
@@ -1028,7 +1029,7 @@ class WebSocketRequest(TypedDict):
 
     query: NotRequired[
         Sequence[Tuple[str, str | int | float | bool]]
-        | Dict[str, str | int | float | bool]
+        | Mapping[str, str | int | float | bool]
     ]
     """
     The query parameters to use for the request.

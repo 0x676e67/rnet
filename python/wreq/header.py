@@ -11,7 +11,7 @@ including proper support for headers that can have multiple values (like
 Set-Cookie, Accept-Encoding, etc.).
 """
 
-from typing import Dict, Iterator, Sequence, Tuple
+from typing import Mapping, Iterator, Sequence, Tuple
 
 __all__ = ["HeaderMap", "OrigHeaderMap"]
 
@@ -58,7 +58,7 @@ class HeaderMap:
         ...
 
     def __init__(
-        self, init: Dict[str, str] | None = None, capacity: int | None = None
+        self, init: Mapping[str, str] | None = None, capacity: int | None = None
     ) -> None:
         """
         Create a new HeaderMap.

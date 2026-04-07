@@ -1,4 +1,4 @@
-from typing import Dict, NotRequired, TypedDict, Unpack, final
+from typing import Mapping, NotRequired, TypedDict, Unpack, final
 
 from wreq.header import HeaderMap
 
@@ -15,7 +15,7 @@ class ProxyConfig(TypedDict):
     custom_http_auth: NotRequired[str]
     r"""Custom HTTP proxy authentication header value."""
 
-    custom_http_headers: NotRequired[Dict[str, str] | HeaderMap]
+    custom_http_headers: NotRequired[Mapping[str, str] | HeaderMap]
     r"""Custom HTTP proxy headers."""
 
     exclusion: NotRequired[str]
