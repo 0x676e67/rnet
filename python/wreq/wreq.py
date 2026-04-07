@@ -5,7 +5,6 @@ from pathlib import Path
 from typing import (
     Any,
     AsyncGenerator,
-    Mapping,
     Generator,
     NotRequired,
     Sequence,
