@@ -32,13 +32,25 @@ Designed for developers, it offers high accuracy, low price, low latency, and ea
 
 ---
 
-<a href="https://www.swiftproxy.net/?ref=wreqpython" target="_blank">
-<img src="https://raw.githubusercontent.com/0x676e67/wreq-python/main/.github/assets/swiftproxy.png" width="149" height="47">
+<a href="https://www.rapidproxy.io/?ref=wreq" target="_blank">
+<img src="https://raw.githubusercontent.com/0x676e67/wreq-python/main/.github/assets/rapidproxy.png" width="140", height="60">
 </a>
 
-**[Swiftproxy](https://www.swiftproxy.net/?ref=wreqpython)**: Power Your Web Scraping with Reliable Residential Proxies
+**[RapidProxy](https://www.rapidproxy.io/?ref=wreq)** delivers fast, reliable proxy infrastructure for large-scale data operations. With high concurrency, non-expiring traffic, and AI-powered CAPTCHA bypass, it ensures efficient, uninterrupted data collection—trusted by developers worldwide.
 
-Access a reliable pool of residential IPs for efficient data extraction. [Swiftproxy](https://www.swiftproxy.net/?ref=wreqpython) delivers high success rates, anti-ban protection, and automatic rotation at scale.
+**90M+ Residential IPs** • **Smart Rotation** • **High Success Rate** • **Built for Scale**
+
+**Special Offer**: Try it free —  Pricing from $0.65/GB with non-expiring traffic. Use code RAPID10 for 10% off.
+
+**[Website](https://www.rapidproxy.io/?ref=wreq)** | **[Linkedin](https://www.linkedin.com/in/rapid-proxy-9b6059357/)** | **[Telegram](https://t.me/rapidproxyio)**
+
+---
+
+<a href="https://www.swiftproxy.net/?ref=wreqpython" target="_blank">
+<img src="https://raw.githubusercontent.com/0x676e67/wreq-python/main/.github/assets/swiftproxy.png" width="149" height="40">
+</a>
+
+**[Swiftproxy](https://www.swiftproxy.net/?ref=wreqpython)** powers your web scraping with reliable residential proxies, giving you access to a dependable pool of residential IPs for efficient data extraction while delivering high success rates, anti-ban protection, and automatic rotation at scale.
 
 **Global Residential IPs** • **Auto Rotation** • **Anti-Ban** • **Scraping at Scale**
 
@@ -49,7 +61,7 @@ Access a reliable pool of residential IPs for efficient data extraction. [Swiftp
 ---
 
 <a href="https://www.thordata.com/products/residential-proxies?ls=github&lk=wreq" target="_blank">
-<img src="https://raw.githubusercontent.com/0x676e67/wreq-python/main/.github/assets/thordata.svg" width="149" height="47">
+<img src="https://raw.githubusercontent.com/0x676e67/wreq-python/main/.github/assets/thordata.svg" width="149" height="45">
 </a>
 
 **[Thordata](https://www.google.com/url?q=https://www.thordata.com/?ls%3Dgithub%26lk%3Dwreq&sa=D&source=editors&ust=1768812458958099&usg=AOvVaw1VwMpnrjCaf7iWbVsM5V0k)**: Get Reliable Global Proxies at an Unbeatable Value. 
