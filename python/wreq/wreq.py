@@ -676,22 +676,22 @@ class ClientConfig(TypedDict):
 
     # ======== TLS options ========
 
-    verify: NotRequired[bool | Path | CertStore]
+    tls_verify: NotRequired[bool | Path | CertStore]
     """
     Sets whether to verify TLS certificates.
     """
 
-    verify_hostname: NotRequired[bool]
+    tls_verify_hostname: NotRequired[bool]
     """
     Configures the use of hostname verification when connecting.
     """
 
-    identity: NotRequired[Identity]
+    tls_identity: NotRequired[Identity]
     """
     Represents a private key and X509 cert as a client certificate.
     """
 
-    keylog: NotRequired[KeyLog]
+    tls_keylog: NotRequired[KeyLog]
     """
     Key logging policy (environment or file).
     """
@@ -701,12 +701,12 @@ class ClientConfig(TypedDict):
     Add TLS information as `TlsInfo` extension to responses.
     """
 
-    min_tls_version: NotRequired[TlsVersion]
+    tls_min_version: NotRequired[TlsVersion]
     """
     Minimum TLS version.
     """
 
-    max_tls_version: NotRequired[TlsVersion]
+    tls_max_version: NotRequired[TlsVersion]
     """
     Maximum TLS version.
     """
