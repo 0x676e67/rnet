@@ -127,19 +127,19 @@ struct Builder {
 
     // ========= TLS options =========
     /// Whether to verify the SSL certificate or root certificate file path.
-    verify: Option<TlsVerify>,
+    tls_verify: Option<TlsVerify>,
     /// Whether to verify the hostname in the SSL certificate.
-    verify_hostname: Option<bool>,
+    tls_verify_hostname: Option<bool>,
     /// Represents a private key and X509 cert as a client certificate.
-    identity: Option<Identity>,
+    tls_identity: Option<Identity>,
     /// Key logging policy for TLS session keys.
-    keylog: Option<KeyLog>,
+    tls_keylog: Option<KeyLog>,
     /// Add TLS information as `TlsInfo` extension to responses.
     tls_info: Option<bool>,
     /// The minimum TLS version to use for the client.
-    min_tls_version: Option<TlsVersion>,
+    tls_min_version: Option<TlsVersion>,
     /// The maximum TLS version to use for the client.
-    max_tls_version: Option<TlsVersion>,
+    tls_max_version: Option<TlsVersion>,
     /// Sets the TLS options for the client.
     tls_options: Option<TlsOptions>,
 
@@ -211,13 +211,13 @@ impl FromPyObject<'_, '_> for Builder {
         extract_option!(ob, builder, http1_options);
         extract_option!(ob, builder, http2_options);
 
-        extract_option!(ob, builder, verify);
-        extract_option!(ob, builder, verify_hostname);
-        extract_option!(ob, builder, identity);
-        extract_option!(ob, builder, keylog);
+        extract_option!(ob, builder, tls_verify);
+        extract_option!(ob, builder, tls_verify_hostname);
+        extract_option!(ob, builder, tls_identity);
+        extract_option!(ob, builder, tls_keylog);
         extract_option!(ob, builder, tls_info);
-        extract_option!(ob, builder, min_tls_version);
-        extract_option!(ob, builder, max_tls_version);
+        extract_option!(ob, builder, tls_min_version);
+        extract_option!(ob, builder, tls_max_version);
         extract_option!(ob, builder, tls_options);
 
         extract_option!(ob, builder, dns_options);
@@ -373,14 +373,14 @@ impl Client {
                 apply_option!(
                     set_if_some_map,
                     builder,
-                    config.min_tls_version,
+                    config.tls_min_version,
                     min_tls_version,
                     TlsVersion::into_ffi
                 );
                 apply_option!(
                     set_if_some_map,
                     builder,
-                    config.max_tls_version,
+                    config.tls_max_version,
                     max_tls_version,
                     TlsVersion::into_ffi
                 );
@@ -388,13 +388,13 @@ impl Client {
                 apply_option!(
                     set_if_some,
                     builder,
-                    config.verify_hostname,
+                    config.tls_verify_hostname,
                     verify_hostname
                 );
-                apply_option!(set_if_some_inner, builder, config.identity, identity);
-                apply_option!(set_if_some_inner, builder, config.keylog, keylog);
+                apply_option!(set_if_some_inner, builder, config.tls_identity, identity);
+                apply_option!(set_if_some_inner, builder, config.tls_keylog, keylog);
                 apply_option!(set_if_some_inner, builder, config.tls_options, tls_options);
-                if let Some(verify) = config.verify.take() {
+                if let Some(verify) = config.tls_verify.take() {
                     builder = match verify {
                         TlsVerify::Verification(verify) => builder.cert_verification(verify),
                         TlsVerify::CertificatePath(path_buf) => {

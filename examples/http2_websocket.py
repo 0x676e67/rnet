@@ -44,7 +44,7 @@ Then run this Python script to connect to the websocket server.
 
 
 async def main():
-    client = wreq.Client(verify=False)
+    client = wreq.Client(tls_verify=False)
     ws: WebSocket = await client.websocket("wss://127.0.0.1:3000/ws", force_http2=True)
     async with ws:
         print("Status Code: ", ws.status)
