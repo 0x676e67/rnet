@@ -288,11 +288,8 @@ impl OrigHeaderMap {
         // and we want to prevent Python's garbage collector from managing it.
         if let Some(init) = init {
             for name in init.iter() {
-                let name = match name
-                    .extract::<PyBackedStr>()
-                    .map(|n| HeaderName::from_bytes(n.as_bytes()))
-                {
-                    Ok(Ok(n)) => n,
+                let name = match name.extract::<PyBackedStr>() {
+                    Ok(n) => Bytes::from_owner(n),
                     _ => continue,
                 };
 
