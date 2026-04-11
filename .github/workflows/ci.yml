@@ -193,7 +193,7 @@ jobs:
       matrix:
         build_type:
           - name: standard
-            maturin_args: "--find-interpreter"
+            maturin_args: ""
             cargo_args: ""
           - name: free-threaded
             maturin_args: "--interpreter 3.13t 3.14t"
@@ -223,7 +223,7 @@ jobs:
         with:
           maturin-version: ${{ env.MATURIN_VERSION }}
           target: ${{ matrix.platform.target }}
-          args: --release --out dist ${{ (matrix.build_type.name == 'free-threaded' || matrix.platform.target != 'aarch64') && matrix.build_type.maturin_args || '' }} ${{ matrix.build_type.cargo_args }} --features ${{ matrix.platform.allocator || '' }}
+          args: --release --out dist ${{ matrix.build_type.maturin_args || '' }} ${{ matrix.build_type.cargo_args }} --features ${{ matrix.platform.allocator || '' }}
           sccache: "false"
       - name: Upload wheels
         uses: actions/upload-artifact@v7
