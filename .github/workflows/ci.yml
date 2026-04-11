@@ -187,27 +187,27 @@ jobs:
           path: dist
 
   windows:
-    runs-on: ${{ matrix.platform.runner }}
+    runs-on: windows-latest
     environment: Windows
     strategy:
       matrix:
         build_type:
           - name: standard
-            maturin_args: "--find-interpreter"
+            maturin_args: ""
+            cargo_args: ""
           - name: free-threaded
             maturin_args: "--interpreter 3.13t 3.14t"
+            cargo_args: "--no-default-features"
         platform:
-          - runner: windows-latest
-            target: x64
+          - target: x64
             allocator: mimalloc
             python-architecture: x64
-          - runner: windows-latest
-            target: x86
+          - target: x86
             allocator: mimalloc
             python-architecture: x86
-          - runner: windows-latest
-            target: aarch64
+          - target: aarch64
             allocator: mimalloc
+            python-architecture: x64
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-python@v6
@@ -223,7 +223,7 @@ jobs:
         with:
           maturin-version: ${{ env.MATURIN_VERSION }}
           target: ${{ matrix.platform.target }}
-          args: --release --out dist ${{ matrix.platform.target != 'aarch64' && matrix.build_type.maturin_args || '' }} --features ${{ matrix.platform.allocator || '' }}
+          args: --release --out dist ${{ matrix.build_type.maturin_args || '' }} ${{ matrix.build_type.cargo_args }} --features ${{ matrix.platform.allocator || '' }}
           sccache: "false"
       - name: Upload wheels
         uses: actions/upload-artifact@v7
