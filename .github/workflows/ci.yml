@@ -223,7 +223,7 @@ jobs:
         with:
           maturin-version: ${{ env.MATURIN_VERSION }}
           target: ${{ matrix.platform.target }}
-          args: --release --out dist ${{ matrix.build_type.maturin_args }} --features ${{ matrix.platform.allocator || '' }}
+          args: --release --out dist ${{ matrix.platform.target != 'aarch64' && matrix.build_type.maturin_args || '' }} --features ${{ matrix.platform.allocator || '' }}
           sccache: "false"
       - name: Upload wheels
         uses: actions/upload-artifact@v7
