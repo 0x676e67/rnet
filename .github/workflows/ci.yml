@@ -191,6 +191,11 @@ jobs:
     environment: Windows
     strategy:
       matrix:
+        exclude:
+          - build_type:
+              name: free-threaded
+            platform:
+              target: aarch64
         build_type:
           - name: standard
             maturin_args: "--find-interpreter"
