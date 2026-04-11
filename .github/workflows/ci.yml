@@ -191,11 +191,6 @@ jobs:
     environment: Windows
     strategy:
       matrix:
-        exclude:
-          - build_type:
-              name: free-threaded
-            platform:
-              target: aarch64
         build_type:
           - name: standard
             maturin_args: "--find-interpreter"
@@ -210,9 +205,10 @@ jobs:
             target: x86
             allocator: mimalloc
             python-architecture: x86
-          - runner: windows-latest
+          - runner: windows-11-arm
             target: aarch64
             allocator: mimalloc
+            python-architecture: arm64
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-python@v6
@@ -228,7 +224,7 @@ jobs:
         with:
           maturin-version: ${{ env.MATURIN_VERSION }}
           target: ${{ matrix.platform.target }}
-          args: --release --out dist ${{ matrix.platform.target != 'aarch64' && matrix.build_type.maturin_args || '' }} --features ${{ matrix.platform.allocator || '' }}
+          args: --release --out dist ${{ matrix.build_type.maturin_args }} --features ${{ matrix.platform.allocator || '' }}
           sccache: "false"
       - name: Upload wheels
         uses: actions/upload-artifact@v7
