@@ -123,6 +123,12 @@ class StreamId:
         """
         ...
 
+    def __str__(self) -> str:
+        """
+        Return a string representation of the type.
+        """
+        ...
+
 
 @final
 class StreamDependency:
@@ -149,6 +155,12 @@ class StreamDependency:
         """
         ...
 
+    def __str__(self) -> str:
+        """
+        Return a string representation of the type.
+        """
+        ...
+
 
 @final
 class Priority:
@@ -172,6 +184,12 @@ class Priority:
         """
         ...
 
+    def __str__(self) -> str:
+        """
+        Return a string representation of the type.
+        """
+        ...
+
 
 @final
 class Priorities:
@@ -188,6 +206,12 @@ class Priorities:
     def __init__(self, *priority: Priority) -> None:
         """
         Create a new Priorities instance.
+        """
+        ...
+
+    def __str__(self) -> str:
+        """
+        Return a string representation of the type.
         """
         ...
 
@@ -209,6 +233,12 @@ class PseudoOrder:
         """
         ...
 
+    def __str__(self) -> str:
+        """
+        Return a string representation of the type.
+        """
+        ...
+        
 
 @final
 class SettingsOrder:
@@ -228,6 +258,12 @@ class SettingsOrder:
         """
         ...
 
+    def __str__(self) -> str:
+        """
+        Return a string representation of the type.
+        """
+        ...
+        
 
 class Params(TypedDict):
     """
@@ -357,5 +393,11 @@ class Http2Options:
     def __init__(self, **kwargs: Unpack[Params]) -> None:
         """
         Create a new Http2Options instance.
+        """
+        ...
+
+    def __str__(self) -> str:
+        """
+        Return a string representation of the type.
         """
         ...

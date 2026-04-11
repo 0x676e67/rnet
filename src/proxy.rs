@@ -1,6 +1,3 @@
-use core::fmt;
-use std::fmt::Debug;
-
 use bytes::Bytes;
 use pyo3::{prelude::*, pybacked::PyBackedStr};
 use wreq::header::HeaderValue;
@@ -96,11 +93,7 @@ impl Proxy {
     }
 }
 
-impl fmt::Display for Proxy {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        self.0.fmt(f)
-    }
-}
+define_display!(Proxy);
 
 fn create_proxy<'py>(
     py: Python<'py>,

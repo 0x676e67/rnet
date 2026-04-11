@@ -56,7 +56,7 @@ impl WebSocket {
     pub async fn new(response: WebSocketResponse) -> wreq::Result<WebSocket> {
         let (version, status, remote_addr, local_addr, headers) = (
             Version::from_ffi(response.version()),
-            StatusCode::from(response.status()),
+            StatusCode(response.status()),
             response.remote_addr().map(SocketAddr),
             response.local_addr().map(SocketAddr),
             HeaderMap(response.headers().clone()),

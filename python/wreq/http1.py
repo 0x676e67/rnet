@@ -66,3 +66,9 @@ class Http1Options:
         Crate a new Http1Options instance.
         """
         ...
+
+    def __str__(self) -> str:
+        """
+        Return a string representation of the type.
+        """
+        ...

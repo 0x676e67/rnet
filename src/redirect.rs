@@ -1,7 +1,4 @@
-use std::{
-    fmt::{self, Debug, Display},
-    sync::Arc,
-};
+use std::{fmt::Display, sync::Arc};
 
 use pyo3::prelude::*;
 
@@ -45,7 +42,7 @@ enum ActionKind {
 
 /// An entry in the redirect history.
 #[pyclass(subclass, str, frozen)]
-pub struct History(wreq::redirect::HistoryEntry);
+pub struct History(pub wreq::redirect::HistoryEntry);
 
 #[pymethods]
 impl History {
@@ -129,11 +126,7 @@ impl Policy {
     }
 }
 
-impl Display for Policy {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{:?}", self.0)
-    }
-}
+define_display!(Policy);
 
 // ===== impl Attempt =====
 
@@ -203,14 +196,4 @@ impl Display for Action {
 
 // ===== impl History =====
 
-impl From<wreq::redirect::HistoryEntry> for History {
-    fn from(history: wreq::redirect::HistoryEntry) -> Self {
-        History(history)
-    }
-}
-
-impl fmt::Display for History {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        self.0.fmt(f)
-    }
-}
+define_display!(History);

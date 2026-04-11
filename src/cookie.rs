@@ -1,4 +1,4 @@
-use std::{fmt, sync::Arc, time::SystemTime};
+use std::{sync::Arc, time::SystemTime};
 
 use bytes::Bytes;
 use cookie::{Cookie as RawCookie, Expiration, ParseError, time::Duration};
@@ -181,11 +181,7 @@ impl Cookie {
     }
 }
 
-impl fmt::Display for Cookie {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        self.0.fmt(f)
-    }
-}
+define_display!(Cookie);
 
 // ===== impl Cookies =====
 

@@ -7,7 +7,6 @@ mod param;
 mod query;
 
 use std::{
-    fmt,
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
     sync::Arc,
     time::Duration,
@@ -55,11 +54,7 @@ impl SocketAddr {
     }
 }
 
-impl fmt::Display for SocketAddr {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        self.0.fmt(f)
-    }
-}
+define_display!(SocketAddr);
 
 /// A builder for `Client`.
 #[derive(Default)]

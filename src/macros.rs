@@ -1,3 +1,11 @@
+macro_rules! extract_option {
+    ($ob:expr, $params:expr, $field:ident) => {
+        if let Ok(value) = $ob.get_item(pyo3::intern!($ob.py(), stringify!($field))) {
+            $params.$field = value.extract()?;
+        }
+    };
+}
+
 macro_rules! apply_option {
     (set_if_some, $builder:expr, $option:expr, $method:ident) => {
         if let Some(value) = $option.take() {
@@ -117,10 +125,13 @@ macro_rules! define_enum {
     };
 }
 
-macro_rules! extract_option {
-    ($ob:expr, $params:expr, $field:ident) => {
-        if let Ok(value) = $ob.get_item(pyo3::intern!($ob.py(), stringify!($field))) {
-            $params.$field = value.extract()?;
+macro_rules! define_display {
+    ($typed:ident) => {
+        impl std::fmt::Display for $typed {
+            #[inline]
+            fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                std::fmt::Debug::fmt(&self.0, f)
+            }
         }
     };
 }
