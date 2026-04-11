@@ -28,6 +28,9 @@ permissions:
   contents: write
   packages: write
 
+env:
+  MATURIN_VERSION: ${{ vars.MATURIN_VERSION }}
+
 jobs:
   style:
     name: style
