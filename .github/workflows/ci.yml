@@ -202,15 +202,12 @@ jobs:
           - target: x64
             allocator: mimalloc
             python-architecture: x64
-            use_standard_maturin_args: true
           - target: x86
             allocator: mimalloc
             python-architecture: x86
-            use_standard_maturin_args: true
           - target: aarch64
             allocator: mimalloc
             python-architecture: x64
-            use_standard_maturin_args: false
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-python@v6
@@ -226,7 +223,7 @@ jobs:
         with:
           maturin-version: ${{ env.MATURIN_VERSION }}
           target: ${{ matrix.platform.target }}
-          args: --release --out dist ${{ (matrix.build_type.name == 'free-threaded' || matrix.platform.use_standard_maturin_args) && matrix.build_type.maturin_args || '' }} ${{ matrix.build_type.cargo_args }} --features ${{ matrix.platform.allocator || '' }}
+          args: --release --out dist ${{ (matrix.build_type.name == 'free-threaded' || matrix.platform.target != 'aarch64') && matrix.build_type.maturin_args || '' }} ${{ matrix.build_type.cargo_args }} --features ${{ matrix.platform.allocator || '' }}
           sccache: "false"
       - name: Upload wheels
         uses: actions/upload-artifact@v7
