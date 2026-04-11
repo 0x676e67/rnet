@@ -1,5 +1,3 @@
-use std::fmt;
-
 use pyo3::{class::basic::CompareOp, prelude::*};
 
 define_enum!(
@@ -88,14 +86,4 @@ impl StatusCode {
     }
 }
 
-impl From<wreq::StatusCode> for StatusCode {
-    fn from(status: wreq::StatusCode) -> Self {
-        Self(status)
-    }
-}
-
-impl fmt::Display for StatusCode {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        self.0.fmt(f)
-    }
-}
+define_display!(StatusCode);

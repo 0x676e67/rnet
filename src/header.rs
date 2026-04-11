@@ -1,5 +1,3 @@
-use std::fmt;
-
 use bytes::Bytes;
 use pyo3::{
     prelude::*,
@@ -234,11 +232,7 @@ impl HeaderMap {
     }
 }
 
-impl fmt::Display for HeaderMap {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{:?}", self.0)
-    }
-}
+define_display!(HeaderMap);
 
 impl FromPyObject<'_, '_> for HeaderMap {
     type Error = PyErr;
@@ -347,11 +341,7 @@ impl OrigHeaderMap {
     }
 }
 
-impl fmt::Display for OrigHeaderMap {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{:?}", self.0)
-    }
-}
+define_display!(OrigHeaderMap);
 
 impl FromPyObject<'_, '_> for OrigHeaderMap {
     type Error = PyErr;

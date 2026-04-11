@@ -7,7 +7,7 @@
 //!
 //! The `Message` type is used for sending and receiving WebSocket messages in a unified way.
 
-use std::fmt::{self, Debug};
+use std::fmt::Debug;
 
 use bytes::Bytes;
 use pyo3::{
@@ -173,9 +173,4 @@ impl Message {
     }
 }
 
-impl fmt::Display for Message {
-    #[inline]
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        self.0.fmt(f)
-    }
-}
+define_display!(Message);

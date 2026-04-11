@@ -181,7 +181,7 @@ impl Response {
                 .extensions()
                 .get::<wreq::redirect::History>()
                 .map_or_else(Vec::new, |history| {
-                    history.into_iter().cloned().map(History::from).collect()
+                    history.into_iter().cloned().map(History).collect()
                 })
         })
     }
