@@ -184,6 +184,9 @@ jobs:
         run: bash .github/musl_build.sh ${{ matrix.platform.target }} "${{ matrix.build_type.maturin_args }}" --features "${{ matrix.platform.allocator }}"
         env:
           MATURIN_VERSION: ${{ env.MATURIN_VERSION }}
+          CXXFLAGS: -static-libstdc++ -static-libgcc
+          LDFLAGS: -static-libstdc++ -static-libgcc
+          RUSTFLAGS: -C link-arg=-static-libstdc++ -C link-arg=-static-libgcc
       - name: Upload wheels
         uses: actions/upload-artifact@v7
         with:
