@@ -10,19 +10,19 @@ use pyo3::{pyclass, pymethods};
 /// with the correct session keys.
 #[derive(Clone)]
 #[pyclass(from_py_object)]
-pub struct KeyLog(pub wreq::tls::KeyLog);
+pub struct KeyLog(pub wreq::tls::keylog::KeyLog);
 
 #[pymethods]
 impl KeyLog {
     /// Use the environment variable SSLKEYLOGFILE.
     #[staticmethod]
     pub fn environment() -> Self {
-        KeyLog(wreq::tls::KeyLog::from_env())
+        KeyLog(wreq::tls::keylog::KeyLog::from_env())
     }
 
     /// Log keys to the specified file path.
     #[staticmethod]
     pub fn file(path: PathBuf) -> Self {
-        KeyLog(wreq::tls::KeyLog::from_file(path))
+        KeyLog(wreq::tls::keylog::KeyLog::from_file(path))
     }
 }

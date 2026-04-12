@@ -30,16 +30,16 @@ if __name__ == "__main__":
 ```python
 import asyncio
 from wreq import Client
-from wreq.emulation import Emulation, EmulationOS, EmulationOption
+from wreq.emulation import Emulation, Profile, Platform
 
 
 async def main():
     client = Client()
     resp = await client.get(
         "https://tls.peet.ws/api/all",
-        emulation=EmulationOption(
-            emulation=Emulation.Chrome134,
-            emulation_os=EmulationOS.Android,
+        emulation=Emulation(
+            profile=Profile.Chrome134,
+            platform=Platform.Android,
         ),
         # Disable client default headers
         default_headers=False,

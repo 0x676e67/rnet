@@ -94,57 +94,72 @@ class Jar:
     r"""
     A thread-safe cookie jar for storing and managing HTTP cookies.
 
-    This cookie jar can be safely shared across multiple threads and is used
-    to automatically handle cookies during HTTP requests and responses.
+    `Jar` can be shared across multiple threads and tasks. When passed to a
+    client, it is used to automatically persist and send cookies across
+    requests and responses.
 
-    By default, cookie compression is enabled to reduce storage overhead.
-    Use `uncompressed()` to create a variant without compression if needed.
+    **Protocol-level behaviour**
+
+    - **HTTP/1.1** — all cookies are folded into a single `Cookie` header,
+      as required by [RFC 9112 §5.6.3].
+    - **HTTP/2 and above** — each cookie is sent as an individual header
+      field per [RFC 9113 §8.1.2.5].
+
+    [RFC 9112 §5.6.3]: https://www.rfc-editor.org/rfc/rfc9112#section-5.6.3
+    [RFC 9113 §8.1.2.5]: https://www.rfc-editor.org/rfc/rfc9113#section-8.1.2.5
     """
 
-    def __init__(self, compression: bool | None = None) -> None:
+    def __init__(self) -> None:
         r"""
-        Create a new cookie jar with compression enabled by default.
-        """
-        ...
-
-    def compressed(self) -> "Jar":
-        r"""
-        Clone this Jar, sharing storage but enabling compression.
-        """
-        ...
-
-    def uncompressed(self) -> "Jar":
-        r"""
-        Clone this Jar, sharing storage but disabling compression.
+        Create a new empty cookie jar.
         """
         ...
 
     def get(self, name: str, url: str) -> Cookie | None:
         r"""
-        Get a cookie by name and URL.
+        Look up a cookie by name scoped to the given URL.
+
+        Returns `None` if no matching cookie is found.
+
+        Args:
+            name: The cookie name to look up.
+            url: The URL the cookie is scoped to (used for domain / path matching).
         """
         ...
 
     def get_all(self) -> Sequence[Cookie]:
         r"""
-        Get all cookies.
+        Return all cookies currently stored in the jar.
         """
         ...
 
     def add(self, cookie: Cookie | str, url: str) -> None:
         r"""
-        Add a cookie or cookie string to this jar.
+        Insert a cookie into the jar, scoped to the given URL.
+
+        Args:
+            cookie: A `Cookie` object or a raw `Set-Cookie` header string.
+            url: The URL the cookie originates from (used for domain / path scoping).
+
+        Example:
+            ```python
+            jar.add("session=abc123; Path=/; HttpOnly", "https://example.com")
+            ```
         """
         ...
 
     def remove(self, name: str, url: str) -> None:
         r"""
-        Remove a cookie from this jar by name and URL.
+        Remove a cookie by name, scoped to the given URL.
+
+        Args:
+            name: The cookie name to remove.
+            url: The URL the cookie is scoped to.
         """
         ...
 
     def clear(self) -> None:
         r"""
-        Clear all cookies in this jar.
+        Remove all cookies from the jar.
         """
         ...

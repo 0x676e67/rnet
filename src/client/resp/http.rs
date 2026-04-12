@@ -62,12 +62,14 @@ impl Response {
     }
 
     /// Builds a [`wreq::Response`] from the current response metadata and the given body.
+    #[inline]
     fn build_response<T: Into<wreq::Body>>(&self, body: T) -> wreq::Response {
         let response = HttpResponse::from_parts(self.parts.clone(), body);
         wreq::Response::from(response)
     }
 
     /// Creates an empty [`wreq::Response`] with the same metadata but no body content.
+    #[inline]
     fn empty_response(&self) -> wreq::Response {
         self.build_response(Bytes::new())
     }
@@ -249,22 +251,15 @@ impl Response {
 
     /// Close the response.
     ///
-    /// **Current behavior:**
-    /// - When connection pooling is **disabled**: This method closes the network connection.
-    /// - When connection pooling is **enabled**: This method closes the response, prevents further
-    ///   body reads, and returns the connection to the pool for reuse.
-    ///
-    /// **Future changes:**
-    /// In future versions, this method will be changed to always close the network connection
-    /// regardless of whether connection pooling is enabled or not.
-    ///
-    /// **Recommendation:**
-    /// It is **not recommended** to manually call this method at present. Instead, use context
-    /// managers (async with statement) to properly manage response lifecycle. Wait for the
-    /// improved implementation in future versions.
+    /// This method closes the network connection regardless of whether connection pooling is
+    /// enabled or not. It is recommended to use async context managers (`async with` statement)
+    /// to properly manage response lifecycle instead of calling this method manually.
     pub async fn close(&self) {
         Python::attach(|py| {
-            py.detach(|| self.destroy());
+            py.detach(|| {
+                self.empty_response().forbid_recycle();
+                self.destroy()
+            });
         });
     }
 }
@@ -416,22 +411,15 @@ impl BlockingResponse {
 
     /// Close the response.
     ///
-    /// **Current behavior:**
-    /// - When connection pooling is **disabled**: This method closes the network connection.
-    /// - When connection pooling is **enabled**: This method closes the response, prevents further
-    ///   body reads, and returns the connection to the pool for reuse.
-    ///
-    /// **Future changes:**
-    /// In future versions, this method will be changed to always close the network connection
-    /// regardless of whether connection pooling is enabled or not.
-    ///
-    /// **Recommendation:**
-    /// It is **not recommended** to manually call this method at present. Instead, use context
-    /// managers (with statement) to properly manage response lifecycle. Wait for the improved
-    /// implementation in future versions.
+    /// This method closes the network connection regardless of whether connection pooling is
+    /// enabled or not. It is recommended to use context managers (`with` statement) to properly
+    /// manage response lifecycle instead of calling this method manually.
     #[inline]
     pub fn close(&self, py: Python) {
-        py.detach(|| self.0.destroy());
+        py.detach(|| {
+            self.0.empty_response().forbid_recycle();
+            self.0.destroy();
+        });
     }
 }
 

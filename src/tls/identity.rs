@@ -9,7 +9,7 @@ use crate::error::Error;
 /// Represents a private key and X509 cert as a client certificate.
 #[derive(Clone)]
 #[pyclass(from_py_object)]
-pub struct Identity(pub wreq::tls::Identity);
+pub struct Identity(pub wreq::tls::trust::Identity);
 
 #[pymethods]
 impl Identity {
@@ -28,7 +28,7 @@ impl Identity {
     #[staticmethod]
     #[pyo3(signature = (buf, pass))]
     pub fn from_pkcs12_der(buf: PyBackedBytes, pass: PyBackedStr) -> PyResult<Identity> {
-        wreq::tls::Identity::from_pkcs12_der(buf.as_ref(), pass.as_ref())
+        wreq::tls::trust::Identity::from_pkcs12_der(buf.as_ref(), pass.as_ref())
             .map(Identity)
             .map_err(Error::Library)
             .map_err(Into::into)
@@ -44,7 +44,7 @@ impl Identity {
     #[staticmethod]
     #[pyo3(signature = (buf, key))]
     pub fn from_pkcs8_pem(buf: PyBackedBytes, key: PyBackedBytes) -> PyResult<Identity> {
-        wreq::tls::Identity::from_pkcs8_pem(buf.as_ref(), key.as_ref())
+        wreq::tls::trust::Identity::from_pkcs8_pem(buf.as_ref(), key.as_ref())
             .map(Identity)
             .map_err(Error::Library)
             .map_err(Into::into)

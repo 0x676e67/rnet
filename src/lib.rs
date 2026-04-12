@@ -9,7 +9,7 @@ mod buffer;
 mod client;
 mod cookie;
 mod dns;
-mod emulation;
+mod emulate;
 mod error;
 mod extractor;
 mod header;
@@ -31,7 +31,7 @@ use client::{
 };
 use cookie::{Cookie, Jar, SameSite};
 use dns::{LookupIpStrategy, ResolverOptions};
-use emulation::{Emulation, EmulationOS, EmulationOption};
+use emulate::{Emulation, Platform, Profile};
 use error::*;
 use header::{HeaderMap, OrigHeaderMap};
 use http::{Method, StatusCode, Version};
@@ -470,8 +470,8 @@ fn cookie_module(m: &Bound<'_, PyModule>) -> PyResult<()> {
 #[pymodule(gil_used = false, name = "emulation")]
 fn emulation_module(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<Emulation>()?;
-    m.add_class::<EmulationOS>()?;
-    m.add_class::<EmulationOption>()?;
+    m.add_class::<Profile>()?;
+    m.add_class::<Platform>()?;
     Ok(())
 }
 

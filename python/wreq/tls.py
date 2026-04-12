@@ -20,6 +20,7 @@ __all__ = [
     "TlsOptions",
     "TlsInfo",
     "Params",
+    "KeyShare",
 ]
 
 
@@ -55,6 +56,24 @@ class AlpsProtocol(Enum):
     HTTP1 = auto()
     HTTP2 = auto()
     HTTP3 = auto()
+
+
+@final
+class KeyShare(Enum):
+    """
+    Key exchange groups (elliptic curves) for TLS 1.3.
+    """
+
+    P256 = auto()
+    P384 = auto()
+    P521 = auto()
+    X25519 = auto()
+    X25519_MLKEM768 = auto()
+    X25519_KYBER768_DRAFT00 = auto()
+    P256_KYBER768_DRAFT00 = auto()
+    MLKEM1024 = auto()
+    FFDHE2048 = auto()
+    FFDHE3072 = auto()
 
 
 @final
@@ -98,8 +117,8 @@ class ExtensionType(Enum):
     KEY_SHARE = auto()
     RENEGOTIATE = auto()
     DELEGATED_CREDENTIAL = auto()
+    APPLICATION_SETTINGS_OLD = auto()
     APPLICATION_SETTINGS = auto()
-    APPLICATION_SETTINGS_NEW = auto()
     ENCRYPTED_CLIENT_HELLO = auto()
     CERTIFICATE_TIMESTAMP = auto()
     NEXT_PROTO_NEG = auto()
@@ -321,9 +340,9 @@ class Params(TypedDict):
     Whether to skip session tickets when using PSK.
     """
 
-    key_shares_limit: NotRequired[int]
+    key_shares: NotRequired[Sequence[KeyShare]]
     """
-    Maximum number of key shares to include in ClientHello.
+    Whether to set specific key shares for TLS 1.3 handshakes.
     """
 
     psk_dhe_ke: NotRequired[bool]
@@ -349,6 +368,11 @@ class Params(TypedDict):
     List of supported elliptic curves.
     """
 
+    sigalgs_list: NotRequired[str]
+    """
+    List of supported signature algorithms.
+    """
+
     cipher_list: NotRequired[str]
     """
     Cipher suite configuration string.
@@ -356,9 +380,19 @@ class Params(TypedDict):
     Uses BoringSSL's mini-language to select, enable, and prioritize ciphers.
     """
 
-    sigalgs_list: NotRequired[str]
+    preserve_tls13_cipher_list: NotRequired[bool]
     """
-    List of supported signature algorithms.
+    Sets whether to preserve the TLS 1.3 cipher list as configured by cipher_list.
+
+    By default, BoringSSL does not preserve the TLS 1.3 cipher list. When this option is disabled
+    (the default), BoringSSL uses its internal default TLS 1.3 cipher suites in its default order,
+    regardless of what is set via cipher_list.
+
+    When enabled, this option ensures that the TLS 1.3 cipher suites explicitly set via
+    cipher_list are retained in their original order, without being reordered or
+    modified by BoringSSL's internal logic. This is useful for maintaining specific cipher suite
+    priorities for TLS 1.3. Note that if cipher_list does not include any TLS 1.3
+    cipher suites, BoringSSL will still fall back to its default TLS 1.3 cipher suites and order.
     """
 
     certificate_compression_algorithms: NotRequired[
@@ -381,21 +415,6 @@ class Params(TypedDict):
     random_aes_hw_override: NotRequired[bool]
     """
     Overrides the random AES hardware acceleration.
-    """
-
-    preserve_tls13_cipher_list: NotRequired[bool]
-    """
-    Sets whether to preserve the TLS 1.3 cipher list as configured by cipher_list.
-
-    By default, BoringSSL does not preserve the TLS 1.3 cipher list. When this option is disabled
-    (the default), BoringSSL uses its internal default TLS 1.3 cipher suites in its default order,
-    regardless of what is set via cipher_list.
-
-    When enabled, this option ensures that the TLS 1.3 cipher suites explicitly set via
-    cipher_list are retained in their original order, without being reordered or
-    modified by BoringSSL's internal logic. This is useful for maintaining specific cipher suite
-    priorities for TLS 1.3. Note that if cipher_list does not include any TLS 1.3
-    cipher suites, BoringSSL will still fall back to its default TLS 1.3 cipher suites and order.
     """
 
 

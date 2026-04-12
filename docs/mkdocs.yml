@@ -86,7 +86,9 @@ markdown_extensions:
   - pymdownx.details
   - attr_list
   - md_in_html
-  - pymdownx.emoji
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
   - pymdownx.tasklist
   - pymdownx.caret
   - pymdownx.mark

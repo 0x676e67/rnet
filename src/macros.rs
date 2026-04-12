@@ -68,13 +68,48 @@ macro_rules! apply_option {
     };
 }
 
+#[allow(unused_macro_rules)]
 macro_rules! define_enum {
+    ($(#[$meta:meta])* struct $struct_type:ident, $enum_type:ident, $ffi_type:ty, $($variant:ident),* $(,)?) => {
+        define_enum!($(#[$meta])* struct $struct_type, $enum_type, $ffi_type, $( ($variant, $variant) ),*);
+    };
+
+    ($(#[$meta:meta])* const, struct $struct_type:ident, $enum_type:ident, $ffi_type:ty, $($variant:ident),* $(,)?) => {
+        define_enum!($(#[$meta])* const, struct $struct_type, $enum_type, $ffi_type, $( ($variant, $variant) ),*);
+    };
+
     ($(#[$meta:meta])* $enum_type:ident, $ffi_type:ty, $($variant:ident),* $(,)?) => {
         define_enum!($(#[$meta])* $enum_type, $ffi_type, $( ($variant, $variant) ),*);
     };
 
     ($(#[$meta:meta])* const, $enum_type:ident, $ffi_type:ty, $($variant:ident),* $(,)?) => {
         define_enum!($(#[$meta])* const, $enum_type, $ffi_type, $( ($variant, $variant) ),*);
+    };
+
+    ($(#[$meta:meta])* struct $struct_type:ident, $enum_type:ident, $ffi_type:ty, $(($rust_variant:ident, $ffi_variant:ident)),* $(,)?) => {
+        define_enum!($(#[$meta])* $enum_type, $ffi_type, $(($rust_variant, $ffi_variant)),*);
+
+        #[pymethods]
+        #[allow(non_upper_case_globals)]
+        impl $struct_type {
+            $(
+                #[classattr]
+                const $rust_variant: $enum_type = $enum_type::$rust_variant;
+            )*
+        }
+    };
+
+    ($(#[$meta:meta])* const, struct $struct_type:ident, $enum_type:ident, $ffi_type:ty, $(($rust_variant:ident, $ffi_variant:ident)),* $(,)?) => {
+        define_enum!($(#[$meta])* const, $enum_type, $ffi_type, $(($rust_variant, $ffi_variant)),*);
+
+        #[pymethods]
+        #[allow(non_upper_case_globals)]
+        impl $struct_type {
+            $(
+                #[classattr]
+                const $rust_variant: $enum_type = $enum_type::$rust_variant;
+            )*
+        }
     };
 
     ($(#[$meta:meta])* $enum_type:ident, $ffi_type:ty, $(($rust_variant:ident, $ffi_variant:ident)),* $(,)?) => {
@@ -107,6 +142,7 @@ macro_rules! define_enum {
         }
 
         impl $enum_type {
+            #[allow(dead_code)]
             pub const fn into_ffi(self) -> $ffi_type {
                 match self {
                     $(<$enum_type>::$rust_variant => <$ffi_type>::$ffi_variant,)*

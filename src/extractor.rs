@@ -2,30 +2,10 @@ use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
 
 use pyo3::{FromPyObject, prelude::*, types::PyList};
 
-use crate::{
-    emulation::{Emulation, EmulationOption},
-    proxy::Proxy,
-};
+use crate::proxy::Proxy;
 
 /// A generic extractor for various types.
 pub struct Extractor<T>(pub T);
-
-impl FromPyObject<'_, '_> for Extractor<wreq_util::EmulationOption> {
-    type Error = PyErr;
-
-    fn extract(ob: Borrowed<PyAny>) -> PyResult<Self> {
-        if let Ok(impersonate) = ob.cast::<Emulation>() {
-            let emulation = wreq_util::EmulationOption::builder()
-                .emulation(impersonate.borrow().into_ffi())
-                .build();
-
-            return Ok(Self(emulation));
-        }
-
-        let option = ob.cast::<EmulationOption>()?.borrow();
-        Ok(Self(option.0.clone()))
-    }
-}
 
 impl FromPyObject<'_, '_> for Extractor<Vec<wreq::Proxy>> {
     type Error = PyErr;
