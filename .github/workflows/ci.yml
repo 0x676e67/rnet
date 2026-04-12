@@ -105,6 +105,10 @@ jobs:
             custom_env:
               CC: i686-linux-gnu-gcc
               CXX: i686-linux-gnu-g++
+              CFLAGS: -msse2
+              CXXFLAGS: -msse2
+              CFLAGS_i686_unknown_linux_gnu: -msse2
+              CXXFLAGS_i686_unknown_linux_gnu: -msse2
               CARGO_TARGET_I686_UNKNOWN_LINUX_GNU_LINKER: i686-linux-gnu-g++
           - runner: ubuntu-latest
             target: aarch64
@@ -242,10 +246,10 @@ jobs:
           - name: free-threaded
             maturin_args: "--interpreter 3.13t 3.14t"
         platform:
-          - runner: macos-14
+          - runner: macos-latest
             target: x86_64
             allocator: jemalloc
-          - runner: macos-14
+          - runner: macos-latest
             target: aarch64
             allocator: jemalloc
     steps:
