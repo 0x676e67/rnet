@@ -238,7 +238,7 @@ class PseudoOrder:
         Return a string representation of the type.
         """
         ...
-        
+
 
 @final
 class SettingsOrder:
@@ -263,7 +263,7 @@ class SettingsOrder:
         Return a string representation of the type.
         """
         ...
-        
+
 
 class Params(TypedDict):
     """

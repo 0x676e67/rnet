@@ -48,8 +48,10 @@ docs = [
   "mike>=2.0.0",
 ]
 bench = [
+  "pytest",
+  "pyperf",
+  "starlette",
   "niquests",
-  "tls_client",
   "httpx",
   "requests",
   "wreq",
@@ -58,14 +60,14 @@ bench = [
   "pycurl",
   "uvicorn",
   "starlette",
-  "matplotlib",
-  "pandas",
-  "seaborn",
   "typing_extensions",
-  "uvloop",
+  "uvloop; platform_system != 'Windows'",
   "ry",
 ]
 
 [tool.ruff]
 [tool.ruff.lint]
 ignore = ["F403", "F405"]
+
+[tool.pyright]
+reportArgumentType = false
