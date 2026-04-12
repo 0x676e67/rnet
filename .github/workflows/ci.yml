@@ -181,12 +181,44 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - name: Build wheels
-        run: bash .github/musl_build.sh ${{ matrix.platform.target }} "${{ matrix.build_type.maturin_args }}" --features "${{ matrix.platform.allocator }}"
+        run: |
+          if [ "${{ matrix.platform.target }}" = "i686-unknown-linux-musl" ]; then
+            export CFLAGS="${CFLAGS} -msse2"
+            export CXXFLAGS="${CXXFLAGS} -msse2"
+          fi
+          bash .github/musl_build.sh ${{ matrix.platform.target }} "${{ matrix.build_type.maturin_args }}" --features "${{ matrix.platform.allocator }}"
         env:
           MATURIN_VERSION: ${{ env.MATURIN_VERSION }}
           CXXFLAGS: -static-libstdc++ -static-libgcc
           LDFLAGS: -static-libstdc++ -static-libgcc
-          RUSTFLAGS: -C link-arg=-static-libstdc++ -C link-arg=-static-libgcc
+          RUSTFLAGS: -C link-arg=-static-libstdc++ -C link-arg=-static-libgcc -l static=stdc++ -l static=gcc
+      - name: Print extension NEEDED deps
+        run: |
+          python - <<'PY'
+          import glob
+          import os
+          import subprocess
+          import zipfile
+
+          wheels = sorted(glob.glob('dist/*.whl'))
+          if not wheels:
+              raise SystemExit('No wheel found in dist/')
+
+          wheel = wheels[-1]
+          print(f'Inspecting wheel: {wheel}')
+
+          with zipfile.ZipFile(wheel) as zf:
+              so_names = [n for n in zf.namelist() if n.endswith('.so')]
+              if not so_names:
+                  raise SystemExit('No .so found in wheel')
+              os.makedirs('dist/_inspect', exist_ok=True)
+              for name in so_names:
+                  out = os.path.join('dist/_inspect', os.path.basename(name))
+                  with zf.open(name) as src, open(out, 'wb') as dst:
+                      dst.write(src.read())
+                  print(f'== readelf -d {name} ==')
+                  subprocess.run(['readelf', '-d', out], check=False)
+          PY
       - name: Upload wheels
         uses: actions/upload-artifact@v7
         with:
