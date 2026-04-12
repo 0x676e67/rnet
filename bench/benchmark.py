@@ -540,17 +540,6 @@ def main() -> int:
     # so the reported mean is time/request and req/s = http_requests / mean.
 
     for size in PAYLOAD_SIZES:
-        for case in SYNC_SESSION_CASES:
-            runner.bench_func(
-                f"sync-session/{size}/{case.id}",
-                case.runner,
-                f"{base_url}/{size}",
-                http_requests,
-                workers,
-                inner_loops=http_requests,
-            )
-
-    for size in PAYLOAD_SIZES:
         for case in SYNC_NON_SESSION_CASES:
             runner.bench_func(
                 f"sync-non-session/{size}/{case.id}",
@@ -563,12 +552,13 @@ def main() -> int:
             )
 
     for size in PAYLOAD_SIZES:
-        for case in ASYNC_SESSION_CASES:
-            runner.bench_async_func(
-                f"async-session/{size}/{case.id}",
+        for case in SYNC_SESSION_CASES:
+            runner.bench_func(
+                f"sync-session/{size}/{case.id}",
                 case.runner,
                 f"{base_url}/{size}",
                 http_requests,
+                workers,
                 inner_loops=http_requests,
             )
 
@@ -576,6 +566,16 @@ def main() -> int:
         for case in ASYNC_NON_SESSION_CASES:
             runner.bench_async_func(
                 f"async-non-session/{size}/{case.id}",
+                case.runner,
+                f"{base_url}/{size}",
+                http_requests,
+                inner_loops=http_requests,
+            )
+
+    for size in PAYLOAD_SIZES:
+        for case in ASYNC_SESSION_CASES:
+            runner.bench_async_func(
+                f"async-session/{size}/{case.id}",
                 case.runner,
                 f"{base_url}/{size}",
                 http_requests,
