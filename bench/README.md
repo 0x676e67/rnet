@@ -40,7 +40,6 @@ Sync clients
 - requests
 - niquests
 - pycurl
-- [python-tls-client](https://github.com/FlorianREGAZ/Python-Tls-Client.git)
 - httpx
 - wreq
 - ry
@@ -64,12 +63,12 @@ All the clients run with session/client enabled.
 ## Run benchmark
 
 ```bash
-# Install dependencies  
-pip install -r requirements.txt
+# Install project + benchmark dependencies
+pip install -e .[bench]
 
 # Start server
 python server.py
 
-# Start benchmark
+# Run benchmark suite
 python benchmark.py
 ```
