@@ -65,8 +65,9 @@ wreq = { version = "6.0.0-rc.27", features = [
     "deflate",
     "zstd",
     "ws",
+    "parking_lot",
 ] }
-wreq-util = { version = "3.0.0-rc.10", features = ["emulation-rand", "emulation-compression"] }
+wreq-util = { version = "3.0.0-rc.10", features = ["emulation-compression"] }
 hickory-resolver = "0.25.2"
 cookie = "0.18"
 mimalloc = { version = "0.1.43", default-features = false, features = [
@@ -86,4 +87,5 @@ panic = "abort"
 strip = true
 
 [patch.crates-io]
-wreq = { git = "https://github.com/0x676e67/wreq", rev = "240d84eab5eb4df8548933ee2c13337d86e1afe1" }
+wreq = { git = "https://github.com/0x676e67/wreq" }
+wreq-util = { git = "https://github.com/0x676e67/wreq-util" }

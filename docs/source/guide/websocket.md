@@ -10,7 +10,7 @@
 import asyncio
 import datetime
 import wreq
-from wreq import Message, WebSocket
+from wreq import Message, WebSocket, Version
 from wreq import exceptions
 
 
@@ -95,11 +95,11 @@ async def recv_message(ws):
 
 
 async def main():
-    # Connect to HTTP/2 WebSocket server with force_http2=True
+    # Connect to HTTP/2 WebSocket server
     client = wreq.Client(verify=False)
     ws: WebSocket = await client.websocket(
         "wss://127.0.0.1:3000/ws",
-        force_http2=True
+        version=Version.HTTP_2
     )
     async with ws:
         print("Status Code: ", ws.status)

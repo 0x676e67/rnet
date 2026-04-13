@@ -105,6 +105,10 @@ jobs:
             custom_env:
               CC: i686-linux-gnu-gcc
               CXX: i686-linux-gnu-g++
+              CFLAGS: -msse2
+              CXXFLAGS: -msse2
+              CFLAGS_i686_unknown_linux_gnu: -msse2
+              CXXFLAGS_i686_unknown_linux_gnu: -msse2
               CARGO_TARGET_I686_UNKNOWN_LINUX_GNU_LINKER: i686-linux-gnu-g++
           - runner: ubuntu-latest
             target: aarch64
@@ -127,10 +131,6 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: 3.x
-      - name: Install LLVM and Clang
-        uses: KyleMayes/install-llvm-action@v2
-        with:
-          version: "13.0"
       - name: Install target-specific APT dependencies
         if: "matrix.platform.apt_packages != ''"
         run: sudo apt-get update && sudo apt-get install -y ${{ matrix.platform.apt_packages }}
@@ -177,9 +177,16 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - name: Build wheels
-        run: bash .github/musl_build.sh ${{ matrix.platform.target }} "${{ matrix.build_type.maturin_args }}" --features "${{ matrix.platform.allocator }}"
         env:
           MATURIN_VERSION: ${{ env.MATURIN_VERSION }}
+          BORING_BSSL_RUST_CPPLIB: static=stdc++
+        run: |
+          export RUSTFLAGS="${RUSTFLAGS:+$RUSTFLAGS }-L native=/usr/local/musl/${{ matrix.platform.target }}/lib -L native=/usr/local/musl/lib/gcc/${{ matrix.platform.target }}/11.4.0 -C link-arg=-static-libgcc -l static=gcc"
+          if [ "${{ matrix.platform.target }}" = "i686-unknown-linux-musl" ]; then
+            export CFLAGS="${CFLAGS} -msse2"
+            export CXXFLAGS="${CXXFLAGS} -msse2"
+          fi
+          bash .github/musl_build.sh ${{ matrix.platform.target }} "${{ matrix.build_type.maturin_args }}" --features "${{ matrix.platform.allocator }}"
       - name: Upload wheels
         uses: actions/upload-artifact@v7
         with:
@@ -242,10 +249,10 @@ jobs:
           - name: free-threaded
             maturin_args: "--interpreter 3.13t 3.14t"
         platform:
-          - runner: macos-14
+          - runner: macos-latest
             target: x86_64
             allocator: jemalloc
-          - runner: macos-14
+          - runner: macos-latest
             target: aarch64
             allocator: jemalloc
     steps:

@@ -17,6 +17,7 @@ from typing import (
 )
 
 from . import redirect
+from . import emulation
 from .cookie import *
 from .dns import ResolverOptions
 from .emulation import *
@@ -425,22 +426,9 @@ class Response:
         r"""
         Close the response.
 
-        **Current behavior:**
-
-        - When connection pooling is **disabled**: This method closes the network connection.
-        - When connection pooling is **enabled**: This method closes the response, prevents further body reads,
-          and returns the connection to the pool for reuse.
-
-        **Future changes:**
-
-        In future versions, this method will be changed to always close the network connection regardless of
-        whether connection pooling is enabled or not.
-
-        **Recommendation:**
-
-        It is **not recommended** to manually call this method at present. Instead, use context managers
-        (async with statement) to properly manage response lifecycle. Wait for the improved implementation
-        in future versions.
+        This method closes the network connection regardless of whether connection pooling is
+        enabled or not. It is recommended to use async context managers (`async with` statement)
+        to properly manage response lifecycle instead of calling this method manually.
         """
 
     async def __aenter__(self) -> Any: ...
@@ -520,7 +508,7 @@ class WebSocket:
 
 
 class ClientConfig(TypedDict):
-    emulation: NotRequired[Emulation | EmulationOption]
+    emulation: NotRequired[emulation.Emulation | emulation.Profile]
     """Emulation config."""
 
     user_agent: NotRequired[str]
@@ -791,7 +779,7 @@ class ClientConfig(TypedDict):
 
 
 class Request(TypedDict):
-    emulation: NotRequired[Emulation | EmulationOption]
+    emulation: NotRequired[emulation.Emulation | emulation.Profile]
     """
     The Emulation settings for the request.
     """
@@ -957,7 +945,7 @@ class Request(TypedDict):
 
 
 class WebSocketRequest(TypedDict):
-    emulation: NotRequired[Emulation | EmulationOption]
+    emulation: NotRequired[emulation.Emulation | emulation.Profile]
     """
     The Emulation settings for the request.
     """
@@ -1007,9 +995,9 @@ class WebSocketRequest(TypedDict):
     The protocols to use for the request.
     """
 
-    force_http2: NotRequired[bool]
+    version: NotRequired[Version]
     """
-    Whether to use HTTP/2 for the websocket.
+    The HTTP version to use for the request.
     """
 
     auth: NotRequired[str]

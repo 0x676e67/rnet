@@ -7,7 +7,6 @@ use futures_util::TryFutureExt;
 use http::header::COOKIE;
 use pyo3::{PyResult, prelude::*, pybacked::PyBackedStr};
 use wreq::Client;
-use wreq_util::EmulationOption;
 
 use crate::{
     client::{
@@ -16,6 +15,7 @@ use crate::{
         resp::{Response, WebSocket},
     },
     cookie::{Cookies, Jar},
+    emulate::EmulationLike,
     error::Error,
     extractor::Extractor,
     header::{HeaderMap, OrigHeaderMap},
@@ -29,7 +29,7 @@ use crate::{
 #[non_exhaustive]
 pub struct Request {
     /// The Emulation settings for the request.
-    emulation: Option<Extractor<EmulationOption>>,
+    emulation: Option<EmulationLike>,
 
     /// The proxy to use for the request.
     proxy: Option<Proxy>,
@@ -112,7 +112,7 @@ pub struct Request {
 #[non_exhaustive]
 pub struct WebSocketRequest {
     /// The Emulation settings for the request.
-    emulation: Option<Extractor<EmulationOption>>,
+    emulation: Option<EmulationLike>,
 
     /// The proxy to use for the request.
     proxy: Option<Proxy>,
@@ -141,8 +141,8 @@ pub struct WebSocketRequest {
     /// The protocols to use for the request.
     protocols: Option<Vec<String>>,
 
-    /// Whether to use HTTP/2 for the websocket.
-    force_http2: Option<bool>,
+    /// The HTTP version to use for the request.
+    version: Option<Version>,
 
     /// The authentication to use for the request.
     auth: Option<PyBackedStr>,
@@ -263,7 +263,7 @@ impl FromPyObject<'_, '_> for WebSocketRequest {
         extract_option!(ob, params, local_addresses);
         extract_option!(ob, params, interface);
 
-        extract_option!(ob, params, force_http2);
+        extract_option!(ob, params, version);
         extract_option!(ob, params, headers);
         extract_option!(ob, params, orig_headers);
         extract_option!(ob, params, default_headers);
@@ -298,7 +298,7 @@ where
 
     if let Some(mut request) = request {
         // Emulation options.
-        apply_option!(set_if_some_inner, builder, request.emulation, emulation);
+        apply_option!(set_if_some, builder, request.emulation, emulation);
 
         // Version options.
         apply_option!(
@@ -427,11 +427,24 @@ where
 {
     // Create the WebSocket builder.
     let mut builder = client.websocket(url.as_ref());
+
     if let Some(mut request) = request {
-        // The protocols to use for the request.
+        // Emulation options.
+        apply_option!(set_if_some, builder, request.emulation, emulation);
+
+        // Version options.
+        apply_option!(
+            set_if_some_map,
+            builder,
+            request.version,
+            version,
+            Version::into_ffi
+        );
+
+        // Subprotocols options.
         apply_option!(set_if_some, builder, request.protocols, protocols);
 
-        // The WebSocket config
+        // WebSocket config
         apply_option!(
             set_if_some,
             builder,
@@ -462,15 +475,6 @@ where
             builder,
             request.accept_unmasked_frames,
             accept_unmasked_frames
-        );
-
-        // Use http2 options.
-        apply_option!(
-            set_if_true,
-            builder,
-            request.force_http2,
-            force_http2,
-            false
         );
 
         // Network options.

@@ -15,8 +15,7 @@ use std::{
 use pyo3::{IntoPyObjectExt, coroutine::CancelHandle, prelude::*, pybacked::PyBackedStr};
 use req::{Request, WebSocketRequest};
 use tokio_util::sync::CancellationToken;
-use wreq::{Proxy, tls::CertStore};
-use wreq_util::EmulationOption;
+use wreq::{Proxy, tls::trust::CertStore};
 
 use self::{
     nogil::NoGIL,
@@ -26,6 +25,7 @@ use self::{
 use crate::{
     cookie::Jar,
     dns::{HickoryDnsResolver, LookupIpStrategy, ResolverOptions},
+    emulate::EmulationLike,
     error::Error,
     extractor::Extractor,
     header::{HeaderMap, OrigHeaderMap},
@@ -60,7 +60,7 @@ define_display!(SocketAddr);
 #[derive(Default)]
 struct Builder {
     /// The Emulation settings for the client.
-    emulation: Option<Extractor<EmulationOption>>,
+    emulation: Option<EmulationLike>,
     /// The user agent to use for the client.
     user_agent: Option<PyBackedStr>,
     /// The headers to use for the client.
@@ -257,7 +257,7 @@ impl Client {
 
             if let Some(mut config) = kwds {
                 // Emulation options.
-                apply_option!(set_if_some_inner, builder, config.emulation, emulation);
+                apply_option!(set_if_some, builder, config.emulation, emulation);
 
                 // User agent options.
                 apply_option!(
@@ -288,7 +288,7 @@ impl Client {
                 } else if config.cookie_store.unwrap_or_default() {
                     // `cookie_store` is true and no provider was given, so create a default jar to
                     // be accessed later through the client interface.
-                    let jar = Jar::new(None);
+                    let jar = Jar::new();
                     builder = builder.cookie_provider(jar.clone().0);
                     cookie_jar = Some(jar);
                 }
@@ -369,14 +369,14 @@ impl Client {
                     set_if_some_map,
                     builder,
                     config.tls_min_version,
-                    min_tls_version,
+                    tls_min_version,
                     TlsVersion::into_ffi
                 );
                 apply_option!(
                     set_if_some_map,
                     builder,
                     config.tls_max_version,
-                    max_tls_version,
+                    tls_max_version,
                     TlsVersion::into_ffi
                 );
                 apply_option!(set_if_some, builder, config.tls_info, tls_info);
@@ -384,21 +384,28 @@ impl Client {
                     set_if_some,
                     builder,
                     config.tls_verify_hostname,
-                    verify_hostname
+                    tls_verify_hostname
                 );
-                apply_option!(set_if_some_inner, builder, config.tls_identity, identity);
-                apply_option!(set_if_some_inner, builder, config.tls_keylog, keylog);
+                apply_option!(
+                    set_if_some_inner,
+                    builder,
+                    config.tls_identity,
+                    tls_identity
+                );
+                apply_option!(set_if_some_inner, builder, config.tls_keylog, tls_keylog);
                 apply_option!(set_if_some_inner, builder, config.tls_options, tls_options);
                 if let Some(verify) = config.tls_verify.take() {
                     builder = match verify {
-                        TlsVerify::Verification(verify) => builder.cert_verification(verify),
+                        TlsVerify::Verification(verify) => builder.tls_cert_verification(verify),
                         TlsVerify::CertificatePath(path_buf) => {
                             let pem_data = std::fs::read(path_buf)?;
                             let store =
                                 CertStore::from_pem_stack(pem_data).map_err(Error::Library)?;
-                            builder.cert_store(store)
+                            builder.tls_cert_store(store)
                         }
-                        TlsVerify::CertificateStore(cert_store) => builder.cert_store(cert_store.0),
+                        TlsVerify::CertificateStore(cert_store) => {
+                            builder.tls_cert_store(cert_store.0)
+                        }
                     }
                 }
 

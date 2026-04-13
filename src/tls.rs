@@ -3,6 +3,8 @@ mod keylog;
 mod store;
 
 use pyo3::prelude::*;
+use wreq::tls::compress::CertificateCompressor;
+use wreq_util::emulate::compress;
 
 pub use self::{identity::Identity, keylog::KeyLog, store::CertStore};
 use crate::buffer::PyBuffer;
@@ -46,10 +48,27 @@ define_enum!(
 );
 
 define_enum!(
+    /// Key exchange groups (elliptic curves) for TLS 1.3.
+    const,
+    KeyShare,
+    wreq::tls::KeyShare,
+    P256,
+    P384,
+    P521,
+    X25519,
+    X25519_MLKEM768,
+    X25519_KYBER768_DRAFT00,
+    P256_KYBER768_DRAFT00,
+    MLKEM1024,
+    FFDHE2048,
+    FFDHE3072,
+);
+
+define_enum!(
     // IANA assigned identifier of compression algorithm. See https://www.rfc-editor.org/rfc/rfc8879.html#name-compression-algorithms
     const,
     CertificateCompressionAlgorithm,
-    wreq::tls::CertificateCompressionAlgorithm,
+    wreq::tls::compress::CertificateCompressionAlgorithm,
     ZLIB,
     BROTLI,
     ZSTD,
@@ -83,8 +102,8 @@ define_enum!(
     KEY_SHARE,
     RENEGOTIATE,
     DELEGATED_CREDENTIAL,
+    APPLICATION_SETTINGS_OLD,
     APPLICATION_SETTINGS,
-    APPLICATION_SETTINGS_NEW,
     ENCRYPTED_CLIENT_HELLO,
     CERTIFICATE_TIMESTAMP,
     NEXT_PROTO_NEG,
@@ -153,8 +172,8 @@ struct Builder {
     /// Whether to skip session tickets when using PSK.
     psk_skip_session_ticket: Option<bool>,
 
-    /// Maximum number of key shares to include in ClientHello.
-    key_shares_limit: Option<u8>,
+    /// Whether to set specific key shares for TLS 1.3 handshakes.
+    key_shares: Option<Vec<KeyShare>>,
 
     /// Enables PSK with (EC)DHE key establishment (`psk_dhe_ke`).
     psk_dhe_ke: Option<bool>,
@@ -171,13 +190,16 @@ struct Builder {
     /// List of supported elliptic curves.
     curves_list: Option<String>,
 
+    /// List of supported signature algorithms.
+    sigalgs_list: Option<String>,
+
     /// Cipher suite configuration string.
     ///
     /// Uses BoringSSL's mini-language to select, enable, and prioritize ciphers.
     cipher_list: Option<String>,
 
-    /// List of supported signature algorithms.
-    sigalgs_list: Option<String>,
+    /// Sets whether to preserve the TLS 1.3 cipher list as configured by [`Self::cipher_list`].
+    preserve_tls13_cipher_list: Option<bool>,
 
     /// Supported certificate compression algorithms ([RFC 8879](https://datatracker.ietf.org/doc/html/rfc8879)).
     certificate_compression_algorithms: Option<Vec<CertificateCompressionAlgorithm>>,
@@ -187,9 +209,6 @@ struct Builder {
 
     /// Overrides AES hardware acceleration.
     aes_hw_override: Option<bool>,
-
-    /// Sets whether to preserve the TLS 1.3 cipher list as configured by [`Self::cipher_list`].
-    preserve_tls13_cipher_list: Option<bool>,
 
     /// Overrides the random AES hardware acceleration.
     random_aes_hw_override: Option<bool>,
@@ -214,7 +233,7 @@ impl FromPyObject<'_, '_> for Builder {
         extract_option!(ob, params, enable_signed_cert_timestamps);
         extract_option!(ob, params, record_size_limit);
         extract_option!(ob, params, psk_skip_session_ticket);
-        extract_option!(ob, params, key_shares_limit);
+        extract_option!(ob, params, key_shares);
         extract_option!(ob, params, psk_dhe_ke);
         extract_option!(ob, params, renegotiation);
         extract_option!(ob, params, delegated_credentials);
@@ -327,10 +346,11 @@ impl TlsOptions {
                     psk_skip_session_ticket
                 );
                 apply_option!(
-                    set_if_some,
+                    set_if_some_map,
                     builder,
-                    params.key_shares_limit,
-                    key_shares_limit
+                    params.key_shares,
+                    key_shares,
+                    |v: Vec<_>| v.into_iter().map(KeyShare::into_ffi).collect::<Vec<_>>()
                 );
                 apply_option!(set_if_some, builder, params.psk_dhe_ke, psk_dhe_ke);
                 apply_option!(set_if_some, builder, params.renegotiation, renegotiation);
@@ -347,11 +367,23 @@ impl TlsOptions {
                     set_if_some_map,
                     builder,
                     params.certificate_compression_algorithms,
-                    certificate_compression_algorithms,
+                    certificate_compressors,
                     |v: Vec<_>| v
                         .into_iter()
-                        .map(CertificateCompressionAlgorithm::into_ffi)
-                        .collect::<Vec<_>>()
+                        .map(|algs| {
+                            match algs {
+                                CertificateCompressionAlgorithm::ZLIB => {
+                                    &compress::ZlibCompressor as _
+                                }
+                                CertificateCompressionAlgorithm::BROTLI => {
+                                    &compress::BrotliCompressor as _
+                                }
+                                CertificateCompressionAlgorithm::ZSTD => {
+                                    &compress::ZstdCompressor as _
+                                }
+                            }
+                        })
+                        .collect::<Vec<&'static dyn CertificateCompressor>>()
                 );
                 apply_option!(
                     set_if_some_map,

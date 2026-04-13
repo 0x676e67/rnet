@@ -222,22 +222,8 @@ impl FromPyObject<'_, '_> for Cookies {
 impl Jar {
     /// Create a new [`Jar`] with an empty cookie store.
     #[new]
-    #[pyo3(signature = (compression = None))]
-    pub fn new(compression: Option<bool>) -> Self {
-        Self(Arc::new(compression.map_or_else(
-            wreq::cookie::Jar::default,
-            wreq::cookie::Jar::new,
-        )))
-    }
-
-    /// Clone this [`Jar`], sharing storage but enabling compression.
-    pub fn compreessed(&self) -> Self {
-        Self(self.0.compressed())
-    }
-
-    /// Clone this [`Jar`], sharing storage but disabling compression.
-    pub fn uncompressed(&self) -> Self {
-        Self(self.0.uncompressed())
+    pub fn new() -> Self {
+        Self(Arc::new(wreq::cookie::Jar::default()))
     }
 
     /// Get a cookie by name and URL.

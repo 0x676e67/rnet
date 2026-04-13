@@ -2,7 +2,7 @@ import asyncio
 import datetime
 import signal
 import wreq
-from wreq import Message, WebSocket
+from wreq import Message, WebSocket, Version
 from wreq import exceptions
 
 
@@ -45,7 +45,9 @@ Then run this Python script to connect to the websocket server.
 
 async def main():
     client = wreq.Client(tls_verify=False)
-    ws: WebSocket = await client.websocket("wss://127.0.0.1:3000/ws", force_http2=True)
+    ws: WebSocket = await client.websocket(
+        "wss://127.0.0.1:3000/ws", version=Version.HTTP_2
+    )
     async with ws:
         print("Status Code: ", ws.status)
         print("Version: ", ws.version)

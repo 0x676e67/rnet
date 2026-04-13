@@ -1,6 +1,6 @@
 import asyncio
 from wreq import Client, Response
-from wreq.emulation import Emulation, EmulationOS, EmulationOption
+from wreq.emulation import Emulation, Profile, Platform
 from wreq.tls import TlsOptions, TlsVersion, AlpnProtocol
 from wreq.http2 import Http2Options, PseudoId, PseudoOrder
 from wreq.header import HeaderMap, OrigHeaderMap
@@ -49,9 +49,9 @@ async def request_chrome_android(client: Client):
     print("\n[Testing Chrome on Android Emulation]")
     resp = await client.get(
         "https://tls.peet.ws/api/all",
-        emulation=EmulationOption(
-            emulation=Emulation.Chrome134,
-            emulation_os=EmulationOS.Android,
+        emulation=Emulation(
+            profile=Profile.Chrome134,
+            platform=Platform.Android,
         ),
         # Disable client default headers
         default_headers=False,
