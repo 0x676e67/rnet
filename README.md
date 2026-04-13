@@ -48,7 +48,7 @@ from wreq import Client, Emulation
 
 async def main():
     # Build a client
-    client = Client(emulation=Emulation.Safari26)
+    client = Client(emulation=Emulation.Firefox149)
 
     # Use the API you're already familiar with
     resp = await client.get("https://tls.peet.ws/api/all")
