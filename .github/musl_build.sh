@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 if [ -z "$1" ]; then
   echo "Usage: $0 <target> [maturin_args]"
   exit 1
