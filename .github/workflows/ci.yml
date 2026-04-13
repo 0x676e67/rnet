@@ -181,7 +181,7 @@ jobs:
           MATURIN_VERSION: ${{ env.MATURIN_VERSION }}
           BORING_BSSL_RUST_CPPLIB: static=stdc++
         run: |
-          export RUSTFLAGS="${RUSTFLAGS:+$RUSTFLAGS }-L native=/usr/local/musl/${{ matrix.platform.target }}/lib"
+          export RUSTFLAGS="${RUSTFLAGS:+$RUSTFLAGS }-L native=/usr/local/musl/${{ matrix.platform.target }}/lib -L native=/usr/local/musl/lib/gcc/${{ matrix.platform.target }}/11.4.0 -C link-arg=-static-libgcc -l static=gcc"
           if [ "${{ matrix.platform.target }}" = "i686-unknown-linux-musl" ]; then
             export CFLAGS="${CFLAGS} -msse2"
             export CXXFLAGS="${CXXFLAGS} -msse2"
