@@ -1,4 +1,70 @@
-## [unreleased]
+## [0.11.0](https://github.com/0x676e67/wreq-python/compare/v0.10.2..v0.11.0) - 2026-04-13
+
+### Features
+
+- *(http1/http2)* Implement `__str__` for types ([#559](https://github.com/0x676e67/wreq/issues/559)) - ([e85ac65](https://github.com/0x676e67/wreq-python/commit/e85ac657f63cfb798061f7a27e9e69b82bfb70a8))
+
+### Refactor
+
+- *(tls)* Standardize TLS config fields with `tls_` prefix ([#556](https://github.com/0x676e67/wreq/issues/556)) - ([5504542](https://github.com/0x676e67/wreq-python/commit/5504542fcc92356459fe186e434de53f738f2c91))
+
+### Documentation
+
+- *(python)* Prefer `Mapping` over `Dict` for abstract type hints - ([d7ab30e](https://github.com/0x676e67/wreq-python/commit/d7ab30e65a168c7663e4bd29146bc7cfbabc32a4))
+
+### Miscellaneous Tasks
+
+- Change license from GPLv3 to Apache-2.0 - ([7e4851a](https://github.com/0x676e67/wreq-python/commit/7e4851a260542a24decd7433f97190c06868de17))
+
+### Bench
+
+- *(python)* Use `pyperf` strict mode over custom logic ([#561](https://github.com/0x676e67/wreq/issues/561)) - ([2eca676](https://github.com/0x676e67/wreq-python/commit/2eca676bac064b098c895d9c789bf4b29c5e6ffd))
+
+### Build
+
+- *(ci)* Fix free-threaded wheel builds on Windows via maturin ([#560](https://github.com/0x676e67/wreq/issues/560)) - ([5d39a3a](https://github.com/0x676e67/wreq-python/commit/5d39a3a988a1515639745a10a90f51df6a23502e))
+- *(deps)* Bump wreq version to latest ([#562](https://github.com/0x676e67/wreq/issues/562)) - ([c33b4b4](https://github.com/0x676e67/wreq-python/commit/c33b4b4cfa4b0c310ce0227afecddd209ca71c6f))
+- *(deps)* Update `http` dependency version to 1.4.0 ([#553](https://github.com/0x676e67/wreq/issues/553)) - ([af16c66](https://github.com/0x676e67/wreq-python/commit/af16c668aa1bfe3bdc8a5113fae1f4370ad7283f))
+- *(deps)* Update `tokio` dependency version to 1.51.0 ([#552](https://github.com/0x676e67/wreq/issues/552)) - ([2ee6fda](https://github.com/0x676e67/wreq-python/commit/2ee6fda3de65ac9f88de9ef3a835e121a3e78c07))
+- *(deps)* Update `arc-swap` dependency to version 1.9.0 ([#551](https://github.com/0x676e67/wreq/issues/551)) - ([e479f49](https://github.com/0x676e67/wreq-python/commit/e479f49ae4d26c1f70e56ada52b416b7fc32a820))
+- *(deps)* Update `pyo3` dependency version to 0.28.3 ([#550](https://github.com/0x676e67/wreq/issues/550)) - ([94e1d30](https://github.com/0x676e67/wreq-python/commit/94e1d303feb87be66e24d4a7225e9415228435a5))
+- *(deps)* Update bench optional dependencies - ([1685d14](https://github.com/0x676e67/wreq-python/commit/1685d14572a59097d0e07af97d6b35f22c0fa8f2))
+
+## New Contributors ❤️
+
+* @tjaycodes4you made their first contribution in [#557](https://github.com/0x676e67/wreq-python/pull/557)
+
+## [0.10.2](https://github.com/0x676e67/wreq-python/compare/v0.10.1..v0.10.2) - 2026-03-27
+
+### Features
+
+- *(client)* Implement graceful shutdown for Client ([#543](https://github.com/0x676e67/wreq/issues/543)) - ([e844ff3](https://github.com/0x676e67/wreq-python/commit/e844ff30bdb3cabd40ff07974a18f96c4620eb66))
+
+### Bug Fixes
+
+- *(response)* Ensure response remains cached when valid ([#544](https://github.com/0x676e67/wreq/issues/544)) - ([5f7e3ba](https://github.com/0x676e67/wreq-python/commit/5f7e3ba259569871cc56b3c09e654d3df60efe2d))
+
+### Miscellaneous Tasks
+
+- *(buffer)* Add `skip_from_py_object` to `BufferView` pyclass - ([8cae362](https://github.com/0x676e67/wreq-python/commit/8cae36263ca247886c987a5a171f0f74d3406b14))
+- *(client)* Replace cancel with close in async exit handling - ([5b09884](https://github.com/0x676e67/wreq-python/commit/5b09884964e1218153f268adb9309f1199a03737))
+
+
+## [0.10.1](https://github.com/0x676e67/wreq-python/compare/v0.10.0..v0.10.1) - 2026-03-27
+
+### Documentation
+
+- *(ws)* Update response attributes documentation - ([3858d42](https://github.com/0x676e67/wreq-python/commit/3858d4200458e63dc4f309dfc9b0d56d04ffeaeb))
+- *(ws)* Expose local_addr in response docs ([#542](https://github.com/0x676e67/wreq/issues/542)) - ([6f92e6c](https://github.com/0x676e67/wreq-python/commit/6f92e6ced24051bba368fda25eb71dce50e572dd))
+- Migrate to Zensical for documentation ([#540](https://github.com/0x676e67/wreq/issues/540)) - ([b41a913](https://github.com/0x676e67/wreq-python/commit/b41a91336c39c80bc1350128b65a5e0340b6ce9f))
+- Update documentation URL in pyproject.toml - ([5dc16c6](https://github.com/0x676e67/wreq-python/commit/5dc16c6a17010f37819f13fb8d03b50e39ddf9c2))
+
+### Build
+
+- *(deps)* Streamline dependency management ([#541](https://github.com/0x676e67/wreq/issues/541)) - ([382c154](https://github.com/0x676e67/wreq-python/commit/382c154e66cd55df85aaff4bd01c2f63a91608c3))
+
+
+## [0.10.0](https://github.com/0x676e67/wreq-python/compare/v3.0.0-rc22..v0.10.0) - 2026-03-26
 
 ### Features
 
