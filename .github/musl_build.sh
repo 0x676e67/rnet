@@ -15,7 +15,7 @@ VOLUME_MAPPING=("-v" "$(pwd):/home/rust/src")
 MATURIN_CMD="maturin build --release --out dist $ARGS"
 EXTRA_ENV=()
 
-for var in MATURIN_VERSION CFLAGS CXXFLAGS LDFLAGS RUSTFLAGS; do
+for var in BORING_BSSL_RUST_CPPLIB MATURIN_VERSION CFLAGS CXXFLAGS LDFLAGS RUSTFLAGS; do
   if [ -n "${!var}" ]; then
     EXTRA_ENV+=("-e" "$var=${!var}")
   fi

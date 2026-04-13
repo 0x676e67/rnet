@@ -179,6 +179,7 @@ jobs:
       - name: Build wheels
         env:
           MATURIN_VERSION: ${{ env.MATURIN_VERSION }}
+          BORING_BSSL_RUST_CPPLIB: static=stdc++
         run: |
           if [ "${{ matrix.platform.target }}" = "i686-unknown-linux-musl" ]; then
             export CFLAGS="${CFLAGS} -msse2"
