@@ -60,34 +60,10 @@ Due to the complexity of **TLS** encryption and the widespread adoption of **HTT
     <div class="grid cards" markdown>
 
     -   :fontawesome-brands-windows: **Windows**
-
-        ---
-
-        Windows (any version)
-
     -   :fontawesome-brands-apple: **macOS**
-
-        ---
-
-        macOS (any version)
-
     -   :fontawesome-brands-linux: **Linux**
-
-        ---
-
-        Linux (any distribution)
-
     -   :fontawesome-brands-android: **Android**
-
-        ---
-
-        Android (mobile)
-
     -   :fontawesome-brands-apple: **iOS**
-
-        ---
-
-        iOS (iPhone / iPad)
 
     </div>
 
@@ -105,7 +81,7 @@ Due to the complexity of **TLS** encryption and the widespread adoption of **HTT
 
         ---
 
-        `Edge101` `Edge122` `Edge127` `Edge131` `Edge134` `Edge135` `Edge136` `Edge137` `Edge138` `Edge139` `Edge140` `Edge141` `Edge142` `Edge143` `Edge144` `Edge145`
+        `Edge101` `Edge122` `Edge127` `Edge131` `Edge134` `Edge135` `Edge136` `Edge137` `Edge138` `Edge139` `Edge140` `Edge141` `Edge142` `Edge143` `Edge144` `Edge145`, `Edge146` `Edge147`
 
     -   :fontawesome-brands-firefox: **Firefox**
 
