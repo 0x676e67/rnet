@@ -107,7 +107,7 @@ maturin build --release
 
 ## Benchmark
 
-Outperforms `requests`, `httpx`, `aiohttp`, and `curl_cffi`, and you can see the [benchmark](https://github.com/0x676e67/wreq-python/tree/main/bench) for details. The benchmark suite is driven by [pyperf](https://github.com/psf/pyperf), and results are still for reference only because network and system conditions affect outcomes.
+Outperforms `requests`, `httpx`, `aiohttp`, and `curl_cffi` according to our [benchmark](https://github.com/0x676e67/wreq-python/tree/main/bench) suite driven by [pyperf](https://github.com/psf/pyperf), though results are for reference only as they vary by environment.
 
 ## Services
 
