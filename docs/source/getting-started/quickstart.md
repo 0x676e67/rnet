@@ -69,13 +69,21 @@ asyncio.run(main())
 
 ## Using Proxies
 
+The [Proxy](../guide/proxy.md) object defines how your HTTP client routes traffic through a proxy server.
+You create one using a named constructor that specifies the scope:
+
+- `Proxy.all(url)` - routes all traffic through the given proxy
+- `Proxy.http(url)` - only intercepts HTTP requests
+- `Proxy.https(url)` - only intercepts HTTPS requests
+
+Once created, you pass it to the `Client` and all requests will go through it automatically.
+
 ```python
 import asyncio
-from wreq import Client
-from wreq.proxy import Proxy
+from wreq import Client, Proxy
 
 async def main():
-    client = Client(proxy=Proxy.all("http://proxy.example.com:8080"))
+    client = Client(proxies=[Proxy.all("http://proxy.example.com:8080")])
     resp = await client.get("https://httpbin.org/ip")
     print(await resp.text())
 
