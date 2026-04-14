@@ -290,6 +290,7 @@ impl Display for Response {
 }
 
 impl Drop for Response {
+    #[inline]
     fn drop(&mut self) {
         self.destroy();
     }

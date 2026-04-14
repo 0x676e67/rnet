@@ -715,7 +715,7 @@ class ClientConfig(TypedDict):
 
     proxies: NotRequired[Sequence[Proxy]]
     """
-    Add a `Proxy` list to the client.
+    The proxies to use for requests.
     """
 
     local_address: NotRequired[IPv4Address | IPv6Address]
