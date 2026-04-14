@@ -173,4 +173,4 @@ impl Message {
     }
 }
 
-define_display!(Message);
+impl_print_str!(Display, Message);

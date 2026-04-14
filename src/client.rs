@@ -54,7 +54,7 @@ impl SocketAddr {
     }
 }
 
-define_display!(SocketAddr);
+impl_print_str!(Display, SocketAddr);
 
 /// A builder for `Client`.
 #[derive(Default)]

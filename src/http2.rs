@@ -206,7 +206,7 @@ impl StreamId {
     }
 }
 
-define_display!(StreamId);
+impl_print_str!(Display, StreamId);
 
 // ===== impl StreamDependency =====
 
@@ -224,7 +224,7 @@ impl StreamDependency {
     }
 }
 
-define_display!(StreamDependency);
+impl_print_str!(Display, StreamDependency);
 
 // ===== impl Priority =====
 
@@ -238,7 +238,7 @@ impl Priority {
     }
 }
 
-define_display!(Priority);
+impl_print_str!(Display, Priority);
 
 // ===== impl Priorities =====
 
@@ -256,7 +256,7 @@ impl Priorities {
     }
 }
 
-define_display!(Priorities);
+impl_print_str!(Display, Priorities);
 
 // ===== impl PseudoOrder =====
 
@@ -274,7 +274,7 @@ impl PseudoOrder {
     }
 }
 
-define_display!(PseudoOrder);
+impl_print_str!(Display, PseudoOrder);
 
 // ===== impl SettingsOrder =====
 
@@ -292,7 +292,7 @@ impl SettingsOrder {
     }
 }
 
-define_display!(SettingsOrder);
+impl_print_str!(Display, SettingsOrder);
 
 // ===== impl Builder =====
 
@@ -462,4 +462,4 @@ impl Http2Options {
     }
 }
 
-define_display!(Http2Options);
+impl_print_str!(Debug, Http2Options);

@@ -86,4 +86,4 @@ impl StatusCode {
     }
 }
 
-define_display!(StatusCode);
+impl_print_str!(Display, StatusCode);

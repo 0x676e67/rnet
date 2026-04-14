@@ -181,7 +181,7 @@ impl Cookie {
     }
 }
 
-define_display!(Cookie);
+impl_print_str!(Display, Cookie);
 
 // ===== impl Cookies =====
 

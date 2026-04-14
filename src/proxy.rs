@@ -93,7 +93,7 @@ impl Proxy {
     }
 }
 
-define_display!(Proxy);
+impl_print_str!(Debug, Proxy);
 
 fn create_proxy<'py>(
     py: Python<'py>,
