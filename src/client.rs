@@ -15,7 +15,7 @@ use std::{
 use pyo3::{IntoPyObjectExt, coroutine::CancelHandle, prelude::*, pybacked::PyBackedStr};
 use req::{Request, WebSocketRequest};
 use tokio_util::sync::CancellationToken;
-use wreq::{Proxy, tls::trust::CertStore};
+use wreq::tls::trust::CertStore;
 
 use self::{
     nogil::NoGIL,
@@ -32,6 +32,7 @@ use crate::{
     http::Method,
     http1::Http1Options,
     http2::Http2Options,
+    proxy::Proxy,
     redirect,
     tls::{Identity, KeyLog, TlsOptions, TlsVerify, TlsVersion},
 };
@@ -141,8 +142,8 @@ struct Builder {
     // ========= Network options =========
     /// Whether to disable the proxy for the client.
     no_proxy: Option<bool>,
-    /// The proxy to use for the client.
-    proxies: Option<Extractor<Vec<Proxy>>>,
+    /// The proxies to use for the client.
+    proxies: Option<Vec<Proxy>>,
     /// Bind to a local IP Address.
     local_address: Option<IpAddr>,
     /// Bind to local IP Addresses (IPv4, IPv6).

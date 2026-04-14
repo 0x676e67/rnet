@@ -54,8 +54,8 @@ macro_rules! apply_option {
     };
     (set_if_some_iter_inner, $builder:expr, $option:expr, $method:ident) => {
         if let Some(value) = $option.take() {
-            for item in value.0 {
-                $builder = $builder.$method(item);
+            for item in value {
+                $builder = $builder.$method(item.0);
             }
         }
     };
