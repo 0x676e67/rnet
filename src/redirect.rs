@@ -126,7 +126,7 @@ impl Policy {
     }
 }
 
-define_display!(Policy);
+impl_print_str!(Debug, Policy);
 
 // ===== impl Attempt =====
 
@@ -196,4 +196,4 @@ impl Display for Action {
 
 // ===== impl History =====
 
-define_display!(History);
+impl_print_str!(Debug, History);

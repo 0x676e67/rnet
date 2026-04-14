@@ -232,7 +232,7 @@ impl HeaderMap {
     }
 }
 
-define_display!(HeaderMap);
+impl_print_str!(Debug, HeaderMap);
 
 impl FromPyObject<'_, '_> for HeaderMap {
     type Error = PyErr;
@@ -338,7 +338,7 @@ impl OrigHeaderMap {
     }
 }
 
-define_display!(OrigHeaderMap);
+impl_print_str!(Debug, OrigHeaderMap);
 
 impl FromPyObject<'_, '_> for OrigHeaderMap {
     type Error = PyErr;

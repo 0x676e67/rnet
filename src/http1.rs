@@ -107,4 +107,4 @@ impl Http1Options {
     }
 }
 
-define_display!(Http1Options);
+impl_print_str!(Debug, Http1Options);

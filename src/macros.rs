@@ -161,12 +161,20 @@ macro_rules! define_enum {
     };
 }
 
-macro_rules! define_display {
-    ($typed:ident) => {
+macro_rules! impl_print_str {
+    (Debug, $typed:ident) => {
         impl std::fmt::Display for $typed {
             #[inline]
             fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
                 std::fmt::Debug::fmt(&self.0, f)
+            }
+        }
+    };
+    (Display, $typed:ident) => {
+        impl std::fmt::Display for $typed {
+            #[inline]
+            fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                self.0.fmt(f)
             }
         }
     };

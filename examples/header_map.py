@@ -18,6 +18,8 @@ if __name__ == "__main__":
     print("keys_len (unique keys):", headers.keys_len())
     # Check if the map is empty
     print("is_empty:", headers.is_empty())
+    # Print the entire header map
+    print(headers)
     # Clear all headers
     headers.clear()
     print("After clear, is_empty:", headers.is_empty())
