@@ -126,7 +126,7 @@ class Jar:
 
         Args:
             name: The cookie name to look up.
-            url: The URL used for exact domain and path matching.
+            url: The URL used for exact domain matching and path matching.
         """
         ...
 
