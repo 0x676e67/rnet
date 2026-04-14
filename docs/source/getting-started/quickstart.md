@@ -72,9 +72,9 @@ asyncio.run(main())
 The [Proxy](../guide/proxy.md) object defines how your HTTP client routes traffic through a proxy server.
 You create one using a named constructor that specifies the scope:
 
-- `Proxy.all(url)` — routes all traffic through the given proxy
+- `Proxy.all(url)` - routes all traffic through the given proxy
 - `Proxy.http(url)` - only intercepts HTTP requests
-- `Proxy.https(url)` — only intercepts HTTPS requests
+- `Proxy.https(url)` - only intercepts HTTPS requests
 
 Once created, you pass it to the `Client` and all requests will go through it automatically.
 
