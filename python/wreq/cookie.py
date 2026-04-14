@@ -119,11 +119,14 @@ class Jar:
         r"""
         Look up a cookie by name scoped to the given URL.
 
+        Domain matching is exact: only cookies whose domain exactly matches
+        the URL host are considered. Subdomains are not matched.
+
         Returns `None` if no matching cookie is found.
 
         Args:
             name: The cookie name to look up.
-            url: The URL the cookie is scoped to (used for domain / path matching).
+            url: The URL used for exact domain and path matching.
         """
         ...
 
