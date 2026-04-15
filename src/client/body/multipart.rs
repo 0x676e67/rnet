@@ -63,7 +63,7 @@ impl Multipart {
     fn build_form(&mut self, py: Python) -> PyResult<multipart::Form> {
         let mut form = multipart::Form::new();
         for part in &mut self.parts {
-            let (name, inner) = part.build_form_part(py)?;
+            let (name, inner) = part.build_part(py)?;
             form = form.part(name, inner);
         }
         Ok(form)
@@ -121,55 +121,43 @@ impl Part {
         }
     }
 
-    fn build_inner(value: Value, length: Option<u64>) -> Result<multipart::Part, Error> {
-        Ok(match value {
-            Value::Text(text) => multipart::Part::stream(Body::from(Bytes::from_owner(text))),
-            Value::Bytes(bytes) => multipart::Part::stream(Body::from(Bytes::from_owner(bytes))),
-            Value::File(path) => pyo3_async_runtimes::tokio::get_runtime()
-                .block_on(multipart::Part::file(path))
-                .map_err(Error::from)?,
-            Value::Stream(stream) => {
-                let stream = Body::wrap_stream(stream);
-                match length {
-                    Some(length) => multipart::Part::stream_with_length(stream, length),
-                    None => multipart::Part::stream(stream),
-                }
-            }
-        })
-    }
-
-    fn clone_value_or_take(&mut self, py: Python) -> PyResult<Value> {
-        self.value
+    fn build_part(&mut self, py: Python) -> PyResult<(String, multipart::Part)> {
+        let value = self
+            .value
             .as_ref()
             .and_then(|value| value.try_clone(py))
             .or_else(|| self.value.take())
-            .ok_or_else(|| Error::Memory.into())
-    }
-
-    fn build_form_part(&mut self, py: Python) -> PyResult<(String, multipart::Part)> {
-        let value = self.clone_value_or_take(py)?;
-        let name = self.name.clone();
-        let filename = self.filename.clone();
-        let mime = self.mime.clone();
-        let length = self.length;
-        let headers = self.headers.clone();
+            .ok_or_else(|| Error::Memory)?;
 
         py.detach(move || {
-            let mut inner = Self::build_inner(value, length)?;
+            let mut inner = match value {
+                Value::Text(text) => multipart::Part::stream(Bytes::from_owner(text)),
+                Value::Bytes(bytes) => multipart::Part::stream(Bytes::from_owner(bytes)),
+                Value::File(path) => pyo3_async_runtimes::tokio::get_runtime()
+                    .block_on(multipart::Part::file(path))
+                    .map_err(Error::from)?,
+                Value::Stream(stream) => {
+                    let stream = Body::wrap_stream(stream);
+                    match self.length {
+                        Some(length) => multipart::Part::stream_with_length(stream, length),
+                        None => multipart::Part::stream(stream),
+                    }
+                }
+            };
 
-            if let Some(filename) = filename {
+            if let Some(filename) = self.filename.clone() {
                 inner = inner.file_name(filename);
             }
 
-            if let Some(mime) = mime {
+            if let Some(mime) = self.mime.clone() {
                 inner = inner.mime_str(&mime).map_err(Error::Library)?;
             }
 
-            if let Some(headers) = headers {
+            if let Some(headers) = self.headers.clone() {
                 inner = inner.headers(headers.0);
             }
 
-            Ok((name, inner))
+            Ok((self.name.clone(), inner))
         })
     }
 
