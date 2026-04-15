@@ -149,8 +149,8 @@ impl Part {
                 inner = inner.file_name(filename);
             }
 
-            if let Some(mime) = self.mime.clone() {
-                inner = inner.mime_str(&mime).map_err(Error::Library)?;
+            if let Some(ref mime) = self.mime {
+                inner = inner.mime_str(mime).map_err(Error::Library)?;
             }
 
             if let Some(headers) = self.headers.clone() {
