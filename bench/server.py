@@ -55,6 +55,6 @@ if __name__ == "__main__":
         workers=workers,
         runtime_threads=1,
         websockets=False,
-        log_enabled=False,
+        log_enabled=True,
         log_access=False,
     ).serve()
