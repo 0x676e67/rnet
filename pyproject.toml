@@ -58,7 +58,7 @@ bench = [
   "curl_cffi",
   "aiohttp",
   "pycurl",
-  "uvicorn",
+  "granian",
   "starlette",
   "typing_extensions",
   "uvloop; platform_system != 'Windows'",

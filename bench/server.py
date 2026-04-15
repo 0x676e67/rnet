@@ -1,32 +1,35 @@
-import os
+import argparse
+import multiprocessing
 
+import granian
 from starlette.applications import Starlette
-from starlette.responses import PlainTextResponse
+from starlette.requests import Request
+from starlette.responses import Response
 from starlette.routing import Route
 
-random_20k = os.urandom(20 * 1024)
-random_50k = os.urandom(50 * 1024)
-random_200k = os.urandom(200 * 1024)
+
+async def echo(request: Request) -> Response:
+    body = await request.body()
+    content_type = request.headers.get("content-type", "application/octet-stream")
+    return Response(body, media_type=content_type)
 
 
 app = Starlette(
     routes=[
-        Route("/20k", lambda r: PlainTextResponse(random_20k)),
-        Route("/50k", lambda r: PlainTextResponse(random_50k)),
-        Route("/200k", lambda r: PlainTextResponse(random_200k)),
+        Route(
+            "/{path:path}",
+            echo,
+            methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"],
+        )
     ],
 )
 
 if __name__ == "__main__":
-    import uvicorn
-    import multiprocessing
-    import argparse
-
     parser = argparse.ArgumentParser(description="Start benchmark server")
     parser.add_argument(
         "--workers",
         type=int,
-        default=None,
+        default=multiprocessing.cpu_count(),
         help="Number of worker processes (default: CPU count)",
     )
     parser.add_argument(
@@ -39,18 +42,19 @@ if __name__ == "__main__":
 
     host = args.host
     port = args.port
-    workers = args.workers or multiprocessing.cpu_count()
-
-    max_workers = workers
+    workers = args.workers
 
     print(
-        f"Starting server on {host}:{port} with {max_workers} workers (CPU cores/threads: {multiprocessing.cpu_count()})..."
+        f"Starting server on {host}:{port} with {workers} workers (CPU cores/threads: {multiprocessing.cpu_count()})..."
     )
-    uvicorn.run(
+    granian.Granian(
         "server:app",
-        host=host,
+        address=host,
         port=port,
-        workers=max_workers,
-        log_level="error",
-        access_log=False,
-    )
+        interface="asgi",
+        workers=workers,
+        runtime_threads=1,
+        websockets=False,
+        log_enabled=False,
+        log_access=False,
+    ).serve()

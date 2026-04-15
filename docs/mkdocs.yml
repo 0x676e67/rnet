@@ -109,17 +109,18 @@ nav:
       - Advanced Features: guide/advanced.md
       - Blocking/Sync API: guide/blocking.md
   - API Reference:
-      - Modules:
-          - wreq: api/wreq.md
-          - wreq.blocking: api/blocking.md
-          - wreq.header: api/header.md
-          - wreq.cookie: api/cookie.md
-          - wreq.exceptions: api/exceptions.md
-          - wreq.emulation: api/emulation.md
-          - wreq.http1: api/http1.md
-          - wreq.http2: api/http2.md
-          - wreq.tls: api/tls.md
-          - wreq.dns: api/dns.md
-          - wreq.proxy: api/proxy.md
-          - wreq.redirect: api/redirect.md
+      - wreq: api/wreq.md
+      - wreq.blocking: api/blocking.md
+      - wreq.header: api/header.md
+      - wreq.cookie: api/cookie.md
+      - wreq.exceptions: api/exceptions.md
+      - wreq.emulation: api/emulation.md
+      - wreq.http1: api/http1.md
+      - wreq.http2: api/http2.md
+      - wreq.tls: api/tls.md
+      - wreq.dns: api/dns.md
+      - wreq.proxy: api/proxy.md
+      - wreq.redirect: api/redirect.md
+  - Benchmark:
+      - Benchmark: benchmark/benchmark.md
   - Sponsors: sponsors.md

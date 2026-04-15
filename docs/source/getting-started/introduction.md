@@ -109,16 +109,6 @@ Due to the complexity of **TLS** encryption and the widespread adoption of **HTT
 
     </div>
 
-
-## Performance
-
-1. [wreq-python] This is designed to achieve high performance, leveraging the efficiency of the **BoringSSL** library in **TLS** operations and optimized **HTTP/2** processing. Although its running speed may not be comparable to that of low-level languages like **Rust** or **C++**, it offers significant performance improvements compared to traditional Python **HTTP** clients. 
-
-2. In terms of API module design, [wreq-python] adopts dual support for both asynchronous and blocking clients, allowing developers to choose the appropriate programming model according to their needs.
-
-3. API calls have made every effort to release the [GIL], which means that performance can be maximally exploited. In terms of data transmission, [wreq-python] implements Python's [Buffer] Protocol, supporting zero-copy transmission, further enhancing performance.
-
-
 ## License
 
 Licensed under either of Apache License, Version 2.0 ([LICENSE](./LICENSE) or http://www.apache.org/licenses/LICENSE-2.0).
