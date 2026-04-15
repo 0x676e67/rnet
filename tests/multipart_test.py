@@ -21,7 +21,9 @@ async def test_reuse_multipart_with_clonable_parts():
     form = Multipart(
         Part(name="a", value="1"),
         Part(name="b", value=b"2"),
-        Part(name="c", value=Path("./README.md"), filename="README.md", mime="text/plain"),
+        Part(
+            name="c", value=Path("./README.md"), filename="README.md", mime="text/plain"
+        ),
     )
 
     for _ in range(3):
