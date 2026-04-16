@@ -1,4 +1,4 @@
-# wreq-python
+# wreq
 
 [![CI](https://github.com/0x676e67/wreq-python/actions/workflows/ci.yml/badge.svg)](https://github.com/0x676e67/wreq-python/actions/workflows/ci.yml)
 ![PyPI - License](https://img.shields.io/pypi/l/wreq)
@@ -11,7 +11,7 @@
 
 > 🚀 Help me work seamlessly with open source sharing by [sponsoring me on GitHub](https://github.com/0x676e67/0x676e67/blob/main/SPONSOR.md)
 
-An ergonomic and modular Python HTTP client for advanced and low-level emulation, featuring customizable TLS, JA3/JA4, and HTTP/2 fingerprinting capabilities, powered by [wreq](https://github.com/0x676e67/wreq).
+An ergonomic and modular Python HTTP Client for high-fidelity protocol matching, featuring customizable TLS, JA3/JA4, and HTTP/2 signature capabilities, powered by [wreq](https://github.com/0x676e67/wreq).
 
 ## Features
 
@@ -70,11 +70,11 @@ Additional learning resources include:
 
 1. **HTTP/2 over TLS**
 
-Due to the complexity of TLS encryption and the widespread adoption of HTTP/2, browser fingerprints such as **JA3**, **JA4**, and **Akamai** cannot be reliably emulated using simple fingerprint strings. Instead of parsing and emulating these string-based fingerprints, `wreq-python` provides fine-grained control over TLS and HTTP/2 extensions and settings for precise browser behavior emulation.
+Due to the complexity of TLS encryption and the widespread adoption of HTTP/2, browser fingerprints such as **JA3**, **JA4**, and **Akamai** cannot be reliably emulated using simple fingerprint strings. Instead of parsing and emulating these string-based fingerprints, `wreq` provides fine-grained control over TLS and HTTP/2 extensions and settings for precise browser behavior emulation.
 
 2. **Device Emulation**
 
-**TLS** and **HTTP/2** fingerprints are often identical across various browser models because these underlying protocols evolve slower than browser release cycles. **100+ browser device emulation profiles** are maintained in **wreq-python**.
+**TLS** and **HTTP/2** fingerprints are often identical across various browser models because these underlying protocols evolve slower than browser release cycles. **100+ browser device emulation [profiles](https://python.wreq.org/en/latest/getting-started/introduction/#behavior)** are maintained in **wreq**.
 
 ## Building
 

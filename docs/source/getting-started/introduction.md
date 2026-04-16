@@ -1,4 +1,4 @@
-# Introduction
+# wreq
 
 [![CI](https://github.com/0x676e67/wreq-python/actions/workflows/ci.yml/badge.svg)](https://github.com/0x676e67/wreq-python/actions/workflows/ci.yml)
 ![PyPI - License](https://img.shields.io/pypi/l/wreq)
@@ -11,8 +11,7 @@
 
 > 🚀 Help me work seamlessly with open source sharing by [sponsoring me on GitHub](https://github.com/0x676e67/0x676e67/blob/main/SPONSOR.md)
 
-
-An ergonomic and modular **Python** HTTP Client for advanced and low-level emulation, featuring customizable **TLS**, **JA3/JA4**, and **HTTP/2** fingerprinting capabilities, powered by [wreq].
+An ergonomic and modular Python HTTP Client for high-fidelity protocol matching, featuring customizable TLS, JA3/JA4, and HTTP/2 signature capabilities, powered by [wreq](https://github.com/0x676e67/wreq).
 
 ## Features
 
@@ -36,24 +35,24 @@ An ergonomic and modular **Python** HTTP Client for advanced and low-level emula
 ## Why wreq?
 
 
-1. When your **HTTP** requests succeed in a browser but get blocked in Python due to network fingerprint issues, this tool bridges the gap. [wreq-python] allows you to customize your **TLS**, **JA3/JA4**, and **HTTP/2** fingerprints to mimic real browsers, making it ideal for web scraping, penetration testing, and security research.
+1. When your **HTTP** requests succeed in a browser but get blocked in Python due to network fingerprint issues, this tool bridges the gap. [wreq] allows you to customize your **TLS**, **JA3/JA4**, and **HTTP/2** fingerprints to mimic real browsers, making it ideal for web scraping, penetration testing, and security research.
 
 2. The standard **HTTP Client**, such as [requests] and [httpx], have different network fingerprints from browsers. The main differences lie in **TLS handshake**, **HTTP/2 frame characteristics**, and **JA3/JA4** fingerprints. Browsers use specific encryption suites and extensions in the TLS handshake, while standard HTTP clients may use different default settings, causing servers to recognize and block these requests.
 
-3. [wreq-python] uses the **BoringSSL** library, which is fully sufficient to set TLS fingerprints that match mainstream browsers while maintaining native performance.
+3. [wreq] uses the **BoringSSL** library, which is fully sufficient to set TLS fingerprints that match mainstream browsers while maintaining native performance.
 
-4. In addition, the basic functions of [wreq-python] are similar to those of the standard **HTTP Client**, offering a wide range of features such as connection pooling, redirection policies, Cookie storage, and streaming transmission, which can meet various complex HTTP request requirements.
+4. In addition, the basic functions of [wreq] are similar to those of the standard **HTTP Client**, offering a wide range of features such as connection pooling, redirection policies, Cookie storage, and streaming transmission, which can meet various complex HTTP request requirements.
 
 
 ## Behavior
 
 1. **HTTP/2 over TLS**
 
-Due to the complexity of **TLS** encryption and the widespread adoption of **HTTP/2**, browser fingerprints such as **JA3**, **JA4**, and **Akamai** cannot be reliably emulated using simple fingerprint strings. Instead of parsing and emulating these string-based fingerprints, [wreq-python] provides fine-grained control over **TLS** and **HTTP/2** extensions and settings for precise browser behavior emulation.
+Due to the complexity of **TLS** encryption and the widespread adoption of **HTTP/2**, browser fingerprints such as **JA3**, **JA4**, and **Akamai** cannot be reliably emulated using simple fingerprint strings. Instead of parsing and emulating these string-based fingerprints, [wreq] provides fine-grained control over **TLS** and **HTTP/2** extensions and settings for precise browser behavior emulation.
 
 2. **Device Emulation**
 
-**TLS** and **HTTP/2** fingerprints are often identical across various browser models because these underlying protocols evolve slower than browser release cycles. **100+ browser device emulation profiles** are maintained in **[wreq-python]**.
+**TLS** and **HTTP/2** fingerprints are often identical across various browser models because these underlying protocols evolve slower than browser release cycles. **100+ browser device emulation profiles** are maintained in **[wreq]**.
 
 ???+ note "Available OS emulations"
 
@@ -110,15 +109,6 @@ Due to the complexity of **TLS** encryption and the widespread adoption of **HTT
     </div>
 
 
-## Performance
-
-1. [wreq-python] This is designed to achieve high performance, leveraging the efficiency of the **BoringSSL** library in **TLS** operations and optimized **HTTP/2** processing. Although its running speed may not be comparable to that of low-level languages like **Rust** or **C++**, it offers significant performance improvements compared to traditional Python **HTTP** clients. 
-
-2. In terms of API module design, [wreq-python] adopts dual support for both asynchronous and blocking clients, allowing developers to choose the appropriate programming model according to their needs.
-
-3. API calls have made every effort to release the [GIL], which means that performance can be maximally exploited. In terms of data transmission, [wreq-python] implements Python's [Buffer] Protocol, supporting zero-copy transmission, further enhancing performance.
-
-
 ## License
 
 Licensed under either of Apache License, Version 2.0 ([LICENSE](./LICENSE) or http://www.apache.org/licenses/LICENSE-2.0).
@@ -128,8 +118,7 @@ Licensed under either of Apache License, Version 2.0 ([LICENSE](./LICENSE) or ht
 Unless you explicitly state otherwise, any contribution intentionally submitted for inclusion in the work by you, as defined in the [Apache-2.0](./LICENSE) license, shall be licensed as above, without any additional terms or conditions.
 
 
-[wreq]: https://github.com/0x676e67/wreq
-[wreq-python]: https://github.com/0x676e67/wreq-python
+[wreq]: https://github.com/0x676e67/wreq-python
 [requests]: https://github.com/psf/requests
 [httpx]: https://github.com/encode/httpx
 [Buffer]: https://docs.python.org/3/c-api/buffer.html
