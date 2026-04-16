@@ -16,7 +16,7 @@ wreq supports both async and blocking usage. The async client is the default and
     async def main():
         client = Client()
         response = await client.get("https://httpbin.org/get")
-        print(response.status_code)
+        print(response.status)
 
     asyncio.run(main())
     ```
