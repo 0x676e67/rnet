@@ -131,7 +131,7 @@ from wreq import Proxy
 async def main():
     resp = await wreq.get(
         "http://localhost/v1.41/containers/json",
-        proxy=Proxy.unix("/var/run/docker.sock"),
+        proxies=[Proxy.unix("/var/run/docker.sock")],
     )
     print(await resp.text())
 
