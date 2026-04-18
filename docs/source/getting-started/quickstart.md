@@ -98,6 +98,15 @@ print(response.headers["content-type"])
 
 Pass a dictionary to the `json` argument and wreq will serialize it and set the correct `Content-Type` header automatically:
 
+The [Proxy](../guide/proxy.md) object defines how your HTTP client routes traffic through a proxy server.
+You create one using a named constructor that specifies the scope:
+
+- `Proxy.all(url)` - routes all traffic through the given proxy
+- `Proxy.http(url)` - only intercepts HTTP requests
+- `Proxy.https(url)` - only intercepts HTTPS requests
+
+Once created, you pass it to the `Client` and all requests will go through it automatically.
+
 ```python
 payload = {"name": "John", "age": 30}
 response = await client.post("https://httpbin.org/post", json=payload)
@@ -186,6 +195,5 @@ except Exception as exc:
 
 ## Next Steps
 
-- [Examples](../guide/basic.md) for more complete code samples
-- [API Reference](../api/wreq.md) for a full list of parameters and types
-- [Proxy guide](../guide/proxy.md) for advanced proxy configuration
+- See the [Examples](../guide/basic.md) for more code samples
+- Explore the [API Reference](../api/wreq.md) for detailed documentation

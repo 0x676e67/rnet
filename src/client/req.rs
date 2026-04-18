@@ -396,7 +396,7 @@ where
         apply_option!(
             set_if_some,
             builder,
-            request.multipart.and_then(|form| form.0),
+            request.multipart.and_then(|form| form.form),
             multipart
         );
         apply_option!(

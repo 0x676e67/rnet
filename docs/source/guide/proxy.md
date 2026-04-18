@@ -74,13 +74,13 @@ client = Client(proxies=[proxy])
 ```python
 # SOCKS5
 client = Client(
-    proxies=[Proxy.http("socks5://username:password@127.0.0.1:1080")]
+    proxies=[Proxy.all("socks5://username:password@127.0.0.1:1080")]
 )
 
 
 # SOCKS5h (DNS also resolved by the proxy)
 client = Client(
-    proxies=[Proxy.http("socks5h://username:password@127.0.0.1:6152")]
+    proxies=[Proxy.all("socks5h://username:password@127.0.0.1:6152")]
 )
 ```
 
@@ -100,8 +100,7 @@ from wreq import Proxy
 async def main():
     resp = await wreq.get(
         "https://httpbin.io/anything",
-        proxies=[
-            Proxy.all(
+        proxy=Proxy.all(
                 url="http://127.0.0.1:6152",
                 custom_http_headers={
                     "user-agent": "wreq",
@@ -110,7 +109,6 @@ async def main():
                     "x-proxy": "wreq",
                 },
             )
-        ],
     )
     print(await resp.text())
 
@@ -141,16 +139,3 @@ asyncio.run(main())
 ```
 
 Even though the URL says `http://localhost`, the request never touches the network. It goes directly through the socket file at the given path.
-
----
-
-## Choosing the right constructor
-
-Each constructor controls which requests are intercepted by the proxy:
-
-| Constructor | Intercepts |
-|---|---|
-| `Proxy.all(url)` | All requests (HTTP + HTTPS) |
-| `Proxy.http(url)` | HTTP requests only |
-| `Proxy.https(url)` | HTTPS requests only |
-| `Proxy.unix(path)` | Requests via a Unix socket |
