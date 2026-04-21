@@ -4,11 +4,14 @@ We're grateful for the support of our sponsors who help make this project possib
 
 ---
 
+
+## [Scrape.do](https://scrape.do/?utm_source=github&utm_medium=wreq)
+
 <a href="https://scrape.do/?utm_source=github&utm_medium=wreq" target="_blank">
   <img src="https://raw.githubusercontent.com/0x676e67/wreq-python/main/.github/assets/scrapedo.svg" width="149" height="47">
 </a>
 
-**[Scrape.do](https://scrape.do/?utm_source=github&utm_medium=wreq)** is the ultimate toolkit for collecting public data at scale. Unmatched speed, unbeatable prices, unblocked access.
+Scrape.do is the ultimate toolkit for collecting public data at scale. Unmatched speed, unbeatable prices, unblocked access.
 
 One line of code. Instant data access
 
@@ -18,11 +21,14 @@ One line of code. Instant data access
 
 ---
 
+
+## [EzCaptcha](https://www.ez-captcha.com/?r=github-wreq)
+
 <a href="https://www.ez-captcha.com" target="_blank">
   <img src="https://www.ez-captcha.com/siteLogo.png" height="47" width="47">
 </a>
 
-Captcha solving can be slow and unreliable, but **[EzCaptcha](https://www.ez-captcha.com/?r=github-wreq)** delivers fast, reliable solving through a simple API — supporting a wide range of captcha types with no complex integration required.  
+Captcha solving can be slow and unreliable, but EzCaptcha delivers fast, reliable solving through a simple API — supporting a wide range of captcha types with no complex integration required.  
 
 **ReCaptcha** • **FunCaptcha** • **CloudFlare** • **Akamai** • **AkamaiSbsd** • **HCaptcha**  
 
@@ -32,11 +38,14 @@ Designed for developers, it offers high accuracy, low price, low latency, and ea
 
 ---
 
+
+## [RapidProxy](https://www.rapidproxy.io/?ref=wreq)
+
 <a href="https://www.rapidproxy.io/?ref=wreq" target="_blank">
 <img src="https://raw.githubusercontent.com/0x676e67/wreq-python/main/.github/assets/rapidproxy.png" width="140", height="60">
 </a>
 
-**[RapidProxy](https://www.rapidproxy.io/?ref=wreq)** delivers fast, reliable proxy infrastructure for large-scale data operations. With high concurrency, non-expiring traffic, and AI-powered CAPTCHA bypass, it ensures efficient, uninterrupted data collection—trusted by developers worldwide.
+RapidProxy delivers fast, reliable proxy infrastructure for large-scale data operations. With high concurrency, non-expiring traffic, and AI-powered CAPTCHA bypass, it ensures efficient, uninterrupted data collection—trusted by developers worldwide.
 
 **90M+ Residential IPs** • **Smart Rotation** • **High Success Rate** • **Built for Scale**
 
@@ -46,11 +55,14 @@ Designed for developers, it offers high accuracy, low price, low latency, and ea
 
 ---
 
+
+## [Swiftproxy](https://www.swiftproxy.net/?ref=wreqpython)
+
 <a href="https://www.swiftproxy.net/?ref=wreqpython" target="_blank">
 <img src="https://raw.githubusercontent.com/0x676e67/wreq-python/main/.github/assets/swiftproxy.png" width="149" height="40">
 </a>
 
-**[Swiftproxy](https://www.swiftproxy.net/?ref=wreqpython)** powers your web scraping with reliable residential proxies, giving you access to a dependable pool of residential IPs for efficient data extraction while delivering high success rates, anti-ban protection, and automatic rotation at scale.
+Swiftproxy powers your web scraping with reliable residential proxies, giving you access to a dependable pool of residential IPs for efficient data extraction while delivering high success rates, anti-ban protection, and automatic rotation at scale.
 
 **Global Residential IPs** • **Auto Rotation** • **Anti-Ban** • **Scraping at Scale**
 
@@ -60,25 +72,13 @@ Designed for developers, it offers high accuracy, low price, low latency, and ea
 
 ---
 
-<a href="https://www.thordata.com/products/residential-proxies?ls=github&lk=wreq" target="_blank">
-<img src="https://raw.githubusercontent.com/0x676e67/wreq-python/main/.github/assets/thordata.svg" width="149" height="45">
-</a>
-
-**[Thordata](https://www.google.com/url?q=https://www.thordata.com/?ls%3Dgithub%26lk%3Dwreq&sa=D&source=editors&ust=1768812458958099&usg=AOvVaw1VwMpnrjCaf7iWbVsM5V0k)**: Get Reliable Global Proxies at an Unbeatable Value. 
-
-One-click data collection with enterprise-grade stability and compliance. Join thousands of developers using ThorData for high-scale operations.
-
-**Exclusive Offer**: Sign up for a free Residential Proxy trial and 2,000 FREE SERP API calls!
-
-**[Linkedin](https://www.linkedin.com/company/thordata/?viewAsMember=true)** | **[Discord](https://discord.gg/t9qnNKfurd)** | **[Telegram](https://t.me/thordataproxy)**
-
----
+## [Salamoonder](https://salamoonder.com/)
 
 <a href="https://salamoonder.com/" target="_blank">
   <img src="https://salamoonder.com/auth/assets/images/3d_logo.png" height="47" width="47">
 </a>
 
-Anti-bots evolve quickly, but **[Salamoonder](https://salamoonder.com/)** moves faster, delivering reliable anti-bot tokens with just two API requests — no browser automation or unnecessary complexity required.  
+Anti-bots evolve quickly, but Salamoonder moves faster, delivering reliable anti-bot tokens with just two API requests — no browser automation or unnecessary complexity required.  
 
 **Kasada** • **Incapsula** • **Datadome** • **Akamai** • **And many more**  
 
@@ -89,9 +89,12 @@ Automatic updates keep your integration simple and low-maintenance, and it’s n
 
 ---
 
+
+## [Hyper Solutions](https://hypersolutions.co?utm_source=github&utm_medium=readme&utm_campaign=wreq)
+
 <a href="https://hypersolutions.co/?utm_source=github&utm_medium=readme&utm_campaign=wreq" target="_blank"><img src="https://raw.githubusercontent.com/0x676e67/wreq-python/main/.github/assets/hypersolutions.jpg" height="47" width="149"></a>
 
-TLS fingerprinting alone isn't enough for modern bot protection. **[Hyper Solutions](https://hypersolutions.co?utm_source=github&utm_medium=readme&utm_campaign=wreq)** provides the missing piece - API endpoints that generate valid antibot tokens for:
+TLS fingerprinting alone isn't enough for modern bot protection. Hyper Solutions provides the missing piece - API endpoints that generate valid antibot tokens for:
 
 **Akamai** • **DataDome** • **Kasada** • **Incapsula**
 

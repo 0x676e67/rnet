@@ -179,21 +179,6 @@ Designed for developers, it offers high accuracy, low price, low latency, and ea
 
 ---
 
-<a href="https://www.thordata.com/products/residential-proxies?ls=github&lk=rnet" target="_blank">
-<img src="https://raw.githubusercontent.com/0x676e67/wreq-python/main/.github/assets/thordata.svg" width="149" height="45">
-</a>
-
-
-**[Thordata](https://www.google.com/url?q=https://www.thordata.com/?ls%3Dgithub%26lk%3Drnet&sa=D&source=editors&ust=1768812458958099&usg=AOvVaw1VwMpnrjCaf7iWbVsM5V0k)**: Get Reliable Global Proxies at an Unbeatable Value. 
-
-One-click data collection with enterprise-grade stability and compliance. Join thousands of developers using ThorData for high-scale operations.
-
-**Exclusive Offer**: Sign up for a free Residential Proxy trial and 2,000 FREE SERP API calls!
-
-**[Linkedin](https://www.linkedin.com/company/thordata/?viewAsMember=true)** | **[Discord](https://discord.gg/t9qnNKfurd)** | **[Telegram](https://t.me/thordataproxy)**
-
----
-
 <a href="https://salamoonder.com/" target="_blank">
   <img src="https://salamoonder.com/auth/assets/images/3d_logo.png" height="47" width="47">
 </a>
