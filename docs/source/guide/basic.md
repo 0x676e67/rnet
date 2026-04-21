@@ -136,8 +136,8 @@ headers = HeaderMap()
 headers.insert("Content-Type", "application/json")
  
 # A header can hold multiple values
-headers.insert("Accept", "application/json")
-headers.insert("Accept", "text/html")
+headers.append("Accept", "application/json")
+headers.append("Accept", "text/html")
  
 # Retrieve a single value
 print(headers.get("Content-Type"))
