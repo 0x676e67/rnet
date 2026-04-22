@@ -165,6 +165,20 @@ Designed for developers, it offers high accuracy, low price, low latency, and ea
 
 ---
 
+<a href="https://legionproxy.io/?utm_source=github&utm_campaign=wreq" target="_blank">
+<img src="https://legionproxy.io/Logo.svg"  width="140", height="47">
+</a>
+
+**[LegionProxy](https://legionproxy.io/?utm_source=github&utm_campaign=wreq)** powers your scraping with fast, reliable residential proxies. Get access to 74M+ IPs across 195+ countries, with native HTTP/3 & UDP support, solid anti-ban protection, and high success rates at scale.
+
+**Global Residential IPs** • **Auto Rotation** • **Anti-Ban** • **HTTP/3 & UDP** • **Scraping at Scale**
+
+**Key Offer**: Start your free trial today, with pricing as low as $0.6 per GB.
+
+**[Website](https://legionproxy.io/?utm_source=github&utm_campaign=wreq)** | **[Discord](https://discord.gg/5zNMy9a86Z)** | **[Telegram](https://t.me/legionproxy)**
+
+---
+
 <a href="https://www.swiftproxy.net/?ref=wreqpython" target="_blank">
 <img src="https://raw.githubusercontent.com/0x676e67/wreq-python/main/.github/assets/swiftproxy.png" width="149" height="40">
 </a>
@@ -176,21 +190,6 @@ Designed for developers, it offers high accuracy, low price, low latency, and ea
 **Exclusive Offer**: Get 500MB free trial traffic + an exclusive 10% OFF code: PROXY90
 
 **[Linkedin](https://www.linkedin.com/company/swiftproxy/)** | **[Discord](https://discord.com/invite/VdRMfU5RWm)** | **[Telegram](https://t.me/swiftproxy357)**
-
----
-
-<a href="https://www.thordata.com/products/residential-proxies?ls=github&lk=rnet" target="_blank">
-<img src="https://raw.githubusercontent.com/0x676e67/wreq-python/main/.github/assets/thordata.svg" width="149" height="45">
-</a>
-
-
-**[Thordata](https://www.google.com/url?q=https://www.thordata.com/?ls%3Dgithub%26lk%3Drnet&sa=D&source=editors&ust=1768812458958099&usg=AOvVaw1VwMpnrjCaf7iWbVsM5V0k)**: Get Reliable Global Proxies at an Unbeatable Value. 
-
-One-click data collection with enterprise-grade stability and compliance. Join thousands of developers using ThorData for high-scale operations.
-
-**Exclusive Offer**: Sign up for a free Residential Proxy trial and 2,000 FREE SERP API calls!
-
-**[Linkedin](https://www.linkedin.com/company/thordata/?viewAsMember=true)** | **[Discord](https://discord.gg/t9qnNKfurd)** | **[Telegram](https://t.me/thordataproxy)**
 
 ---
 
