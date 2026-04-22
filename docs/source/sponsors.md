@@ -55,6 +55,21 @@ RapidProxy delivers fast, reliable proxy infrastructure for large-scale data ope
 
 ---
 
+## [LegionProxy](https://legionproxy.io/?utm_source=github&utm_campaign=wreq)
+
+<a href="https://legionproxy.io/?utm_source=github&utm_campaign=wreq" target="_blank">
+<img src="https://legionproxy.io/Logo.svg"  width="140", height="47">
+</a>
+
+**[LegionProxy](https://legionproxy.io/?utm_source=github&utm_campaign=wreq)** powers your scraping with fast, reliable residential proxies. Get access to 74M+ IPs across 195+ countries, with native HTTP/3 & UDP support, solid anti-ban protection, and high success rates at scale.
+
+**Global Residential IPs** • **Auto Rotation** • **Anti-Ban** • **HTTP/3 & UDP** • **Scraping at Scale**
+
+**Key Offer**: Start your free trial today, with pricing as low as $0.6 per GB.
+
+**[Website](https://legionproxy.io/?utm_source=github&utm_campaign=wreq)** | **[Discord](https://discord.gg/5zNMy9a86Z)** | **[Telegram](https://t.me/legionproxy)**
+
+---
 
 ## [Swiftproxy](https://www.swiftproxy.net/?ref=wreqpython)
 
