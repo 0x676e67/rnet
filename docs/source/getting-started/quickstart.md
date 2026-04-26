@@ -83,10 +83,10 @@ print(data)
 
 ### Response headers
 
-Response headers are available as a dictionary-like object:
+Response headers are available as a [HeaderMap](../api/header/?h=HeaerMap#wreq.header.HeaderMap) object:
 
 ```python
-print(response.headers["content-type"])
+print(response.headers.get("content-type"))
 # application/json
 ```
 
