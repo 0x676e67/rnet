@@ -104,7 +104,6 @@ class Profile(Enum):
     Firefox147 = auto()
     Firefox148 = auto()
     Firefox149 = auto()
-    Firefox150 = auto()
 
     # Safari versions
     SafariIos17_2 = auto()
@@ -269,7 +268,6 @@ class Emulation:
     Firefox147: ClassVar[Profile] = Profile.Firefox147
     Firefox148: ClassVar[Profile] = Profile.Firefox148
     Firefox149: ClassVar[Profile] = Profile.Firefox149
-    Firefox150: ClassVar[Profile] = Profile.Firefox150
 
     # Safari versions
     SafariIos17_2: ClassVar[Profile] = Profile.SafariIos17_2
