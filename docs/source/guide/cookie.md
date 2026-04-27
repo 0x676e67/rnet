@@ -7,7 +7,7 @@ sending cookies with requests, and managing a persistent cookie store across a s
 
 ## The Cookie Object
 
-A `Cookie` represents a single HTTP cookie. You can create one manually to
+A [Cookie](../api/cookie/#wreq.cookie.Cookie) represents a single HTTP cookie. You can create one manually to
 pre-populate a jar or to send it with a specific request.
 
 ```python
@@ -95,8 +95,8 @@ Cookies passed this way apply only to that request and are not persisted.
 
 ## Persistent Cookie Store with Jar
 
-For sessions that span multiple requests — such as logging in and then
-accessing protected pages — use a `Jar`. The jar stores cookies received from
+For sessions that span multiple requests - such as logging in and then
+accessing protected pages - use a [Jar](../api/cookie/#wreq.cookie.Jar). The jar stores cookies received from
 servers and sends them back automatically on subsequent requests.
 
 ### Enabling automatic cookie handling
@@ -227,6 +227,5 @@ This is handled automatically. You do not need to change your code based on the 
 
 ## Next Steps
 
-- [API Reference](../api/wreq.md) for the full `Cookie`, `Jar`, and `Client` signatures
-- [Basic Usage](../guide/basic.md) for request patterns
-- [Proxy guide](../guide/proxy.md) for routing requests through a proxy server
+- See the [Examples](../guide/basic.md) for more code samples
+- Explore the [API Reference](../api/wreq.md) for detailed documentation
