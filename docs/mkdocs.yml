@@ -103,9 +103,10 @@ nav:
       - Basic Usage: guide/basic.md
       - Emulation: guide/emulation.md
       - Authentication: guide/auth.md
-      - WebSocket: guide/websocket.md
+      - Cookie: guide/cookie.md
       - Proxy: guide/proxy.md
       - Redirect & Errors: guide/redirect-errors.md
+      - WebSocket: guide/websocket.md
       - Advanced Features: guide/advanced.md
       - Blocking/Sync API: guide/blocking.md
   - API Reference:
