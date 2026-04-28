@@ -79,6 +79,9 @@ To attach cookies to a single request without a persistent store, pass a
 dictionary or a raw cookie string to the `cookies` argument:
 
 ```python
+import asyncio
+from wreq import Client
+
 async def main():
     client = Client()
 
