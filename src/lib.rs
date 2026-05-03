@@ -51,7 +51,7 @@ use pyo3::{
 use tikv_jemallocator as _;
 use tls::{
     AlpnProtocol, AlpsProtocol, CertStore, CertificateCompressionAlgorithm, ExtensionType,
-    Identity, KeyLog, TlsInfo, TlsOptions, TlsVersion,
+    Identity, KeyLog, KeyShare, TlsInfo, TlsOptions, TlsVersion,
 };
 
 #[cfg(all(feature = "jemalloc", feature = "mimalloc"))]
@@ -445,6 +445,7 @@ fn tls_module(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<KeyLog>()?;
     m.add_class::<AlpnProtocol>()?;
     m.add_class::<AlpsProtocol>()?;
+    m.add_class::<KeyShare>()?;
     m.add_class::<CertificateCompressionAlgorithm>()?;
     m.add_class::<ExtensionType>()?;
     m.add_class::<TlsOptions>()?;
