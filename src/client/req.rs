@@ -6,10 +6,10 @@ use std::{
 use futures_util::TryFutureExt;
 use http::header::COOKIE;
 use pyo3::{PyResult, prelude::*, pybacked::PyBackedStr};
-use wreq::Client;
 
 use crate::{
     client::{
+        Client,
         body::{Body, Form, Json, multipart::Multipart},
         query::Query,
         resp::{Response, WebSocket},
@@ -294,7 +294,7 @@ where
     U: AsRef<str>,
 {
     // Create the request builder.
-    let mut builder = client.request(method.into_ffi(), url.as_ref());
+    let mut builder = client.inner.request(method.into_ffi(), url.as_ref());
 
     if let Some(mut request) = request {
         // Emulation options.
@@ -412,6 +412,13 @@ where
     builder
         .send()
         .await
+        .and_then(|r| {
+            if client.raise_for_status {
+                r.error_for_status()
+            } else {
+                Ok(r)
+            }
+        })
         .map(Response::new)
         .map_err(Error::Library)
         .map_err(Into::into)
@@ -426,7 +433,7 @@ where
     U: AsRef<str>,
 {
     // Create the WebSocket builder.
-    let mut builder = client.websocket(url.as_ref());
+    let mut builder = client.inner.websocket(url.as_ref());
 
     if let Some(mut request) = request {
         // Emulation options.

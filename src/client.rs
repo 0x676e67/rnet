@@ -72,6 +72,8 @@ struct Builder {
     referer: Option<bool>,
     /// Whether to redirect policy.
     redirect: Option<redirect::Policy>,
+    /// Whether to raise for status.
+    raise_for_status: Option<bool>,
 
     // ========= Cookie options =========
     /// Whether to use cookie store.
@@ -176,6 +178,7 @@ impl FromPyObject<'_, '_> for Builder {
         extract_option!(ob, builder, orig_headers);
         extract_option!(ob, builder, referer);
         extract_option!(ob, builder, redirect);
+        extract_option!(ob, builder, raise_for_status);
 
         extract_option!(ob, builder, cookie_store);
         extract_option!(ob, builder, cookie_provider);
@@ -232,6 +235,7 @@ impl FromPyObject<'_, '_> for Builder {
 pub struct Client {
     inner: wreq::Client,
     cancel: CancellationToken,
+    raise_for_status: bool,
 
     /// Get the cookie jar of the client.
     #[pyo3(get)]
@@ -255,6 +259,7 @@ impl Client {
             // Create the client builder.
             let mut builder = wreq::Client::builder();
             let mut cookie_jar: Option<Jar> = None;
+            let mut raise_for_status = false;
 
             if let Some(mut config) = kwds {
                 // Emulation options.
@@ -450,6 +455,8 @@ impl Client {
                 apply_option!(set_if_some, builder, config.brotli, brotli);
                 apply_option!(set_if_some, builder, config.deflate, deflate);
                 apply_option!(set_if_some, builder, config.zstd, zstd);
+
+                raise_for_status = config.raise_for_status.unwrap_or(false);
             }
 
             builder
@@ -458,6 +465,7 @@ impl Client {
                     inner,
                     cancel: CancellationToken::new(),
                     cookie_jar,
+                    raise_for_status,
                 })
                 .map_err(Error::Library)
                 .map_err(Into::into)
@@ -577,7 +585,7 @@ impl Client {
         kwds: Option<Request>,
     ) -> PyResult<Response> {
         NoGIL::new_with_token(
-            execute_request(self.inner.clone(), method, url, kwds),
+            execute_request(self.clone(), method, url, kwds),
             cancel,
             self.cancel.clone(),
         )
@@ -594,7 +602,7 @@ impl Client {
         kwds: Option<WebSocketRequest>,
     ) -> PyResult<WebSocket> {
         NoGIL::new_with_token(
-            execute_websocket_request(self.inner.clone(), url, kwds),
+            execute_websocket_request(self.clone(), url, kwds),
             cancel,
             self.cancel.clone(),
         )
@@ -747,7 +755,7 @@ impl BlockingClient {
     ) -> PyResult<BlockingResponse> {
         py.detach(|| {
             pyo3_async_runtimes::tokio::get_runtime()
-                .block_on(execute_request(self.0.inner.clone(), method, url, kwds))
+                .block_on(execute_request(self.0.clone(), method, url, kwds))
                 .map(Into::into)
         })
     }
@@ -762,7 +770,7 @@ impl BlockingClient {
     ) -> PyResult<BlockingWebSocket> {
         py.detach(|| {
             pyo3_async_runtimes::tokio::get_runtime()
-                .block_on(execute_websocket_request(self.0.inner.clone(), url, kwds))
+                .block_on(execute_websocket_request(self.0.clone(), url, kwds))
                 .map(Into::into)
         })
     }
