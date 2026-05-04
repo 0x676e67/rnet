@@ -868,11 +868,6 @@ class Request(TypedDict):
     The redirect policy.
     """
 
-    raise_for_status: NotRequired[bool]
-    """
-    Raise for status.
-    """
-
     cookie_provider: NotRequired[Jar]
     """
     Set cookie provider for the request.

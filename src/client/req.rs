@@ -67,9 +67,6 @@ pub struct Request {
     /// The redirect policy to use for the request.
     redirect: Option<redirect::Policy>,
 
-    /// The option enables raise for status.
-    raise_for_status: Option<bool>,
-
     /// The cookie provider to use for the request.
     cookie_provider: Option<Jar>,
 
@@ -234,7 +231,6 @@ impl FromPyObject<'_, '_> for Request {
         extract_option!(ob, request, default_headers);
         extract_option!(ob, request, cookies);
         extract_option!(ob, request, redirect);
-        extract_option!(ob, request, raise_for_status);
         extract_option!(ob, request, cookie_provider);
         extract_option!(ob, request, auth);
         extract_option!(ob, request, bearer_auth);
