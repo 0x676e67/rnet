@@ -67,6 +67,9 @@ pub struct Request {
     /// The redirect policy to use for the request.
     redirect: Option<redirect::Policy>,
 
+    /// The option enables raise for status.
+    raise_for_status: Option<bool>,
+
     /// The cookie provider to use for the request.
     cookie_provider: Option<Jar>,
 
@@ -231,6 +234,7 @@ impl FromPyObject<'_, '_> for Request {
         extract_option!(ob, request, default_headers);
         extract_option!(ob, request, cookies);
         extract_option!(ob, request, redirect);
+        extract_option!(ob, request, raise_for_status);
         extract_option!(ob, request, cookie_provider);
         extract_option!(ob, request, auth);
         extract_option!(ob, request, bearer_auth);
@@ -289,6 +293,7 @@ pub async fn execute_request<U>(
     method: Method,
     url: U,
     request: Option<Request>,
+    mut raise_for_status: bool,
 ) -> PyResult<Response>
 where
     U: AsRef<str>,
@@ -381,6 +386,11 @@ where
         // Allow redirects options.
         apply_option!(set_if_some_inner, builder, request.redirect, redirect);
 
+        // Allow raise for status options.
+        if let Some(value) = request.raise_for_status.take() {
+            raise_for_status = value;
+        }
+
         // Compression options.
         apply_option!(set_if_some, builder, request.gzip, gzip);
         apply_option!(set_if_some, builder, request.brotli, brotli);
@@ -409,10 +419,13 @@ where
     }
 
     // Send request.
-    builder
-        .send()
-        .await
-        .map(Response::new)
+    let resp = builder.send().await;
+    let resp = if raise_for_status {
+        resp.and_then(|r| r.error_for_status())
+    } else {
+        resp
+    };
+    resp.map(Response::new)
         .map_err(Error::Library)
         .map_err(Into::into)
 }

@@ -536,6 +536,11 @@ class ClientConfig(TypedDict):
     Set a `redirect.Policy` for this client.
     """
 
+    raise_for_status: NotRequired[bool]
+    """
+    Enable or disable automatic raising of exceptions for HTTP status codes.
+    """
+
     cookie_store: NotRequired[bool]
     """
     Enable a persistent cookie store for the client.
@@ -861,6 +866,11 @@ class Request(TypedDict):
     redirect: NotRequired[redirect.Policy]
     """
     The redirect policy.
+    """
+
+    raise_for_status: NotRequired[bool]
+    """
+    Raise for status.
     """
 
     cookie_provider: NotRequired[Jar]
