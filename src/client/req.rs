@@ -6,10 +6,10 @@ use std::{
 use futures_util::TryFutureExt;
 use http::header::COOKIE;
 use pyo3::{PyResult, prelude::*, pybacked::PyBackedStr};
-use wreq::Client;
 
 use crate::{
     client::{
+        Client,
         body::{Body, Form, Json, multipart::Multipart},
         query::Query,
         resp::{Response, WebSocket},
@@ -293,13 +293,12 @@ pub async fn execute_request<U>(
     method: Method,
     url: U,
     request: Option<Request>,
-    mut raise_for_status: bool,
 ) -> PyResult<Response>
 where
     U: AsRef<str>,
 {
     // Create the request builder.
-    let mut builder = client.request(method.into_ffi(), url.as_ref());
+    let mut builder = client.inner.request(method.into_ffi(), url.as_ref());
 
     if let Some(mut request) = request {
         // Emulation options.
@@ -386,11 +385,6 @@ where
         // Allow redirects options.
         apply_option!(set_if_some_inner, builder, request.redirect, redirect);
 
-        // Allow raise for status options.
-        if let Some(value) = request.raise_for_status.take() {
-            raise_for_status = value;
-        }
-
         // Compression options.
         apply_option!(set_if_some, builder, request.gzip, gzip);
         apply_option!(set_if_some, builder, request.brotli, brotli);
@@ -419,13 +413,17 @@ where
     }
 
     // Send request.
-    let resp = builder.send().await;
-    let resp = if raise_for_status {
-        resp.and_then(|r| r.error_for_status())
-    } else {
-        resp
-    };
-    resp.map(Response::new)
+    builder
+        .send()
+        .await
+        .and_then(|r| {
+            if client.raise_for_status {
+                r.error_for_status()
+            } else {
+                Ok(r)
+            }
+        })
+        .map(Response::new)
         .map_err(Error::Library)
         .map_err(Into::into)
 }
@@ -439,7 +437,7 @@ where
     U: AsRef<str>,
 {
     // Create the WebSocket builder.
-    let mut builder = client.websocket(url.as_ref());
+    let mut builder = client.inner.websocket(url.as_ref());
 
     if let Some(mut request) = request {
         // Emulation options.

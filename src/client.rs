@@ -235,11 +235,11 @@ impl FromPyObject<'_, '_> for Builder {
 pub struct Client {
     inner: wreq::Client,
     cancel: CancellationToken,
+    raise_for_status: bool,
 
     /// Get the cookie jar of the client.
     #[pyo3(get)]
     cookie_jar: Option<Jar>,
-    raise_for_status: bool,
 }
 
 /// A blocking client for making HTTP requests.
@@ -585,7 +585,7 @@ impl Client {
         kwds: Option<Request>,
     ) -> PyResult<Response> {
         NoGIL::new_with_token(
-            execute_request(self.inner.clone(), method, url, kwds, self.raise_for_status),
+            execute_request(self.clone(), method, url, kwds),
             cancel,
             self.cancel.clone(),
         )
@@ -602,7 +602,7 @@ impl Client {
         kwds: Option<WebSocketRequest>,
     ) -> PyResult<WebSocket> {
         NoGIL::new_with_token(
-            execute_websocket_request(self.inner.clone(), url, kwds),
+            execute_websocket_request(self.clone(), url, kwds),
             cancel,
             self.cancel.clone(),
         )
@@ -755,13 +755,7 @@ impl BlockingClient {
     ) -> PyResult<BlockingResponse> {
         py.detach(|| {
             pyo3_async_runtimes::tokio::get_runtime()
-                .block_on(execute_request(
-                    self.0.inner.clone(),
-                    method,
-                    url,
-                    kwds,
-                    self.0.raise_for_status,
-                ))
+                .block_on(execute_request(self.0.clone(), method, url, kwds))
                 .map(Into::into)
         })
     }
@@ -776,7 +770,7 @@ impl BlockingClient {
     ) -> PyResult<BlockingWebSocket> {
         py.detach(|| {
             pyo3_async_runtimes::tokio::get_runtime()
-                .block_on(execute_websocket_request(self.0.inner.clone(), url, kwds))
+                .block_on(execute_websocket_request(self.0.clone(), url, kwds))
                 .map(Into::into)
         })
     }
